@@ -15,5 +15,6 @@
 
 void delay_ms(long ms);
 uint32_t millis();
+char* getCmdOption(char ** begin, char ** end, const std::string & option);
 
 #endif /* SRC_UTIL_H_ */
