@@ -1,0 +1,23 @@
+https://github.com/hdavid/Patterns
+http://mziccard.me/2015/05/28/beats-detection-algorithms-1/
+
+
+# Audio file importer
+https://github.com/adamstark/AudioFile
+
+# portable sound library
+https://www.sfml-dev.org
+
+# beat and BPM detection
+https://github.com/adamstark/BTrack
+
+
+
+
+##########################
+# vm und umgebung wie bei manfred
+
+# install samplerate on linux
+>sudo apt-get install libsamplerate-dev 
+>sudo apt-get install libao-dev
+
