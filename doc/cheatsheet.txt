@@ -20,4 +20,4 @@ https://github.com/adamstark/BTrack
 # install samplerate on linux
 >sudo apt-get install libsamplerate-dev 
 >sudo apt-get install libao-dev
-
+>sudo apt-get install freeglut3-dev
