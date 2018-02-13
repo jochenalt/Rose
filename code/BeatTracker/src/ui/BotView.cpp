@@ -248,8 +248,6 @@ void BotView::MotionCallback(int x, int y) {
 	float diffX = (float) (x-lastMouseX);
 	float diffY = (float) (y-lastMouseY);
 
-	cout << "x,y=" << diffX << "," << diffY << endl;
-
 	switch (mousePane) {
 	case VIEW_PANE:
 		WindowController::getInstance().mainBotView.changeEyePosition(0, -diffX, -diffY);
