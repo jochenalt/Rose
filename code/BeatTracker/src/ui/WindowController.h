@@ -35,7 +35,7 @@ public:
 	bool isReady() { return uiReady; };
 	bool setup(int argc, char** argv);
 
-	void sendTargetState();
+	void setBodyPose(const Pose& bodyPose);
 
 	void postRedisplay();
 

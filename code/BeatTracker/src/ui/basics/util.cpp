@@ -99,6 +99,14 @@ milliseconds millis() {
     return mseconds;
 }
 
+
+seconds secondsSinceEpoch() {
+    static auto epoch = std::chrono::high_resolution_clock::from_time_t(0);
+    auto now   = std::chrono::high_resolution_clock::now();
+    auto mseconds = std::chrono::duration_cast<std::chrono::milliseconds>(now - epoch).count();
+    return mseconds/1000.0;
+}
+
 realnum lowpass (realnum oldvalue, realnum newvalue, realnum tau, realnum dT) {
 	realnum alpha = tau/(tau+dT);
 	realnum result = newvalue*(1.0-alpha) + oldvalue * alpha;

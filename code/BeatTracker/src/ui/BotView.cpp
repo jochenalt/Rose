@@ -210,7 +210,7 @@ void BotView::display() {
 	setEyePosition();
 	glMatrixMode(GL_MODELVIEW);
 
-	BotDrawer::getInstance().displayBot();
+	BotDrawer::getInstance().displayBot(bodyPose);
 
 	// coord system
 	drawCoordSystem(true);
@@ -219,6 +219,11 @@ void BotView::display() {
 	glutSwapBuffers(); 	// use double buffering
 
 	glutSetWindow(savedWindowHandle);
+}
+
+
+void BotView::setBodyPose(const Pose& newBodyPose) {
+	bodyPose = newBodyPose;
 }
 
 void BotView::reshape(int x,int y, int w, int h) {

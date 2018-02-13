@@ -6,7 +6,7 @@
  */
 
 #include <iostream>
-
+#include "basics/spatial.h"
 #include <UI.h>
 #include "WindowController.h"
 
@@ -31,4 +31,8 @@ void UI::setup(int argc, char *argv[]) {
 		cerr << "UI initialization failed" << endl;
 		exit(1);
 	}
+}
+
+void UI::setBodyPose(const Pose& bodyPose) {
+	WindowController::getInstance().setBodyPose(bodyPose);
 }

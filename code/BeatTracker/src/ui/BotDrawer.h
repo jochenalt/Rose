@@ -11,6 +11,7 @@
 #define UI_BOTDRAWER_H_
 
 #include "STLObject.h"
+#include "basics/spatial.h"
 
 class BotDrawer {
 public:
@@ -21,10 +22,11 @@ public:
 	}
 
 	// display the bot with the given joint angles in the current openGL window
-	void displayBot();
+	void displayBot(const Pose& bodyPose);
 
 	// setup by looking for the STL files
 	void setup();
+
 private:
 	// read the stl files per actuator in that path
 	void readSTLFiles(string path);

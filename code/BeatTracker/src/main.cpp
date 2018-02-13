@@ -24,6 +24,7 @@
 #include "BTrack.h"
 #include "AudioFile.h"
 #include "UI.h"
+#include "MoveMaker.h"
 
 
 INITIALIZE_EASYLOGGINGPP
@@ -56,7 +57,9 @@ void printUsage() {
 
 
 
-void processAudioFile (string trackFilename, double volume /* [0..1] */) {
+typedef void (*BeatCallbackFct)(bool beat, double Bpm);
+
+void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCallbackFct beatCallback) {
     // load input filec, char *argv
 	AudioFile<double> audioFile;
 	audioFile.load (trackFilename);
@@ -136,10 +139,14 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */) {
 		double elapsedFrameTime = (double)posInputSamples / (double)sampleRate;
 		delay_ms((elapsedFrameTime - elapsedTime)*1000.0);
 
-		if (b.beatDueInCurrentFrame())
+		bool beat = b.beatDueInCurrentFrame();
+		double bpm = b.getCurrentTempoEstimate();
+		if (beat)
 		{
 			cout << std::fixed << std::setprecision(1) << "Beat (" << b.getCurrentTempoEstimate() << ")" << std::setprecision(1) << (elapsedFrameTime) << "s" << endl;
 		};
+		beatCallback(beat, bpm);
+
 	}
 
 	// close audio output
@@ -189,6 +196,15 @@ void setupLogging(int argc, char *argv[]) {
 }
 
 
+bool runUI = false;
+void sendBeatToMoverGenerator(bool beat, double bpm) {
+	MoveMaker& mm = MoveMaker::getInstance();
+	mm.loop(beat, bpm);
+	if (runUI)
+		UI::getInstance().setBodyPose(mm.getBodyPose());
+}
+
+typedef void (*MoveCallbackFct)(bool beat, double Bpm);
 
 
 int main(int argc, char *argv[]) {
@@ -222,10 +238,12 @@ int main(int argc, char *argv[]) {
     	}
     }
 
-    bool runUI = cmdOptionExists(argv, argv + argc, "-ui");
+    runUI = cmdOptionExists(argv, argv + argc, "-ui");
 
     if (runUI)
     	UI::getInstance().setup(argc,argv);
 
-    processAudioFile(trackFilename, volumeArg/100.0);
+    MoveMaker::getInstance().setup();
+
+    processAudioFile(trackFilename, volumeArg/100.0, sendBeatToMoverGenerator);
 }

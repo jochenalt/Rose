@@ -27,7 +27,10 @@ public:
 
 	void MotionCallback(int x, int y);
 	void MouseCallback(int button, int button_state, int x, int y);
+
+	void setBodyPose(const Pose& bodyPose);
 private:
+	Pose bodyPose;
 	void drawCoordSystem(bool withRaster );
 
 	string title;

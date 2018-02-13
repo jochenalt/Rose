@@ -17,7 +17,7 @@
 #include "basics/util.h"
 #include "basics/spatial.h"
 
-void BotDrawer::displayBot( ) {
+void BotDrawer::displayBot(const Pose & bodyPose ) {
 	glPushAttrib(GL_CURRENT_BIT);
 	glPushMatrix();
 
@@ -25,8 +25,6 @@ void BotDrawer::displayBot( ) {
 	glRotatef(-90, 1.0,0.0,0.0);
 	glRotatef(-90, 0.0,0.0,1.0);
 
-	// move to body's centre
-	Pose bodyPose (Point(0,0,100), Rotation(0,0,0));
 
 	glTranslatef(bodyPose.position.x, bodyPose.position.y,bodyPose.position.z);
 
@@ -45,7 +43,6 @@ void BotDrawer::displayBot( ) {
 	glPopMatrix();
 	glPopAttrib();
 }
-
 
 
 void BotDrawer::readSTLFiles(string path) {
@@ -70,3 +67,5 @@ void BotDrawer::setup() {
 		setupDone = true;
 	}
 }
+
+

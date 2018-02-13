@@ -166,6 +166,10 @@ void idleCallback( void )
 }
 
 
+void WindowController::setBodyPose(const Pose& bodyPose) {
+	mainBotView.setBodyPose(bodyPose);
+}
+
 
 GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
