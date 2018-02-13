@@ -30,7 +30,7 @@ private:
 	void readSTLFiles(string path);
 
 
-	STLObject body;
+	STLObject eyes;
 };
 
 #endif /* UI_BOTDRAWER_H_ */

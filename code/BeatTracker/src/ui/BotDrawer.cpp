@@ -37,7 +37,10 @@ void BotDrawer::displayBot( ) {
 
 	glPushMatrix();
 	glTranslatef(0,0,0);
-	body.display(glBotBodyColor,glBotBodyColor);
+	glRotatef(90, 0.0, 1.0, 0.0 );
+	glRotatef(90, 0.0, 0.0, 1.0 );
+
+	eyes.display(glEyesColor,glEyesColor);
 	glPopMatrix();
 	glPopMatrix();
 	glPopAttrib();
@@ -46,23 +49,23 @@ void BotDrawer::displayBot( ) {
 
 
 void BotDrawer::readSTLFiles(string path) {
-	body.loadFile(path + "/body.stl");
+	eyes.loadFile(path + "/Eyes.stl");
 }
 
 void BotDrawer::setup() {
 	static bool setupDone = false;
 	if (!setupDone) {
 		// search for stl files
-		if (fileExists("./stl/hip.stl")) {
+		if (fileExists("./stl/Eyes.stl")) {
 			readSTLFiles("./stl");
 		} else {
-			if (fileExists("./hip.stl"))
+			if (fileExists("./Eyes.stl"))
 				readSTLFiles("./");
-			if (fileExists("../../cad/simplified/hip.stl"))
-				readSTLFiles("../../cad/simplified");
+			if (fileExists("../../stl/Eyes.stl"))
+				readSTLFiles("../../stl");
 			else
-				if (fileExists("../../../cad/simplified/hip.stl"))
-					readSTLFiles("../../../cad/simplified");
+				if (fileExists("../../../stl/Eyes.stl"))
+					readSTLFiles("../../../stl");
 		}
 		setupDone = true;
 	}

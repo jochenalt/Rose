@@ -31,7 +31,7 @@ static const GLfloat glCoordSystemAreaColor4v[]			= GL_COLOR_4v(TeleGrey4, glAlp
 static const GLfloat glCoordSystemAxisColor4v[] 		= GL_COLOR_4v(PearlMouseGrey, glAlphaSolid );
 static const GLfloat glRasterColor4v[] 					= GL_COLOR_4v(GraniteGrey, glAlphaSolid );
 
-static const GLfloat glBotBodyColor[] 					= GL_COLOR_4v(WineRed, glAlphaSolid );
+static const GLfloat glEyesColor[] 					= GL_COLOR_4v(WineRed, glAlphaSolid );
 static const GLfloat glMapBackgroundColor4v[]		    = GL_COLOR_4v( AnthraciteGrey, 0.01);
 static const GLfloat glMapAreaColor4v[]		    		= GL_COLOR_4v( AnthraciteGrey, glAlphaTransparent);
 
