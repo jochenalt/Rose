@@ -13,15 +13,20 @@
 #include <unistd.h>
 #include <iomanip>
 #include <thread>
-
-#include "basics/util.h"
-#include "BTrack.h"
-#include "AudioFile.h"
-#include <ao/ao.h>
 #include <string>
 #include <unistd.h>
 #include <iomanip>
 #include <algorithm>
+#include <ao/ao.h>
+
+#include "basics/util.h"
+#include "basics/logger.h"
+#include "BTrack.h"
+#include "AudioFile.h"
+#include "UI.h"
+
+
+INITIALIZE_EASYLOGGINGPP
 
 using namespace std;
 
@@ -36,13 +41,23 @@ char* getCmdOption(char ** begin, char ** end, const std::string & option)
     return 0;
 }
 
-
-void printUsage() {
-	cout << "BeatTracker -f <wav.file> [-h] [-v <volume 0..100>]" << endl;
+bool cmdOptionExists(char** begin, char** end, const std::string& option)
+{
+    return std::find(begin, end, option) != end;
 }
 
+
+void printUsage() {
+	cout << "BeatTracker -f <wav.file>        # define the track to be played" << endl
+	     << "            [-h]                 # print this" << endl
+		 << "            [-v <volume 0..100>] # set volume between 0 and 100" << endl
+		 << "            [-ui]                # start visualizer" << endl;
+}
+
+
+
 void processAudioFile (string trackFilename, double volume /* [0..1] */) {
-    // load input file
+    // load input filec, char *argv
 	AudioFile<double> audioFile;
 	audioFile.load (trackFilename);
 	int sampleRate = audioFile.getSampleRate();
@@ -133,14 +148,66 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */) {
 
 }
 
+
+bool exitMode = false;
+
+void signalHandler(int s){
+	exitMode = true;
+	cout << "Signal " << s << ". Exiting";
+	cout.flush();
+	exit(1);
+}
+
+
+void setupLogging(int argc, char *argv[]) {
+	// catch SIGINT (ctrl-C)
+    signal (SIGINT,signalHandler);
+
+	// setup logger
+	el::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(el::Level::Error,el::ConfigurationType::Format, "%datetime %level [%func] [%loc] %msg");
+    defaultConf.set(el::Level::Error, el::ConfigurationType::Filename, "logs/manfred.log");
+
+    defaultConf.set(el::Level::Info,el::ConfigurationType::Format, "%datetime %level %msg");
+    defaultConf.set(el::Level::Info, el::ConfigurationType::Filename, "logs/manfred.log");
+
+    defaultConf.set(el::Level::Debug, el::ConfigurationType::ToStandardOutput,std::string("false"));
+    // defaultConf.set(el::Level::Debug, el::ConfigurationType::Enabled,std::string("false"));
+
+    defaultConf.set(el::Level::Debug, el::ConfigurationType::Format, std::string("%datetime %level [%func] [%loc] %msg"));
+    defaultConf.set(el::Level::Debug, el::ConfigurationType::Filename, "logs/manfred.log");
+
+    // logging from uC is on level Trace
+    defaultConf.set(el::Level::Trace, el::ConfigurationType::ToStandardOutput,std::string("false"));
+    defaultConf.set(el::Level::Trace, el::ConfigurationType::Format, std::string("%datetime %level [uC] %msg"));
+    defaultConf.set(el::Level::Trace, el::ConfigurationType::Filename, "logs/dancer.log");
+
+    el::Loggers::reconfigureLogger("default", defaultConf);
+
+    LOG(INFO) << "Private Dancer Setup";
+}
+
+
+
+
 int main(int argc, char *argv[]) {
-    char * arg = getCmdOption(argv, argv + argc, "-f");
+	// print help
+	std::set_terminate([](){
+		std::cout << "Unhandled exception\n"; std::abort();
+	});
+
+	// initialize Logging
+	setupLogging(argc, argv);
+
+
+	char * arg = getCmdOption(argv, argv + argc, "-f");
     string trackFilename;
     if(arg != NULL) {
     	trackFilename = string(arg);
     }
-    arg = getCmdOption(argv, argv + argc, "-h");
-    if(arg != NULL) {
+
+    if (cmdOptionExists(argv, argv + argc, "-h")) {
     	printUsage();
     }
 
@@ -155,6 +222,10 @@ int main(int argc, char *argv[]) {
     	}
     }
 
+    bool runUI = cmdOptionExists(argv, argv + argc, "-ui");
+
+    if (runUI)
+    	UI::getInstance().setup(argc,argv);
 
     processAudioFile(trackFilename, volumeArg/100.0);
 }

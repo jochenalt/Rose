@@ -200,21 +200,6 @@ bool WindowController::setup(int argc, char** argv) {
 	return uiReady;
 }
 
-void mapFunction (Point &p) {
-	realnum s1 = 0;
-	realnum c1 = 0;
-
-	if (mapLiveVar != 0) {
-		float xx = float(p.x)/800.0*2.0*M_PI;
-		float yy = float(p.y)/800.0*2.0*M_PI;
-
-		s1 = (2.0*sin(xx*0.2) + 1.5*sin(1.3*xx) + sin(2.7*xx))/(2.0+1.5+1.0);
-		c1 = (1.4*sin(0.7*yy) + 1.7*sin(1.2*yy) + sin(2.1*yy))/(1.4+1.7+1.0);
-	}
-	p.z = 100.0*s1*c1;
-}
-
-
 
 void WindowController::UIeventLoop() {
 	LOG(DEBUG) << "BotWindowCtrl::UIeventLoop";

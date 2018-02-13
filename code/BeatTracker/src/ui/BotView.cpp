@@ -74,11 +74,6 @@ void BotView::drawCoordSystem(bool withRaster) {
                 Point mapP3(rasterX+posOffset.x,				rasterY+posOffset.y+unitLength);
                 Point mapP4(rasterX+posOffset.x + unitLength,	rasterY+posOffset.y+unitLength);
 
-                mapFunction(mapP1);
-                mapFunction(mapP2);
-                mapFunction(mapP3);
-                mapFunction(mapP4);
-
                 Point p1(rasterX, 				rasterY, 			mapP1.z);
                 Point p2(rasterX+unitLength, 	rasterY,			mapP2.z);
                 Point p3(rasterX, 				rasterY+unitLength,	mapP3.z);
