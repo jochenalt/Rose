@@ -14,12 +14,27 @@
 #include <iomanip>
 #include <thread>
 
-#include "util.h"
+#include "basics/util.h"
 #include "BTrack.h"
 #include "AudioFile.h"
 #include <ao/ao.h>
+#include <string>
+#include <unistd.h>
+#include <iomanip>
+#include <algorithm>
 
 using namespace std;
+
+
+char* getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return *itr;
+    }
+    return 0;
+}
 
 
 void printUsage() {

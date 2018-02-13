@@ -59,20 +59,6 @@ void setupLogging(int argc, char *argv[]) {
     LOG(INFO) << "Manfred Setup";
 }
 
-char* getCmdOption(char ** begin, char ** end, const std::string & option)
-{
-    char ** itr = std::find(begin, end, option);
-    if (itr != end && ++itr != end)
-    {
-        return *itr;
-    }
-    return 0;
-}
-
-bool cmdOptionExists(char** begin, char** end, const std::string& option)
-{
-    return std::find(begin, end, option) != end;
-}
 
 void printUsage(string prg) {
 	cout << "usage: " << prg << " [-h] [-d \"<command>\"] [-i]" << endl
@@ -86,7 +72,7 @@ void printUsage(string prg) {
 		 << "  <without par>       start engine and ui" << endl;
 }
 
-int main(int argc, char *argv[]) {
+void initUI(int argc, char *argv[]) {
 	// initialize Logging
 	setupLogging(argc, argv);
 
@@ -95,23 +81,14 @@ int main(int argc, char *argv[]) {
 		std::cout << "Unhandled exception\n"; std::abort();
 	});
 
-	// print help
-	if(cmdOptionExists(argv, argv+argc, "-h")) {
-		printUsage(argv[0]);
-		exit(0);
-    }
-
 	// initialize ui
 	bool UISetupOk= WindowController::getInstance().setup(argc, argv);
 	if (!UISetupOk) {
 		cerr << "UI initialization failed" << endl;
 		exit(1);
 	}
+}
 
-	while (true) {
-		delay_ms(1);
-	}
-
-    cout << "no dwim running. Try -h" << endl;
-	return 0;
+void loopUI() {
+	delay_ms(1);
 }

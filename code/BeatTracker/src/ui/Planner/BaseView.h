@@ -8,7 +8,7 @@
 #ifndef BASEVIEW_H_
 #define BASEVIEW_H_
 
-#include "basics/Point.h"
+#include "basics/point.h"
 
 class BaseView {
 public:

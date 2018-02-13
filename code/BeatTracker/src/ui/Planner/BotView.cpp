@@ -5,13 +5,12 @@
  */
 
 
-#include <windows.h>
 #include <thread>
 
 #include <GL/gl.h>
 #include <GL/freeglut.h>
 #include <GL/glut.h>
-#include <GL/Glui.h>
+#include <GL/glui.h>
 
 #include "basics/spatial.h"
 #include "basics/util.h"

@@ -9,13 +9,12 @@
 #ifndef UI_BOTWINDOWCTRL_H_
 #define UI_BOTWINDOWCTRL_H_
 
-#include <windows.h>
 #include <thread>
 
 #include <GL/gl.h>
 #include <GL/freeglut.h>
 #include <GL/glut.h>  // GLUT, includes glu.h and gl.h
-#include <GL/Glui.h>
+#include <GL/glui.h>
 
 #include "basics/spatial.h"
 #include "BotView.h"
