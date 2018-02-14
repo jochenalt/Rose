@@ -13,7 +13,7 @@
 
 class MoveMaker {
 public:
-	enum MoveType { SIMPLE_HEAD_NICKER, TENNIS_HEAD_NICKER, TRAVOLTA_HEAD_NICKER, ENHANCED_TRAVOLTA_HEAD_NICKER, NO_MOVE };
+	enum MoveType { SIMPLE_HEAD_NICKER, TENNIS_HEAD_NICKER, TRAVOLTA_HEAD_NICKER, ENHANCED_TRAVOLTA_HEAD_NICKER, DOUBLE_HEAD_NICKER, NO_MOVE };
 	enum SequenceModeType { AUTOMATIC_SEQUENCE, SELECTED_MOVE};
 
 	MoveMaker();
@@ -55,9 +55,10 @@ private:
 
 	// methods implementing dance moves
 	Pose simpleHeadNicker(double movePercentage);
+	Pose tennisHeadNicker(double movePercentage);
 	Pose travoltaHeadNicker(double movePercentage);
 	Pose enhancedTravoltaHeadNicker(double movePercentage);
-	Pose tennisHeadNicker(double movePercentage);
+	Pose doubleHeadNicker(double movePercentage);
 
 
 	Pose bodyPose;
@@ -65,7 +66,7 @@ private:
 	bool beatStarted;
 	int beatCount;
 	int rhythmInQuarters;
-	const int NumMoveTypes = 4;
+	const int NumMoveTypes = 5;
 	MoveType currentMove;
 	string moveName(MoveType m);
 

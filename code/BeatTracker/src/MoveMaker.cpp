@@ -119,7 +119,14 @@ Pose MoveMaker::tennisHeadNicker(double movePercentage) {
 	return Pose(Point(0,0,bodyHeight + 50.0*m1),Rotation (0,0,-radians(45)*m2));
 }
 
+Pose MoveMaker::doubleHeadNicker(double movePercentage) {
+	// used move curves
+	double m1 = baseCurveFatCos(scaleMove(movePercentage, 2.0,globalPhaseShift));
+	double m2 = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
+	double m3 = baseCurveCos(scaleMove(movePercentage, 4.0, globalPhaseShift));
 
+	return Pose(Point(0,40.0*m2,bodyHeight + 30.0*m3),Rotation (0,0,-radians(30)*m2));
+}
 
 void MoveMaker::createMove(double movePercentage) {
 	// cout << "%=" << std::fixed << std::setprecision(2) << movePercentage << " "  << endl;
@@ -130,6 +137,7 @@ void MoveMaker::createMove(double movePercentage) {
 		case TENNIS_HEAD_NICKER:nextPose = tennisHeadNicker(movePercentage);break;
 		case TRAVOLTA_HEAD_NICKER:nextPose = travoltaHeadNicker(movePercentage);break;
 		case ENHANCED_TRAVOLTA_HEAD_NICKER:nextPose = enhancedTravoltaHeadNicker(movePercentage);break;
+		case DOUBLE_HEAD_NICKER:nextPose = doubleHeadNicker(movePercentage);break;
 
 		default:
 			simpleHeadNicker(movePercentage);
@@ -202,6 +210,7 @@ string MoveMaker::moveName(MoveType m) {
 		case SIMPLE_HEAD_NICKER:		return "simple head nicker";
 		case TRAVOLTA_HEAD_NICKER:      return "travolta head nicker";
 		case ENHANCED_TRAVOLTA_HEAD_NICKER:      return "enhanced travolta head nicker";
+		case DOUBLE_HEAD_NICKER:      return "double head nicker";
 
 		case TENNIS_HEAD_NICKER:        return "tennis head nicker";
 
@@ -212,6 +221,7 @@ string MoveMaker::moveName(MoveType m) {
 
 void MoveMaker::setCurrentMove(MoveType m) {
 	currentMove = m;
+	passedBeatsInCurrentMove = 0;
 }
 
 MoveMaker::MoveType MoveMaker::getCurrentMove() {

@@ -15,7 +15,7 @@ using namespace std;
 
 // Initial main window size
 int WindowWidth = 600;
-int WindowHeight = 750;
+int WindowHeight = 800;
 
 // GLUI Window handlers
 int wMain;			// main window
@@ -121,7 +121,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 	GLUI_Panel* interactivePanel = new GLUI_Panel(windowHandle,"interactive panel", GLUI_PANEL_NONE);
 
-	GLUI_Panel* dancingModePanel = new GLUI_Panel(interactivePanel,"Dancing Mode Panel", GLUI_PANEL_NONE);
+	GLUI_Panel* dancingModePanel = new GLUI_Panel(interactivePanel,"Dancing Mode Panel", GLUI_PANEL_RAISED);
 	GLUI_StaticText* text = new GLUI_StaticText(dancingModePanel,"Current Dance Move");
 	text->set_alignment(GLUI_ALIGN_LEFT);
 
