@@ -210,3 +210,11 @@ string MoveMaker::moveName(MoveType m) {
 	}
 }
 
+void MoveMaker::setCurrentMove(MoveType m) {
+	currentMove = m;
+}
+
+MoveMaker::MoveType MoveMaker::getCurrentMove() {
+	return currentMove;
+}
+

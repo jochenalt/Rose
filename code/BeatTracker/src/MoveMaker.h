@@ -13,13 +13,36 @@
 
 class MoveMaker {
 public:
+	enum MoveType { SIMPLE_HEAD_NICKER, TENNIS_HEAD_NICKER, TRAVOLTA_HEAD_NICKER, ENHANCED_TRAVOLTA_HEAD_NICKER, NO_MOVE };
+	enum SequenceModeType { AUTOMATIC_SEQUENCE, SELECTED_MOVE};
+
 	MoveMaker();
 	virtual ~MoveMaker();
 	static MoveMaker& getInstance();
 	void setup();
 	void loop(bool beat, double BPM);
+
 	Pose& getBodyPose() { return bodyPose; };
+
+	// set the number of moves after that the next move happens
 	void switchMovePeriodically(int afterHowManyMoves);
+
+	SequenceModeType getSequenceMode() { return sequenceMode; };
+
+	void setSequenceMode(SequenceModeType newSequenceMode) { sequenceMode = newSequenceMode; };
+
+	// get number of actual moves (without NO_MOVE)
+	int getNumMoves() { return NumMoveTypes; };
+
+	// get nice name of a move
+	string getMoveName(MoveType m) { return moveName(m); };
+
+	// set current move
+	void setCurrentMove(MoveType m);
+
+	// return current move
+	MoveType getCurrentMove();
+
 private:
 	void doNewMove();
 	void createMove(double movePercentage);
@@ -43,12 +66,13 @@ private:
 	int beatCount;
 	int rhythmInQuarters;
 	const int NumMoveTypes = 4;
-	enum MoveType { SIMPLE_HEAD_NICKER, TENNIS_HEAD_NICKER, TRAVOLTA_HEAD_NICKER, ENHANCED_TRAVOLTA_HEAD_NICKER, NO_MOVE };
 	MoveType currentMove;
 	string moveName(MoveType m);
 
 	int switchMoveAfterNBeats;
 	int passedBeatsInCurrentMove;
+
+	SequenceModeType sequenceMode;
 };
 
 #endif /* MOVEMAKER_H_ */

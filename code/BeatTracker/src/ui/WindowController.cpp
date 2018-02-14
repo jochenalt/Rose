@@ -3,8 +3,9 @@
 
 #include "basics/logger.h"
 #include "basics/util.h"
-
+#include "MoveMaker.h"
 #include "WindowController.h"
+
 
 #include "BotView.h"
 #include "uiconfig.h"
@@ -12,59 +13,19 @@
 
 using namespace std;
 
-// Initial Window size
+// Initial main window size
 int WindowWidth = 600;
 int WindowHeight = 750;
 
 // GLUI Window handlers
-int wMain, wMainBotView;
+int wMain;			// main window
+int wMainBotView; 	// sub window with dancing bot
 
+GLUI_RadioGroup* currentDancingModeWidget = NULL;
+int dancingModeLiveVar = 0;
 
-// body pose widget
-GLUI_Spinner* bodyPosePositionSpinner[3] = { NULL, NULL, NULL};
-int bodyPosePositionSpinnerLiveVar[3] = {0,0,0};
-const int bodyPosePositionWidgetNo = 0;
-GLUI_Spinner* bodyPoseOrientationSpinner[3] = { NULL,NULL, NULL};
-int bodyPoseOrientationSpinnerLiveVar[3] = {0,0,0};
-const int bodyPoseOrientationWidgetNo = 3;
-const int bodyPoseResetWidgetNo = 7;
-
-// choice of single leg or full pentapod
-GLUI_Checkbox* singleLegActiveCheckBox = NULL;
-int singleLegActiveLiveVar;
-
-// gait controls
-GLUI_Spinner* gaitWakingDirectionSpinner = NULL;
-GLUI_Spinner* gaitSpeedSpinner = NULL;
-GLUI_Spinner* gaitRotateSpinner = NULL;
-GLUI_Spinner* gaitNoseOrientationSpinner = NULL;
-
-int gaitDirectionLiveVar = 0;
-int gaitSpeedLiveVar = 0;
-int gaitRotateLiveVar = 0;
-int gaitNoseOrientationLiveVar = 0;
-
-const int WalkingDirectionID = 0;
-const int MovementSpeedID = 1;
-const int MovementRotationID = 2;
-const int MovementOrientationID = 3;
-const int MovementResetID = 4;
-GLUI_RadioGroup* gaitRadioGroup = NULL;
-int gaitLiveVar = 0;
-
-GLUI_RadioGroup* scriptRadioGroup = NULL;
-GLUI_StaticText* scriptText = NULL;
-int scriptLiveVar = 0;
-
-GLUI_Checkbox* mapControl = NULL;
-int mapLiveVar;
-
-GLUI_Checkbox* powerCheckbox = NULL;
-int powerLiveVar;
-const int PowerCheckBoxID = 0;
-GLUI_Checkbox* wakeUpCheckbox = NULL;
-int wakeUpLiveVar;
-const int WakeUpCheckBoxID = 1;
+GLUI_RadioGroup* currentSequenceModeWidget = NULL;
+int currentSequenceModeLiveVar = 0;
 
 // each mouse motion call requires a display() call before doing the next mouse motion call. postDisplayInitiated
 // is a semaphore that coordinates this across several threads
@@ -122,21 +83,6 @@ void GluiReshapeCallback( int x, int y )
 }
 
 
-// Idle callback is called by GLUI when nothing is to do.
-void idleCallback( void )
-{
-	const milliseconds emergencyRefreshRate = 1000; 		// refresh everything once a second at least due to refresh issues
-
-
-	milliseconds now = millis();
-	static milliseconds lastDisplayRefreshCall = millis();
-
-	// update all screens once a second in case of refresh issues (happens)
-	if ((now - lastDisplayRefreshCall > emergencyRefreshRate)) {
-		WindowController::getInstance().mainBotView.postRedisplay();
-	}
-}
-
 
 void WindowController::setBodyPose(const Pose& bodyPose) {
 	mainBotView.setBodyPose(bodyPose);
@@ -149,6 +95,22 @@ void WindowController::setBodyPose(const Pose& bodyPose) {
 	lastCall = now;
 }
 
+void setDancingMoveWidget() {
+	currentDancingModeWidget->set_int_val((int)MoveMaker::getInstance().getCurrentMove());
+}
+
+
+void currentDancingMoveCallback(int widgetNo) {
+	MoveMaker::getInstance().setCurrentMove((MoveMaker::MoveType)dancingModeLiveVar);
+}
+
+void setSequenceModeWidget() {
+	currentSequenceModeWidget->set_int_val((int)MoveMaker::getInstance().getSequenceMode());
+}
+
+void currentSequenceModeCallback(int widgetNo) {
+	MoveMaker::getInstance().setSequenceMode((MoveMaker::SequenceModeType)currentSequenceModeLiveVar);
+}
 
 GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
@@ -158,11 +120,28 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	windowHandle->set_main_gfx_window( wMain );
 
 	GLUI_Panel* interactivePanel = new GLUI_Panel(windowHandle,"interactive panel", GLUI_PANEL_NONE);
-	GLUI_Panel* kinematicsPanel = new GLUI_Panel(interactivePanel,"kinematics panel", GLUI_PANEL_NONE);
 
-	// int i = actuatorConfigType[0].minAngle;
-	GLUI_StaticText* text = new GLUI_StaticText(kinematicsPanel,"Single Leg Inverse Kinematics");
-	text->set_alignment(GLUI_ALIGN_CENTER);
+	GLUI_Panel* dancingModePanel = new GLUI_Panel(interactivePanel,"Dancing Mode Panel", GLUI_PANEL_NONE);
+	GLUI_StaticText* text = new GLUI_StaticText(dancingModePanel,"Current Dance Move");
+	text->set_alignment(GLUI_ALIGN_LEFT);
+
+	currentDancingModeWidget =  new GLUI_RadioGroup(dancingModePanel, &dancingModeLiveVar, 0, currentDancingMoveCallback);
+
+	for (int i = 0;i<MoveMaker::getInstance().getNumMoves();i++) {
+		MoveMaker::MoveType move = (MoveMaker::MoveType)i;
+		new GLUI_RadioButton(currentDancingModeWidget, MoveMaker::getInstance().getMoveName(move).c_str());
+	}
+
+	windowHandle->add_column_to_panel(interactivePanel, false);
+
+	GLUI_Panel* sequenceModePanel= new GLUI_Panel(interactivePanel,"Sequence Mode", GLUI_PANEL_RAISED);
+	text = new GLUI_StaticText(sequenceModePanel,"Sequence Move");
+	text->set_alignment(GLUI_ALIGN_LEFT);
+
+	currentSequenceModeWidget =  new GLUI_RadioGroup(sequenceModePanel, &currentSequenceModeLiveVar, 0, currentSequenceModeCallback);
+	new GLUI_RadioButton(currentSequenceModeWidget, "Automated Sequence");
+	new GLUI_RadioButton(currentSequenceModeWidget, "Selected Dance Move");
+
 	return windowHandle;
 }
 
@@ -172,7 +151,7 @@ bool WindowController::setup(int argc, char** argv) {
 
 	// start the initialization in a thread so that this function returns
 	// (the thread runs the endless GLUT main loop)
-	// So, the main thread can do something different while the UI is running
+	// main thread can do something else while the UI is running
 	eventLoopThread = new std::thread(&WindowController::UIeventLoop, this);
 
 	// wait until UI is ready
@@ -181,6 +160,24 @@ bool WindowController::setup(int argc, char** argv) {
 	while ((millis() - startTime < 20000) && (!uiReady));
 
 	return uiReady;
+}
+
+
+// Idle callback is called by GLUI when nothing is to do.
+void idleCallback( void )
+{
+	const milliseconds emergencyRefreshRate = 1000; 		// refresh everything once a second at least due to refresh issues
+
+
+	milliseconds now = millis();
+	static milliseconds lastDisplayRefreshCall = millis();
+
+	// update all screens once a second in case of refresh issues (happens)
+	if ((now - lastDisplayRefreshCall > emergencyRefreshRate)) {
+		WindowController::getInstance().mainBotView.postRedisplay();
+
+		setDancingMoveWidget();
+	}
 }
 
 
