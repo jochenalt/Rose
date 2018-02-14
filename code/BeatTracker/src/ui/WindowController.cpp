@@ -209,7 +209,7 @@ void WindowController::UIeventLoop() {
 	LOG(DEBUG) << "BotWindowCtrl::UIeventLoop";
 
 	glutInitWindowSize(WindowWidth, WindowHeight);
-    wMain = glutCreateWindow("Manfred"); // Create a window with the given title
+    wMain = glutCreateWindow("Private Dancer"); // Create a window with the given title
 	glutInitWindowPosition(20, 20); // Position the window's initial top-left corner
 	glutDisplayFunc(displayMainView);
 	glutReshapeFunc(reshape);
