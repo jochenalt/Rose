@@ -84,8 +84,8 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
          exit(1);
     }
 
-	int hopSize = 256;
-	int frameSize = 4096; // cpu load goes up linear with the framesize
+	int hopSize = 512;
+	int frameSize = hopSize*4; // cpu load goes up linear with the framesize
 	BTrack b(hopSize, frameSize);
 
 	// position within the input buffer
@@ -134,18 +134,20 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 		// detect beat and bpm of that hop size
 		b.processAudioFrame(frame);
 
-		// insert a delay to synchronize played audio and beat detection
-		elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;
-		double elapsedFrameTime = (double)posInputSamples / (double)sampleRate;
-		delay_ms((elapsedFrameTime - elapsedTime)*1000.0);
 
 		bool beat = b.beatDueInCurrentFrame();
 		double bpm = b.getCurrentTempoEstimate();
+
+		// insert a delay to synchronize played audio and beat detection
+		elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;
+		double elapsedFrameTime = (double)posInputSamples / (double)sampleRate;
+
 		if (beat)
 		{
 			cout << std::fixed << std::setprecision(1) << "Beat (" << b.getCurrentTempoEstimate() << ")" << std::setprecision(1) << (elapsedFrameTime) << "s" << endl;
 		};
 		beatCallback(beat, bpm);
+		delay_ms((elapsedFrameTime - elapsedTime)*1000.0);
 
 	}
 

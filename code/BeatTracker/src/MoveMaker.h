@@ -22,11 +22,19 @@ public:
 	void switchMovePeriodically(int afterHowManyMoves);
 private:
 	void doNewMove();
-
 	void createMove(double movePercentage);
 
-	void simpleHeadNicker(double movePercentage);
-	void backAndForthHeadNicker(double movePercentage);
+	double scaleMove(double movePercentage, double speedFactor, double phase);
+	double baseCurveCos(double movePercentage);
+	double baseCurveFatCos(double movePercentage);
+	double baseCurveTriangle(double movePercentage);
+	double baseCurveTrapezoid(double movePercentage);
+
+	// methods implementing dance moves
+	Pose simpleHeadNicker(double movePercentage);
+	Pose travoltaHeadNicker(double movePercentage);
+	Pose enhancedTravoltaHeadNicker(double movePercentage);
+	Pose tennisHeadNicker(double movePercentage);
 
 
 	Pose bodyPose;
@@ -34,8 +42,8 @@ private:
 	bool beatStarted;
 	int beatCount;
 	int rhythmInQuarters;
-	const int NumMoveTypes = 2;
-	enum MoveType { SIMPLE_HEAD_NICKER, BACK_AND_FORTH_HEAD_NICKER, NO_MOVE };
+	const int NumMoveTypes = 4;
+	enum MoveType { SIMPLE_HEAD_NICKER, TENNIS_HEAD_NICKER, TRAVOLTA_HEAD_NICKER, ENHANCED_TRAVOLTA_HEAD_NICKER, NO_MOVE };
 	MoveType currentMove;
 	string moveName(MoveType m);
 

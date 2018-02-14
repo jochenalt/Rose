@@ -13,19 +13,12 @@
 using namespace std;
 
 // Initial Window size
-int WindowWidth = 1200;
+int WindowWidth = 600;
 int WindowHeight = 750;
 
 // GLUI Window handlers
-int wMain, wMainBotView, wSLAMView;
+int wMain, wMainBotView;
 
-// kinematics widgets
-// target body position, orientation and speed
-Pose inputBodyPose;
-realnum inputWalkingDirection = 0;
-realnum inputSpeed = 0;
-realnum inputRotate = 0;
-realnum inputNoseOrientation = 0;
 
 // body pose widget
 GLUI_Spinner* bodyPosePositionSpinner[3] = { NULL, NULL, NULL};
@@ -73,19 +66,11 @@ GLUI_Checkbox* wakeUpCheckbox = NULL;
 int wakeUpLiveVar;
 const int WakeUpCheckBoxID = 1;
 
-GLUI_Checkbox* terrainModeCheckbox = NULL;
-int terrainLiveVar;
-const int TerrainModeCheckBoxID = 2;
-
-
 // each mouse motion call requires a display() call before doing the next mouse motion call. postDisplayInitiated
 // is a semaphore that coordinates this across several threads
 // (without that, we have so many motion calls that rendering is bumpy)
 // postDisplayInitiated is true, if a display()-invokation is pending but has not yet been executed (i.e. allow a following display call)
 volatile static bool postDisplayInitiated = true;
-
-extern void copyMovementToView();
-extern void mapFunction (Point &p);
 
 
 void WindowController::postRedisplay() {
@@ -104,7 +89,6 @@ void displayMainView() {
 		return;
 
 	postDisplayInitiated = false;
-	// glutSetWindow(wMain);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -117,8 +101,8 @@ void reshape(int w, int h) {
 	WindowHeight = h;
 	glViewport(0, 0, w, h);
 
-	int MainSubWindowWidth = (w - 3 * WindowGap)/2;
-	int MainSubWindowHeight = (h - InteractiveWindowHeight - 3 * WindowGap);
+	int MainSubWindowWidth = w - 2 * WindowGap;
+	int MainSubWindowHeight = h - InteractiveWindowHeight - 3 * WindowGap;
 
 	WindowController::getInstance().mainBotView.reshape(WindowGap, WindowGap,MainSubWindowWidth, MainSubWindowHeight);
 
@@ -143,31 +127,26 @@ void idleCallback( void )
 {
 	const milliseconds emergencyRefreshRate = 1000; 		// refresh everything once a second at least due to refresh issues
 
+
 	milliseconds now = millis();
-
-	bool newBotData = true;
-
 	static milliseconds lastDisplayRefreshCall = millis();
-	bool doSomething = false;
+
 	// update all screens once a second in case of refresh issues (happens)
-	if (newBotData || (now - lastDisplayRefreshCall > emergencyRefreshRate)) {
+	if ((now - lastDisplayRefreshCall > emergencyRefreshRate)) {
 		WindowController::getInstance().mainBotView.postRedisplay();
-		doSomething = true;
 	}
-
-	if ((now - lastDisplayRefreshCall > emergencyRefreshRate) || newBotData) {
-		doSomething = true;
-		lastDisplayRefreshCall = now;
-	}
-
-	// be cpu friendly
-	if (!doSomething)
-		delay_ms(5);
 }
 
 
 void WindowController::setBodyPose(const Pose& bodyPose) {
 	mainBotView.setBodyPose(bodyPose);
+
+	// post a refresh with 50Hz max
+	static uint32_t lastCall = 0;
+	uint32_t now = millis();
+	if (now - lastCall > 20)
+		glutPostRedisplay();
+	lastCall = now;
 }
 
 
