@@ -176,7 +176,6 @@ Pose MoveMaker::eyedDippedDiagonalSwing(double movePercentage) {
 }
 
 void MoveMaker::createMove(double movePercentage) {
-	// cout << "%=" << std::fixed << std::setprecision(2) << movePercentage << " "  << endl;
 	Pose nextPose;
 	switch (currentMove) {
 		case NO_MOVE:break;
@@ -207,17 +206,19 @@ void MoveMaker::loop(bool beat, double BPM) {
 	double timePerBeat = (60.0/BPM); // in seconds
 
 	if (beat) {
+
+
 		// detect rhythm
-		if (((rhythmInQuarters == 0) && (beatCount  == 2))) {
+		if (((rhythmInQuarters == 0) && (beatCount  == 3))) {
 			timeSinceBeat = secondsSinceEpoch() - timeOfLastBeat;
 
 			// detect 1/1 or 1/2 rhythm
 			rhythmInQuarters = 1;
 			if (abs(timePerBeat - timeSinceBeat) > abs(2.0*timePerBeat - timeSinceBeat))
 				rhythmInQuarters = 2;
-			if (abs(timePerBeat - timeSinceBeat) > abs(4.0*timePerBeat - timeSinceBeat))
-				rhythmInQuarters = 4;
-			cout << "Rhythm is 1/" << rhythmInQuarters << endl;
+			// cout << std::fixed << std::setprecision(2) << "Rhythm is 1/" << rhythmInQuarters << " tbp=" << timeSinceBeat << " s/beat=" <<  timePerBeat << "s" << "1:" << abs(timePerBeat - timeSinceBeat) << " 2:" << abs(2.0*timePerBeat - timeSinceBeat) << endl;
+			cout << std::fixed << std::setprecision(2) << "Rhythm is 1/" << rhythmInQuarters << " s/beat=" <<  timePerBeat << "s" << endl;
+
 		}
 
 		timeOfLastBeat = secondsSinceEpoch();
@@ -242,7 +243,10 @@ void MoveMaker::loop(bool beat, double BPM) {
 		// compute elapsed time since last beat
 		timeSinceBeat = secondsSinceEpoch() - timeOfLastBeat;
 
-		createMove( (beatCount % 4 ) + timeSinceBeat/rhythmInQuarters/(60.0/BPM));
+		double movePercentage = (beatCount % (4/rhythmInQuarters) )*rhythmInQuarters + timeSinceBeat/(60.0/BPM);
+		// cout << std::fixed << std::setprecision(2) << "(" << (beatCount % (4/rhythmInQuarters) ) << ") t=" << timeSinceBeat << "s " << " 60/BPM=" << 60.0/BPM <<"s rhyt=" << rhythmInQuarters << "% =" << movePercentage << " "  << endl;
+
+		createMove(movePercentage );
 
 	}
 }
@@ -272,7 +276,7 @@ string MoveMaker::moveName(MoveType m) {
 		case DIAGONAL_HEAD_SWING:				return "diagonal head swing";
 		case DIPPED_DIAGONAL_HEAD_SWING:		return "dipped diagonal head swing";
 		case ROLLED_DIPPED_DIAGONAL_HEAD_SWING:	return "rolled dipped diagonal head swing";
-		case EYED_DIPPED_DIAGONAL_HEAD_SWING:	return "double dipped diagonal head swing";
+		case EYED_DIPPED_DIAGONAL_HEAD_SWING:	return "eyed dipped diagonal head swing";
 
 		default:
 			return "";
