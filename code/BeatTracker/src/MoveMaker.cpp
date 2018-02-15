@@ -63,6 +63,15 @@ double MoveMaker::baseCurveTriangle(double movePercentage) {
 		return movePercentage-3.0;
 }
 
+//
+//      |\             /
+//      |-------------
+//      |      \/
+//
+double MoveMaker::baseCurveDip(double movePercentage) {
+	return pow(baseCurveCos(movePercentage),21.0);
+}
+
 //       __
 //      |  \      /
 //      |---\----/---
@@ -112,20 +121,20 @@ Pose MoveMaker::enhancedTravoltaHeadNicker(double movePercentage) {
 
 Pose MoveMaker::tennisHeadNicker(double movePercentage) {
 
-	// used move curves
-	double m1 = baseCurveCos(scaleMove(movePercentage, 2.0,globalPhaseShift));
-	double m2 = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
+	double mNick = baseCurveCos(scaleMove(movePercentage, 2.0,globalPhaseShift));
+	double mBase = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
+	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, 1.5 + globalPhaseShift)));
 
-	return Pose(Point(0,0,bodyHeight + 50.0*m1),Rotation (0,0,-radians(45)*m2));
+	return Pose(Point(0,0,bodyHeight + 50.0*mNick),Rotation (0,-radians(45)*mDip,-radians(45)*mBase));
 }
 
 Pose MoveMaker::doubleHeadNicker(double movePercentage) {
-	// used move curves
-	double m1 = baseCurveFatCos(scaleMove(movePercentage, 2.0,globalPhaseShift));
-	double m2 = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
-	double m3 = baseCurveCos(scaleMove(movePercentage, 4.0, globalPhaseShift));
+	double mLeftRight = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
+	double mNick = baseCurveCos(scaleMove(movePercentage, 4.0, globalPhaseShift));
+	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, 1.0 + globalPhaseShift)));
 
-	return Pose(Point(0,40.0*m2,bodyHeight + 30.0*m3),Rotation (0,0,-radians(30)*m2));
+
+	return Pose(Point(0,40.0*mLeftRight,bodyHeight + 30.0*mNick),Rotation (0,-radians(45)*mDip,-radians(20)*mLeftRight-radians(30)*mDip));
 }
 
 void MoveMaker::createMove(double movePercentage) {
@@ -143,6 +152,8 @@ void MoveMaker::createMove(double movePercentage) {
 			simpleHeadNicker(movePercentage);
 	}
 	static TimeSamplerStatic moveTimer;
+
+	// limit acceleration during change of move
 	if (movePercentage > 0.25)
 		bodyPose.moveTo(nextPose, moveTimer.dT(), 400.0, 5.0);
 	else
@@ -178,7 +189,7 @@ void MoveMaker::loop(bool beat, double BPM) {
 
 		// switch to next move after some time
 		passedBeatsInCurrentMove++;
-		if ((beatCount > 3) && (passedBeatsInCurrentMove == switchMoveAfterNBeats)) {
+		if ((sequenceMode == AUTOMATIC_SEQUENCE) && (beatCount > 3) && (passedBeatsInCurrentMove == switchMoveAfterNBeats)) {
 			doNewMove();
 			passedBeatsInCurrentMove = 0;
 		}
@@ -206,13 +217,12 @@ void MoveMaker::switchMovePeriodically(int afterHowManyMoves) {
 
 string MoveMaker::moveName(MoveType m) {
 	switch (m) {
-		case NO_MOVE:             		return "no move";
-		case SIMPLE_HEAD_NICKER:		return "simple head nicker";
-		case TRAVOLTA_HEAD_NICKER:      return "travolta head nicker";
-		case ENHANCED_TRAVOLTA_HEAD_NICKER:      return "enhanced travolta head nicker";
-		case DOUBLE_HEAD_NICKER:      return "double head nicker";
-
-		case TENNIS_HEAD_NICKER:        return "tennis head nicker";
+		case NO_MOVE:             			return "no move";
+		case SIMPLE_HEAD_NICKER:			return "simple head nicker";
+		case TRAVOLTA_HEAD_NICKER:      	return "travolta head nicker";
+		case ENHANCED_TRAVOLTA_HEAD_NICKER: return "enhanced travolta head nicker";
+		case DOUBLE_HEAD_NICKER:      		return "double head nicker";
+		case TENNIS_HEAD_NICKER:        	return "tennis head nicker";
 
 		default:
 			return "";
@@ -222,9 +232,5 @@ string MoveMaker::moveName(MoveType m) {
 void MoveMaker::setCurrentMove(MoveType m) {
 	currentMove = m;
 	passedBeatsInCurrentMove = 0;
-}
-
-MoveMaker::MoveType MoveMaker::getCurrentMove() {
-	return currentMove;
 }
 

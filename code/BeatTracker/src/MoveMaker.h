@@ -13,7 +13,7 @@
 
 class MoveMaker {
 public:
-	enum MoveType { SIMPLE_HEAD_NICKER, TENNIS_HEAD_NICKER, TRAVOLTA_HEAD_NICKER, ENHANCED_TRAVOLTA_HEAD_NICKER, DOUBLE_HEAD_NICKER, NO_MOVE };
+	enum MoveType { SIMPLE_HEAD_NICKER, TENNIS_HEAD_NICKER, DOUBLE_HEAD_NICKER, TRAVOLTA_HEAD_NICKER, ENHANCED_TRAVOLTA_HEAD_NICKER, NO_MOVE };
 	enum SequenceModeType { AUTOMATIC_SEQUENCE, SELECTED_MOVE};
 
 	MoveMaker();
@@ -41,7 +41,7 @@ public:
 	void setCurrentMove(MoveType m);
 
 	// return current move
-	MoveType getCurrentMove();
+	MoveType getCurrentMove()  { return currentMove; };
 
 private:
 	void doNewMove();
@@ -52,6 +52,7 @@ private:
 	double baseCurveFatCos(double movePercentage);
 	double baseCurveTriangle(double movePercentage);
 	double baseCurveTrapezoid(double movePercentage);
+	double baseCurveDip(double movePercentage);
 
 	// methods implementing dance moves
 	Pose simpleHeadNicker(double movePercentage);
