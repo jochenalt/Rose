@@ -25,6 +25,7 @@
 #include "AudioFile.h"
 #include "UI.h"
 #include "MoveMaker.h"
+#include "RhythmDetector.h"
 
 
 INITIALIZE_EASYLOGGINGPP
@@ -199,8 +200,12 @@ void setupLogging(int argc, char *argv[]) {
 
 
 bool runUI = false;
-void sendBeatToMoverGenerator(bool beat, double bpm) {
+
+void sendBeatToRythmDetector(bool beat, double bpm) {
+	RhythmDetector & rd = RhythmDetector::getInstance();
 	MoveMaker& mm = MoveMaker::getInstance();
+
+	rd.loop(beat, bpm);
 	mm.loop(beat, bpm);
 	if (runUI)
 		UI::getInstance().setBodyPose(mm.getBodyPose());
@@ -246,6 +251,7 @@ int main(int argc, char *argv[]) {
     	UI::getInstance().setup(argc,argv);
 
     MoveMaker::getInstance().setup();
+    RhythmDetector::getInstance().setup();
 
-    processAudioFile(trackFilename, volumeArg/100.0, sendBeatToMoverGenerator);
+    processAudioFile(trackFilename, volumeArg/100.0, sendBeatToRythmDetector);
 }

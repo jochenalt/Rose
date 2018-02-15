@@ -72,10 +72,6 @@ private:
 
 
 	Pose bodyPose;
-	double timeOfLastBeat;
-	bool beatStarted;
-	int beatCount;
-	int rhythmInQuarters;
 	MoveType currentMove;
 	string moveName(MoveType m);
 

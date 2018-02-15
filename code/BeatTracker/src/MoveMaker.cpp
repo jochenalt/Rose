@@ -9,6 +9,7 @@
 #include "basics/util.h"
 
 #include "MoveMaker.h"
+#include "RhythmDetector.h"
 
 const double bodyHeight = 100.0;
 const double globalPhaseShift = -0.5;
@@ -26,13 +27,9 @@ MoveMaker& MoveMaker::getInstance() {
 
 void MoveMaker::setup() {
 	bodyPose = Pose(Point(0,0,bodyHeight), Rotation (0,0,0));
-	timeOfLastBeat = 0;
-	beatStarted = false;
 	currentMove = NO_MOVE;
 	switchMoveAfterNBeats = 8;
 	passedBeatsInCurrentMove = 0;
-	beatCount = 0;
-	rhythmInQuarters = 0;
 }
 
 double MoveMaker::scaleMove(double movePercentage, double speedFactor, double phase) {
@@ -171,7 +168,6 @@ Pose MoveMaker::eyedDippedDiagonalSwing(double movePercentage) {
 	double mEndDip  = baseCurveDip(scaleMove(movePercentage, 1.0, 1.0 + globalPhaseShift));
 	double mEyeRoll  = baseCurveCos(scaleMove(movePercentage, 4.0, 1.0 + globalPhaseShift));
 
-
 	return Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 50.0*mHipDip),Rotation (radians(20)*mEyeRoll,0,radians(45)*mEndDip));
 }
 
@@ -192,6 +188,7 @@ void MoveMaker::createMove(double movePercentage) {
 		default:
 			simpleHeadNicker(movePercentage);
 	}
+
 	static TimeSamplerStatic moveTimer;
 
 	// limit acceleration after changing the move
@@ -202,58 +199,29 @@ void MoveMaker::createMove(double movePercentage) {
 }
 
 void MoveMaker::loop(bool beat, double BPM) {
-	double timeSinceBeat;
-	double timePerBeat = (60.0/BPM); // in seconds
-
 	if (beat) {
-
-
-		// detect rhythm
-		if (((rhythmInQuarters == 0) && (beatCount  == 3))) {
-			timeSinceBeat = secondsSinceEpoch() - timeOfLastBeat;
-
-			// detect 1/1 or 1/2 rhythm
-			rhythmInQuarters = 1;
-			if (abs(timePerBeat - timeSinceBeat) > abs(2.0*timePerBeat - timeSinceBeat))
-				rhythmInQuarters = 2;
-			// cout << std::fixed << std::setprecision(2) << "Rhythm is 1/" << rhythmInQuarters << " tbp=" << timeSinceBeat << " s/beat=" <<  timePerBeat << "s" << "1:" << abs(timePerBeat - timeSinceBeat) << " 2:" << abs(2.0*timePerBeat - timeSinceBeat) << endl;
-			cout << std::fixed << std::setprecision(2) << "Rhythm is 1/" << rhythmInQuarters << " s/beat=" <<  timePerBeat << "s" << endl;
-
-		}
-
-		timeOfLastBeat = secondsSinceEpoch();
-
 		// first move is the classical head nicker
-		if (!beatStarted)
+		if (RhythmDetector::getInstance().isFirstBeat())
 			currentMove = SIMPLE_HEAD_NICKER;
-
-		beatStarted = true;
-		beatCount++;
 
 		// switch to next move after some time
 		passedBeatsInCurrentMove++;
-		if ((sequenceMode == AUTOMATIC_SEQUENCE) && (beatCount > 3) && (passedBeatsInCurrentMove == switchMoveAfterNBeats)) {
+		if ((sequenceMode == AUTOMATIC_SEQUENCE) && (RhythmDetector::getInstance().hasBeatStarted()) && (passedBeatsInCurrentMove*RhythmDetector::getInstance().getRhythmInQuarters() == switchMoveAfterNBeats)) {
 			doNewMove();
 			passedBeatsInCurrentMove = 0;
 		}
 	}
 
 	// wait 4 beats to detect the rhythm
-	if (beatCount > 3) {
-		// compute elapsed time since last beat
-		timeSinceBeat = secondsSinceEpoch() - timeOfLastBeat;
-
-		double movePercentage = (beatCount % (4/rhythmInQuarters) )*rhythmInQuarters + timeSinceBeat/(60.0/BPM);
-		// cout << std::fixed << std::setprecision(2) << "(" << (beatCount % (4/rhythmInQuarters) ) << ") t=" << timeSinceBeat << "s " << " 60/BPM=" << 60.0/BPM <<"s rhyt=" << rhythmInQuarters << "% =" << movePercentage << " "  << endl;
-
-		createMove(movePercentage );
-
+	if (RhythmDetector::getInstance().hasBeatStarted()) {
+		// cout << std::fixed << std::setprecision(2) << "-->" << RhythmDetector::getInstance().getRythmPercentage() << bodyPose << endl;
+		createMove(RhythmDetector::getInstance().getRythmPercentage());
 	}
 }
 
 void MoveMaker::doNewMove() {
 	// when all moves are shown, omit plain headnicker
-	if ((int)currentMove == NumMoveTypes-1)
+	if ((int)currentMove >= NumMoveTypes-1)
 		currentMove = (MoveType)1;
 	else
 		currentMove = (MoveType) (((int)currentMove + 1));
