@@ -123,7 +123,7 @@ Pose MoveMaker::tennisHeadNicker(double movePercentage) {
 
 	double mNick = baseCurveCos(scaleMove(movePercentage, 2.0,globalPhaseShift));
 	double mBase = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
-	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, 1.5 + globalPhaseShift)));
+	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, 1.0 + globalPhaseShift)));
 
 	return Pose(Point(0,0,bodyHeight + 50.0*mNick),Rotation (0,-radians(45)*mDip,-radians(45)*mBase));
 }
@@ -131,10 +131,48 @@ Pose MoveMaker::tennisHeadNicker(double movePercentage) {
 Pose MoveMaker::doubleHeadNicker(double movePercentage) {
 	double mLeftRight = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
 	double mNick = baseCurveCos(scaleMove(movePercentage, 4.0, globalPhaseShift));
-	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, 1.0 + globalPhaseShift)));
+	double mDip  = baseCurveDip(scaleMove(movePercentage, 1.0, 1.0 + globalPhaseShift));
+
+	return Pose(Point(0,40.0*mLeftRight,bodyHeight + 30.0*mNick),Rotation (0,-radians(0)*mDip,-radians(20)*mLeftRight-radians(60)*mDip));
+}
+
+Pose MoveMaker::diagonalSwing(double movePercentage) {
+
+	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
+	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, 1.0 + globalPhaseShift)));
+
+	return Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 50.0*mDip),Rotation (0,0,0));
+}
+
+Pose MoveMaker::dippedDiagonalSwing(double movePercentage) {
+
+	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
+	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, 1.0 + globalPhaseShift)));
+	double mEndDip  = baseCurveDip(scaleMove(movePercentage, 1.0, 1.0 + globalPhaseShift));
+
+	return Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 50.0*mDip),Rotation (0,0,radians(30)*mEndDip));
+}
+
+Pose MoveMaker::rolledDippedDiagonalSwing(double movePercentage) {
+
+	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
+	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, 1.0 + globalPhaseShift)));
+	double mEndDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, 1.0 + globalPhaseShift)));
+	double mRoll  = baseCurveCos(scaleMove(movePercentage, 4.0, 1.0 + globalPhaseShift));
+
+	return Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 50.0*mDip),Rotation (0,radians(20)*mRoll,radians(20)*mRoll + radians(30)*mEndDip));
+}
 
 
-	return Pose(Point(0,40.0*mLeftRight,bodyHeight + 30.0*mNick),Rotation (0,-radians(45)*mDip,-radians(20)*mLeftRight-radians(30)*mDip));
+Pose MoveMaker::eyedDippedDiagonalSwing(double movePercentage) {
+
+	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
+	double mHipDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, 1.0 + globalPhaseShift)));
+	double mEndDip  = baseCurveDip(scaleMove(movePercentage, 1.0, 1.0 + globalPhaseShift));
+	double mEyeRoll  = baseCurveCos(scaleMove(movePercentage, 4.0, 1.0 + globalPhaseShift));
+
+
+	return Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 50.0*mHipDip),Rotation (radians(20)*mEyeRoll,0,radians(45)*mEndDip));
 }
 
 void MoveMaker::createMove(double movePercentage) {
@@ -147,19 +185,23 @@ void MoveMaker::createMove(double movePercentage) {
 		case TRAVOLTA_HEAD_NICKER:nextPose = travoltaHeadNicker(movePercentage);break;
 		case ENHANCED_TRAVOLTA_HEAD_NICKER:nextPose = enhancedTravoltaHeadNicker(movePercentage);break;
 		case DOUBLE_HEAD_NICKER:nextPose = doubleHeadNicker(movePercentage);break;
+		case DIAGONAL_HEAD_SWING: nextPose = diagonalSwing(movePercentage); break;
+		case DIPPED_DIAGONAL_HEAD_SWING: nextPose = dippedDiagonalSwing(movePercentage); break;
+		case ROLLED_DIPPED_DIAGONAL_HEAD_SWING: nextPose = rolledDippedDiagonalSwing(movePercentage); break;
+		case EYED_DIPPED_DIAGONAL_HEAD_SWING: nextPose = eyedDippedDiagonalSwing(movePercentage); break;
 
 		default:
 			simpleHeadNicker(movePercentage);
 	}
 	static TimeSamplerStatic moveTimer;
 
-	// limit acceleration during change of move
+	// limit acceleration after changing the move
 	if (movePercentage > 0.25)
 		bodyPose.moveTo(nextPose, moveTimer.dT(), 400.0, 5.0);
 	else
-		bodyPose.moveTo(nextPose, moveTimer.dT(), 100.0, 1.0);
-
+		bodyPose.moveTo(nextPose, moveTimer.dT(), 100.0, 2.0);
 }
+
 void MoveMaker::loop(bool beat, double BPM) {
 	double timeSinceBeat;
 	double timePerBeat = (60.0/BPM); // in seconds
@@ -206,7 +248,11 @@ void MoveMaker::loop(bool beat, double BPM) {
 }
 
 void MoveMaker::doNewMove() {
-	currentMove = (MoveType) (((int)currentMove + 1) % NumMoveTypes);
+	// when all moves are shown, omit plain headnicker
+	if ((int)currentMove == NumMoveTypes-1)
+		currentMove = (MoveType)1;
+	else
+		currentMove = (MoveType) (((int)currentMove + 1));
 
 	cout << "new move: " << moveName(currentMove) << "(" << (int)currentMove << ")" << endl;
 }
@@ -217,12 +263,16 @@ void MoveMaker::switchMovePeriodically(int afterHowManyMoves) {
 
 string MoveMaker::moveName(MoveType m) {
 	switch (m) {
-		case NO_MOVE:             			return "no move";
-		case SIMPLE_HEAD_NICKER:			return "simple head nicker";
-		case TRAVOLTA_HEAD_NICKER:      	return "travolta head nicker";
-		case ENHANCED_TRAVOLTA_HEAD_NICKER: return "enhanced travolta head nicker";
-		case DOUBLE_HEAD_NICKER:      		return "double head nicker";
-		case TENNIS_HEAD_NICKER:        	return "tennis head nicker";
+		case NO_MOVE:             				return "no move";
+		case SIMPLE_HEAD_NICKER:				return "simple head nicker";
+		case TRAVOLTA_HEAD_NICKER:      		return "travolta head nicker";
+		case ENHANCED_TRAVOLTA_HEAD_NICKER: 	return "enhanced travolta head nicker";
+		case DOUBLE_HEAD_NICKER:      			return "double head nicker";
+		case TENNIS_HEAD_NICKER:        		return "tennis head nicker";
+		case DIAGONAL_HEAD_SWING:				return "diagonal head swing";
+		case DIPPED_DIAGONAL_HEAD_SWING:		return "dipped diagonal head swing";
+		case ROLLED_DIPPED_DIAGONAL_HEAD_SWING:	return "rolled dipped diagonal head swing";
+		case EYED_DIPPED_DIAGONAL_HEAD_SWING:	return "double dipped diagonal head swing";
 
 		default:
 			return "";
