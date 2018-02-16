@@ -19,6 +19,8 @@ public:
 
 	int getRhythmInQuarters() { return rhythmInQuarters; };
 	int getBeatCount() { return (beatCount % (4/rhythmInQuarters)); };
+	int getAbsoluteBeatCount() { return (beatCount); };
+
 	bool hasBeatStarted() { return beatStarted; };
 	bool isFirstBeat();
 	double getRythmPercentage() { return movePercentage; };

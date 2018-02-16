@@ -53,7 +53,8 @@ void printUsage() {
 	cout << "BeatTracker -f <wav.file>        # define the track to be played" << endl
 	     << "            [-h]                 # print this" << endl
 		 << "            [-v <volume 0..100>] # set volume between 0 and 100" << endl
-		 << "            [-ui]                # start visualizer" << endl;
+		 << "            [-ui]                # start visualizer" << endl
+	     << "            [-i <n>]# start after n detected beats" << endl;
 }
 
 
@@ -247,6 +248,17 @@ int main(int argc, char *argv[]) {
     	}
     }
 
+    arg = getCmdOption(argv, argv + argc, "-i");
+    int startAfterNBeats = 4;
+    if(arg != NULL) {
+    	volumeArg  = atoi(arg);
+    	if ((startAfterNBeats < 2))
+    	{
+    		cerr << "number of beats I await needs to be >= 2] but is (" << startAfterNBeats << endl;
+    		exit(1);
+    	}
+    }
+
     runUI = cmdOptionExists(argv, argv + argc, "-ui");
 
     if (runUI)
@@ -254,6 +266,7 @@ int main(int argc, char *argv[]) {
 
     MoveMaker::getInstance().setup();
     RhythmDetector::getInstance().setup();
+    MoveMaker::getInstance().setStartAfterNBeats(startAfterNBeats);
 
     processAudioFile(trackFilename, volumeArg/100.0, sendBeatToRythmDetector);
 }
