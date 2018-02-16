@@ -25,6 +25,7 @@
 #include "AudioFile.h"
 #include "UI.h"
 #include "MoveMaker.h"
+#include "RhythmDetector.h"
 
 
 INITIALIZE_EASYLOGGINGPP
@@ -52,7 +53,8 @@ void printUsage() {
 	cout << "BeatTracker -f <wav.file>        # define the track to be played" << endl
 	     << "            [-h]                 # print this" << endl
 		 << "            [-v <volume 0..100>] # set volume between 0 and 100" << endl
-		 << "            [-ui]                # start visualizer" << endl;
+		 << "            [-ui]                # start visualizer" << endl
+	     << "            [-i <n>]# start after n detected beats" << endl;
 }
 
 
@@ -142,11 +144,13 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 		elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;
 		double elapsedFrameTime = (double)posInputSamples / (double)sampleRate;
 
+		beatCallback(beat, bpm);
+
 		if (beat)
 		{
 			cout << std::fixed << std::setprecision(1) << "Beat (" << b.getCurrentTempoEstimate() << ")" << std::setprecision(1) << (elapsedFrameTime) << "s" << endl;
 		};
-		beatCallback(beat, bpm);
+
 		delay_ms((elapsedFrameTime - elapsedTime)*1000.0);
 
 	}
@@ -199,8 +203,12 @@ void setupLogging(int argc, char *argv[]) {
 
 
 bool runUI = false;
-void sendBeatToMoverGenerator(bool beat, double bpm) {
+
+void sendBeatToRythmDetector(bool beat, double bpm) {
+	RhythmDetector & rd = RhythmDetector::getInstance();
 	MoveMaker& mm = MoveMaker::getInstance();
+
+	rd.loop(beat, bpm);
 	mm.loop(beat, bpm);
 	if (runUI)
 		UI::getInstance().setBodyPose(mm.getBodyPose());
@@ -240,12 +248,25 @@ int main(int argc, char *argv[]) {
     	}
     }
 
+    arg = getCmdOption(argv, argv + argc, "-i");
+    int startAfterNBeats = 4;
+    if(arg != NULL) {
+    	volumeArg  = atoi(arg);
+    	if ((startAfterNBeats < 2))
+    	{
+    		cerr << "number of beats I await needs to be >= 2] but is (" << startAfterNBeats << endl;
+    		exit(1);
+    	}
+    }
+
     runUI = cmdOptionExists(argv, argv + argc, "-ui");
 
     if (runUI)
     	UI::getInstance().setup(argc,argv);
 
     MoveMaker::getInstance().setup();
+    RhythmDetector::getInstance().setup();
+    MoveMaker::getInstance().setStartAfterNBeats(startAfterNBeats);
 
-    processAudioFile(trackFilename, volumeArg/100.0, sendBeatToMoverGenerator);
+    processAudioFile(trackFilename, volumeArg/100.0, sendBeatToRythmDetector);
 }
