@@ -15,7 +15,7 @@ using namespace std;
 
 // Initial main window size
 int WindowWidth = 600;
-int WindowHeight = 800;
+int WindowHeight = 1000;
 
 // GLUI Window handlers
 int wMain;			// main window
@@ -96,12 +96,16 @@ void WindowController::setBodyPose(const Pose& bodyPose) {
 }
 
 void setDancingMoveWidget() {
-	currentDancingModeWidget->set_int_val((int)MoveMaker::getInstance().getCurrentMove());
+	int moveNumber = (int)MoveMaker::getInstance().getCurrentMove();
+	if (moveNumber == Move::MoveType::NO_MOVE)
+		currentDancingModeWidget->set_int_val(0);
+	else
+		currentDancingModeWidget->set_int_val(1+(int)MoveMaker::getInstance().getCurrentMove());
 }
 
 
 void currentDancingMoveCallback(int widgetNo) {
-	MoveMaker::getInstance().setCurrentMove((MoveMaker::MoveType)dancingModeLiveVar);
+	MoveMaker::getInstance().setCurrentMove((Move::MoveType)(dancingModeLiveVar-1));
 }
 
 void setSequenceModeWidget() {
@@ -127,9 +131,13 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 	currentDancingModeWidget =  new GLUI_RadioGroup(dancingModePanel, &dancingModeLiveVar, 0, currentDancingMoveCallback);
 
+	new GLUI_RadioButton(currentDancingModeWidget, Move::getMove(Move::NO_MOVE).getName().c_str());
 	for (int i = 0;i<MoveMaker::getInstance().getNumMoves();i++) {
-		MoveMaker::MoveType move = (MoveMaker::MoveType)i;
-		new GLUI_RadioButton(currentDancingModeWidget, MoveMaker::getInstance().getMoveName(move).c_str());
+		Move& move = Move::getMove((Move::MoveType)i);
+		new GLUI_RadioButton(currentDancingModeWidget, move.getName().c_str());
+
+		if (i >= MoveMaker::getInstance().getNumMoves()/2 )
+			windowHandle->add_column_to_panel(dancingModePanel, false);
 	}
 
 	windowHandle->add_column_to_panel(interactivePanel, false);

@@ -143,11 +143,13 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 		elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;
 		double elapsedFrameTime = (double)posInputSamples / (double)sampleRate;
 
+		beatCallback(beat, bpm);
+
 		if (beat)
 		{
 			cout << std::fixed << std::setprecision(1) << "Beat (" << b.getCurrentTempoEstimate() << ")" << std::setprecision(1) << (elapsedFrameTime) << "s" << endl;
 		};
-		beatCallback(beat, bpm);
+
 		delay_ms((elapsedFrameTime - elapsedTime)*1000.0);
 
 	}
