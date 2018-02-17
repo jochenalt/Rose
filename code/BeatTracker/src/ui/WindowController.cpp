@@ -85,14 +85,39 @@ void GluiReshapeCallback( int x, int y )
 
 
 void WindowController::setBodyPose(const Pose& bodyPose) {
-	mainBotView.setBodyPose(bodyPose);
 
-	// post a refresh with 50Hz max
-	static uint32_t lastCall = 0;
-	uint32_t now = millis();
-	if (now - lastCall > 20)
-		glutPostRedisplay();
-	lastCall = now;
+	Point eyeLookAt = mainBotView.getEyePosition();
+	// Point eyeLookAt (500,0,100);
+
+	// compute the position of the look-at point from the heads perspective:
+	//      compute homogenous transformation matrix of head
+	// 		compute inverse homogenous matrix for reversing the coord system
+	// 	    get look at point from heads perspective by multiplying inverse matrix above with look-at-position
+	/*
+	HomogeneousMatrix bodyTransformation = HomogeneousMatrix(4,4,
+					{ 1, 	0,  	0,  	bodyPose.position.x,
+					  0, 	1, 		0,	 	bodyPose.position.y,
+					  0,	0,		1,		bodyPose.position.z,
+					  0,	0,		0,		1});
+	HomogeneousMatrix rotateBody;
+	createRotationMatrix(bodyPose.orientation, rotateBody);
+	bodyTransformation *= rotateBody;
+	HomogeneousMatrix inverseBodyTransformation;
+	*/
+	HomogeneousMatrix bodyTransformation;
+	HomogeneousMatrix inverseBodyTransformation;
+
+	createTransformationMatrix(bodyPose, bodyTransformation);
+	computeInverseTransformationMatrix(bodyTransformation, inverseBodyTransformation);
+
+	HomogeneousVector lookAtPosition = {
+						eyeLookAt.x,
+						eyeLookAt.y,
+						eyeLookAt.z,
+						1.0 };
+
+	Point lookAtCoordFromBodysPerspective= inverseBodyTransformation * lookAtPosition;
+	mainBotView.setBodyPose(bodyPose, lookAtCoordFromBodysPerspective);
 }
 
 void setDancingMoveWidget() {

@@ -28,9 +28,11 @@ public:
 	void MotionCallback(int x, int y);
 	void MouseCallback(int button, int button_state, int x, int y);
 
-	void setBodyPose(const Pose& bodyPose);
+	void setBodyPose(const Pose& bodyPose, const Point& eyeDeviation);
+
 private:
 	Pose bodyPose;
+	Point eyeDeviation;
 	void drawCoordSystem(bool withRaster );
 
 	string title;

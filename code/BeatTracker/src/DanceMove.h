@@ -16,7 +16,7 @@
 
 class Move {
 public:
-	enum MoveType { PHYSISISTS_HEAD_NICKER, TENNIS_HEAD_NICKER, DOUBLE_HEAD_NICKER,
+	enum MoveType { PHYSICISTS_HEAD_NICKER, TENNIS_HEAD_NICKER, DOUBLE_HEAD_NICKER,
 		            TRAVOLTA_HEAD_NICKER, ENHANCED_TRAVOLTA_HEAD_NICKER,
 					DIAGONAL_HEAD_SWING, DIPPED_DIAGONAL_HEAD_SWING, ROLLED_DIPPED_DIAGONAL_HEAD_SWING, EYED_DIPPED_DIAGONAL_HEAD_SWING,
 					BOLLYWOOD_HEAD_MOVE, DOUBLE_BOLLYWOOD_MOVE, SWING_DOUBLE_BOLLYWOOD_MOVE,
@@ -66,7 +66,7 @@ public:
 	double baseCurveFatDip(double movePercentage);
 
 	// methods implementing dance moves
-	Pose physisistsHeadNicker(double movePercentage);
+	Pose physicistsHeadNicker(double movePercentage);
 	Pose tennisHeadNicker(double movePercentage);
 
 	Pose travoltaHeadNicker(double movePercentage);

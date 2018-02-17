@@ -172,6 +172,15 @@ realnum distance(const Vector& a, const Vector& b) {
 
 
 
+void computeInverseTransformationMatrix(HomogeneousMatrix m, HomogeneousMatrix& inverse) {
+	inverse = HomogeneousMatrix(4,4,
+			{ 	m[0][0], m[1][0], m[2][0],- m[0][0]*m[0][3] - m[1][0]*m[1][3] - m[2][0]*m[2][3],
+				m[0][1], m[1][1], m[2][1],- m[0][1]*m[0][3] - m[1][1]*m[1][3] - m[2][1]*m[2][3],
+				m[0][2], m[1][2], m[2][2],- m[0][2]*m[0][3] - m[1][2]*m[1][3] - m[2][2]*m[2][3],
+				0,			0		,0		,	1});
+
+}
+
 void createRotationMatrix(const Rotation &r, HomogeneousMatrix& m) {
 	realnum sinX = sin(r.x);
 	realnum cosX = cos(r.x);
@@ -186,6 +195,18 @@ void createRotationMatrix(const Rotation &r, HomogeneousMatrix& m) {
 				-sinY,	 	cosY*sinX,						cosY*cosX,					0,
 				0,			0,								0,							1});
 }
+
+void createTransformationMatrix(const Pose& p, HomogeneousMatrix& m) {
+	m = HomogeneousMatrix(4,4,
+						{ 1, 	0,  	0,  	p.position.x,
+						  0, 	1, 		0,	 	p.position.y,
+						  0,	0,		1,		p.position.z,
+						  0,	0,		0,		1});
+	HomogeneousMatrix rotate;
+	createRotationMatrix(p.orientation, rotate);
+	m *= rotate;
+}
+
 
 bool almostEqual(const Point& a, const Point& b, realnum precision) {
 	return ((abs(a.x-b.x) < precision) &&

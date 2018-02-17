@@ -73,7 +73,7 @@ void MoveMaker::loop(bool beat, double BPM) {
 void MoveMaker::doNewMove() {
 	// when all moves are shown, omit plain headnicker
 	if ((int)currentMove >= Move::numMoves()-1)
-		currentMove = (Move::MoveType)0;
+		currentMove = (Move::MoveType)1; // don't restart with physicists move
 	else
 		currentMove = (Move::MoveType) (((int)currentMove + 1));
 

@@ -22,7 +22,7 @@ public:
 	}
 
 	// display the bot with the given joint angles in the current openGL window
-	void displayBot(const Pose& bodyPose);
+	void displayBot(const Pose& bodyPose, const Point& eyeDeviation );
 
 	// setup by looking for the STL files
 	void setup();
@@ -33,6 +33,8 @@ private:
 
 
 	STLObject eyes;
+	STLObject body;
+
 };
 
 #endif /* UI_BOTDRAWER_H_ */

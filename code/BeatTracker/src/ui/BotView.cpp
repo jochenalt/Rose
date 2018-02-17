@@ -210,7 +210,7 @@ void BotView::display() {
 	setEyePosition();
 	glMatrixMode(GL_MODELVIEW);
 
-	BotDrawer::getInstance().displayBot(bodyPose);
+	BotDrawer::getInstance().displayBot(bodyPose, eyeDeviation);
 
 	// coord system
 	drawCoordSystem(true);
@@ -222,8 +222,9 @@ void BotView::display() {
 }
 
 
-void BotView::setBodyPose(const Pose& newBodyPose) {
+void BotView::setBodyPose(const Pose& newBodyPose, const Point& newEyeDeviation) {
 	bodyPose = newBodyPose;
+	eyeDeviation = newEyeDeviation;
 }
 
 void BotView::reshape(int x,int y, int w, int h) {

@@ -17,7 +17,7 @@
 #include "basics/util.h"
 #include "basics/spatial.h"
 
-void BotDrawer::displayBot(const Pose & bodyPose ) {
+void BotDrawer::displayBot(const Pose & bodyPose, const Point& eyeDeviation ) {
 	glPushAttrib(GL_CURRENT_BIT);
 	glPushMatrix();
 
@@ -33,8 +33,23 @@ void BotDrawer::displayBot(const Pose & bodyPose ) {
 	glRotatef(degrees(bodyPose.orientation.y), 0.0,1.0,0.0);
 	glRotatef(degrees(bodyPose.orientation.x), 1.0,0.0,0.0);
 
+	glPushMatrix();
 	glRotatef(90, 0.0, 1.0, 0.0 );
 	glRotatef(90, 0.0, 0.0, 1.0 );
+	body.display(glEyesColor,glEyesColor);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(eyeDeviation.x, eyeDeviation.y, eyeDeviation.z);
+	glutSolidSphere(6, 18, 18);
+	glPopMatrix();
+
+	double distance = eyeDeviation.length();
+	double factor = 20.0/distance;
+	glTranslatef(0, eyeDeviation.y*factor, eyeDeviation.z*factor);
+	glRotatef(90, 0.0, 1.0, 0.0 );
+	glRotatef(90, 0.0, 0.0, 1.0 );
+
 	eyes.display(glEyesColor,glEyesColor);
 	glPopMatrix();
 	glPopAttrib();
@@ -43,6 +58,8 @@ void BotDrawer::displayBot(const Pose & bodyPose ) {
 
 void BotDrawer::readSTLFiles(string path) {
 	eyes.loadFile(path + "/Eyes.stl");
+	body.loadFile(path + "/Body.stl");
+
 }
 
 void BotDrawer::setup() {
