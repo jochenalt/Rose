@@ -246,17 +246,20 @@ int main(int argc, char *argv[]) {
     		cerr << "volume (" << volumeArg << ") has to be within [0..100]" << endl;
     		exit(1);
     	}
+    	cout << "volume " << volumeArg << endl;
+
     }
 
     arg = getCmdOption(argv, argv + argc, "-i");
     int startAfterNBeats = 4;
     if(arg != NULL) {
-    	volumeArg  = atoi(arg);
+    	startAfterNBeats  = atoi(arg);
     	if ((startAfterNBeats < 2))
     	{
     		cerr << "number of beats I await needs to be >= 2] but is (" << startAfterNBeats << endl;
     		exit(1);
     	}
+    	cout << "starting after " << startAfterNBeats << " beats." << endl;
     }
 
     runUI = cmdOptionExists(argv, argv + argc, "-ui");
