@@ -24,7 +24,7 @@ void Move::setup() {
 	if (moveLibrary.size() == 0) {
 		moveLibrary.resize((int)NO_MOVE+1);
 
-		moveLibrary[(int)PHYSICISTS_HEAD_NICKER] = Move(PHYSICISTS_HEAD_NICKER, "phyisist's move", 8);
+		moveLibrary[(int)PHYSICISTS_HEAD_NICKER] = Move(PHYSICISTS_HEAD_NICKER, "physicist's move", 8);
 		moveLibrary[(int)TENNIS_HEAD_NICKER] = Move(TENNIS_HEAD_NICKER, "tennis spectators's move",8);
 		moveLibrary[(int)DOUBLE_HEAD_NICKER] = Move(DOUBLE_HEAD_NICKER, "weasel's move",8);
 
@@ -126,7 +126,7 @@ Pose Move::tennisHeadNicker(double movePercentage) {
 
 	double mBase = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, startPhase + 0.175));
 	double mUpDown = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase));
-	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.875)));
+	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 1.0)));
 
 	return Pose(Point(0,0,bodyHeight + 50.0*mUpDown),Rotation (0,-radians(60)*mDip,-radians(45)*mBase));
 }
@@ -142,7 +142,7 @@ Pose Move::doubleHeadNicker(double movePercentage) {
 Pose Move::travoltaHeadNicker(double movePercentage) {
 
 	// used move curves
-	double mBase = baseCurveCos(scaleMove(movePercentage, 2.0,0.625+globalPhaseShift));
+	double mBase = baseCurveFatCos(scaleMove(movePercentage, 2.0,0.625+globalPhaseShift));
 	double mUpDown = baseCurveTrapezoid(scaleMove(movePercentage, 2.0, 1.375+globalPhaseShift));
 
 	return Pose(Point(0,30*mBase,bodyHeight + 50.0*mBase),Rotation (0,-radians(30)*mUpDown,radians(20)*mUpDown));
@@ -165,16 +165,16 @@ Pose Move::diagonalSwing(double movePercentage) {
 	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 0.75 + globalPhaseShift));
 	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, -0.25 + globalPhaseShift)));
 
-	return Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 50.0*mDip),Rotation (0,0,0));
+	return Pose(Point(-30.0*mBase,40.0*mBase,bodyHeight + 50.0*mDip),Rotation (0,0,-radians(30)*mBase));
 }
 
 Pose Move::dippedDiagonalSwing(double movePercentage) {
 
-	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 0.75 + globalPhaseShift));
+	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 0.875 + globalPhaseShift));
 	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, -0.25 + globalPhaseShift)));
-	double mEndDip  = baseCurveDip(scaleMove(movePercentage, 1.00, -0.25 + globalPhaseShift));
+	double mEndDip  = baseCurveDip(scaleMove(movePercentage, 1.00, -0.625 + globalPhaseShift));
 
-	return Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 50.0*mDip),Rotation (0,0,radians(30)*mEndDip));
+	return Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 50.0*mDip),Rotation (0,0,radians(45)*mEndDip-radians(30)*mBase));
 }
 
 Pose Move::rolledDippedDiagonalSwing(double movePercentage) {

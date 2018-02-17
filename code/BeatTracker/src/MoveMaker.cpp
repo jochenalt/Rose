@@ -55,6 +55,7 @@ void MoveMaker::loop(bool beat, double BPM) {
 		// switch to next move after as soon as rhythm starts again
 		passedBeatsInCurrentMove++;
 		if ((sequenceMode == AUTOMATIC_SEQUENCE) &&
+			(RhythmDetector::getInstance().getAbsoluteBeatCount() > startAfterNBeats) &&
 			(RhythmDetector::getInstance().hasBeatStarted()) &&
 			(passedBeatsInCurrentMove*RhythmDetector::getInstance().getRhythmInQuarters() >= Move::getMove(currentMove).getLength()) &&
 			(RhythmDetector::getInstance().getBeatCount() == 0)) {
