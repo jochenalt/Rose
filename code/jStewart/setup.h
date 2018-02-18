@@ -1,0 +1,109 @@
+/*
+ * setup.h
+ *
+ * Created: 21.11.2014 22:41:45
+ *  Author: JochenAlt
+ */ 
+
+
+#ifndef SETUP_H_
+#define SETUP_H_
+
+#include "Arduino.h"
+#include "math.h"
+#include "FixedPoint.h"
+
+#define LED_PIN PIN_D6
+#define ERROR_LED_PIN PIN_D5
+
+#define INITIAL_BAUD_RATE 115200
+
+// (not all pins are controllable via Arduino Servo library, change pins carefully)
+#define SERVO1_PIN PIN_D7
+#define SERVO2_PIN PIN_A6
+#define SERVO3_PIN PIN_A5
+#define SERVO4_PIN PIN_C6
+#define SERVO5_PIN PIN_C7
+#define SERVO6_PIN PIN_A7
+
+// touchscreen is read differently than usual, we use all pins for measurements in order to 
+//
+#define TOUCHSCREEN_HAS_5WIRE
+
+#ifdef TOUCHSCREEN_HAS_5WIRE
+#define TOUCH5W_UL_PIN PIN_A3			// must be analog PIN
+#define TOUCH5W_UR_PIN PIN_A4			// must be analog PIN
+#define TOUCH5W_LL_PIN PIN_A2			// must be analog PIN
+#define TOUCH5W_LR_PIN PIN_A1			// must be analog PIN
+#define TOUCH5W_SENSE  PIN_A0			// must be analog PIN
+
+#define TOUCH_SCREEN_X_LEN 205			// [mm]
+#define TOUCH_SCREEN_Z_LEN 155			// [mm]
+#else
+#define TOUCH4W_XP_PIN PIN_A1			// must be analog PIN
+#define TOUCH4W_ZM_PIN PIN_A4			// must be analog PIN
+#define TOUCH4W_ZP_PIN PIN_A2			// must be analog PIN
+#define TOUCH4W_XM_PIN PIN_A3			// must be analog PIN
+
+#define TOUCH_SCREEN_X_LEN 220			// [mm]
+#define TOUCH_SCREEN_Z_LEN 120			// [mm]
+#endif
+
+#define TOUCHSCREEN_ADC_BANDWIDTH (850UL-40UL) // ADC values of the full screen in one axis
+
+#define BALL_RADIUS 11.0
+#define LEG_LENGTH 121.0	// length of legs between servo lever and platform
+#define SERVO_LEVER_LEN 22  // length of servo lever
+#define DEFAULT_PLATTFORM_HEIGHT 107 // [mm] above base 
+
+// servo spec:	0.24 s/60° at 5V 
+//				0.20 s/60° at 6.0V 
+// servo speed given below returns [°/s] 
+#define SERVO_SPEED ((1.0/0.24)/60) 
+
+#define PLATTFORM_RADIUS (76.6/2)		// 38.3
+#define PLATTFORM_LEG_DISTANCE (9.0)	// distance of two close pivot points on platform 
+#define PLATTFORM_BALL_CENTRE_DISTANCE (79.7-PLATTFORM_RADIUS) // 41.4, radius of ball joint on platform 
+
+#define PLATTFORM_LEG_DEVIATION (PLATTFORM_LEG_DISTANCE/2) // 4.7,  distance of piot points on platform from triangle corner denoting the platform joints
+#define SIN120 (sin(radians(120)))  //  0.866
+#define COS120 (cos(radians(120)))  // -0.5
+
+#define BASE_RADIUS (40.8)						 
+#define BASE_LEG_DISTANCE (37.9*2)
+#define BASE_LEG_DEVIATION (BASE_LEG_DISTANCE/2) // 37.9
+
+#define LOOP_TIME_MS 10
+#define LOOP_TIME (float(LOOP_TIME_MS)/1000.0)
+#define LOOP_FREQUENCY (1.0/LOOP_TIME)
+
+
+const int16_fp4_t PlatformCornerCoord_fp4[6][3] = {
+	{ FLOAT2FP16(-PLATTFORM_LEG_DEVIATION,4), FLOAT2FP16(0,4), FLOAT2FP16(-PLATTFORM_BALL_CENTRE_DISTANCE,4) },
+	{ FLOAT2FP16(PLATTFORM_LEG_DEVIATION,4), FLOAT2FP16(0,4), FLOAT2FP16(-PLATTFORM_BALL_CENTRE_DISTANCE,4) },
+	{ FLOAT2FP16(SIN120*PLATTFORM_BALL_CENTRE_DISTANCE - COS120*PLATTFORM_LEG_DEVIATION,4) , FLOAT2FP16(0,4),FLOAT2FP16(  -(COS120*PLATTFORM_BALL_CENTRE_DISTANCE)-SIN120*PLATTFORM_LEG_DEVIATION,4)},
+	{ FLOAT2FP16(SIN120*PLATTFORM_BALL_CENTRE_DISTANCE + COS120*PLATTFORM_LEG_DEVIATION,4), FLOAT2FP16(0,4), FLOAT2FP16( -(COS120*PLATTFORM_BALL_CENTRE_DISTANCE)+SIN120*PLATTFORM_LEG_DEVIATION,4) },
+	{ FLOAT2FP16(-(SIN120*PLATTFORM_BALL_CENTRE_DISTANCE + COS120*PLATTFORM_LEG_DEVIATION),4), FLOAT2FP16(0,4), FLOAT2FP16( -(COS120*PLATTFORM_BALL_CENTRE_DISTANCE)+SIN120*PLATTFORM_LEG_DEVIATION,4) },
+	{ FLOAT2FP16(-(SIN120*PLATTFORM_BALL_CENTRE_DISTANCE - COS120*PLATTFORM_LEG_DEVIATION),4), FLOAT2FP16(0,4), FLOAT2FP16( -(COS120*PLATTFORM_BALL_CENTRE_DISTANCE)-SIN120*PLATTFORM_LEG_DEVIATION,4)}
+};
+
+ // Drehpunkte der Servomotoren
+ const int16_fp4_t ServoPivotCoord_fp4[6][3] = {
+	 { FLOAT2FP16(-BASE_LEG_DEVIATION,4),FLOAT2FP16( -DEFAULT_PLATTFORM_HEIGHT,4),FLOAT2FP16( -BASE_RADIUS,4) },
+	 { FLOAT2FP16( BASE_LEG_DEVIATION,4),FLOAT2FP16( -DEFAULT_PLATTFORM_HEIGHT,4), FLOAT2FP16(-BASE_RADIUS,4) },
+	 { FLOAT2FP16( SIN120*BASE_RADIUS - COS120*BASE_LEG_DEVIATION,4),FLOAT2FP16( -DEFAULT_PLATTFORM_HEIGHT,4),FLOAT2FP16( -(COS120*BASE_RADIUS)-SIN120*BASE_LEG_DEVIATION,4)  },
+	 { FLOAT2FP16( SIN120*BASE_RADIUS + COS120*BASE_LEG_DEVIATION ,4),FLOAT2FP16( -DEFAULT_PLATTFORM_HEIGHT,4), FLOAT2FP16( -(COS120*BASE_RADIUS)+SIN120*BASE_LEG_DEVIATION,4) },
+	 { FLOAT2FP16(-(SIN120*BASE_RADIUS + COS120*BASE_LEG_DEVIATION ),4),FLOAT2FP16( -DEFAULT_PLATTFORM_HEIGHT,4),FLOAT2FP16( -(COS120*BASE_RADIUS)+SIN120*BASE_LEG_DEVIATION ,4) },
+	 { FLOAT2FP16(-(SIN120*BASE_RADIUS - COS120*BASE_LEG_DEVIATION),4), FLOAT2FP16(-DEFAULT_PLATTFORM_HEIGHT,4), FLOAT2FP16(-(COS120*BASE_RADIUS)-SIN120*BASE_LEG_DEVIATION,4)  }
+ };
+ 
+				 
+// rotation of each servo in world coord
+const float ServoAngleDegree[6] = { 0,0,-120,-120,120,120 };
+
+extern bool debug;
+extern void setError();
+
+
+
+#endif /* SETUP_H_ */
