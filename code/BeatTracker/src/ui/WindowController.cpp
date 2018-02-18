@@ -17,7 +17,7 @@ using namespace std;
 
 // Initial main window size
 int WindowWidth = 600;
-int WindowHeight = 1000;
+int WindowHeight = 800;
 
 // GLUI Window handlers
 int wMain;			// main window
@@ -185,6 +185,14 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 			moveCounter++;
 		}
+
+		// fill up with empty lines to have the containers of the same height
+		if (row == DanceMoveRows-1) {
+			for (int lines = moveCounter;lines < MoveMaker::getInstance().getNumMoves()+1;lines++)
+				new GLUI_StaticText(dancingModePanel[row],"");
+		}
+
+		// add a column for next row
 		if (row < DanceMoveRows)
 			windowHandle->add_column_to_panel(interactivePanel, false);
 

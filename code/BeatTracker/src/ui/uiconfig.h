@@ -15,7 +15,7 @@ const float ViewBotHeight 			= 200.0f;	// height of the bot to be viewed
 const float ViewMapEyeDistance 		= 5000.0f;	// distance of the eye to the map
 
 const int WindowGap=10;							// gap between frame and subwindow
-const int InteractiveWindowHeight=300;			// height of the interactive window
+const int InteractiveWindowHeight=200;			// height of the interactive window
 
 // RAL colors
 #include "ral.h"
