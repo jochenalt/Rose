@@ -16,6 +16,8 @@ public:
 	virtual ~UI();
 	static UI& getInstance();
 	void setup(int argc, char *argv[]);
+	void tearDown();
+
 	void setBodyPose(const Pose& bodyPose);
 };
 

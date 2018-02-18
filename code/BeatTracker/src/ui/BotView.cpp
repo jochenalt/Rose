@@ -23,14 +23,10 @@
 
 using namespace std;
 
-extern void mapFunction (Point &p);
-extern realnum getLiftHeight();
-
 BotView::BotView() {
 	windowHandle = 0; // set by derived view class
 	BotDrawer::getInstance().setup();
 }
-
 
 void BotView::drawCoordSystem(bool withRaster) {
 
@@ -211,12 +207,7 @@ void BotView::display() {
 	glMatrixMode(GL_MODELVIEW);
 
 	BotDrawer::getInstance().displayBot(bodyPose, eyeDeviation);
-
-	// coord system
 	drawCoordSystem(true);
-
-	glFlush();  		// Render now
-	glutSwapBuffers(); 	// use double buffering
 
 	glutSetWindow(savedWindowHandle);
 }

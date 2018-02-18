@@ -33,6 +33,10 @@ void UI::setup(int argc, char *argv[]) {
 	}
 }
 
+void UI::tearDown() {
+	WindowController::getInstance().tearDown();
+}
+
 void UI::setBodyPose(const Pose& bodyPose) {
 	WindowController::getInstance().setBodyPose(bodyPose);
 }

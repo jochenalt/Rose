@@ -34,6 +34,8 @@ public:
 	bool readyForControllerEvent();
 	bool isReady() { return uiReady; };
 	bool setup(int argc, char** argv);
+	void tearDown();
+
 
 	void setBodyPose(const Pose& bodyPose);
 

@@ -21,6 +21,7 @@ public:
 					DIAGONAL_HEAD_SWING, DIPPED_DIAGONAL_HEAD_SWING, ROLLED_DIPPED_DIAGONAL_HEAD_SWING, EYED_DIPPED_DIAGONAL_HEAD_SWING,
 					BOLLYWOOD_HEAD_MOVE, DOUBLE_BOLLYWOOD_MOVE, SWING_DOUBLE_BOLLYWOOD_MOVE,
 					BODY_WAVE, DIPPED_BODY_WAVE, SIDE_DIPPED_BODY_WAVE,
+					SHIMMYS, HIGH_SPEED_SHIMMYS,
 					TURN_AND_SHOW_BACK, TWERK, TURN_BACK,
 					NO_MOVE};
 
@@ -85,6 +86,9 @@ public:
 	Pose bodyWaveMove(double movePercentage);
 	Pose dipBodyWaveMove(double movePercentage);
 	Pose sidedDipBodyWaveMove(double movePercentage);
+
+	Pose shimmys(double movePercentage);
+	Pose highSpeedShimmys(double movePercentage);
 
 	Pose turnAndShowBack(double movePercentage);
 	Pose twerk(double movePercentage);

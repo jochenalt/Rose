@@ -4,6 +4,8 @@
 #include "basics/logger.h"
 #include "basics/util.h"
 #include "MoveMaker.h"
+#include "DanceMove.h"
+
 #include "WindowController.h"
 
 
@@ -21,8 +23,9 @@ int WindowHeight = 1000;
 int wMain;			// main window
 int wMainBotView; 	// sub window with dancing bot
 
-GLUI_RadioGroup* currentDancingModeWidget = NULL;
-int dancingModeLiveVar = 0;
+int DanceMoveRows = 2;
+GLUI_RadioGroup* currentDancingModeWidget[] = { NULL, NULL };
+int dancingModeLiveVar[] = { 0,0 };
 
 GLUI_RadioGroup* currentSequenceModeWidget = NULL;
 int currentSequenceModeLiveVar = 0;
@@ -32,16 +35,6 @@ int currentSequenceModeLiveVar = 0;
 // (without that, we have so many motion calls that rendering is bumpy)
 // postDisplayInitiated is true, if a display()-invokation is pending but has not yet been executed (i.e. allow a following display call)
 volatile static bool postDisplayInitiated = true;
-
-
-void WindowController::postRedisplay() {
-	int saveWindow = glutGetWindow();
-	glutSetWindow(wMain);
-	postDisplayInitiated = true;
-	glutPostRedisplay();
-	glutSetWindow(saveWindow );
-}
-
 
 /* Handler for window-repaint event. Call back when the window first appears and
  whenever the window needs to be re-painted. */
@@ -79,9 +72,8 @@ void GluiReshapeCallback( int x, int y )
 	GLUI_Master.get_viewport_area( &tx, &ty, &tw, &th );
 	glViewport( tx, ty, tw, th );
 	glutSetWindow(saveWindow);
-	WindowController::getInstance().postRedisplay();
+	// WindowController::getInstance().postRedisplay();
 }
-
 
 
 void WindowController::setBodyPose(const Pose& bodyPose) {
@@ -121,16 +113,39 @@ void WindowController::setBodyPose(const Pose& bodyPose) {
 }
 
 void setDancingMoveWidget() {
-	int moveNumber = (int)MoveMaker::getInstance().getCurrentMove();
-	if (moveNumber == Move::MoveType::NO_MOVE)
-		currentDancingModeWidget->set_int_val(0);
-	else
-		currentDancingModeWidget->set_int_val(1+(int)MoveMaker::getInstance().getCurrentMove());
+	int movesPerRow = MoveMaker::getInstance().getNumMoves()/DanceMoveRows ;
+	Move::MoveType move = MoveMaker::getInstance().getCurrentMove();
+	int moveNumber = (int)move;
+	int row = moveNumber / movesPerRow;
+	int line = moveNumber - movesPerRow*row;
+	if (moveNumber == Move::MoveType::NO_MOVE) {
+		row = 0;
+		line = 0;
+	} else {
+		if (row == 0)
+			line++;
+	}
+
+	currentDancingModeWidget[row]->set_int_val(line);
+
+	for (int i = 0;i<DanceMoveRows;i++) {
+		if (i != row)
+			currentDancingModeWidget[i]->set_int_val(-1);
+	}
 }
 
 
 void currentDancingMoveCallback(int widgetNo) {
-	MoveMaker::getInstance().setCurrentMove((Move::MoveType)(dancingModeLiveVar-1));
+	int movesPerRow = MoveMaker::getInstance().getNumMoves()/DanceMoveRows ;
+	int row = widgetNo;
+	if (widgetNo == 0) {
+		if (dancingModeLiveVar[widgetNo] == 0)
+			MoveMaker::getInstance().setCurrentMove(Move::MoveType::NO_MOVE);
+		else
+			MoveMaker::getInstance().setCurrentMove((Move::MoveType)(dancingModeLiveVar[widgetNo]-1));
+	}
+	else
+		MoveMaker::getInstance().setCurrentMove((Move::MoveType)(dancingModeLiveVar[widgetNo] + row*movesPerRow));
 }
 
 void setSequenceModeWidget() {
@@ -150,22 +165,30 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 	GLUI_Panel* interactivePanel = new GLUI_Panel(windowHandle,"interactive panel", GLUI_PANEL_NONE);
 
-	GLUI_Panel* dancingModePanel = new GLUI_Panel(interactivePanel,"Dancing Mode Panel", GLUI_PANEL_RAISED);
-	GLUI_StaticText* text = new GLUI_StaticText(dancingModePanel,"Current Dance Move");
-	text->set_alignment(GLUI_ALIGN_LEFT);
+	GLUI_StaticText* text = NULL;
+	// GLUI_StaticText* text = new GLUI_StaticText(interactivePanel,"Current Dance Move                                                   ");
+	// text->set_alignment(GLUI_ALIGN_LEFT);
 
-	currentDancingModeWidget =  new GLUI_RadioGroup(dancingModePanel, &dancingModeLiveVar, 0, currentDancingMoveCallback);
+	GLUI_Panel* dancingModePanel[2];
+	int moveCounter = 0;
+	for (int row = 0;row < DanceMoveRows; row++) {
+		dancingModePanel[row] = new GLUI_Panel(interactivePanel,"Dancing Mode Panel", GLUI_PANEL_RAISED);
 
-	new GLUI_RadioButton(currentDancingModeWidget, Move::getMove(Move::NO_MOVE).getName().c_str());
-	for (int i = 0;i<MoveMaker::getInstance().getNumMoves();i++) {
-		Move& move = Move::getMove((Move::MoveType)i);
-		new GLUI_RadioButton(currentDancingModeWidget, move.getName().c_str());
+		currentDancingModeWidget[row] =  new GLUI_RadioGroup(dancingModePanel[row], dancingModeLiveVar + row, row, currentDancingMoveCallback);
 
-		if (i >= MoveMaker::getInstance().getNumMoves()/2 )
-			windowHandle->add_column_to_panel(dancingModePanel, false);
+		if (row == 0)
+			new GLUI_RadioButton(currentDancingModeWidget[0], Move::getMove(Move::NO_MOVE).getName().c_str());
+
+		while (moveCounter < MoveMaker::getInstance().getNumMoves()/DanceMoveRows*(row+1)) {
+			Move& move = Move::getMove((Move::MoveType)moveCounter);
+			new GLUI_RadioButton(currentDancingModeWidget[row], move.getName().c_str());
+
+			moveCounter++;
+		}
+		if (row < DanceMoveRows)
+			windowHandle->add_column_to_panel(interactivePanel, false);
+
 	}
-
-	windowHandle->add_column_to_panel(interactivePanel, false);
 
 	GLUI_Panel* sequenceModePanel= new GLUI_Panel(interactivePanel,"Sequence Mode", GLUI_PANEL_RAISED);
 	text = new GLUI_StaticText(sequenceModePanel,"Sequence Move");
@@ -195,6 +218,9 @@ bool WindowController::setup(int argc, char** argv) {
 	return uiReady;
 }
 
+void WindowController::tearDown() {
+	glutExit();
+}
 
 // Idle callback is called by GLUI when nothing is to do.
 void idleCallback( void )

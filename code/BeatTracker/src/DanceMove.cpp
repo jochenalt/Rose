@@ -44,6 +44,9 @@ void Move::setup() {
 		moveLibrary[(int)DIPPED_BODY_WAVE] = Move(DIPPED_BODY_WAVE, "dipped body wave",8);
 		moveLibrary[(int)SIDE_DIPPED_BODY_WAVE] = Move(SIDE_DIPPED_BODY_WAVE, "rolling body wave",8);
 
+		moveLibrary[(int)SHIMMYS] = Move(SHIMMYS, "shmimmys",8);
+		moveLibrary[(int)HIGH_SPEED_SHIMMYS] = Move(HIGH_SPEED_SHIMMYS, "tripple shimmis",8);
+
 		moveLibrary[(int)TURN_AND_SHOW_BACK] = Move(TURN_AND_SHOW_BACK, "show your back",2);
 		moveLibrary[(int)TWERK] = Move(TWERK, "twerk",8);
 		moveLibrary[(int)TURN_BACK] = Move(TURN_BACK, "show your front",2);
@@ -200,7 +203,7 @@ Pose Move::eyedDippedDiagonalSwing(double movePercentage) {
 
 Pose Move::bollywoodHeadMove(double movePercentage) {
 	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 2.50 + globalPhaseShift));
-	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, 1.0 + globalPhaseShift)));
+	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, 0.875 + globalPhaseShift)));
 	double mHeadMove = baseCurveFatCos(scaleMove(movePercentage, 1.0, 1.50 + globalPhaseShift));
 
 	return Pose(Point(0,50.0*mBase,bodyHeight + 20.0*mDip),Rotation (radians(45)*mHeadMove, 0,0));
@@ -210,7 +213,7 @@ Pose Move::bollywoodHeadMove(double movePercentage) {
 Pose Move::doubleBollywoodHeadMove(double movePercentage) {
 	double startPhase = globalPhaseShift-0.750;
 	double mDip  = baseCurveDip(scaleMove(movePercentage, 1.0, 0.375 + globalPhaseShift));
-	double mHeadMove = baseCurveFatCos(scaleMove(movePercentage, 4.0, startPhase + 0.25 ));
+	double mHeadMove = baseCurveFatCos(scaleMove(movePercentage, 4.0, startPhase + 0.375 ));
 
 	return Pose(Point(0,20*mHeadMove,bodyHeight + 0.0*mDip),Rotation (0, 0,radians(30)*mDip));
 }
@@ -218,11 +221,11 @@ Pose Move::doubleBollywoodHeadMove(double movePercentage) {
 Pose Move::swingDoubleBollywoodHeadMove(double movePercentage) {
 	double startPhase = 2.25 + globalPhaseShift;
 	double mBase = baseCurveTriangle(scaleMove(movePercentage, 0.5,startPhase));
-	double mDip  = baseCurveDip(scaleMove(movePercentage, 1.0,     startPhase + 0.75));
+	double mDip  = baseCurveDip(scaleMove(movePercentage, 1.0,     startPhase + 1.625));
 	double mHeadMove = baseCurveCos(scaleMove(movePercentage, 4.0, startPhase - 1.0));
 	double mSwing = baseCurveCos(scaleMove(movePercentage, 2.0,    startPhase - 0.75));
 
-	return Pose(Point(0,00.0*mBase + 20*mHeadMove,bodyHeight + 50.0*(1.0-fabs(mDip))),Rotation (0,radians(30)*mSwing,radians(30)*mDip));
+	return Pose(Point(0,00.0*mBase + 20*mHeadMove,bodyHeight + 30.0*(1.0-fabs(mDip))),Rotation (0,radians(30)*mSwing,radians(30)*mDip));
 }
 
 Pose Move::bodyWaveMove(double movePercentage) {
@@ -261,6 +264,23 @@ Pose Move::sidedDipBodyWaveMove(double movePercentage) {
 	double mLeftRight= baseCurveTriangle(scaleMove(movePercentage, 1.0, phaseShift ));
 
 	return Pose(Point(0,50.0*mSideHip,bodyHeight + 50.0*mBase),Rotation (0,-radians(15)*mWave,radians(30)*mLeftRight));
+}
+
+Pose Move::shimmys(double movePercentage) {
+
+	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
+	double mHipDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, 1.25 + globalPhaseShift)));
+	double mShoulder  = baseCurveFatCos(scaleMove(movePercentage, 2.0, 0.25+globalPhaseShift));
+
+	return Pose(Point(0,30.0*mBase,bodyHeight + 20.0*mHipDip),Rotation (0,0,radians(20)*mShoulder));
+}
+Pose Move::highSpeedShimmys(double movePercentage) {
+
+	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
+	double mHipDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, 1.125 + globalPhaseShift)));
+	double mShouler  = baseCurveCos(scaleMove(movePercentage, 6.0,  0.25+globalPhaseShift));
+
+	return Pose(Point(0,30.0*mBase,bodyHeight + 50.0*mHipDip),Rotation (0,0,radians(15)*mShouler));
 }
 
 Pose Move::turnAndShowBack(double movePercentage) {
@@ -308,6 +328,8 @@ Pose Move::move(double movePercentage) {
 		case BODY_WAVE: return bodyWaveMove(movePercentage); break;
 		case DIPPED_BODY_WAVE: return dipBodyWaveMove(movePercentage); break;
 		case SIDE_DIPPED_BODY_WAVE: return sidedDipBodyWaveMove(movePercentage); break;
+		case SHIMMYS: return shimmys(movePercentage); break;
+		case HIGH_SPEED_SHIMMYS: return highSpeedShimmys(movePercentage); break;
 		case TURN_AND_SHOW_BACK:return turnAndShowBack(movePercentage); break;
 		case TWERK:			return twerk(movePercentage); break;
 		case TURN_BACK:		return turnBack(movePercentage); break;

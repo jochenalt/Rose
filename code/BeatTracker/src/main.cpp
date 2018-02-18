@@ -98,61 +98,74 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 	while (posInputSamples < numSamples) {
 
 		double frame[hopSize];
-		int numInputSamples = min(hopSize, numSamples);
-	    char outputBuffer[numInputSamples*audioOutputFormat.channels*(audioOutputFormat.bits/8)];
+		int numInputSamples = min(hopSize, numSamples-posInputSamples);
+		int outputBufferSize = numInputSamples*audioOutputFormat.channels*(audioOutputFormat.bits/8);
+	    char outputBuffer[outputBufferSize];
 
 	    int outputBufferCount = 0;
 		double outputVolumeScaler = (1<<15)*volume;
 
-		for (int i = 0; i < numInputSamples; i++)
-		{
-			double inputSampleValue;
-			switch (numInputChannels) {
-			case 1:
-				inputSampleValue= audioFile.samples[0][posInputSamples + i];
-				break;
-			case 2:
-				inputSampleValue = (audioFile.samples[0][posInputSamples + i]+audioFile.samples[1][posInputSamples + i])/2.0;
-				break;
-			default:
-				 inputSampleValue = 0;
-				for (int j = 0;j<numInputChannels;j++)
-					inputSampleValue += audioFile.samples[j][posInputSamples + i];
-				inputSampleValue = inputSampleValue / numInputChannels;
+		// process only, if the sample is big enough for a complete hop
+		if (numInputSamples == hopSize) {
+			for (int i = 0; i < numInputSamples; i++)
+			{
+				double inputSampleValue;
+				switch (numInputChannels) {
+				case 1:
+					inputSampleValue= audioFile.samples[0][posInputSamples + i];
+					break;
+				case 2:
+					inputSampleValue = (audioFile.samples[0][posInputSamples + i]+audioFile.samples[1][posInputSamples + i])/2.0;
+					break;
+				default:
+					 inputSampleValue = 0;
+					for (int j = 0;j<numInputChannels;j++)
+						inputSampleValue += audioFile.samples[j][posInputSamples + i];
+					inputSampleValue = inputSampleValue / numInputChannels;
+				}
+				frame[i] = inputSampleValue;
+
+				// set frame value into output buffer to be played later on
+				unsigned aoBufferValue = frame[i]*outputVolumeScaler;
+
+				assert (outputBufferCount  < outputBufferSize);
+				outputBuffer[outputBufferCount] = (uint8_t)(aoBufferValue & 0xFF);
+				outputBufferCount++;
+				assert (outputBufferCount < outputBufferSize);
+				outputBuffer[outputBufferCount] = (uint8_t)(aoBufferValue >> 8);
+				outputBufferCount++;
 			}
-			frame[i] = inputSampleValue;
 
-			// set frame value into output buffer to be played later on
-			unsigned aoBufferValue = frame[i]*outputVolumeScaler;
-			outputBuffer[outputBufferCount++] = (uint8_t)(aoBufferValue & 0xFF);
-			outputBuffer[outputBufferCount++] = (uint8_t)(aoBufferValue >> 8);
+			posInputSamples += numInputSamples;
+
+			// play the buffer of hopSize asynchronously
+			ao_play(outputDevice, outputBuffer, outputBufferCount);
+
+			// detect beat and bpm of that hop size
+			b.processAudioFrame(frame);
+
+
+			bool beat = b.beatDueInCurrentFrame();
+			double bpm = b.getCurrentTempoEstimate();
+
+			// insert a delay to synchronize played audio and beat detection
+			elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;
+			double elapsedFrameTime = (double)posInputSamples / (double)sampleRate;
+
+			beatCallback(beat, bpm);
+
+			if (beat)
+			{
+				cout << std::fixed << std::setprecision(1) << "Beat (" << b.getCurrentTempoEstimate() << ")" << std::setprecision(1) << (elapsedFrameTime) << "s" << endl;
+			};
+
+			delay_ms((elapsedFrameTime - elapsedTime)*1000.0);
+		} else {
+			// last frame not sufficient for a complete hop
+			cout << "end of song" << endl;
+			exit(1);
+			UI::getInstance().tearDown();
 		}
-
-		posInputSamples += numInputSamples;
-
-		// play the buffer of hopSize asynchronously
-		ao_play(outputDevice, outputBuffer, outputBufferCount);
-
-		// detect beat and bpm of that hop size
-		b.processAudioFrame(frame);
-
-
-		bool beat = b.beatDueInCurrentFrame();
-		double bpm = b.getCurrentTempoEstimate();
-
-		// insert a delay to synchronize played audio and beat detection
-		elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;
-		double elapsedFrameTime = (double)posInputSamples / (double)sampleRate;
-
-		beatCallback(beat, bpm);
-
-		if (beat)
-		{
-			cout << std::fixed << std::setprecision(1) << "Beat (" << b.getCurrentTempoEstimate() << ")" << std::setprecision(1) << (elapsedFrameTime) << "s" << endl;
-		};
-
-		delay_ms((elapsedFrameTime - elapsedTime)*1000.0);
-
 	}
 
 	// close audio output
