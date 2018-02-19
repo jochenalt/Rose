@@ -15,13 +15,19 @@ https://github.com/adamstark/BTrack
 portaudio
 example: https://github.com/mauritslamers/node-portaudio/blob/master/portaudio/test/patest_record.c
 
-
+or
+openal
+https://www.openal.org/documentation/OpenAL_Programmers_Guide.pdf
+http://www.dreamincode.net/forums/topic/184668-getting-microphone-input/
 
 
 ##########################
 # vm und umgebung wie bei manfred
 
-# install samplerate on linux
+# install samplerate on linux (required by BTrack)
 >sudo apt-get install libsamplerate-dev 
->sudo apt-get install libao-dev
+>sudo apt-get install libao-dev (required for playing sound)
+# install freeglut (required for openGL)
 >sudo apt-get install freeglut3-dev
+# install openal (required to get microphone input)
+>sudo apt-get install libalut-dev
