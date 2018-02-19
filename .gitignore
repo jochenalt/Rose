@@ -5,3 +5,5 @@ code/eclipse-workspace/\.metadata/
 CAD/OldVersions/
 *.lck
 ~$*.*
+CAD/ODroid C2/OldVersions/
+CAD/Teensy 3.5-3.6/OldVersions/
