@@ -11,6 +11,10 @@ https://www.sfml-dev.org
 # beat and BPM detection
 https://github.com/adamstark/BTrack
 
+# get microphone input 
+portaudio
+example: https://github.com/mauritslamers/node-portaudio/blob/master/portaudio/test/patest_record.c
+
 
 
 
