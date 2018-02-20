@@ -25,7 +25,6 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Point& eyeDeviation ) {
 	glRotatef(-90, 1.0,0.0,0.0);
 	glRotatef(-90, 0.0,0.0,1.0);
 
-
 	glTranslatef(bodyPose.position.x, bodyPose.position.y,bodyPose.position.z);
 
 	// rotate in zyx convention, as used in Kinematics::RotationMatrix
@@ -55,10 +54,43 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Point& eyeDeviation ) {
 	glPopAttrib();
 }
 
+void BotDrawer::displayStewart(const Pose & bodyPose) {
+	glPushAttrib(GL_CURRENT_BIT);
+	glPushMatrix();
+
+	// glLoadIdentity();             // Reset the model-view matrix to world coordinate system
+	glRotatef(-90, 1.0,0.0,0.0);
+	glRotatef(-90, 0.0,0.0,1.0);
+
+	glPushMatrix();
+	glRotatef(180, 0.0, 1.0, 0.0 );
+	glRotatef(0, 0.0, 0.0, 1.0 );
+	stewartBase.display(glEyesColor,glEyesColor);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(bodyPose.position.x, bodyPose.position.y,bodyPose.position.z);
+
+	// rotate in zyx convention, as used in Kinematics::RotationMatrix
+	glRotatef(degrees(bodyPose.orientation.z), 0.0,0.0,1.0);
+	glRotatef(degrees(bodyPose.orientation.y), 0.0,1.0,0.0);
+	glRotatef(degrees(bodyPose.orientation.x), 1.0,0.0,0.0);
+	stewartPlate.display(glEyesColor,glEyesColor);
+	glPopMatrix();
+
+
+	glPopMatrix();
+	glPopAttrib();
+}
+
 
 void BotDrawer::readSTLFiles(string path) {
 	eyes.loadFile(path + "/Eyes.stl");
 	body.loadFile(path + "/Body.stl");
+
+	stewartBase.loadFile(path + "/Stewart-Platform-Base.stl");
+	stewartPlate.loadFile(path + "/Stewart-Plate.stl");
+
 
 }
 

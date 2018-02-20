@@ -207,6 +207,8 @@ void BotView::display() {
 	glMatrixMode(GL_MODELVIEW);
 
 	BotDrawer::getInstance().displayBot(bodyPose, eyeDeviation);
+	BotDrawer::getInstance().displayStewart(bodyPose);
+
 	drawCoordSystem(true);
 
 	glutSetWindow(savedWindowHandle);

@@ -55,6 +55,12 @@ void Point::translate(const Point& pPoint) {
 	z += pPoint.z;
 }
 
+Point  Point::getTranslated(const Point& pPoint) {
+	Point result(*this);
+	result += pPoint;
+	return result;
+}
+
 void Point::mirrorAt(const Point& pMirror,realnum scale) {
 	x = pMirror.x + (pMirror.x-x)*scale;
 	y = pMirror.y + (pMirror.y-y)*scale;
@@ -78,6 +84,10 @@ realnum Point::distanceSqr(const Point& pPoint) const {
 
 realnum Point::length() const {
 	return sqrt(x*x + y*y+ z*z);
+}
+
+realnum Point::lengthSqr() const {
+	return x*x + y*y+ z*z;
 }
 
 realnum Point::scalarProduct(const Point& pPoint) const {
@@ -136,6 +146,28 @@ Point Point::getRotatedAroundZ(realnum alpha) const {
 	Point rotated((ca*x - sa*y),
 			      (sa*x + ca*y),
 			      z );
+	return rotated;
+}
+
+Point Point::getRotatedAroundX(realnum alpha) const {
+	realnum sa = sin(alpha);
+	realnum ca = cos(alpha);
+
+	Point rotated(x,
+			      ( ca*y - sa*z),
+			      ( sa*y + ca*z)
+			      );
+	return rotated;
+}
+
+Point Point::getRotatedAroundY(realnum alpha) const {
+	realnum sa = sin(alpha);
+	realnum ca = cos(alpha);
+
+	Point rotated(( ca*x + sa*z),
+			      y,
+			      (-sa*x + ca*z)
+			      );
 	return rotated;
 }
 

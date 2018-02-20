@@ -270,7 +270,7 @@ Pose Move::shimmys(double movePercentage) {
 
 	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
 	double mHipDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, 1.25 + globalPhaseShift)));
-	double mShoulder  = baseCurveFatCos(scaleMove(movePercentage, 2.0, 0.25+globalPhaseShift));
+	double mShoulder  = baseCurveFatCos(scaleMove(movePercentage, 2.0, 0.50+globalPhaseShift));
 
 	return Pose(Point(0,30.0*mBase,bodyHeight + 20.0*mHipDip),Rotation (0,0,radians(20)*mShoulder));
 }

@@ -18,6 +18,8 @@ class Point  : public Serializable {
 		Point(millimeter xP,millimeter yP) : Point(xP, yP, 0) {};
 
 		void translate(const Point& pPoint);
+		Point  getTranslated(const Point& pPoint);
+
 		void mirrorAt(const Point& pPoint, realnum scale);
 		void mirrorAt(const Point& pPoint);
 		void set(millimeter pX, millimeter pY,millimeter pZ);
@@ -26,6 +28,8 @@ class Point  : public Serializable {
 		bool isNull() const;
 
 		Point getRotatedAroundZ(angle_rad alpha) const;
+		Point getRotatedAroundY(angle_rad alpha) const;
+		Point getRotatedAroundX(angle_rad alpha) const;
 
 		void operator= (const Point& p);
 		void operator= (const HomogeneousVector& p);
@@ -49,6 +53,8 @@ class Point  : public Serializable {
 
 		void moveTo(const Point& b, realnum dT, realnum maxSpeed);
 		realnum length() const;
+		realnum lengthSqr() const;
+
 		realnum angleToDegree(const Point& pPoint) const;
 		realnum scalarProduct(const Point& pPoint) const;
 		Point orthogonalProjection(const Point& pLine) const;

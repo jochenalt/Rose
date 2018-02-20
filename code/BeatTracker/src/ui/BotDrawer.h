@@ -24,6 +24,9 @@ public:
 	// display the bot with the given joint angles in the current openGL window
 	void displayBot(const Pose& bodyPose, const Point& eyeDeviation );
 
+	// display Stewart platform
+	void displayStewart(const Pose& bodyPose);
+
 	// setup by looking for the STL files
 	void setup();
 
@@ -34,6 +37,9 @@ private:
 
 	STLObject eyes;
 	STLObject body;
+
+	STLObject stewartBase;
+	STLObject stewartPlate;
 
 };
 
