@@ -207,6 +207,10 @@ void createTransformationMatrix(const Pose& p, HomogeneousMatrix& m) {
 	m *= rotate;
 }
 
+Point getPointByTransformationMatrix(HomogeneousMatrix& m) {
+	return  Point(m[0][3], m[1][3], m[2][3]);
+}
+
 
 bool almostEqual(const Point& a, const Point& b, realnum precision) {
 	return ((abs(a.x-b.x) < precision) &&

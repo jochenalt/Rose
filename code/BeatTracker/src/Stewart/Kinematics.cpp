@@ -32,12 +32,14 @@ void Kinematics::setup() {
 	config = hipStewartConfig;
 
 	// compute the centres of all servos and the centres of all ball joints of the plate
+	double zRotation;
 	for (int i = 0;i<3;i++) {
-		servoCentre[i*2]     = Point(config.servoCentreRadius_mm,0,config.servoCentreHeight_mm).getRotatedAroundZ(radians(120)*i + config.servoCentreAngle_rad);
-		servoCentre[i*2+1]   = Point(config.servoCentreRadius_mm,0,config.servoCentreHeight_mm).getRotatedAroundZ(radians(120)*i - config.servoCentreAngle_rad);
+		zRotation = i*radians(120.0);
+		servoCentre[i*2]     = Pose(Point(config.servoCentreRadius_mm,0,config.servoCentreHeight_mm).getRotatedAroundZ(zRotation + config.servoCentreAngle_rad), Rotation(0,0,zRotation));
+		servoCentre[i*2+1]   = Pose(Point(config.servoCentreRadius_mm,0,config.servoCentreHeight_mm).getRotatedAroundZ(zRotation - config.servoCentreAngle_rad), Rotation(0,0,zRotation));
 
-		servoArmCentre[i*2]     = Point(config.servoArmCentreRadius_mm,0,config.servoCentreHeight_mm).getRotatedAroundZ(radians(120)*i + config.servoArmCentreAngle_mm);
-		servoArmCentre[i*2+1]   = Point(config.servoArmCentreRadius_mm,0,config.servoCentreHeight_mm).getRotatedAroundZ(radians(120)*i - config.servoArmCentreAngle_mm);
+		servoArmCentre[i*2]     = Point(config.servoArmCentreRadius_mm,0,config.servoCentreHeight_mm).getRotatedAroundZ(zRotation + config.servoArmCentreAngle_mm);
+		servoArmCentre[i*2+1]   = Point(config.servoArmCentreRadius_mm,0,config.servoCentreHeight_mm).getRotatedAroundZ(zRotation - config.servoArmCentreAngle_mm);
 
 		plateBallJoint[i*2]   = Point(config.plateJointRadius_mm,0,0).getRotatedAroundZ(radians(120)*i + config.plateJointAngle_rad);
 		plateBallJoint[i*2+1] = Point(config.plateJointRadius_mm,0,0).getRotatedAroundZ(radians(120)*i - config.plateJointAngle_rad);
@@ -52,8 +54,8 @@ void Kinematics::getServoArmCentre(Point servoArmCentre_world[6]) {
 }
 
 double Kinematics::computeServoAngle(int cornerNo, const Point& ballJoint_world) {
-	// transform balljoint coordinates into coordinate system of the servo
 
+	// transform balljoint coordinates into coordinate system of the servo
 	HomogeneousMatrix servoTransformation;
 	HomogeneousMatrix inverseServoTransformation;
 
@@ -68,6 +70,9 @@ double Kinematics::computeServoAngle(int cornerNo, const Point& ballJoint_world)
 
 	Point ballJoint_servoframe = inverseServoTransformation * balljoint_world_hom;
 
+	if (cornerNo % 2 == 1)
+		ballJoint_servoframe.y = -ballJoint_servoframe.y;
+
 	double lenSqr = ballJoint_servoframe.lengthSqr();
 
 	double yzLen = sqrt (sqr(ballJoint_servoframe.y) + sqr(ballJoint_servoframe.z));
@@ -80,7 +85,6 @@ double Kinematics::computeServoAngle(int cornerNo, const Point& ballJoint_world)
 
 void Kinematics::computeServoAngles(const Pose& plate, Point ballJoint_world[6], double servoAngle_rad[6], Point servoBallJoint_world[6]) {
 	// commpute the plate's ball joint coordinates in world coordinate
-
 	HomogeneousMatrix plateTransformation;
 	createTransformationMatrix(plate, plateTransformation);
 
@@ -95,10 +99,19 @@ void Kinematics::computeServoAngles(const Pose& plate, Point ballJoint_world[6],
 
 		Point currBallJoint_world = plateTransformation * ballJoint_plate_hom;
 
-		ballJoint_world[i] =currBallJoint_world;
+		ballJoint_world[i] = currBallJoint_world;
 
-		servoAngle_rad[i] = computeServoAngle(i,ballJoint_world[i] );
-		servoBallJoint_world[i] = servoCentre[i].getRotatedAroundX(servoAngle_rad[i]).getTranslated(Point(0,config.servoArmLength_mm,0));
+		double angle_rad = computeServoAngle(i,currBallJoint_world);
+		servoAngle_rad[i] = angle_rad;
+		/*
+		HomogeneousMatrix servoTransform;
+		createTransformationMatrix(servoCentre[i], servoTransform);
+		HomogeneousMatrix servoArm;
+		createTransformationMatrix(Pose(Point(0,config.servoArmLength_mm,0), Rotation(angle_rad,0,0)), servoArm);
+		HomogeneousMatrix current = servoTransform;
+		current *= servoArm;
+		servoBallJoint_world[i] = getPointByTransformationMatrix(current);
+		*/
 	}
 
 

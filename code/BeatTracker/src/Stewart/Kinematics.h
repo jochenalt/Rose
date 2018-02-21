@@ -17,7 +17,7 @@ struct StewartConfiguration {
 	double servoArmCentreRadius_mm;
 	double servoArmCentreAngle_mm;
 
-	double plateJointRadius_mm;		// distance of a plate's ball joint to the centre
+	double plateJointRadius_mm;		    // distance of a plate's ball joint to the centre
 	double plateJointAngle_rad;			// Angle we need to turn from middle axis in order to come to the ball joint
 
 	double rodLength_mm;				// length of the rod between base and plate
@@ -41,7 +41,7 @@ public:
 private:
 	double computeServoAngle(int cornerNo, const Point& ballJoint);
 
-	Point servoCentre[6];
+	Pose servoCentre[6];
 	Point servoArmCentre[6];
 
 	Point plateBallJoint[6];

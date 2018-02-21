@@ -82,12 +82,12 @@ void BotDrawer::displayStewart(const Pose & bodyPose) {
 	glPopMatrix();
 
 	Point ballJoint_world[6];
-	double servoAnges[6];
+	double servoAngles[6];
 	Point servoBallJoints[6];
 	Point servoArmCentre[6];
 
 	Kinematics::getInstance().getServoArmCentre(servoArmCentre);
-	Kinematics::getInstance().computeServoAngles(bodyPose, ballJoint_world, servoAnges, servoBallJoints );
+	Kinematics::getInstance().computeServoAngles(bodyPose, ballJoint_world, servoAngles, servoBallJoints );
 
 	for (int i = 0;i<6;i++) {
 		glPushMatrix();
@@ -101,17 +101,12 @@ void BotDrawer::displayStewart(const Pose & bodyPose) {
 		glTranslatef(servoArmCentre[i].x, servoArmCentre[i].y,servoArmCentre[i].z);
 		glRotatef(int(i/2)*120,0.0,0.0,1.0);
 
-		/*
-		if (i % 2 == 0)
-			glRotatef(180.0 + 0*degrees(servoAnges[i]), 1.0,0.0,0.0);
-		else
-			glRotatef(0*degrees(servoAnges[i]), 1.0,0.0,0.0);
-*/
-		if (i % 2 == 0)
-			glRotatef(180.0 + 30, 1.0,0.0,0.0);
-		else
-			glRotatef(30, 1.0,0.0,0.0);
 
+		double angle = degrees(servoAngles[i]);
+		if (i % 2 == 0)
+			glRotatef(180.0 + angle, 1.0,0.0,0.0);
+		else
+			glRotatef(-angle, 1.0,0.0,0.0);
 
 		glRotatef(-90, 1.0,0.0,0.0);
 		glRotatef(90, 0.0,1.0,0.0);

@@ -21,6 +21,8 @@ public:
 	MoveMaker();
 	virtual ~MoveMaker();
 	static MoveMaker& getInstance();
+	Pose getDefaultPose();
+
 	void setup();
 
 	void setStartAfterNBeats(int n) { startAfterNBeats = n; };

@@ -24,8 +24,11 @@ MoveMaker& MoveMaker::getInstance() {
 }
 
 
+Pose MoveMaker::getDefaultPose() {
+	return Pose(Point(0,0,bodyHeight), Rotation (0,0,0));
+}
 void MoveMaker::setup() {
-	bodyPose = Pose(Point(0,0,0), Rotation (0,0,0));
+	bodyPose = getDefaultPose();
 	currentMove = Move::NO_MOVE;
 	passedBeatsInCurrentMove = 0;
 	startAfterNBeats = 4;

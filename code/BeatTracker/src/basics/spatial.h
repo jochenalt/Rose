@@ -236,5 +236,6 @@ void createRotationMatrix(const Rotation &r, HomogeneousMatrix& m);
 
 void computeInverseTransformationMatrix(HomogeneousMatrix m, HomogeneousMatrix& inverse);
 void createTransformationMatrix(const Pose& p, HomogeneousMatrix& m);
+Point getPointByTransformationMatrix(HomogeneousMatrix& m);
 
 #endif /* SPATIAL_H_ */

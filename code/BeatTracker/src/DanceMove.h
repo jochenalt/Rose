@@ -14,6 +14,9 @@
 #include <string>
 #include <vector>
 
+
+const double bodyHeight = 120.0;
+
 class Move {
 public:
 	enum MoveType { PHYSICISTS_HEAD_NICKER, TENNIS_HEAD_NICKER, DOUBLE_HEAD_NICKER,

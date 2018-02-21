@@ -17,6 +17,7 @@
 
 #include <BotView.h>
 #include <WindowController.h>
+#include "MoveMaker.h"
 
 #include "BotDrawer.h"
 #include "uiconfig.h"
@@ -194,6 +195,7 @@ int BotView::create(int mainWindow, string pTitle) {
 	glutDisplayFunc(displayBotView);
 
 	Kinematics::getInstance().setup();
+	setBodyPose(MoveMaker::getInstance().getDefaultPose(), eyeDeviation);
 	return windowHandle;
 }
 
