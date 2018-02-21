@@ -196,6 +196,12 @@ void createRotationMatrix(const Rotation &r, HomogeneousMatrix& m) {
 				0,			0,								0,							1});
 }
 
+HomogeneousMatrix createRotationMatrix(const Rotation &r) {
+	HomogeneousMatrix result;
+	createRotationMatrix(r, result);
+	return result;
+}
+
 void createTransformationMatrix(const Pose& p, HomogeneousMatrix& m) {
 	m = HomogeneousMatrix(4,4,
 						{ 1, 	0,  	0,  	p.position.x,
@@ -207,10 +213,24 @@ void createTransformationMatrix(const Pose& p, HomogeneousMatrix& m) {
 	m *= rotate;
 }
 
+HomogeneousMatrix createTransformationMatrix(const Pose& p) {
+	HomogeneousMatrix result;
+	createTransformationMatrix(p, result);
+	return result;
+}
+
 Point getPointByTransformationMatrix(HomogeneousMatrix& m) {
 	return  Point(m[0][3], m[1][3], m[2][3]);
 }
 
+HomogeneousVector getHomogeneousVector(const Point& p) {
+	HomogeneousVector result = {
+		p.x,
+		p.y,
+		p.z,
+		1.0 };
+	return result;
+}
 
 bool almostEqual(const Point& a, const Point& b, realnum precision) {
 	return ((abs(a.x-b.x) < precision) &&

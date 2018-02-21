@@ -83,24 +83,23 @@ void BotDrawer::displayStewart(const Pose & bodyPose) {
 
 	Point ballJoint_world[6];
 	double servoAngles[6];
-	Point servoBallJoints[6];
+	Point servoBallJoints_world[6];
 	Point servoArmCentre[6];
 
 	Kinematics::getInstance().getServoArmCentre(servoArmCentre);
-	Kinematics::getInstance().computeServoAngles(bodyPose, ballJoint_world, servoAngles, servoBallJoints );
+	Kinematics::getInstance().computeServoAngles(bodyPose, ballJoint_world, servoAngles, servoBallJoints_world );
 
 	for (int i = 0;i<6;i++) {
 		glPushMatrix();
 		glTranslatef(ballJoint_world[i].x, ballJoint_world[i].y,ballJoint_world[i].z);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, glBallJointColor);
 		glColor3fv(glBallJointColor);
-		glutSolidSphere(6, 18, 18);
+		glutSolidSphere(4, 18, 18);
 		glPopMatrix();
 
 		glPushMatrix();
 		glTranslatef(servoArmCentre[i].x, servoArmCentre[i].y,servoArmCentre[i].z);
 		glRotatef(int(i/2)*120,0.0,0.0,1.0);
-
 
 		double angle = degrees(servoAngles[i]);
 		if (i % 2 == 0)
@@ -110,16 +109,24 @@ void BotDrawer::displayStewart(const Pose & bodyPose) {
 
 		glRotatef(-90, 1.0,0.0,0.0);
 		glRotatef(90, 0.0,1.0,0.0);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, glServoCentreColor);
-		glColor3fv(glServoCentreColor);
-		servoArm.display(glServoArmColor,glServoArmColor);
+		stewartServoArm.display(glServoArmColor,glServoArmColor);
 		glPopMatrix();
 
 		glPushMatrix();
-		glTranslatef(servoBallJoints[i].x, servoBallJoints[i].y,servoBallJoints[i].z);
+		glTranslatef(servoBallJoints_world[i].x, servoBallJoints_world[i].y,servoBallJoints_world[i].z);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, glServoCentreColor);
 		glColor3fv(glServoCentreColor);
 		glutSolidSphere(6, 18, 18);
+		glPopMatrix();
+
+		glPushMatrix();
+		glTranslatef(servoBallJoints_world[i].x, servoBallJoints_world[i].y,servoBallJoints_world[i].z);
+		Point translation = ballJoint_world[i]- servoBallJoints_world[i];
+		glRotatef(degrees(atan2(translation.x, translation.z)), 0.0,1.0,0.0);
+		glRotatef(degrees(-atan2(translation.y, translation.z)), 1.0,0.0,0.0);
+
+		stewartRod.display(glServoArmColor,glServoArmColor);
+
 		glPopMatrix();
 	}
 
@@ -136,7 +143,8 @@ void BotDrawer::readSTLFiles(string path) {
 
 	stewartBase.loadFile(path + "/Stewart-Platform-Base.stl");
 	stewartPlate.loadFile(path + "/Stewart-Plate.stl");
-	servoArm.loadFile(path + "/Stewart-Servo-Arm.stl");
+	stewartServoArm.loadFile(path + "/Stewart-Servo-Arm.stl");
+	stewartRod.loadFile(path + "/Stewart-Rod.stl");
 
 
 }

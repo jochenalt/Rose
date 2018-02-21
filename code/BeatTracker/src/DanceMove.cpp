@@ -150,7 +150,7 @@ Pose Move::travoltaHeadNicker(double movePercentage) {
 	double mBase = baseCurveFatCos(scaleMove(movePercentage, 2.0,0.625+globalPhaseShift));
 	double mUpDown = baseCurveTrapezoid(scaleMove(movePercentage, 2.0, 1.375+globalPhaseShift));
 
-	return Pose(Point(0,30*mBase,bodyHeight + 30.0*mBase),Rotation (0,-radians(30)*mUpDown,radians(20)*mUpDown));
+	return Pose(Point(0,30*mBase,bodyHeight + 20.0*mBase),Rotation (0,-radians(20)*mUpDown,radians(20)*mUpDown));
 }
 
 
@@ -161,7 +161,7 @@ Pose Move::enhancedTravoltaHeadNicker(double movePercentage) {
 	double mUpDown = baseCurveTrapezoid(scaleMove(movePercentage, 2.0, 1.25+globalPhaseShift));
 	double mSwing = baseCurveCos(scaleMove(movePercentage, 4.0, 0.5+globalPhaseShift));
 
-	return Pose(Point(0,30*mBase,bodyHeight + 30.0*mBase),Rotation (-radians(20)*mSwing,-radians(30)*mSwing,radians(45)*mUpDown));
+	return Pose(Point(0,30*mBase,bodyHeight + 30.0*mBase),Rotation (-radians(20)*mSwing,-radians(30)*mSwing,radians(30)*mUpDown));
 }
 
 
