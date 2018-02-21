@@ -40,6 +40,7 @@ private:
 
 	STLObject stewartBase;
 	STLObject stewartPlate;
+	STLObject servoArm;
 
 };
 

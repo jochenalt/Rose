@@ -34,5 +34,9 @@ static const GLfloat glRasterColor4v[] 					= GL_COLOR_4v(GraniteGrey, glAlphaSo
 static const GLfloat glEyesColor[] 					= GL_COLOR_4v(WineRed, glAlphaSolid );
 static const GLfloat glMapBackgroundColor4v[]		    = GL_COLOR_4v( AnthraciteGrey, 0.01);
 static const GLfloat glMapAreaColor4v[]		    		= GL_COLOR_4v( AnthraciteGrey, glAlphaTransparent);
+static const GLfloat glBallJointColor[] 					= GL_COLOR_4v(YellowGrey, glAlphaSolid );
+static const GLfloat glServoArmColor[] 					= GL_COLOR_4v(GreyBeige, glAlphaSolid );
+static const GLfloat glServoCentreColor[] 					= GL_COLOR_4v(WhiteAluminium, glAlphaSolid );
+
 
 #endif /* UI_UICONFIG_H_ */

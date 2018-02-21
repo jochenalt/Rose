@@ -21,6 +21,7 @@
 #include "BotDrawer.h"
 #include "uiconfig.h"
 
+#include "Stewart/Kinematics.h"
 using namespace std;
 
 BotView::BotView() {
@@ -192,6 +193,7 @@ int BotView::create(int mainWindow, string pTitle) {
 	glutMouseFunc( BotViewMouseCallback);
 	glutDisplayFunc(displayBotView);
 
+	Kinematics::getInstance().setup();
 	return windowHandle;
 }
 
