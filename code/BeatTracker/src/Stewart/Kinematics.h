@@ -11,10 +11,10 @@
 #include "basics/point.h"
 
 struct StewartConfiguration {
-	double servoCentreRadius_mm;       // from above, distance from centre to this servo's turning centre
+	double servoCentreRadius_mm;       	// from birds perspective, distance from centre to this servo's turning centre
 	double servoCentreAngle_rad;		// angle we need to turn the in order to come to the centre point
 
-	double servoArmCentreRadius_mm;
+	double servoArmCentreRadius_mm;		// same like servoCentre, but the point where the servo arm is mounted. Used for rendering only, not for kinematics
 	double servoArmCentreAngle_mm;
 
 	double plateJointRadius_mm;		    // distance of a plate's ball joint to the centre
@@ -22,7 +22,7 @@ struct StewartConfiguration {
 
 	double rodLength_mm;				// length of the rod between base and plate
 	double servoArmLength_mm; 		    // length of the servo lever
-	double servoCentreHeight_mm;
+	double servoCentreHeight_mm;		// height of servo centre from the ground
 };
 
 class Kinematics {
@@ -34,10 +34,12 @@ public:
 		return instance;
 	}
 
+	// initializes cached computations. Required before calling computeServoAngles
 	void setup();
 	void computeServoAngles(const Pose& plate, Point ballJoint_world[6], double servoAngle_rad[6], Point servoBallJoint_world[6]);
-	void getServoArmCentre(Point servoArmCentre_world[6]);
 
+	// get the centre where the servo arms are mounted (used for rendering)
+	void getServoArmCentre(Point servoArmCentre_world[6]);
 private:
 	double computeServoAngle(int cornerNo, const Point& ballJoint);
 	bool mirrorFrame(int cornerNo) { return (cornerNo % 2 == 1); };
@@ -46,9 +48,7 @@ private:
 	Pose servoCentre[6];
 	Point servoArmCentre[6];
 	Point plateBallJoint[6];
-
 	HomogeneousMatrix servoCentreTransformationInv[6];
-
 	StewartConfiguration config;
 };
 

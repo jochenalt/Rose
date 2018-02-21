@@ -33,6 +33,9 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Point& eyeDeviation ) {
 	glRotatef(degrees(bodyPose.orientation.y), 0.0,1.0,0.0);
 	glRotatef(degrees(bodyPose.orientation.x), 1.0,0.0,0.0);
 
+	glTranslatef(0,0,100);
+
+
 	glPushMatrix();
 	glRotatef(90, 0.0, 1.0, 0.0 );
 	glRotatef(90, 0.0, 0.0, 1.0 );
@@ -59,10 +62,9 @@ void BotDrawer::displayStewart(const Pose & bodyPose) {
 	glPushAttrib(GL_CURRENT_BIT);
 	glPushMatrix();
 
-	// glLoadIdentity();             // Reset the model-view matrix to world coordinate system
+	glLoadIdentity();             // Reset the model-view matrix to world coordinate system
 	glRotatef(-90, 1.0,0.0,0.0);
 	glRotatef(-90, 0.0,0.0,1.0);
-	glTranslatef(200,0,0);
 
 	glPushMatrix();
 	glRotatef(180, 0.0, 1.0, 0.0 );

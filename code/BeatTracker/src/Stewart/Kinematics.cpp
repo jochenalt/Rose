@@ -93,7 +93,6 @@ double Kinematics::computeServoAngle(int cornerNo, const Point& ballJoint_world)
 	return angle_rad;
 }
 
-
 void Kinematics::computeServoAngles(const Pose& plate_world, Point ballJoint_world[6], double servoAngle_rad[6], Point servoBallJoint_world[6]) {
 	// compute the plate's ball joint coordinates in world coordinate
 	HomogeneousMatrix plateTransformation = createTransformationMatrix(plate_world);

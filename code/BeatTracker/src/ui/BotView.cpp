@@ -160,7 +160,6 @@ void BotView::drawCoordSystem(bool withRaster) {
 	glutBitmapString(GLUT_BITMAP_HELVETICA_12,(const unsigned char*) "z");
 }
 
-
 void displayBotView() {
 	WindowController::getInstance().mainBotView.display();
 }
@@ -171,7 +170,6 @@ void BotViewMotionCallback(int x, int y) {
 void BotViewMouseCallback(int button, int button_state, int x, int y ) {
 	WindowController::getInstance().mainBotView.MouseCallback(button, button_state,  x,  y);
 }
-
 
 int BotView::create(int mainWindow, string pTitle) {
 	// initially start with zero size, will be resized in reshape
