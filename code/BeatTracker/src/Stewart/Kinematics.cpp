@@ -19,7 +19,8 @@ StewartConfiguration hipStewartConfig = { 46.5, 				// servoCentreRadius_mm
 										  radians(7.7),			// plateJointAngle_rad
 										  106.3,				// rodLength_mm
 										  52.0,					// servoArmLength_mm
-										  30.6					// servoCentreHeight_mm
+										  30.6,					// servoCentreHeight_mm
+										  6.0					// plateBallJointHeight_mm
 									  	  };
 
 Kinematics::Kinematics() {
@@ -49,8 +50,8 @@ void Kinematics::setup() {
 		servoArmCentre[i*2+1]= Point(config.servoArmCentreRadius_mm,0,config.servoCentreHeight_mm)
 				                  .getRotatedAroundZ(zRotation - config.servoArmCentreAngle_mm);
 
-		plateBallJoint[i*2]   = Point(config.plateJointRadius_mm,0,0).getRotatedAroundZ(radians(120)*i + config.plateJointAngle_rad);
-		plateBallJoint[i*2+1] = Point(config.plateJointRadius_mm,0,0).getRotatedAroundZ(radians(120)*i - config.plateJointAngle_rad);
+		plateBallJoint[i*2]   = Point(config.plateJointRadius_mm,0,-config.plateBallJointHeight_mm).getRotatedAroundZ(radians(120)*i + config.plateJointAngle_rad);
+		plateBallJoint[i*2+1] = Point(config.plateJointRadius_mm,0,-config.plateBallJointHeight_mm).getRotatedAroundZ(radians(120)*i - config.plateJointAngle_rad);
 	}
 
 	// precompute inverse transformation matrixes of the servos
@@ -93,7 +94,7 @@ double Kinematics::computeServoAngle(int cornerNo, const Point& ballJoint_world)
 	return angle_rad;
 }
 
-void Kinematics::computeServoAngles(const Pose& plate_world, Point ballJoint_world[6], double servoAngle_rad[6], Point servoBallJoint_world[6]) {
+void Kinematics::computeServoAngles(const Pose& plate_world, double servoAngle_rad[6], Point ballJoint_world[6],  Point servoBallJoint_world[6]) {
 	// compute the plate's ball joint coordinates in world coordinate
 	HomogeneousMatrix plateTransformation = createTransformationMatrix(plate_world);
 

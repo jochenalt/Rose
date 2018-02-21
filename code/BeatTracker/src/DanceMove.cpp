@@ -120,10 +120,18 @@ double Move::baseCurveTrapezoid(double movePercentage) {
 
 Pose Move::physicistsHeadNicker(double movePercentage) {
 	// used move curves
+	/*
 	double startPhase = 0.25 + globalPhaseShift;
 	double mUpDown = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase));
 
 	return Pose(Point(0,0,bodyHeight + 30.0*mUpDown), Rotation (0,0,0));
+*/
+	double startPhase = 0.25 + globalPhaseShift;
+
+	return Pose(Point(40*baseCurveCos(scaleMove(movePercentage, 1.0, startPhase)),
+			          40*baseCurveCos(scaleMove(movePercentage, 1.0, startPhase + 1.0)), bodyHeight),
+				Rotation (0,0,0));
+
 }
 
 Pose Move::tennisHeadNicker(double movePercentage) {
@@ -133,7 +141,7 @@ Pose Move::tennisHeadNicker(double movePercentage) {
 	double mUpDown = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase));
 	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 1.0)));
 
-	return Pose(Point(0,0,bodyHeight + 30.0*mUpDown),Rotation (0,-radians(60)*mDip,-radians(45)*mBase));
+	return Pose(Point(0,0,bodyHeight + 20+20.0*mUpDown),Rotation (0,-radians(60)*mDip,-radians(45)*mBase));
 }
 
 Pose Move::doubleHeadNicker(double movePercentage) {

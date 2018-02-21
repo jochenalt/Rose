@@ -35,7 +35,6 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Point& eyeDeviation ) {
 
 	glTranslatef(0,0,100);
 
-
 	glPushMatrix();
 	glRotatef(90, 0.0, 1.0, 0.0 );
 	glRotatef(90, 0.0, 0.0, 1.0 );
@@ -69,7 +68,6 @@ void BotDrawer::displayStewart(const Pose & bodyPose) {
 	glPushMatrix();
 	glRotatef(180, 0.0, 1.0, 0.0 );
 	glRotatef(180, 0.0, 0.0, 1.0 );
-
 	stewartBase.display(glEyesColor,glEyesColor);
 	glPopMatrix();
 
@@ -79,31 +77,25 @@ void BotDrawer::displayStewart(const Pose & bodyPose) {
 	glRotatef(degrees(bodyPose.orientation.z), 0.0,0.0,1.0);
 	glRotatef(degrees(bodyPose.orientation.y), 0.0,1.0,0.0);
 	glRotatef(degrees(bodyPose.orientation.x), 1.0,0.0,0.0);
-	glRotatef(90, 0.0, 0.0, 1.0 );
+	glRotatef(-90, 0.0, 0.0, 1.0 );
 	stewartPlate.display(glEyesColor,glEyesColor);
 	glPopMatrix();
 
 	Point ballJoint_world[6];
-	double servoAngles[6];
+	double servoAngles_rad[6];
 	Point servoBallJoints_world[6];
-	Point servoArmCentre[6];
+	Point servoArmCentre_world[6];
 
-	Kinematics::getInstance().getServoArmCentre(servoArmCentre);
-	Kinematics::getInstance().computeServoAngles(bodyPose, ballJoint_world, servoAngles, servoBallJoints_world );
+	Kinematics::getInstance().getServoArmCentre(servoArmCentre_world);
+	Kinematics::getInstance().computeServoAngles(bodyPose, servoAngles_rad, ballJoint_world, servoBallJoints_world );
 
 	for (int i = 0;i<6;i++) {
+		// render the servo arm
 		glPushMatrix();
-		glTranslatef(ballJoint_world[i].x, ballJoint_world[i].y,ballJoint_world[i].z);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, glBallJointColor);
-		glColor3fv(glBallJointColor);
-		glutSolidSphere(4, 18, 18);
-		glPopMatrix();
-
-		glPushMatrix();
-		glTranslatef(servoArmCentre[i].x, servoArmCentre[i].y,servoArmCentre[i].z);
+		glTranslatef(servoArmCentre_world[i].x, servoArmCentre_world[i].y,servoArmCentre_world[i].z);
 		glRotatef(int(i/2)*120,0.0,0.0,1.0);
 
-		double angle = degrees(servoAngles[i]);
+		double angle = degrees(servoAngles_rad[i]);
 		if (i % 2 == 0)
 			glRotatef(180.0 + angle, 1.0,0.0,0.0);
 		else
@@ -114,25 +106,42 @@ void BotDrawer::displayStewart(const Pose & bodyPose) {
 		stewartServoArm.display(glServoArmColor,glServoArmColor);
 		glPopMatrix();
 
+		// render the rod between servo and top plate
+		glPushMatrix();
+		glTranslatef(servoBallJoints_world[i].x, servoBallJoints_world[i].y,servoBallJoints_world[i].z);
+		Point translation = ballJoint_world[i]- servoBallJoints_world[i];
+
+
+		// compute rotation out of two points
+		double lenXY = sqrt(sqr(translation.x) + sqr(translation.y));
+
+		double zRotation = atan2(translation.y, translation.x);
+		double xRotation = atan2(lenXY, translation.z);
+
+		glRotatef(degrees(zRotation), 0.0,0.0,1.0);
+		glRotatef(degrees(xRotation), 0.0,1.0,0.0);
+		// glRotatef(30 + degrees(0*xRotation), 0.0,0.0,1.0);
+
+		// glRotatef(degrees(xRotation), 1.0,0.0,0.0);
+		stewartRod.display(glStewartRodColor,glStewartRodColor);
+		glPopMatrix();
+
+		/*
+		glPushMatrix();
+		glTranslatef(ballJoint_world[i].x, ballJoint_world[i].y,ballJoint_world[i].z);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, glBallJointColor);
+		glColor3fv(glBallJointColor);
+		glutSolidSphere(8, 18, 18);
+		glPopMatrix();
+
 		glPushMatrix();
 		glTranslatef(servoBallJoints_world[i].x, servoBallJoints_world[i].y,servoBallJoints_world[i].z);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, glServoCentreColor);
 		glColor3fv(glServoCentreColor);
 		glutSolidSphere(6, 18, 18);
 		glPopMatrix();
-
-		glPushMatrix();
-		glTranslatef(servoBallJoints_world[i].x, servoBallJoints_world[i].y,servoBallJoints_world[i].z);
-		Point translation = ballJoint_world[i]- servoBallJoints_world[i];
-		glRotatef(degrees(atan2(translation.x, translation.z)), 0.0,1.0,0.0);
-		glRotatef(degrees(-atan2(translation.y, translation.z)), 1.0,0.0,0.0);
-
-		stewartRod.display(glServoArmColor,glServoArmColor);
-
-		glPopMatrix();
+		*/
 	}
-
-
 
 	glPopMatrix();
 	glPopAttrib();

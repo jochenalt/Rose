@@ -23,6 +23,8 @@ struct StewartConfiguration {
 	double rodLength_mm;				// length of the rod between base and plate
 	double servoArmLength_mm; 		    // length of the servo lever
 	double servoCentreHeight_mm;		// height of servo centre from the ground
+
+	double plateBallJointHeight_mm;		// height of the plate relative to the ball joints
 };
 
 class Kinematics {
@@ -36,7 +38,10 @@ public:
 
 	// initializes cached computations. Required before calling computeServoAngles
 	void setup();
-	void computeServoAngles(const Pose& plate, Point ballJoint_world[6], double servoAngle_rad[6], Point servoBallJoint_world[6]);
+
+	// compute the angle of all servos depending on the pose of the top plate
+	// return ballpoint positions as well used for rendering
+	void computeServoAngles(const Pose& plate, double servoAngle_rad[6], Point ballJoint_world[6],  Point servoBallJoint_world[6]);
 
 	// get the centre where the servo arms are mounted (used for rendering)
 	void getServoArmCentre(Point servoArmCentre_world[6]);
