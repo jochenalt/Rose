@@ -25,7 +25,7 @@ public:
 	void displayBot(const Pose& bodyPose, const Point& eyeDeviation );
 
 	// display Stewart platform
-	void displayStewart(const Pose& bodyPose);
+	void displayStewart(const Pose& bodyPose, const Pose& headPose);
 
 	// setup by looking for the STL files
 	void setup();
@@ -43,6 +43,9 @@ private:
 	STLObject stewartServoArm;
 	STLObject stewartRod;
 
+	STLObject stewartSmallRod;
+	STLObject stewartHead;
+	STLObject stewartSmallServoArm;
 };
 
 #endif /* UI_BOTDRAWER_H_ */

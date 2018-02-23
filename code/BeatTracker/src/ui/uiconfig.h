@@ -38,6 +38,7 @@ static const GLfloat glBallJointColor[] 					= GL_COLOR_4v(YellowGrey, glAlphaSo
 static const GLfloat glServoArmColor[] 					= GL_COLOR_4v(LightGreen, glAlphaSolid );
 static const GLfloat glServoCentreColor[] 					= GL_COLOR_4v(WhiteAluminium, glAlphaSolid );
 static const GLfloat glStewartRodColor[] 					= GL_COLOR_4v(BlackBrown, glAlphaSolid );
+static const GLfloat glStewartPlateColor[] 					= GL_COLOR_4v(GreenBeige, glAlphaSolid );
 
 
 #endif /* UI_UICONFIG_H_ */

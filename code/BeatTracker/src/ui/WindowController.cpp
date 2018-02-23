@@ -76,7 +76,7 @@ void GluiReshapeCallback( int x, int y )
 }
 
 
-void WindowController::setBodyPose(const Pose& bodyPose) {
+void WindowController::setBodyPose(const Pose& bodyPose, const Pose& headPose) {
 
 	Point eyeLookAt = mainBotView.getEyePosition();
 	// Point eyeLookAt (500,0,100);
@@ -109,7 +109,7 @@ void WindowController::setBodyPose(const Pose& bodyPose) {
 						1.0 };
 
 	Point lookAtCoordFromBodysPerspective= inverseBodyTransformation * lookAtPosition;
-	mainBotView.setBodyPose(bodyPose, lookAtCoordFromBodysPerspective);
+	mainBotView.setBodyPose(bodyPose, headPose, lookAtCoordFromBodysPerspective);
 }
 
 void setDancingMoveWidget() {

@@ -16,13 +16,15 @@
 #include "basics/util.h"
 
 #include <BotView.h>
+#include <Stewart/StewartKinematics.h>
+#include <Stewart/BodyKinematics.h>
+
 #include <WindowController.h>
 #include "MoveMaker.h"
 
 #include "BotDrawer.h"
 #include "uiconfig.h"
 
-#include "Stewart/Kinematics.h"
 using namespace std;
 
 BotView::BotView() {
@@ -192,8 +194,8 @@ int BotView::create(int mainWindow, string pTitle) {
 	glutMouseFunc( BotViewMouseCallback);
 	glutDisplayFunc(displayBotView);
 
-	Kinematics::getInstance().setup();
-	setBodyPose(MoveMaker::getInstance().getDefaultPose(), eyeDeviation);
+	BodyKinematics::getInstance().setup();
+	setBodyPose(MoveMaker::getInstance().getDefaultBodyPose(), MoveMaker::getInstance().getDefaultHeadPose(), eyeDeviation);
 	return windowHandle;
 }
 
@@ -209,7 +211,7 @@ void BotView::display() {
 	glMatrixMode(GL_MODELVIEW);
 
 	BotDrawer::getInstance().displayBot(bodyPose, eyeDeviation);
-	BotDrawer::getInstance().displayStewart(bodyPose);
+	BotDrawer::getInstance().displayStewart(bodyPose, headPose);
 
 	drawCoordSystem(true);
 
@@ -217,8 +219,9 @@ void BotView::display() {
 }
 
 
-void BotView::setBodyPose(const Pose& newBodyPose, const Point& newEyeDeviation) {
+void BotView::setBodyPose(const Pose& newBodyPose, const Pose& newHeadPose, const Point& newEyeDeviation) {
 	bodyPose = newBodyPose;
+	headPose = newHeadPose;
 	eyeDeviation = newEyeDeviation;
 }
 

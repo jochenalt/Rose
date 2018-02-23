@@ -5,8 +5,8 @@
  *      Author: jochenalt
  */
 
-#ifndef SRC_STEWART_KINEMATICS_H_
-#define SRC_STEWART_KINEMATICS_H_
+#ifndef SRC_STEWART_STEWARTKINEMATICS_H_
+#define SRC_STEWART_STEWARTKINEMATICS_H_
 
 #include "basics/point.h"
 
@@ -27,17 +27,13 @@ struct StewartConfiguration {
 	double plateBallJointHeight_mm;		// height of the plate relative to the ball joints
 };
 
-class Kinematics {
+class StewartKinematics {
 public:
-	Kinematics();
-	virtual ~Kinematics();
-	static Kinematics& getInstance() {
-		static Kinematics instance;
-		return instance;
-	}
+	StewartKinematics();
+	virtual ~StewartKinematics();
 
 	// initializes cached computations. Required before calling computeServoAngles
-	void setup();
+	void setup(StewartConfiguration config);
 
 	// compute the angle of all servos depending on the pose of the top plate
 	// return ballpoint positions as well used for rendering
@@ -57,4 +53,4 @@ private:
 	StewartConfiguration config;
 };
 
-#endif /* SRC_STEWART_KINEMATICS_H_ */
+#endif /* SRC_STEWART_STEWARTKINEMATICS_H_ */

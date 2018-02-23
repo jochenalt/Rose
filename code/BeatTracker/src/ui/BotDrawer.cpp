@@ -12,11 +12,13 @@
 
 #include "basics/stringhelper.h"
 #include <BotDrawer.h>
+#include <Stewart/StewartKinematics.h>
+#include <Stewart/BodyKinematics.h>
+
 
 #include "uiconfig.h"
 #include "basics/util.h"
 #include "basics/spatial.h"
-#include "Stewart/Kinematics.h"
 
 void BotDrawer::displayBot(const Pose & bodyPose, const Point& eyeDeviation ) {
 	glPushAttrib(GL_CURRENT_BIT);
@@ -57,7 +59,7 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Point& eyeDeviation ) {
 	glPopAttrib();
 }
 
-void BotDrawer::displayStewart(const Pose & bodyPose) {
+void BotDrawer::displayStewart(const Pose & bodyPose, const Pose& headPose) {
 	glPushAttrib(GL_CURRENT_BIT);
 	glPushMatrix();
 
@@ -78,24 +80,36 @@ void BotDrawer::displayStewart(const Pose & bodyPose) {
 	glRotatef(degrees(bodyPose.orientation.y), 0.0,1.0,0.0);
 	glRotatef(degrees(bodyPose.orientation.x), 1.0,0.0,0.0);
 	glRotatef(-90, 0.0, 0.0, 1.0 );
-	stewartPlate.display(glEyesColor,glEyesColor);
+	stewartPlate.display(glStewartPlateColor,glStewartPlateColor);
 	glPopMatrix();
 
-	Point ballJoint_world[6];
-	double servoAngles_rad[6];
-	Point servoBallJoints_world[6];
-	Point servoArmCentre_world[6];
+	glPushMatrix();
+	glTranslatef(headPose.position.x, headPose.position.y,headPose.position.z);
+	// rotate in zyx convention, as used in Kinematics::RotationMatrix
+	glRotatef(degrees(headPose.orientation.z), 0.0,0.0,1.0);
+	glRotatef(degrees(headPose.orientation.y), 0.0,1.0,0.0);
+	glRotatef(degrees(headPose.orientation.x), 1.0,0.0,0.0);
+	glRotatef(-90, 0.0, 0.0, 1.0 );
+	stewartHead.display(glStewartPlateColor,glStewartPlateColor);
+	glPopMatrix();
 
-	Kinematics::getInstance().getServoArmCentre(servoArmCentre_world);
-	Kinematics::getInstance().computeServoAngles(bodyPose, servoAngles_rad, ballJoint_world, servoBallJoints_world );
+	Point bodyBallJoint_world[6];
+	double bodyServoAngles_rad[6];
+	Point bodyServoBallJoints_world[6];
+	Point bodyServoArmCentre_world[6];
+
+	BodyKinematics::getInstance().getServoArmCentre(bodyServoArmCentre_world);
+	BodyKinematics::getInstance().
+			computeServoAngles(bodyPose, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
+			                   headPose);
 
 	for (int i = 0;i<6;i++) {
 		// render the servo arm
 		glPushMatrix();
-		glTranslatef(servoArmCentre_world[i].x, servoArmCentre_world[i].y,servoArmCentre_world[i].z);
+		glTranslatef(bodyServoArmCentre_world[i].x, bodyServoArmCentre_world[i].y,bodyServoArmCentre_world[i].z);
 		glRotatef(int(i/2)*120,0.0,0.0,1.0);
 
-		double angle = degrees(servoAngles_rad[i]);
+		double angle = degrees(bodyServoAngles_rad[i]);
 		if (i % 2 == 0)
 			glRotatef(180.0 + angle, 1.0,0.0,0.0);
 		else
@@ -108,21 +122,16 @@ void BotDrawer::displayStewart(const Pose & bodyPose) {
 
 		// render the rod between servo and top plate
 		glPushMatrix();
-		glTranslatef(servoBallJoints_world[i].x, servoBallJoints_world[i].y,servoBallJoints_world[i].z);
-		Point translation = ballJoint_world[i]- servoBallJoints_world[i];
-
+		glTranslatef(bodyServoBallJoints_world[i].x, bodyServoBallJoints_world[i].y,bodyServoBallJoints_world[i].z);
+		Point translation = bodyBallJoint_world[i]- bodyServoBallJoints_world[i];
 
 		// compute rotation out of two points
 		double lenXY = sqrt(sqr(translation.x) + sqr(translation.y));
-
 		double zRotation = atan2(translation.y, translation.x);
 		double xRotation = atan2(lenXY, translation.z);
 
 		glRotatef(degrees(zRotation), 0.0,0.0,1.0);
 		glRotatef(degrees(xRotation), 0.0,1.0,0.0);
-		// glRotatef(30 + degrees(0*xRotation), 0.0,0.0,1.0);
-
-		// glRotatef(degrees(xRotation), 1.0,0.0,0.0);
 		stewartRod.display(glStewartRodColor,glStewartRodColor);
 		glPopMatrix();
 
@@ -157,6 +166,9 @@ void BotDrawer::readSTLFiles(string path) {
 	stewartServoArm.loadFile(path + "/Stewart-Servo-Arm.stl");
 	stewartRod.loadFile(path + "/Stewart-Rod.stl");
 
+	stewartSmallRod.loadFile(path + "/Stewart-Small-Rod.stl");
+	stewartHead.loadFile(path + "/Stewart-Head.stl");
+	stewartSmallServoArm.loadFile(path + "/Stewart-Small-Head.stl");
 
 }
 

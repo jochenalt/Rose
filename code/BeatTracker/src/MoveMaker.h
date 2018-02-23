@@ -21,15 +21,23 @@ public:
 	MoveMaker();
 	virtual ~MoveMaker();
 	static MoveMaker& getInstance();
-	Pose getDefaultPose();
+	Pose getDefaultBodyPose();
+	Pose getDefaultHeadPose();
 
+	// setup move maker before calling getBodyPose or getHeadPose
 	void setup();
 
+	// set the number of beats awaited until the first move starts
 	void setStartAfterNBeats(int n) { startAfterNBeats = n; };
 
+	// call this, and the move is updated. Should be invoked with 25Hz
 	void loop(bool beat, double BPM);
 
+	// current body pose within the move
 	Pose& getBodyPose() { return bodyPose; };
+
+	// current head pose within the move
+	Pose& getHeadPose() { return headPose; };
 
 	// set the number of moves after that the next move happens
 	void switchMovePeriodically(int afterHowManyMoves);
@@ -54,13 +62,10 @@ private:
 	void doNewMove();
 	void createMove(double movePercentage);
 
-
-
 	Pose bodyPose;
+	Pose headPose;
 	Move::MoveType currentMove;
-
 	int passedBeatsInCurrentMove;
-
 	SequenceModeType sequenceMode;
 	vector<Move> moveLibrary;
 	int startAfterNBeats;

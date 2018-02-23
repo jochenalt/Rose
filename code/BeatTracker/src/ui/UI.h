@@ -18,7 +18,7 @@ public:
 	void setup(int argc, char *argv[]);
 	void tearDown();
 
-	void setBodyPose(const Pose& bodyPose);
+	void setBodyPose(const Pose& bodyPose, const Pose& headPose);
 };
 
 

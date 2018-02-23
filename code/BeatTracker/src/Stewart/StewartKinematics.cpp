@@ -8,32 +8,18 @@
 #include <basics/util.h>
 #include <basics/spatial.h>
 
-#include <Stewart/Kinematics.h>
+#include <Stewart/StewartKinematics.h>
 
 
-StewartConfiguration hipStewartConfig = { 46.5, 				// servoCentreRadius_mm
-										  radians(12.4),		// servoArmCentreRadius_mm
-										  50.4, 				// servoArmCentreRadius_mm
-										  radians(11.5),		// servoArmCentreAngle_mm
-										  40.0,					// plateJointRadius_mm
-										  radians(7.7),			// plateJointAngle_rad
-										  106.3,				// rodLength_mm
-										  52.0,					// servoArmLength_mm
-										  30.6,					// servoCentreHeight_mm
-										  6.0					// plateBallJointHeight_mm
-									  	  };
-
-Kinematics::Kinematics() {
+StewartKinematics::StewartKinematics() {
 }
 
-Kinematics::~Kinematics() {
+StewartKinematics::~StewartKinematics() {
 }
 
 
-void Kinematics::setup() {
-	// compute the servo centre for all
-	config = hipStewartConfig;
-
+void StewartKinematics::setup(StewartConfiguration newConfig) {
+	config = newConfig;
 	// compute the centres of all servos and the centres of all ball joints of the plate
 	double zRotation;
 	for (int i = 0;i<3;i++) {
@@ -62,13 +48,13 @@ void Kinematics::setup() {
 	}
 }
 
-void Kinematics::getServoArmCentre(Point servoArmCentre_world[6]) {
+void StewartKinematics::getServoArmCentre(Point servoArmCentre_world[6]) {
 	for (int i = 0;i<6;i++) {
 		servoArmCentre_world[i] = servoArmCentre[i];
 	}
 }
 
-double Kinematics::computeServoAngle(int cornerNo, const Point& ballJoint_world) {
+double StewartKinematics::computeServoAngle(int cornerNo, const Point& ballJoint_world) {
 
 	// transform plate's balljoint  into frame of the servo by multiplying the inverse transformation matrix to the balljoint
 	HomogeneousVector balljoint_world_hom = {
@@ -94,7 +80,7 @@ double Kinematics::computeServoAngle(int cornerNo, const Point& ballJoint_world)
 	return angle_rad;
 }
 
-void Kinematics::computeServoAngles(const Pose& plate_world, double servoAngle_rad[6], Point ballJoint_world[6],  Point servoBallJoint_world[6]) {
+void StewartKinematics::computeServoAngles(const Pose& plate_world, double servoAngle_rad[6], Point ballJoint_world[6],  Point servoBallJoint_world[6]) {
 	// compute the plate's ball joint coordinates in world coordinate
 	HomogeneousMatrix plateTransformation = createTransformationMatrix(plate_world);
 
