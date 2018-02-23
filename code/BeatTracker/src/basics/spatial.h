@@ -237,6 +237,8 @@ void createRotationMatrix(const Rotation &r, HomogeneousMatrix& m);
 HomogeneousMatrix createRotationMatrix(const Rotation &r);
 
 void computeInverseTransformationMatrix(HomogeneousMatrix m, HomogeneousMatrix& inverse);
+HomogeneousMatrix computeInverseTransformationMatrix(HomogeneousMatrix m);
+
 void createTransformationMatrix(const Pose& p, HomogeneousMatrix& m);
 HomogeneousMatrix createTransformationMatrix(const Pose& p);
 Point getPointByTransformationMatrix(HomogeneousMatrix& m);

@@ -22,6 +22,7 @@ void StewartKinematics::setup(StewartConfiguration newConfig) {
 	config = newConfig;
 	// compute the centres of all servos and the centres of all ball joints of the plate
 	double zRotation;
+	Pose servoCentre[6];
 	for (int i = 0;i<3;i++) {
 		zRotation = i*radians(120.0);
 		servoCentre[i*2]     = Pose(Point(config.servoCentreRadius_mm,0,config.servoCentreHeight_mm)
@@ -44,7 +45,11 @@ void StewartKinematics::setup(StewartConfiguration newConfig) {
 	// later on used to convert balljoints to servo frame
 	for (int i = 0;i<6;i++) {
 		HomogeneousMatrix servoTransformation = createTransformationMatrix(servoCentre[i]);
-		computeInverseTransformationMatrix(servoTransformation, servoCentreTransformationInv[i]);
+		servoCentreTransformationInv[i] = computeInverseTransformationMatrix(servoTransformation);
+
+		// precompute transformation from
+		servoTransform[i] = createTransformationMatrix(servoCentre[i]);
+
 	}
 }
 
@@ -96,7 +101,6 @@ void StewartKinematics::computeServoAngles(const Pose& plate_world, double servo
 		double angle_rad = computeServoAngle(i,currBallJoint_world);
 		servoAngle_rad[i] = angle_rad;
 
-		HomogeneousMatrix servoTransform = createTransformationMatrix(servoCentre[i]);
 		Pose servoArm_rotation(Pose(Point(0,0,0), Rotation(angle_rad,0,0)));
 		if (mirrorFrame(i))
 			servoArm_rotation.orientation.x = -servoArm_rotation.orientation.x;
@@ -106,8 +110,12 @@ void StewartKinematics::computeServoAngles(const Pose& plate_world, double servo
 		if (mirrorFrame(i))
 			servoArm_translation.position.y = -servoArm_translation.position.y;
 
+		// translation of servo lever
 		HomogeneousMatrix servoArmTranslationTrans = createTransformationMatrix(servoArm_translation);
-		HomogeneousMatrix servoBallJoint = servoTransform * servoArmRotationTrans * servoArmTranslationTrans ;
+
+		// compute end point of servo ball joints by concatenating servo centre
+		// position -> rotation by servo angle -> translation by servo length
+		HomogeneousMatrix servoBallJoint = servoTransform[i] * servoArmRotationTrans * servoArmTranslationTrans ;
 		Point currServoBallJoint_world = getPointByTransformationMatrix(servoBallJoint);
 		servoBallJoint_world[i] = currServoBallJoint_world;
 	}

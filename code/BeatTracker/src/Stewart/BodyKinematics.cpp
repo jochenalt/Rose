@@ -8,8 +8,8 @@
 #include <Stewart/BodyKinematics.h>
 
 
-StewartConfiguration bodyStewartConfig = { 46.5, 				// servoCentreRadius_mm
-										  radians(12.4),		// servoArmCentreRadius_mm
+StewartConfiguration bodyStewartConfig = {46.5, 				// servoCentreRadius_mm
+										  radians(12.4),		// servoCentreAngle_rad
 										  50.4, 				// servoArmCentreRadius_mm
 										  radians(11.5),		// servoArmCentreAngle_mm
 										  40.0,					// plateJointRadius_mm
@@ -17,20 +17,20 @@ StewartConfiguration bodyStewartConfig = { 46.5, 				// servoCentreRadius_mm
 										  106.3,				// rodLength_mm
 										  52.0,					// servoArmLength_mm
 										  30.6,					// servoCentreHeight_mm
-										  6.0					// plateBallJointHeight_mm
+										  4.0					// plateBallJointHeight_mm
 									  	  };
 
 
-StewartConfiguration headStewartConfig = { 46.5, 				// servoCentreRadius_mm
-										  radians(12.4),		// servoArmCentreRadius_mm
-										  50.4, 				// servoArmCentreRadius_mm
-										  radians(11.5),		// servoArmCentreAngle_mm
-										  40.0,					// plateJointRadius_mm
-										  radians(7.7),			// plateJointAngle_rad
-										  106.3,				// rodLength_mm
-										  52.0,					// servoArmLength_mm
-										  30.6,					// servoCentreHeight_mm
-										  6.0					// plateBallJointHeight_mm
+StewartConfiguration headStewartConfig = {18.368, 				// servoCentreRadius_mm
+										  radians(13.63),		// servoCentreAngle_rad
+										  25.529, 				// servoArmCentreRadius_mm
+										  radians(14.04),		// servoArmCentreAngle_mm
+										  17.48,				// plateJointRadius_mm
+										  radians(16.62),		// plateJointAngle_rad
+										  56.3,				    // rodLength_mm
+										  20.0,					// servoArmLength_mm
+										  24.36,	 		    // servoCentreHeight_mm
+										   4.0					// plateBallJointHeight_mm
 									  	  };
 
 

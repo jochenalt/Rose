@@ -46,10 +46,11 @@ private:
 	bool mirrorFrame(int cornerNo) { return (cornerNo % 2 == 1); };
 
 
-	Pose servoCentre[6];
 	Point servoArmCentre[6];
 	Point plateBallJoint[6];
 	HomogeneousMatrix servoCentreTransformationInv[6];
+	HomogeneousMatrix servoTransform[6];
+
 	StewartConfiguration config;
 };
 
