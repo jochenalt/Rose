@@ -283,7 +283,7 @@ TotalBodyPose Move::shimmys(double movePercentage) {
 
 	return TotalBodyPose
 			(Pose(Point(0,30.0*mBase,bodyHeight + 20.0*mHipDip),Rotation (0,0,radians(20)*mShoulder)),
-			 Pose(Point(0,0,headHeight),Rotation (0,0,-radians(20)*mShoulder)));
+			 Pose(Point(0,0,headHeight-10.0*mHipDip),Rotation (0,0,-radians(20)*mShoulder)));
 }
 
 TotalBodyPose Move::highSpeedShimmys(double movePercentage) {
@@ -294,7 +294,7 @@ TotalBodyPose Move::highSpeedShimmys(double movePercentage) {
 
 	return TotalBodyPose (
 			 Pose(Point(0,30.0*mBase,bodyHeight + 30.0*mHipDip),Rotation (0,0,radians(15)*mShoulder)),
-			 Pose(Point(0,0,headHeight),Rotation (0,0,-radians(15)*mShoulder)));
+			 Pose(Point(0,0,headHeight-10.0*mHipDip),Rotation (0,0,-radians(15)*mShoulder)));
 }
 
 TotalBodyPose Move::turnAndShowBack(double movePercentage) {
