@@ -21,11 +21,8 @@ public:
 		return instance;
 	}
 
-	// display the bot with the given joint angles in the current openGL window
-	void displayBot(const Pose& bodyPose, const Point& eyeDeviation );
-
 	// display Stewart platform
-	void displayStewart(const Pose& bodyPose, const Pose& headPose);
+	void displayBot(const Pose& bodyPose, const Pose& headPose);
 
 	// setup by looking for the STL files
 	void setup();
@@ -34,9 +31,10 @@ private:
 	// read the stl files per actuator in that path
 	void readSTLFiles(string path);
 
-
-	STLObject eyes;
-	STLObject body;
+	STLObject chickenHead;
+	STLObject chickenEyeBall;
+	STLObject chickenEyeIris;
+	STLObject chickenBeak;
 
 	STLObject stewartBase;
 	STLObject stewartPlate;

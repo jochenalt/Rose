@@ -16,7 +16,7 @@
 
 
 const double bodyHeight = 120.0;
-const double headHeight = 160.0;
+const double headHeight = 80.0;
 
 class Move {
 public:
@@ -58,6 +58,9 @@ public:
 
 	static Move& getMove(MoveType i);
 
+	Pose getDefaultHeadPose() {
+		return Pose (Point(0,0,headHeight), Rotation(0,0,0));
+	}
 	string getName() { return name; };
 	MoveType getMoveType() { return id; };
 	int getLength() { return lengthInBeats; };
@@ -71,34 +74,34 @@ public:
 	double baseCurveFatDip(double movePercentage);
 
 	// methods implementing dance moves
-	Pose physicistsHeadNicker(double movePercentage);
-	Pose tennisHeadNicker(double movePercentage);
+	TotalBodyPose physicistsHeadNicker(double movePercentage);
+	TotalBodyPose tennisHeadNicker(double movePercentage);
 
-	Pose travoltaHeadNicker(double movePercentage);
-	Pose enhancedTravoltaHeadNicker(double movePercentage);
-	Pose doubleHeadNicker(double movePercentage);
+	TotalBodyPose travoltaHeadNicker(double movePercentage);
+	TotalBodyPose enhancedTravoltaHeadNicker(double movePercentage);
+	TotalBodyPose doubleHeadNicker(double movePercentage);
 
-	Pose diagonalSwing(double movePercentage);
-	Pose dippedDiagonalSwing(double movePercentage);
-	Pose rolledDippedDiagonalSwing(double movePercentage);
-	Pose eyedDippedDiagonalSwing(double movePercentage);
+	TotalBodyPose diagonalSwing(double movePercentage);
+	TotalBodyPose dippedDiagonalSwing(double movePercentage);
+	TotalBodyPose rolledDippedDiagonalSwing(double movePercentage);
+	TotalBodyPose eyedDippedDiagonalSwing(double movePercentage);
 
-	Pose bollywoodHeadMove(double movePercentage);
-	Pose doubleBollywoodHeadMove(double movePercentage);
-	Pose swingDoubleBollywoodHeadMove(double movePercentage);
+	TotalBodyPose bollywoodHeadMove(double movePercentage);
+	TotalBodyPose doubleBollywoodHeadMove(double movePercentage);
+	TotalBodyPose swingDoubleBollywoodHeadMove(double movePercentage);
 
-	Pose bodyWaveMove(double movePercentage);
-	Pose dipBodyWaveMove(double movePercentage);
-	Pose sidedDipBodyWaveMove(double movePercentage);
+	TotalBodyPose bodyWaveMove(double movePercentage);
+	TotalBodyPose dipBodyWaveMove(double movePercentage);
+	TotalBodyPose sidedDipBodyWaveMove(double movePercentage);
 
-	Pose shimmys(double movePercentage);
-	Pose highSpeedShimmys(double movePercentage);
+	TotalBodyPose shimmys(double movePercentage);
+	TotalBodyPose highSpeedShimmys(double movePercentage);
 
-	Pose turnAndShowBack(double movePercentage);
-	Pose twerk(double movePercentage);
-	Pose turnBack(double movePercentage);
+	TotalBodyPose turnAndShowBack(double movePercentage);
+	TotalBodyPose twerk(double movePercentage);
+	TotalBodyPose turnBack(double movePercentage);
 
-	Pose move(double movePercentage);
+	TotalBodyPose move(double movePercentage);
 
 	MoveType id;
 	string name;

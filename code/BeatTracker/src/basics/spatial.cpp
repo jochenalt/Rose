@@ -64,6 +64,38 @@ std::istream& Pose::deserialize(std::istream &in, bool &ok) {
 }
 
 
+ostream& operator<<(ostream& os, const TotalBodyPose& p)
+{
+	os << std::setprecision(3) << "( body=" << p.body << ",head=" << p.head<< ")";
+	return os;
+}
+
+
+std::ostream& TotalBodyPose::serialize(std::ostream &out) const {
+	out << "{\"body\":";
+	body.serialize(out);
+	out << ",\"head\":";
+	head.serialize(out);
+	out << "}";
+	return out;
+}
+
+std::istream& TotalBodyPose::deserialize(std::istream &in, bool &ok) {
+    if (in) {
+    	parseCharacter(in, '{', ok);
+    	parseString(in, ok); // "body"
+    	parseCharacter(in, ':', ok);
+    	body.deserialize(in, ok);
+    	parseCharacter(in, ',', ok);
+
+    	parseString(in, ok); // "head"
+    	parseCharacter(in, ':', ok);
+    	head.deserialize(in, ok);
+    	parseCharacter(in, '}', ok);
+    }
+    return in;
+}
+
 // return length of hyopthenusis of orthogonal triangle
 realnum triangleHypothenusisLength(realnum a, realnum b) {
     return sqrt(a*a+b*b);
@@ -231,6 +263,30 @@ HomogeneousMatrix createTransformationMatrix(const Pose& p) {
 
 Point getPointByTransformationMatrix(HomogeneousMatrix& m) {
 	return  Point(m[0][3], m[1][3], m[2][3]);
+}
+
+Rotation getRotationByTransformationMatrix(HomogeneousMatrix& m) {
+	double beta = atan2(-m[2][0], sqrt(m[0][0]*m[0][0] + m[1][0]*m[1][0]));
+	double gamma = 0;
+	double alpha = 0;
+	if (almostEqual(beta, (M_PI/2.0), floatPrecision)) {
+		alpha = 0;
+		gamma = atan2(m[0][1], m[1][1]);
+	} else {
+		if (almostEqual(beta, -(M_PI/2.0),floatPrecision)) {
+			alpha = 0;
+			gamma = -atan2(m[0][1], m[1][1]);
+		} else {
+			alpha = atan2(m[1][0],m[0][0]);
+			gamma = atan2(m[2][1], m[2][2]);
+		}
+	}
+
+	return Rotation (alpha, beta, gamma);
+}
+
+Pose getPoseByTransformationMatrix(HomogeneousMatrix& m) {
+	return Pose(getPointByTransformationMatrix(m),getRotationByTransformationMatrix(m));
 }
 
 HomogeneousVector getHomogeneousVector(const Point& p) {

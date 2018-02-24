@@ -34,10 +34,10 @@ public:
 	void loop(bool beat, double BPM);
 
 	// current body pose within the move
-	Pose& getBodyPose() { return bodyPose; };
+	Pose& getBodyPose() { return pose.body; };
 
 	// current head pose within the move
-	Pose& getHeadPose() { return headPose; };
+	Pose& getHeadPose() { return pose.head; };
 
 	// set the number of moves after that the next move happens
 	void switchMovePeriodically(int afterHowManyMoves);
@@ -62,8 +62,7 @@ private:
 	void doNewMove();
 	void createMove(double movePercentage);
 
-	Pose bodyPose;
-	Pose headPose;
+	TotalBodyPose pose;
 	Move::MoveType currentMove;
 	int passedBeatsInCurrentMove;
 	SequenceModeType sequenceMode;

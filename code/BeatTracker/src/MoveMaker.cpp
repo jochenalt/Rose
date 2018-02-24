@@ -33,24 +33,29 @@ Pose MoveMaker::getDefaultHeadPose() {
 }
 
 void MoveMaker::setup() {
-	bodyPose = getDefaultBodyPose();
+	pose.body = getDefaultBodyPose();
+	pose.head = getDefaultHeadPose();
+
 	currentMove = Move::NO_MOVE;
 	passedBeatsInCurrentMove = 0;
 	startAfterNBeats = 4;
 }
 
-
-
 void MoveMaker::createMove(double movePercentage) {
-	Pose nextPose = Move::getMove(currentMove).move(movePercentage);
+	TotalBodyPose newPose = Move::getMove(currentMove).move(movePercentage);
 
 	static TimeSamplerStatic moveTimer;
 
 	// limit acceleration after changing the move
-	if (movePercentage > 0.25)
-		bodyPose.moveTo(nextPose, moveTimer.dT(), 400.0, 6.0);
-	else
-		bodyPose.moveTo(nextPose, moveTimer.dT(), 100.0, 2.0);
+	double dT = moveTimer.dT();
+	if (movePercentage > 0.25) {
+		pose.body.moveTo(newPose.body, dT, 400.0, 6.0);
+		pose.head.moveTo(newPose.head, dT, 400.0, 6.0);
+	}
+	else {
+		pose.body.moveTo(newPose.body, dT, 100.0, 2.0);
+		pose.head.moveTo(newPose.head, dT, 100.0, 2.0);
+	}
 }
 
 void MoveMaker::loop(bool beat, double BPM) {
