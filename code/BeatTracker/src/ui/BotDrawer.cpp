@@ -93,6 +93,25 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 	glRotatef(degrees(bodyPose.orientation.x), 1.0,0.0,0.0);
 	stewartPlate.display(glStewartPlateColor,glStewartPlateColor);
 
+	glPushMatrix();
+	// draw head plate (headPose is relative to the bodyPose)
+	glTranslatef(headPose.position.x, headPose.position.y,headPose.position.z);
+	glRotatef(degrees(headPose.orientation.z), 0.0,0.0,1.0);
+	glRotatef(degrees(headPose.orientation.y), 0.0,1.0,0.0);
+	glRotatef(degrees(headPose.orientation.x), 1.0,0.0,0.0);
+	stewartHead.display(glStewartPlateColor,glStewartPlateColor);
+
+	// translate such that the head is right on the top plate
+	glTranslatef(25,0,45);
+	glRotatef(90,1.0,0,0);
+	glRotatef(90,0,1.0,0.0);
+
+	chickenHead.display(glChickenHeadColor,glChickenHeadColor);
+	chickenBeak.display(glChickenBeak,glChickenBeak);
+	chickenEyeBall.display(glChickenEyeBallsColor,glChickenEyeBallsColor);
+	chickenEyeIris.display(glChickenEyeIrisColor,glChickenEyeIrisColor);
+	glPopMatrix();
+
 	// we are in the frame of the plate, so draw servos of second stewart platform
 	for (int i = 0;i<6;i++) {
 		// render the servo arm
@@ -104,8 +123,7 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 			glRotatef(180.0 + angle, 1.0,0.0,0.0);
 		else
 			glRotatef(-angle, 1.0,0.0,0.0);
-		glRotatef(-90, 1.0,0.0,0.0);
-		glRotatef(90, 0.0,1.0,0.0);
+
 		stewartSmallServoArm.display(glServoArmColor,glServoArmColor);
 		glPopMatrix();
 		// render the rod between servo and top plate
@@ -125,22 +143,6 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 	}
 
 
-	// draw head plate (headPose is relative to the bodyPose)
-	glTranslatef(headPose.position.x, headPose.position.y,headPose.position.z);
-	glRotatef(degrees(headPose.orientation.z), 0.0,0.0,1.0);
-	glRotatef(degrees(headPose.orientation.y), 0.0,1.0,0.0);
-	glRotatef(degrees(headPose.orientation.x), 1.0,0.0,0.0);
-	stewartHead.display(glStewartPlateColor,glStewartPlateColor);
-
-	// move along the neck in z
-	glTranslatef(25,0,45);
-	glRotatef(90,1.0,0,0);
-	glRotatef(90,0,1.0,0.0);
-
-	chickenHead.display(glChickenHeadColor,glChickenHeadColor);
-	chickenBeak.display(glChickenBeak,glChickenBeak);
-	chickenEyeBall.display(glChickenEyeBallsColor,glChickenEyeBallsColor);
-	chickenEyeIris.display(glChickenEyeIrisColor,glChickenEyeIrisColor);
 	glPopMatrix();
 
 
