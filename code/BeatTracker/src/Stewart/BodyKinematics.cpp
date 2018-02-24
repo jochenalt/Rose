@@ -43,11 +43,26 @@ BodyKinematics::~BodyKinematics() {
 
 void BodyKinematics::setup() {
 	bodyKin.setup(bodyStewartConfig);
+	headKin.setup(headStewartConfig);
+
 }
 
-void BodyKinematics::computeServoAngles(const Pose& bodyPose, double servoAngle_rad[6], Point ballJoint_world[6],  Point servoBallJoint_world[6],
-						                const Pose& headPose) {
-	bodyKin.computeServoAngles(bodyPose, servoAngle_rad, ballJoint_world,  servoBallJoint_world);
+void BodyKinematics::computeServoAngles(const Pose& bodyPose, Point bodyServoArmCentre_world[6], double bodyServoAngle_rad[6], Point bodyBallJoint_world[6],  Point bodyServoBallJoint_world[6],
+						                const Pose& headPose, Point headServoArmCentre_world[6], double headServoAngle_rad[6], Point headBallJoint_world[6],  Point headServoBallJoint_world[6]) {
+	bodyKin.getServoArmCentre(bodyServoArmCentre_world);
+	bodyKin.computeServoAngles(bodyPose, bodyServoAngle_rad, bodyBallJoint_world,  bodyServoBallJoint_world);
+
+	headKin.getServoArmCentre(headServoArmCentre_world);
+	headKin.computeServoAngles(headPose, headServoAngle_rad, headBallJoint_world,  headServoBallJoint_world);
+
+	/*
+	// headPose is relative to body Pose
+	// compute head pose in world coordinates
+	HomogeneousMatrix bodyBaseTransformation = createTransformationMatrix(bodyPose);
+	HomogeneousMatrix body2HeadTransformation = createTransformationMatrix(headPose);
+	HomogeneousMatrix headTransformation = bodyBaseTransformation * body2HeadTransformation;
+	headPose_world = getPoseByTransformationMatrix(headTransformation);
+*/
 }
 
 void BodyKinematics::getServoArmCentre(Point servoArmCentre_world[6]) {

@@ -31,14 +31,17 @@ static const GLfloat glCoordSystemAreaColor4v[]			= GL_COLOR_4v(TeleGrey4, glAlp
 static const GLfloat glCoordSystemAxisColor4v[] 		= GL_COLOR_4v(PearlMouseGrey, glAlphaSolid );
 static const GLfloat glRasterColor4v[] 					= GL_COLOR_4v(GraniteGrey, glAlphaSolid );
 
-static const GLfloat glEyesColor[] 					= GL_COLOR_4v(WineRed, glAlphaSolid );
 static const GLfloat glMapBackgroundColor4v[]		    = GL_COLOR_4v( AnthraciteGrey, 0.01);
 static const GLfloat glMapAreaColor4v[]		    		= GL_COLOR_4v( AnthraciteGrey, glAlphaTransparent);
 static const GLfloat glBallJointColor[] 					= GL_COLOR_4v(YellowGrey, glAlphaSolid );
-static const GLfloat glServoArmColor[] 					= GL_COLOR_4v(LightGreen, glAlphaSolid );
+static const GLfloat glServoArmColor[] 					= GL_COLOR_4v(GreenBlue, glAlphaSolid );
 static const GLfloat glServoCentreColor[] 					= GL_COLOR_4v(WhiteAluminium, glAlphaSolid );
-static const GLfloat glStewartRodColor[] 					= GL_COLOR_4v(BlackBrown, glAlphaSolid );
-static const GLfloat glStewartPlateColor[] 					= GL_COLOR_4v(GreenBeige, glAlphaSolid );
+static const GLfloat glStewartRodColor[] 					= GL_COLOR_4v(GraniteGrey, glAlphaSolid );
+static const GLfloat glStewartPlateColor[] 					= GL_COLOR_4v(GreyBeige, glAlphaSolid );
+static const GLfloat glChickenHeadColor[] 					= GL_COLOR_4v(WhiteAluminium, glAlphaSolid );
+static const GLfloat glChickenEyeBallsColor[] 					= GL_COLOR_4v(PureWhite, glAlphaSolid );
+static const GLfloat glChickenEyeIrisColor[] 					= GL_COLOR_4v(BlackBrown, glAlphaSolid );
+static const GLfloat glChickenBeak[] 					= GL_COLOR_4v(OrientRed, glAlphaSolid );
 
 
 #endif /* UI_UICONFIG_H_ */

@@ -22,8 +22,8 @@ public:
 		return instance;
 	}
 
-	void computeServoAngles(const Pose& bodyPose, double servoAngle_rad[6], Point ballJoint_world[6],  Point servoBallJoint_world[6],
-			                const Pose& headPose);
+	void computeServoAngles(const Pose& bodyPose, Point bodyServoArmCentre_world[6], double bodyServoAngle_rad[6], Point bodyBallJoint_world[6],  Point bodyServoBallJoint_world[6],
+			                const Pose& headPose, Point headServoArmCentre_world[6], double headServoAngle_rad[6], Point headBallJoint_world[6],  Point headServoBallJoint_world[6]);
 	void getServoArmCentre(Point servoArmCentre_world[6]);
 
 private:

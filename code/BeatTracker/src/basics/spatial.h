@@ -148,53 +148,56 @@ class Pose : public Serializable  {
 };
 
 
-// a pose with a timestamp
-class StampedPose : public Serializable  {
-	public:
-		friend ostream& operator<<(ostream&, const StampedPose&);
 
-		StampedPose() {
+// a pose with a timestamp
+class TotalBodyPose : public Serializable  {
+	public:
+		friend ostream& operator<<(ostream&, const TotalBodyPose&);
+
+		TotalBodyPose() {
 			null();
 		};
-		virtual ~StampedPose() {};
-		StampedPose(const StampedPose& p) {
-			pose = p.pose;
-			timestamp = p.timestamp;
+
+		virtual ~TotalBodyPose() {};
+		TotalBodyPose(const TotalBodyPose& p) {
+			body = p.body;
+			head = p.head;
 		};
-		StampedPose(const Pose& pPose, const milliseconds pTimestamp) {
-			pose = pPose;
-			timestamp = pTimestamp;
+
+		TotalBodyPose(const Pose& pBody, const Pose& pHead) {
+			body = pBody;
+			head = pHead;
 		};
 
 
-		void operator= (const StampedPose& p) {
-			pose = p.pose;
-			timestamp = p.timestamp;
+		void operator= (const TotalBodyPose& p) {
+			body = p.body;
+			head = p.head;
 		}
 
 		void null() {
-			pose.null();
-			timestamp = 0;
+			body.null();
+			head.null();
 		}
 
 		bool isNull() {
-			return pose.isNull();
+			return body.isNull();
 		}
 
-		bool operator==(const StampedPose& p) {
-			return 	((pose == p.pose) &&
-					(timestamp == p.timestamp));
+		bool operator==(const TotalBodyPose& p) {
+			return 	((body == p.body) &&
+					(head == p.head));
 		};
 
-		bool operator!=(const StampedPose& p) {
+		bool operator!=(const TotalBodyPose& p) {
 			return !((*this) == p);
 		};
 
 		virtual std::ostream& serialize(std::ostream &out) const;
 		virtual std::istream& deserialize(std::istream &in, bool &ok);
 
-		Pose pose;
-		milliseconds timestamp;
+		Pose body;
+		Pose head;
 };
 
 
@@ -241,7 +244,10 @@ HomogeneousMatrix computeInverseTransformationMatrix(HomogeneousMatrix m);
 
 void createTransformationMatrix(const Pose& p, HomogeneousMatrix& m);
 HomogeneousMatrix createTransformationMatrix(const Pose& p);
+Rotation getRotationByTransformationMatrix(HomogeneousMatrix& m);
 Point getPointByTransformationMatrix(HomogeneousMatrix& m);
+Pose getPoseByTransformationMatrix(HomogeneousMatrix& m);
+
 HomogeneousVector getHomogeneousVector(const Point& p);
 
 

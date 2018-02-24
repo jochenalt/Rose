@@ -145,6 +145,7 @@ void BotView::drawCoordSystem(bool withRaster) {
 			glVertex3f(i, -arrowLength/2, 0.0f);glVertex3f(i,+arrowLength/2, 0.0f);
 		}
 
+		/*
 		// robot's z-axis
 		glVertex3f(0.0f, -arrowLength, 0.0f);glVertex3f(0.0f, axisLength,0.0f);
 		glVertex3f(0.0f, axisLength,0.0f);glVertex3f(+arrowLength/2,axisLength-arrowLength, 0.0f);
@@ -152,14 +153,15 @@ void BotView::drawCoordSystem(bool withRaster) {
 		for (float i = 0;i<axisLength;i = i + unitLength ) {
 			glVertex3f(-arrowLength/2, i,0.0f);glVertex3f(+arrowLength/2, i,0.0f);
 		}
+		*/
 	glEnd();
 
 	glRasterPos3f(axisLength+arrowLength, 0.0f, 0.0f);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_12,(const unsigned char*) "y");
 	glRasterPos3f(0.0f, 0.0f, axisLength+arrowLength);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_12,(const unsigned char*) "x");
-	glRasterPos3f(0.0f, axisLength+arrowLength,0.0f);
-	glutBitmapString(GLUT_BITMAP_HELVETICA_12,(const unsigned char*) "z");
+	// glRasterPos3f(0.0f, axisLength+arrowLength,0.0f);
+	// glutBitmapString(GLUT_BITMAP_HELVETICA_12,(const unsigned char*) "z");
 }
 
 void displayBotView() {
@@ -210,8 +212,7 @@ void BotView::display() {
 	setEyePosition();
 	glMatrixMode(GL_MODELVIEW);
 
-	BotDrawer::getInstance().displayBot(bodyPose, eyeDeviation);
-	BotDrawer::getInstance().displayStewart(bodyPose, headPose);
+	BotDrawer::getInstance().displayBot(bodyPose, headPose);
 
 	drawCoordSystem(true);
 
