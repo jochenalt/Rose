@@ -112,6 +112,7 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 			for (int i = 0; i < numInputSamples; i++)
 			{
 				double inputSampleValue;
+				assert(posInputSamples+1 < numSamples);
 				switch (numInputChannels) {
 				case 1:
 					inputSampleValue= audioFile.samples[0][posInputSamples + i];
@@ -125,6 +126,7 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 						inputSampleValue += audioFile.samples[j][posInputSamples + i];
 					inputSampleValue = inputSampleValue / numInputChannels;
 				}
+				assert(i<hopSize);
 				frame[i] = inputSampleValue;
 
 				// set frame value into output buffer to be played later on

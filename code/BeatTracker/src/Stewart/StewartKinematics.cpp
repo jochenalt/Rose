@@ -5,6 +5,7 @@
  *      Author: jochenalt
  */
 
+#include <assert.h>
 #include <basics/util.h>
 #include <basics/spatial.h>
 
@@ -26,6 +27,7 @@ void StewartKinematics::setup(StewartConfiguration newConfig) {
 	Pose servoCentre[6];
 	for (int i = 0;i<3;i++) {
 		zRotation = i*radians(120.0);
+		assert(i*2+1 < 6);
 		servoCentre[i*2]     = Pose(Point(config.servoCentreRadius_mm,0,config.servoCentreHeight_mm)
 				                      .getRotatedAroundZ(zRotation + config.servoCentreAngle_rad),
 				                    Rotation(0,0,zRotation));
@@ -49,6 +51,7 @@ void StewartKinematics::setup(StewartConfiguration newConfig) {
 	// precompute inverse transformation matrixes of the servos
 	// later on used to convert balljoints to servo frame
 	for (int i = 0;i<6;i++) {
+		assert(i<6);
 		HomogeneousMatrix servoTransformation = createTransformationMatrix(servoCentre[i]);
 		servoCentreTransformationInv[i] = computeInverseTransformationMatrix(servoTransformation);
 
@@ -73,6 +76,7 @@ double StewartKinematics::computeServoAngle(int cornerNo, const Point& ballJoint
 			1.0 };
 
 	// this is the ballJoint from the servos perspective
+	assert(cornerNo<6);
 	Point ballJoint_servoframe =  servoCentreTransformationInv[cornerNo] * balljoint_world_hom;
 
 	// mirror the y axis for odd servo numbers

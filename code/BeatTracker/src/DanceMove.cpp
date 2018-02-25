@@ -6,6 +6,7 @@
  */
 
 #include <math.h>
+#include <assert.h>
 
 #include <DanceMove.h>
 #include "Stewart/BodyKinematics.h"
@@ -17,6 +18,7 @@ const double latencyShift = 0.1;
 
 Move& Move::getMove(MoveType m) {
 	setup();
+	assert((int)m < moveLibrary.size());
 	return moveLibrary[(int)m];
 }
 
