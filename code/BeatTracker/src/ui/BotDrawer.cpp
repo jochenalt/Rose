@@ -149,9 +149,9 @@ void BotDrawer::readSTLFiles(string path) {
 	stewartBase.loadFile(path + "/Stewart-Base.stl");
 	stewartPlate.loadFile(path + "/Stewart-Body.stl");
 	stewartServoArm.loadFile(path + "/Stewart-Body-Servo-Arm.stl");
-	stewartRod.loadFile(path + "/Stewart-Rod.stl");
+	stewartRod.loadFile(path + "/Stewart-Body-Rod.stl");
 
-	stewartSmallRod.loadFile(path + "/Stewart-Small-Rod.stl");
+	stewartSmallRod.loadFile(path + "/Stewart-Head-Rod.stl");
 	stewartHead.loadFile(path + "/Stewart-Head.stl");
 	stewartSmallServoArm.loadFile(path + "/Stewart-Head-Servo-Arm.stl");
 

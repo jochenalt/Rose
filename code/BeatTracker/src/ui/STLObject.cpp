@@ -216,27 +216,14 @@ void STLObject::display(const GLfloat* color,const GLfloat* accentColor) {
 	{
 		Triangle t = triangles[i];
 		glBegin(GL_TRIANGLES);
-        	Coordinate* fnormal = &t.normal;
-        	Coordinate* fvertex1 = &t.vertex1;
-        	Coordinate* fvertex12 = &t.vertex2;
-        	Coordinate* fvertex13 = &t.vertex3;
-        	Coordinate coord;
-
-            if( fnormal->x == 0 && fnormal->y == 0 && fnormal->z == 0 )
-            {
-            	Coordinate coord;
-                coord = computeFaceNormal(*fvertex1, *fvertex12, *fvertex13);
-                glNormal3f(coord.x, coord.y, coord.z);
-                fnormal->x = coord.x;
-                fnormal->y = coord.y;
-                fnormal->z = coord.z;
-            }
-            else
-                glNormal3f(fnormal->x, fnormal->y, fnormal->z);
-
-            glVertex3f(fvertex1->x, fvertex1->y, fvertex1->z);
-            glVertex3f(fvertex12->x,fvertex12->y,fvertex12->z);
-            glVertex3f(fvertex13->x, fvertex13->y, fvertex13->z);
+        	Coordinate& fnormal = t.normal;
+        	Coordinate& fvertex1 = t.vertex1;
+        	Coordinate& fvertex12 = t.vertex2;
+        	Coordinate& fvertex13 = t.vertex3;
+        	glNormal3f(fnormal.x, fnormal.y, fnormal.z);
+            glVertex3f(fvertex1.x, fvertex1.y, fvertex1.z);
+            glVertex3f(fvertex12.x,fvertex12.y,fvertex12.z);
+            glVertex3f(fvertex13.x, fvertex13.y, fvertex13.z);
          glEnd();
 	}
    	glPopAttrib();
