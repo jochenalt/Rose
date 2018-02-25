@@ -26,6 +26,7 @@ public:
 			                const Pose& headPose, Point headServoArmCentre_world[6], double headServoAngle_rad[6], Point headBallJoint_world[6],  Point headServoBallJoint_world[6]);
 	void getServoArmCentre(Point servoArmCentre_world[6]);
 
+	void resetSpeedMeasurement() { bodyKin.resetSpeedMeasurement(); headKin.resetSpeedMeasurement(); };
 private:
 	StewartKinematics bodyKin;
 	StewartKinematics headKin;

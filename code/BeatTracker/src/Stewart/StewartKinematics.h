@@ -11,6 +11,7 @@
 #include "basics/point.h"
 
 struct StewartConfiguration {
+	string name;
 	double servoCentreRadius_mm;       	// from birds perspective, distance from centre to this servo's turning centre
 	double servoCentreAngle_rad;		// angle we need to turn the in order to come to the centre point
 
@@ -25,6 +26,10 @@ struct StewartConfiguration {
 	double servoCentreHeight_mm;		// height of servo centre from the ground
 
 	double plateBallJointHeight_mm;		// height of the plate relative to the ball joints
+
+	double bottomServoLimit_rad;		// limit of servo against horizontal axis when turning up
+	double topServoLimit_rad;			// limit of servo against horizontal axis when turning down
+
 };
 
 class StewartKinematics {
@@ -41,17 +46,21 @@ public:
 
 	// get the centre where the servo arms are mounted (used for rendering)
 	void getServoArmCentre(Point servoArmCentre_world[6]);
+
+	void resetSpeedMeasurement();
 private:
 	double computeServoAngle(int cornerNo, const Point& ballJoint);
 	bool mirrorFrame(int cornerNo) { return (cornerNo % 2 == 1); };
 
-
 	Point servoArmCentre[6];
 	Point plateBallJoint[6];
+	double lastAngle[6];
 	HomogeneousMatrix servoCentreTransformationInv[6];
 	HomogeneousMatrix servoTransform[6];
 
 	StewartConfiguration config;
+	TimeSamplerStatic timer;
+	double currentMaxSpeed;
 };
 
 #endif /* SRC_STEWART_STEWARTKINEMATICS_H_ */

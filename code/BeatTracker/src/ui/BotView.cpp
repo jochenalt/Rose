@@ -188,7 +188,7 @@ int BotView::create(int mainWindow, string pTitle) {
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); 	// Nice perspective corrections
 
 	setLights();
-	setEyePosition(ViewEyeDistance, radians(-60), radians(-10));
+	setEyePosition(ViewEyeDistance, radians(-15), radians(-10));
 
 	// Main Bot view has comprehensive mouse motion
 	glutSetWindow(windowHandle);
