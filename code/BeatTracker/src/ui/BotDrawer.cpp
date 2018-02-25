@@ -47,7 +47,7 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 	glRotatef(degrees(bodyPose.orientation.z), 0.0,0.0,1.0);
 	glRotatef(degrees(bodyPose.orientation.y), 0.0,1.0,0.0);
 	glRotatef(degrees(bodyPose.orientation.x), 1.0,0.0,0.0);
-	// stewartPlate.display(glStewartPlateColor,glStewartPlateColor);
+	stewartPlate.display(glStewartPlateColor,glStewartPlateColor);
 
 	// draw head plate (headPose is relative to the bodyPose)
 	glTranslatef(headPose.position.x, headPose.position.y,headPose.position.z);
@@ -146,14 +146,14 @@ void BotDrawer::readSTLFiles(string path) {
 	chickenEyeIris.loadFile(path + "/Chickenhead-Iris.stl");
 	chickenBeak.loadFile(path + "/Chickenhead-Beak.stl");
 
-	stewartBase.loadFile(path + "/Stewart-Platform-Base.stl");
-	stewartPlate.loadFile(path + "/Stewart-Plate.stl");
-	stewartServoArm.loadFile(path + "/Stewart-Servo-Arm.stl");
+	stewartBase.loadFile(path + "/Stewart-Base.stl");
+	stewartPlate.loadFile(path + "/Stewart-Body.stl");
+	stewartServoArm.loadFile(path + "/Stewart-Body-Servo-Arm.stl");
 	stewartRod.loadFile(path + "/Stewart-Rod.stl");
 
 	stewartSmallRod.loadFile(path + "/Stewart-Small-Rod.stl");
 	stewartHead.loadFile(path + "/Stewart-Head.stl");
-	stewartSmallServoArm.loadFile(path + "/Stewart-Small-Servo-Arm.stl");
+	stewartSmallServoArm.loadFile(path + "/Stewart-Head-Servo-Arm.stl");
 
 }
 
