@@ -13,6 +13,8 @@
 #include "uiconfig.h"
 #include "setup.h"
 
+#include <assert.h>
+
 using namespace std;
 
 // Initial main window size
@@ -20,29 +22,19 @@ int WindowWidth = 600;
 int WindowHeight = 800;
 
 // GLUI Window handlers
-int wMain;			// main window
-int wMainBotView; 	// sub window with dancing bot
+int wMain = 0;			// main window
+int wMainBotView = 0; 	// sub window with dancing bot
 
-int DanceMoveRows = 2;
-GLUI_RadioGroup* currentDancingModeWidget[] = { NULL, NULL };
-int dancingModeLiveVar[] = { 0,0 };
+const int DanceMoveRows = 2;
+GLUI_RadioGroup* currentDancingModeWidget[DanceMoveRows] = { NULL, NULL };
+int dancingModeLiveVar[DanceMoveRows] = { 0,0 };
 
 GLUI_RadioGroup* currentSequenceModeWidget = NULL;
 int currentSequenceModeLiveVar = 0;
 
-// each mouse motion call requires a display() call before doing the next mouse motion call. postDisplayInitiated
-// is a semaphore that coordinates this across several threads
-// (without that, we have so many motion calls that rendering is bumpy)
-// postDisplayInitiated is true, if a display()-invokation is pending but has not yet been executed (i.e. allow a following display call)
-volatile static bool postDisplayInitiated = true;
-
 /* Handler for window-repaint event. Call back when the window first appears and
  whenever the window needs to be re-painted. */
 void displayMainView() {
-	if (!postDisplayInitiated)
-		return;
-
-	postDisplayInitiated = false;
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -81,21 +73,6 @@ void WindowController::setBodyPose(const Pose& bodyPose, const Pose& headPose) {
 	Point eyeLookAt = mainBotView.getEyePosition();
 	// Point eyeLookAt (500,0,100);
 
-	// compute the position of the look-at point from the heads perspective:
-	//      compute homogenous transformation matrix of head
-	// 		compute inverse homogenous matrix for reversing the coord system
-	// 	    get look at point from heads perspective by multiplying inverse matrix above with look-at-position
-	/*
-	HomogeneousMatrix bodyTransformation = HomogeneousMatrix(4,4,
-					{ 1, 	0,  	0,  	bodyPose.position.x,
-					  0, 	1, 		0,	 	bodyPose.position.y,
-					  0,	0,		1,		bodyPose.position.z,
-					  0,	0,		0,		1});
-	HomogeneousMatrix rotateBody;
-	createRotationMatrix(bodyPose.orientation, rotateBody);
-	bodyTransformation *= rotateBody;
-	HomogeneousMatrix inverseBodyTransformation;
-	*/
 	HomogeneousMatrix bodyTransformation;
 	HomogeneousMatrix inverseBodyTransformation;
 
@@ -126,10 +103,12 @@ void setDancingMoveWidget() {
 			line++;
 	}
 
+	assert((row<DanceMoveRows) && (row >=0));
 	currentDancingModeWidget[row]->set_int_val(line);
 
 	for (int i = 0;i<DanceMoveRows;i++) {
 		if (i != row)
+			assert((i<DanceMoveRows) && (i >=0));
 			currentDancingModeWidget[i]->set_int_val(-1);
 	}
 }
@@ -139,6 +118,7 @@ void currentDancingMoveCallback(int widgetNo) {
 	int movesPerRow = MoveMaker::getInstance().getNumMoves()/DanceMoveRows ;
 	int row = widgetNo;
 	if (widgetNo == 0) {
+		assert((widgetNo<DanceMoveRows) && (widgetNo >=0));
 		if (dancingModeLiveVar[widgetNo] == 0)
 			MoveMaker::getInstance().setCurrentMove(Move::MoveType::NO_MOVE);
 		else
@@ -169,7 +149,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	// GLUI_StaticText* text = new GLUI_StaticText(interactivePanel,"Current Dance Move                                                   ");
 	// text->set_alignment(GLUI_ALIGN_LEFT);
 
-	GLUI_Panel* dancingModePanel[2];
+	GLUI_Panel* dancingModePanel[DanceMoveRows];
 	int moveCounter = 0;
 	for (int row = 0;row < DanceMoveRows; row++) {
 		dancingModePanel[row] = new GLUI_Panel(interactivePanel,"Dancing Mode Panel", GLUI_PANEL_RAISED);
@@ -234,7 +214,6 @@ void WindowController::tearDown() {
 void idleCallback( void )
 {
 	const milliseconds emergencyRefreshRate = 1000; 		// refresh everything once a second at least due to refresh issues
-
 
 	milliseconds now = millis();
 	static milliseconds lastDisplayRefreshCall = millis();
