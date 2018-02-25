@@ -123,7 +123,7 @@ TotalBodyPose Move::physicistsHeadNicker(double movePercentage) {
 	double startPhase = 0.25 + globalPhaseShift;
 	double mUpDown = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase));
 
-	return TotalBodyPose ( Pose(Point(0,0,bodyHeight + 30.0*mUpDown), Rotation (0,0,0)),
+	return TotalBodyPose ( Pose(Point(0,0,bodyHeight + 20.0*mUpDown), Rotation (0,0,0)),
 			               Pose(Point(-20.0*mUpDown,0,headHeight), Rotation(0,0,0)));
 }
 
@@ -145,7 +145,7 @@ TotalBodyPose Move::doubleHeadNicker(double movePercentage) {
 	double mNick = baseCurveCos(scaleMove(movePercentage, 4.0, globalPhaseShift));
 	double mDip  = baseCurveDip(scaleMove(movePercentage, 1.0, 1.125 + globalPhaseShift));
 
-	return TotalBodyPose (Pose(Point(0,40.0*mLeftRight,bodyHeight + 30.0*mNick),Rotation (0,-radians(0)*mDip,-radians(20)*mLeftRight-radians(60)*mDip)), getDefaultHeadPose());
+	return TotalBodyPose (Pose(Point(0,40.0*mLeftRight,bodyHeight + 20.0*mNick),Rotation (0,-radians(0)*mDip,-radians(20)*mLeftRight-radians(60)*mDip)), getDefaultHeadPose());
 }
 
 TotalBodyPose Move::travoltaHeadNicker(double movePercentage) {
@@ -165,7 +165,7 @@ TotalBodyPose Move::enhancedTravoltaHeadNicker(double movePercentage) {
 	double mUpDown = baseCurveTrapezoid(scaleMove(movePercentage, 2.0, 1.25+globalPhaseShift));
 	double mSwing = baseCurveCos(scaleMove(movePercentage, 4.0, 0.5+globalPhaseShift));
 
-	return TotalBodyPose (Pose(Point(0,30*mBase,bodyHeight + 30.0*mBase),Rotation (-radians(20)*mSwing,-radians(30)*mSwing,radians(30)*mUpDown)),getDefaultHeadPose());
+	return TotalBodyPose (Pose(Point(0,30*mBase,bodyHeight + 20.0*mBase),Rotation (-radians(20)*mSwing,-radians(30)*mSwing,radians(30)*mUpDown)),getDefaultHeadPose());
 }
 
 
@@ -174,7 +174,7 @@ TotalBodyPose Move::diagonalSwing(double movePercentage) {
 	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 0.75 + globalPhaseShift));
 	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, -0.25 + globalPhaseShift)));
 
-	return TotalBodyPose (Pose(Point(-30.0*mBase,40.0*mBase,bodyHeight + 30.0*mDip),Rotation (0,0,-radians(30)*mBase)),getDefaultHeadPose());
+	return TotalBodyPose (Pose(Point(-30.0*mBase,40.0*mBase,bodyHeight + 20.0*mDip),Rotation (0,0,-radians(30)*mBase)),getDefaultHeadPose());
 }
 
 TotalBodyPose Move::dippedDiagonalSwing(double movePercentage) {
@@ -183,7 +183,7 @@ TotalBodyPose Move::dippedDiagonalSwing(double movePercentage) {
 	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, -0.25 + globalPhaseShift)));
 	double mEndDip  = baseCurveDip(scaleMove(movePercentage, 1.00, -0.625 + globalPhaseShift));
 
-	return TotalBodyPose (Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 30.0*mDip),Rotation (0,0,radians(45)*mEndDip-radians(30)*mBase)),getDefaultHeadPose());
+	return TotalBodyPose (Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 20.0*mDip),Rotation (0,0,radians(45)*mEndDip-radians(30)*mBase)),getDefaultHeadPose());
 }
 
 TotalBodyPose Move::rolledDippedDiagonalSwing(double movePercentage) {
@@ -193,7 +193,7 @@ TotalBodyPose Move::rolledDippedDiagonalSwing(double movePercentage) {
 	double mEndDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, -0.25 + globalPhaseShift)));
 	double mRoll  = baseCurveCos(scaleMove(movePercentage, 4.0, -0.25 + globalPhaseShift));
 
-	return TotalBodyPose (Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 30.0*mDip),Rotation (0,-radians(20)*mRoll,-radians(20)*mRoll + radians(30)*mEndDip)),getDefaultHeadPose());
+	return TotalBodyPose (Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 20.0*mDip),Rotation (0,-radians(20)*mRoll,-radians(20)*mRoll + radians(30)*mEndDip)),getDefaultHeadPose());
 }
 
 
@@ -204,7 +204,7 @@ TotalBodyPose Move::eyedDippedDiagonalSwing(double movePercentage) {
 	double mEndDip  = baseCurveDip(scaleMove(movePercentage, 1.0, 0.0 + globalPhaseShift));
 	double mEyeRoll  = baseCurveCos(scaleMove(movePercentage, 4.0, 1.25 + globalPhaseShift));
 
-	return TotalBodyPose (Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 30.0*mHipDip),Rotation (radians(20)*mEyeRoll,0,radians(0)*mEndDip)),getDefaultHeadPose());
+	return TotalBodyPose (Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 20.0*mHipDip),Rotation (radians(20)*mEyeRoll,0,radians(0)*mEndDip)),getDefaultHeadPose());
 }
 
 TotalBodyPose Move::bollywoodHeadMove(double movePercentage) {
@@ -231,7 +231,7 @@ TotalBodyPose Move::swingDoubleBollywoodHeadMove(double movePercentage) {
 	double mHeadMove = baseCurveCos(scaleMove(movePercentage, 4.0, startPhase - 1.0));
 	double mSwing = baseCurveCos(scaleMove(movePercentage, 2.0,    startPhase - 0.75));
 
-	return  TotalBodyPose (Pose(Point(0,00.0*mBase + 20*mHeadMove,bodyHeight + 30.0*(1.0-fabs(mDip))),Rotation (0,radians(30)*mSwing,radians(30)*mDip)),getDefaultHeadPose());
+	return  TotalBodyPose (Pose(Point(0,00.0*mBase + 20*mHeadMove,bodyHeight + 20.0*(1.0-fabs(mDip))),Rotation (0,radians(30)*mSwing,radians(30)*mDip)),getDefaultHeadPose());
 }
 
 TotalBodyPose Move::bodyWaveMove(double movePercentage) {
@@ -242,7 +242,7 @@ TotalBodyPose Move::bodyWaveMove(double movePercentage) {
 	double mWave = baseCurveCos(scaleMove(movePercentage, 4.0, phaseShift + 0.50 ));
 	double mLeftRight= baseCurveTriangle(scaleMove(movePercentage, 1.0, phaseShift ));
 
-	return TotalBodyPose (Pose(Point(0,0,bodyHeight + 30.0*mBase),Rotation (0,-radians(20)*mWave,radians(30)*mLeftRight)),getDefaultHeadPose());
+	return TotalBodyPose (Pose(Point(0,0,bodyHeight + 20.0*mBase),Rotation (0,-radians(20)*mWave,radians(30)*mLeftRight)),getDefaultHeadPose());
 }
 
 
@@ -255,7 +255,7 @@ TotalBodyPose Move::dipBodyWaveMove(double movePercentage) {
 	double mDip= baseCurveDip(scaleMove(movePercentage, 1.0,   phaseShift + 1.25 ));
 	double mLeftRight= baseCurveTriangle(scaleMove(movePercentage, 1.0, phaseShift ));
 
-	return TotalBodyPose (Pose(Point(0,0,bodyHeight + 30.0*mBase),Rotation (0,-radians(15)*mWave,radians(45)*mDip+radians(30)*mLeftRight)),
+	return TotalBodyPose (Pose(Point(0,0,bodyHeight + 20.0*mBase),Rotation (0,-radians(15)*mWave,radians(45)*mDip+radians(30)*mLeftRight)),
 			Pose(Point(0,0,headHeight),Rotation (0,radians(15)*mWave,-radians(45)*mDip-radians(30)*mLeftRight)));
 }
 
@@ -271,7 +271,7 @@ TotalBodyPose Move::sidedDipBodyWaveMove(double movePercentage) {
 	double mLeftRight= baseCurveTriangle(scaleMove(movePercentage, 1.0, phaseShift ));
 
 	return TotalBodyPose (
-			Pose(Point(0,50.0*mSideHip,bodyHeight + 30.0*mBase),Rotation (0,-radians(15)*mWave,radians(30)*mLeftRight)),
+			Pose(Point(0,50.0*mSideHip,bodyHeight + 20.0*mBase),Rotation (0,-radians(15)*mWave,radians(30)*mLeftRight)),
 			Pose(Point(0,0,headHeight),Rotation (0,radians(15)*mWave,-radians(30)*mLeftRight)));
 }
 
@@ -283,7 +283,7 @@ TotalBodyPose Move::shimmys(double movePercentage) {
 
 	return TotalBodyPose
 			(Pose(Point(0,30.0*mBase,bodyHeight + 20.0*mHipDip),Rotation (0,0,radians(20)*mShoulder)),
-			 Pose(Point(0,0,headHeight),Rotation (0,0,-radians(20)*mShoulder)));
+			 Pose(Point(0,0,headHeight-10.0*mHipDip),Rotation (0,0,-radians(20)*mShoulder)));
 }
 
 TotalBodyPose Move::highSpeedShimmys(double movePercentage) {
@@ -293,8 +293,8 @@ TotalBodyPose Move::highSpeedShimmys(double movePercentage) {
 	double mShoulder  = baseCurveCos(scaleMove(movePercentage, 6.0,  0.25+globalPhaseShift));
 
 	return TotalBodyPose (
-			 Pose(Point(0,30.0*mBase,bodyHeight + 30.0*mHipDip),Rotation (0,0,radians(15)*mShoulder)),
-			 Pose(Point(0,0,headHeight),Rotation (0,0,-radians(15)*mShoulder)));
+			 Pose(Point(0,30.0*mBase,bodyHeight + 20.0*mHipDip),Rotation (0,0,radians(15)*mShoulder)),
+			 Pose(Point(0,0,headHeight-10.0*mHipDip),Rotation (0,0,-radians(15)*mShoulder)));
 }
 
 TotalBodyPose Move::turnAndShowBack(double movePercentage) {
@@ -303,7 +303,7 @@ TotalBodyPose Move::turnAndShowBack(double movePercentage) {
 	// used move curves
 	double mHeadNicker= baseCurveFatCos(scaleMove(movePercentage, 4.0,startPhase));
 	double mTurn= movePercentage/4.0;
-	return TotalBodyPose (Pose(Point(0,0,bodyHeight + 30.0*mHeadNicker), Rotation (0,0,radians(mTurn*180.0))),getDefaultHeadPose());
+	return TotalBodyPose (Pose(Point(0,0,bodyHeight + 20.0*mHeadNicker), Rotation (0,0,radians(mTurn*180.0))),getDefaultHeadPose());
 }
 
 TotalBodyPose Move::twerk(double movePercentage) {

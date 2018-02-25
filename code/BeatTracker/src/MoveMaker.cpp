@@ -10,6 +10,7 @@
 
 #include "MoveMaker.h"
 #include "RhythmDetector.h"
+#include "Stewart/BodyKinematics.h"
 
 
 MoveMaker::MoveMaker() {
@@ -91,6 +92,7 @@ void MoveMaker::doNewMove() {
 	else
 		currentMove = (Move::MoveType) (((int)currentMove + 1));
 
+	BodyKinematics::getInstance().resetSpeedMeasurement();
 	cout << "new move: " << Move::getMove(currentMove).getName() << "(" << (int)currentMove << ")" << endl;
 }
 

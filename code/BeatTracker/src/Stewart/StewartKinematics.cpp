@@ -22,6 +22,7 @@ void StewartKinematics::setup(StewartConfiguration newConfig) {
 	config = newConfig;
 	// compute the centres of all servos and the centres of all ball joints of the plate
 	double zRotation;
+	currentMaxSpeed = 0;
 	Pose servoCentre[6];
 	for (int i = 0;i<3;i++) {
 		zRotation = i*radians(120.0);
@@ -39,6 +40,8 @@ void StewartKinematics::setup(StewartConfiguration newConfig) {
 
 		plateBallJoint[i*2]   = Point(config.plateJointRadius_mm,0,-config.plateBallJointHeight_mm).getRotatedAroundZ(radians(120)*i + config.plateJointAngle_rad);
 		plateBallJoint[i*2+1] = Point(config.plateJointRadius_mm,0,-config.plateBallJointHeight_mm).getRotatedAroundZ(radians(120)*i - config.plateJointAngle_rad);
+
+		lastAngle[i] = 0;
 	}
 
 	// precompute inverse transformation matrixes of the servos
@@ -82,7 +85,20 @@ double StewartKinematics::computeServoAngle(int cornerNo, const Point& ballJoint
 	double c = (sqr(config.servoArmLength_mm)  - sqr(config.rodLength_mm)  + lenSqr)/(2.0*config.servoArmLength_mm*lengthXYPlane);
 	double angle_rad = asin(c) - atan2(ballJoint_servoframe.y, ballJoint_servoframe.z);
 
+	// check the limizs
+	if ((angle_rad > 0) && (abs(angle_rad) > config.topServoLimit_rad))
+		cout << std::fixed << std::setprecision(2) << config.name << " servo " << cornerNo << " above limit of " << degrees(config.topServoLimit_rad) << "° (" << abs(degrees(angle_rad)) << ")" << endl;
+	if ((angle_rad < 0) && (abs(angle_rad) > config.bottomServoLimit_rad))
+		cout << std::fixed << std::setprecision(2) << config.name << " servo " << cornerNo << " below limit of " << degrees(config.bottomServoLimit_rad) << "° (" << abs(degrees(angle_rad)) << ")" << endl;
 	return angle_rad;
+}
+
+void StewartKinematics::resetSpeedMeasurement() {
+	if (abs(currentMaxSpeed) < floatPrecision)
+		cout << config.name << "'s servo max speed = <no movement>" << endl;
+	else
+		cout << config.name << "'s servo max speed =" << std::fixed << std::setprecision(3)<<  1.0/currentMaxSpeed << " s/60°" << endl;
+	currentMaxSpeed = 0;
 }
 
 void StewartKinematics::computeServoAngles(const Pose& plate_world, double servoAngle_rad[6], Point ballJoint_world[6],  Point servoBallJoint_world[6]) {
@@ -90,6 +106,8 @@ void StewartKinematics::computeServoAngles(const Pose& plate_world, double servo
 	HomogeneousMatrix plateTransformation = createTransformationMatrix(plate_world);
 
 	Point plateBallJoints_world[6];
+	double dT = timer.dT();
+
 	for (int i = 0;i<6;i++) {
 		Point currPlateBallJoint = plateBallJoint[i];
 		HomogeneousVector ballJoint_plate_hom = getHomogeneousVector(currPlateBallJoint);
@@ -100,6 +118,16 @@ void StewartKinematics::computeServoAngles(const Pose& plate_world, double servo
 
 		double angle_rad = computeServoAngle(i,currBallJoint_world);
 		servoAngle_rad[i] = angle_rad;
+		if (dT > floatPrecision) {
+			double speed = abs(angle_rad-lastAngle[i])/dT;
+			if (speed > currentMaxSpeed) {
+				currentMaxSpeed = currentMaxSpeed*0.5 +  0.5*degrees(speed)/60.0;
+			}
+
+		}
+
+
+		lastAngle[i] = angle_rad;
 
 		Pose servoArm_rotation(Pose(Point(0,0,0), Rotation(angle_rad,0,0)));
 		if (mirrorFrame(i))
@@ -119,4 +147,5 @@ void StewartKinematics::computeServoAngles(const Pose& plate_world, double servo
 		Point currServoBallJoint_world = getPointByTransformationMatrix(servoBallJoint);
 		servoBallJoint_world[i] = currServoBallJoint_world;
 	}
+
 }

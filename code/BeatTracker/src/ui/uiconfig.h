@@ -10,9 +10,8 @@
 #define UI_UICONFIG_H_
 
 // constants used in the UI
-const float ViewEyeDistance 		= 1000.0f;	// distance of the eye to the bot
-const float ViewBotHeight 			= 200.0f;	// height of the bot to be viewed
-const float ViewMapEyeDistance 		= 5000.0f;	// distance of the eye to the map
+const float ViewEyeDistance 		= 500.0f;	// distance of the eye to the bot
+const float ViewBotHeight 			= 150.0f;	// height of the bot to be viewed
 
 const int WindowGap=10;							// gap between frame and subwindow
 const int InteractiveWindowHeight=200;			// height of the interactive window
