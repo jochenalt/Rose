@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include <stdlib.h>
+#include <signal.h>
 #include <chrono>
 #include <unistd.h>
 #include <iomanip>
@@ -20,7 +21,6 @@
 #include <ao/ao.h>
 
 #include "basics/util.h"
-#include "basics/logger.h"
 #include "BTrack.h"
 #include "AudioFile.h"
 #include "UI.h"
@@ -28,11 +28,12 @@
 #include "RhythmDetector.h"
 #include "Stewart/BodyKinematics.h"
 
-INITIALIZE_EASYLOGGINGPP
+// INITIALIZE_EASYLOGGINGPP
 
 using namespace std;
 
 bool runUI = false;
+bool playback = true;
 
 
 char* getCmdOption(char ** begin, char ** end, const std::string & option)
@@ -56,7 +57,8 @@ void printUsage() {
 	     << "            [-h]                 # print this" << endl
 		 << "            [-v <volume 0..100>] # set volume between 0 and 100" << endl
 		 << "            [-ui]                # start visualizer" << endl
-	     << "            [-i <n>]# start after n detected beats" << endl;
+		 << "            [-s]                 # silent, do not play audio" << endl
+		 << "            [-i <n>]# start after n detected beats" << endl;
 }
 
 
@@ -82,12 +84,14 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
     audioOutputFormat.byte_format = AO_FMT_LITTLE;
 
     int defaultDriverHandle = ao_default_driver_id();
-    ao_device* outputDevice = ao_open_live(defaultDriverHandle, &audioOutputFormat, NULL /* no options */);
-    if (outputDevice == NULL) {
-    	 cerr << "Could not open sound deviceError opening sound device" << endl;
-         exit(1);
+    ao_device* outputDevice = NULL;
+    if (playback) {
+		outputDevice = ao_open_live(defaultDriverHandle, &audioOutputFormat, NULL /* no options */);
+		if (outputDevice == NULL) {
+			 cerr << "Could not open sound deviceError opening sound device" << endl;
+			 exit(1);
+		}
     }
-
 	int hopSize = 512;
 	int frameSize = hopSize*4; // cpu load goes up linear with the framesize
 	BTrack b(hopSize, frameSize);
@@ -143,7 +147,8 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 			posInputSamples += numInputSamples;
 
 			// play the buffer of hopSize asynchronously
-			ao_play(outputDevice, outputBuffer, outputBufferCount);
+			if (playback)
+				ao_play(outputDevice, outputBuffer, outputBufferCount);
 
 			// detect beat and bpm of that hop size
 			b.processAudioFrame(frame);
@@ -173,9 +178,10 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 	}
 
 	// close audio output
-    ao_close(outputDevice);
-    ao_shutdown();
-
+	if (playback) {
+		ao_close(outputDevice);
+		ao_shutdown();
+	}
 }
 
 
@@ -192,6 +198,7 @@ void signalHandler(int s){
 }
 
 
+/*
 void setupLogging(int argc, char *argv[]) {
 	// setup logger
 	el::Configurations defaultConf;
@@ -217,7 +224,7 @@ void setupLogging(int argc, char *argv[]) {
 
     LOG(INFO) << "Private Dancer Setup";
 }
-
+*/
 
 void sendBeatToRythmDetector(bool beat, double bpm) {
 	RhythmDetector & rd = RhythmDetector::getInstance();
@@ -246,7 +253,7 @@ int main(int argc, char *argv[]) {
 
 
 	// initialize Logging
-	setupLogging(argc, argv);
+	// setupLogging(argc, argv);
 
 
 	char * arg = getCmdOption(argv, argv + argc, "-f");
@@ -257,6 +264,10 @@ int main(int argc, char *argv[]) {
 
     if (cmdOptionExists(argv, argv + argc, "-h")) {
     	printUsage();
+    }
+
+    if (cmdOptionExists(argv, argv + argc, "-s")) {
+    	playback = false;
     }
 
     arg = getCmdOption(argv, argv + argc, "-v");

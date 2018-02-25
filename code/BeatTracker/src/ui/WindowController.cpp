@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 #include <assert.h>
-#include "basics/logger.h"
 #include "basics/util.h"
 #include "MoveMaker.h"
 #include "DanceMove.h"
@@ -241,7 +240,6 @@ void idleCallback( void )
 
 
 void WindowController::UIeventLoop() {
-	LOG(DEBUG) << "BotWindowCtrl::UIeventLoop";
 
 	glutInitWindowSize(WindowWidth, WindowHeight);
     wMain = glutCreateWindow("Private Dancer"); // Create a window with the given title
@@ -264,7 +262,6 @@ void WindowController::UIeventLoop() {
 	createInteractiveWindow(wMain);
 
 	uiReady = true; 							// flag to tell calling thread to stop waiting for ui initialization
-	LOG(DEBUG) << "starting GLUT main loop";
 	glutMainLoop();
 }
 

@@ -1,5 +1,4 @@
 #include "stdio.h"
-#include "basics/logger.h"
 #include "basics/util.h"
 
 #include "STLObject.h"
@@ -16,7 +15,7 @@ bool STLObject::loadFile(string pFilename)
     file.open(filename.c_str());
     if(!file.is_open())
     {
-    	LOG(ERROR) << "file " << filename << " not found" << filename;
+    	cerr << "file " << filename << " not found" << filename;
     	return false;
     }
     file.close();
@@ -122,7 +121,7 @@ bool STLObject::parseSTLBinaryFormat()
 
     std::ifstream stl_file(filename.c_str(), std::ios::in | std::ios::binary);
     if (!stl_file) {
-      std::cout << "ERROR: COULD NOT READ FILE" << std::endl;
+      std::cerr << "ERROR: COULD NOT READ FILE" << std::endl;
       return false;
     }
 

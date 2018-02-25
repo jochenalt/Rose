@@ -282,7 +282,7 @@ Rotation getRotationByTransformationMatrix(HomogeneousMatrix& m) {
 		}
 	}
 
-	return Rotation (alpha, beta, gamma);
+	return Rotation (gamma, beta, alpha);
 }
 
 Pose getPoseByTransformationMatrix(HomogeneousMatrix& m) {
