@@ -47,7 +47,9 @@ public:
 	// get the centre where the servo arms are mounted (used for rendering)
 	void getServoArmCentre(Point servoArmCentre_world[6]);
 
+	// sets maximu measured servo speed to 0, is called when a new move starts
 	void resetSpeedMeasurement();
+
 private:
 	double computeServoAngle(int cornerNo, const Point& ballJoint);
 	bool mirrorFrame(int cornerNo) { return (cornerNo % 2 == 1); };

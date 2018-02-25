@@ -73,6 +73,7 @@ public:
 	double baseCurveDip(double movePercentage);
 	double baseCurveFatDip(double movePercentage);
 
+	TotalBodyPose absHead (const Pose& bodyPose, const Pose& relHeadPose);
 	// methods implementing dance moves
 	TotalBodyPose physicistsHeadNicker(double movePercentage);
 	TotalBodyPose tennisHeadNicker(double movePercentage);

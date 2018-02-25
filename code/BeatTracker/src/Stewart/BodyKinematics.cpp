@@ -61,19 +61,28 @@ void BodyKinematics::computeServoAngles(const Pose& bodyPose, Point bodyServoArm
 
 	headKin.getServoArmCentre(headServoArmCentre_world);
 	headKin.computeServoAngles(headPose, headServoAngle_rad, headBallJoint_world,  headServoBallJoint_world);
-
-	/*
-	// headPose is relative to body Pose
-	// compute head pose in world coordinates
-	HomogeneousMatrix bodyBaseTransformation = createTransformationMatrix(bodyPose);
-	HomogeneousMatrix body2HeadTransformation = createTransformationMatrix(headPose);
-	HomogeneousMatrix headTransformation = bodyBaseTransformation * body2HeadTransformation;
-	headPose_world = getPoseByTransformationMatrix(headTransformation);
-*/
 }
 
 void BodyKinematics::getServoArmCentre(Point servoArmCentre_world[6]) {
 	bodyKin.getServoArmCentre(servoArmCentre_world);
 }
 
+Pose BodyKinematics::computeHeadPose(const Pose& bodyPose, const Pose &relPoseAboveBellyButton) {
+	// regular headPose is relative to body Pose. This function computes this relative
+	// head pose out of an absolute pose that is right above the belly button
+	// bodyPose * headPose = poseAboveBellyButton
+	// -> headPose = bodyPose^-1 * poseAboveBellyButton
+
+	Pose poseAboveBellyButton(relPoseAboveBellyButton);
+	poseAboveBellyButton.position.x += bodyPose.position.x;
+	poseAboveBellyButton.position.y += bodyPose.position.y;
+
+	// compute head pose in world coordinates
+	HomogeneousMatrix bodyBaseTransformation = createTransformationMatrix(bodyPose);
+	HomogeneousMatrix inverseBodyTransformation = computeInverseTransformationMatrix(bodyBaseTransformation);
+	HomogeneousMatrix poseAboveBellyTransformation = createTransformationMatrix(poseAboveBellyButton);
+	HomogeneousMatrix headTransformation = inverseBodyTransformation * poseAboveBellyTransformation;
+	Pose headPose = getPoseByTransformationMatrix(headTransformation);
+	return headPose;
+}
 

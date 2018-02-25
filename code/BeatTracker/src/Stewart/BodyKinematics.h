@@ -26,7 +26,11 @@ public:
 			                const Pose& headPose, Point headServoArmCentre_world[6], double headServoAngle_rad[6], Point headBallJoint_world[6],  Point headServoBallJoint_world[6]);
 	void getServoArmCentre(Point servoArmCentre_world[6]);
 
+	// sets the current speed measurement to 0, is called whenever a new move starts
 	void resetSpeedMeasurement() { bodyKin.resetSpeedMeasurement(); headKin.resetSpeedMeasurement(); };
+
+	// compute relative head pose out of the absolute pose that is projected above the body's belly button
+	Pose computeHeadPose(const Pose& bodyPose, const Pose &PoseAboveBellyButton);
 private:
 	StewartKinematics bodyKin;
 	StewartKinematics headKin;
