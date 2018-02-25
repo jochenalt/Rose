@@ -214,8 +214,12 @@ TotalBodyPose Move::rolledDippedDiagonalSwing(double movePercentage) {
 	double mEndDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, 0.8 + startPhase)));
 	double mRoll  = baseCurveCos(scaleMove(movePercentage, 4.0, -0.25 + startPhase));
 
+	/*
 	return TotalBodyPose (Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 20.0*mDip),Rotation (0,-radians(15)*mRoll,-radians(20)*mRoll + radians(30)*mEndDip)),
 			Pose(Point(0,0,headHeight),Rotation (-radians(15)*mRoll,0,0)));
+			*/
+	return absHead(Pose(Point(-30.0*mBase,30.0*mBase,bodyHeight + 20.0*mDip),Rotation (0,-radians(15)*mRoll,-radians(20)*mRoll + radians(30)*mEndDip)),
+				   Pose(Point(0,0,headHeight),Rotation (0,0,0)));
 }
 
 
