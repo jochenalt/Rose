@@ -26,7 +26,7 @@ void Move::setup() {
 
 		moveLibrary[(int)PHYSICISTS_HEAD_NICKER] = Move(PHYSICISTS_HEAD_NICKER, "physicist's move", 8);
 		moveLibrary[(int)TENNIS_HEAD_NICKER] = Move(TENNIS_HEAD_NICKER, "tennis spectators's move",8);
-		moveLibrary[(int)DOUBLE_HEAD_NICKER] = Move(DOUBLE_HEAD_NICKER, "weasel's move",8);
+		moveLibrary[(int)WEASELS_MOVE] = Move(WEASELS_MOVE, "weasel's move",8);
 
 		moveLibrary[(int)TRAVOLTA_HEAD_NICKER] = Move(TRAVOLTA_HEAD_NICKER, "travolta move",8);
 		moveLibrary[(int)ENHANCED_TRAVOLTA_HEAD_NICKER] = Move(ENHANCED_TRAVOLTA_HEAD_NICKER, "enhanced travolta move",8);
@@ -140,12 +140,13 @@ TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
 
 }
 
-TotalBodyPose Move::doubleHeadNicker(double movePercentage) {
+TotalBodyPose Move::weaselsMove(double movePercentage) {
 	double mLeftRight = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, 2.0 + globalPhaseShift));
 	double mNick = baseCurveCos(scaleMove(movePercentage, 4.0, globalPhaseShift));
 	double mDip  = baseCurveDip(scaleMove(movePercentage, 1.0, 1.125 + globalPhaseShift));
 
-	return TotalBodyPose (Pose(Point(0,40.0*mLeftRight,bodyHeight + 20.0*mNick),Rotation (0,-radians(0)*mDip,-radians(20)*mLeftRight-radians(60)*mDip)), getDefaultHeadPose());
+	return TotalBodyPose (Pose(Point(0,0,bodyHeight + 20.0*mNick),Rotation (0,-radians(0)*mDip,-radians(20)*mLeftRight)),
+			Pose(Point(0,25.0*mLeftRight,headHeight),Rotation (0,0,radians(40)*mDip)));
 }
 
 TotalBodyPose Move::travoltaHeadNicker(double movePercentage) {
@@ -331,7 +332,7 @@ TotalBodyPose Move::move(double movePercentage) {
 		case TENNIS_HEAD_NICKER:return tennisHeadNicker(movePercentage);break;
 		case TRAVOLTA_HEAD_NICKER:return  travoltaHeadNicker(movePercentage);break;
 		case ENHANCED_TRAVOLTA_HEAD_NICKER:return enhancedTravoltaHeadNicker(movePercentage);break;
-		case DOUBLE_HEAD_NICKER:return doubleHeadNicker(movePercentage);break;
+		case WEASELS_MOVE:return weaselsMove(movePercentage);break;
 		case DIAGONAL_HEAD_SWING: return diagonalSwing(movePercentage); break;
 		case DIPPED_DIAGONAL_HEAD_SWING: return dippedDiagonalSwing(movePercentage); break;
 		case ROLLED_DIPPED_DIAGONAL_HEAD_SWING: return rolledDippedDiagonalSwing(movePercentage); break;

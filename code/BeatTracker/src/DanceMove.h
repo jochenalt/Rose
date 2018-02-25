@@ -15,12 +15,12 @@
 #include <vector>
 
 
-const double bodyHeight = 120.0;
-const double headHeight = 80.0;
+const double bodyHeight = 90.0;
+const double headHeight = 65.0;
 
 class Move {
 public:
-	enum MoveType { PHYSICISTS_HEAD_NICKER, TENNIS_HEAD_NICKER, DOUBLE_HEAD_NICKER,
+	enum MoveType { PHYSICISTS_HEAD_NICKER, TENNIS_HEAD_NICKER, WEASELS_MOVE,
 		            TRAVOLTA_HEAD_NICKER, ENHANCED_TRAVOLTA_HEAD_NICKER,
 					DIAGONAL_HEAD_SWING, DIPPED_DIAGONAL_HEAD_SWING, ROLLED_DIPPED_DIAGONAL_HEAD_SWING, EYED_DIPPED_DIAGONAL_HEAD_SWING,
 					BOLLYWOOD_HEAD_MOVE, DOUBLE_BOLLYWOOD_MOVE, SWING_DOUBLE_BOLLYWOOD_MOVE,
@@ -79,7 +79,7 @@ public:
 
 	TotalBodyPose travoltaHeadNicker(double movePercentage);
 	TotalBodyPose enhancedTravoltaHeadNicker(double movePercentage);
-	TotalBodyPose doubleHeadNicker(double movePercentage);
+	TotalBodyPose weaselsMove(double movePercentage);
 
 	TotalBodyPose diagonalSwing(double movePercentage);
 	TotalBodyPose dippedDiagonalSwing(double movePercentage);

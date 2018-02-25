@@ -9,32 +9,32 @@
 
 
 StewartConfiguration bodyStewartConfig = {"body",
-		   	   	   	   	   	   	   	   	  46.5, 				// servoCentreRadius_mm
-										  radians(12.4),		// servoCentreAngle_rad
-										  50.4, 				// servoArmCentreRadius_mm
-										  radians(11.5),		// servoArmCentreAngle_mm
-										  40.0,					// plateJointRadius_mm
-										  radians(7.7),			// plateJointAngle_rad
-										  106.3,				// rodLength_mm
-										  52.0,					// servoArmLength_mm
-										  30.6,					// servoCentreHeight_mm
-										  4.0,					// plateBallJointHeight_mm
+										  28.972, 				// servoCentreRadius_mm
+										  radians(12.28),		// servoCentreAngle_rad
+										  34.763 , 				// servoArmCentreRadius_mm (for rendering only)
+										  radians(10.19),		// servoArmCentreAngle_mm (for rendering only)
+										  39.071,				// plateJointRadius_mm
+										  radians(7.35),		// plateJointAngle_rad
+										  74.0,   				// rodLength_mm
+										  38.0,					// servoArmLength_mm
+										  25.0,					// servoCentreHeight_mm
+										  3.595,				// plateBallJointHeight_mm
 										  radians(60.0),		// topServoLimit_rad
 									      radians(90.0)			// bottomServoLimit_rad
 };
 
 
 StewartConfiguration headStewartConfig = {"head",
-		                                  18.368, 				// servoCentreRadius_mm
-										  radians(13.63),		// servoCentreAngle_rad
-										  25.529, 				// servoArmCentreRadius_mm
-										  radians(14.04),		// servoArmCentreAngle_mm
-										  17.48,				// plateJointRadius_mm
-										  radians(16.62),		// plateJointAngle_rad
-										  56.3,				    // rodLength_mm
-										  20.0,					// servoArmLength_mm
-										  24.36,	 		    // servoCentreHeight_mm
-										   4.0,					// plateBallJointHeight_mm
+		                                  16.955, 				// servoCentreRadius_mm
+										  radians(21.277),		// servoCentreAngle_rad
+										  22.41, 				// servoArmCentreRadius_mm (for rendering only)
+										  radians(15.93),		// servoArmCentreAngle_mm (for rendering only)
+										  16.134,				// plateJointRadius_mm
+										  radians(12.53),		// plateJointAngle_rad
+										  44.0,				    // rodLength_mm
+										  17.0,					// servoArmLength_mm
+										  25.0,   	 		    // servoCentreHeight_mm
+										  4.0,					// plateBallJointHeight_mm
 										  radians(60.0),		// topServoLimit_rad
 										  radians(90.0)			// bottomServoLimit_rad
 
