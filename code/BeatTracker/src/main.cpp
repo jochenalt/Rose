@@ -26,11 +26,13 @@
 #include "UI.h"
 #include "MoveMaker.h"
 #include "RhythmDetector.h"
-
+#include "Stewart/BodyKinematics.h"
 
 INITIALIZE_EASYLOGGINGPP
 
 using namespace std;
+
+bool runUI = false;
 
 
 char* getCmdOption(char ** begin, char ** end, const std::string & option)
@@ -180,15 +182,15 @@ bool exitMode = false;
 void signalHandler(int s){
 	exitMode = true;
 	cout << "Signal " << s << ". Exiting";
+    if (runUI)
+    	UI::getInstance().tearDown();
+
 	cout.flush();
 	exit(1);
 }
 
 
 void setupLogging(int argc, char *argv[]) {
-	// catch SIGINT (ctrl-C)
-    signal (SIGINT,signalHandler);
-
 	// setup logger
 	el::Configurations defaultConf;
     defaultConf.setToDefault();
@@ -215,8 +217,6 @@ void setupLogging(int argc, char *argv[]) {
 }
 
 
-bool runUI = false;
-
 void sendBeatToRythmDetector(bool beat, double bpm) {
 	RhythmDetector & rd = RhythmDetector::getInstance();
 	MoveMaker& mm = MoveMaker::getInstance();
@@ -235,7 +235,13 @@ int main(int argc, char *argv[]) {
 	// print help
 	std::set_terminate([](){
 		std::cout << "Unhandled exception\n"; std::abort();
+	    if (runUI)
+	    	UI::getInstance().tearDown();
 	});
+
+	// catch SIGINT (ctrl-C)
+    signal (SIGINT,signalHandler);
+
 
 	// initialize Logging
 	setupLogging(argc, argv);
@@ -278,12 +284,16 @@ int main(int argc, char *argv[]) {
 
     runUI = cmdOptionExists(argv, argv + argc, "-ui");
 
-    if (runUI)
-    	UI::getInstance().setup(argc,argv);
-
+	BodyKinematics::getInstance().setup();
     MoveMaker::getInstance().setup();
     RhythmDetector::getInstance().setup();
     MoveMaker::getInstance().setStartAfterNBeats(startAfterNBeats);
 
+    if (runUI)
+    	UI::getInstance().setup(argc,argv);
+
     processAudioFile(trackFilename, volumeArg/100.0, sendBeatToRythmDetector);
+
+    if (runUI)
+    	UI::getInstance().tearDown();
 }

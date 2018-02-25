@@ -38,7 +38,6 @@ private:
 	void drawCoordSystem(bool withRaster );
 
 	string title;
-	GLint viewport[4];                  // Where The Viewport Values Will Be Stored
 
 	int lastMouseX = 0;
 	int lastMouseY = 0;

@@ -76,6 +76,7 @@ Pose BodyKinematics::computeHeadPose(const Pose& bodyPose, const Pose &relPoseAb
 	Pose poseAboveBellyButton(relPoseAboveBellyButton);
 	poseAboveBellyButton.position.x += bodyPose.position.x;
 	poseAboveBellyButton.position.y += bodyPose.position.y;
+	poseAboveBellyButton.position.z += bodyPose.position.z;
 
 	// compute head pose in world coordinates
 	HomogeneousMatrix bodyBaseTransformation = createTransformationMatrix(bodyPose);

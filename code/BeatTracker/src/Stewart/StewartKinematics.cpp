@@ -41,7 +41,9 @@ void StewartKinematics::setup(StewartConfiguration newConfig) {
 		plateBallJoint[i*2]   = Point(config.plateJointRadius_mm,0,-config.plateBallJointHeight_mm).getRotatedAroundZ(radians(120)*i + config.plateJointAngle_rad);
 		plateBallJoint[i*2+1] = Point(config.plateJointRadius_mm,0,-config.plateBallJointHeight_mm).getRotatedAroundZ(radians(120)*i - config.plateJointAngle_rad);
 
-		lastAngle[i] = 0;
+		lastAngle[i*2] = 0;
+		lastAngle[i*2+1] = 0;
+
 	}
 
 	// precompute inverse transformation matrixes of the servos
@@ -52,7 +54,6 @@ void StewartKinematics::setup(StewartConfiguration newConfig) {
 
 		// precompute transformation from
 		servoTransform[i] = createTransformationMatrix(servoCentre[i]);
-
 	}
 }
 
@@ -125,7 +126,6 @@ void StewartKinematics::computeServoAngles(const Pose& plate_world, double servo
 			}
 
 		}
-
 
 		lastAngle[i] = angle_rad;
 

@@ -196,7 +196,6 @@ int BotView::create(int mainWindow, string pTitle) {
 	glutMouseFunc( BotViewMouseCallback);
 	glutDisplayFunc(displayBotView);
 
-	BodyKinematics::getInstance().setup();
 	setBodyPose(MoveMaker::getInstance().getDefaultBodyPose(), MoveMaker::getInstance().getDefaultHeadPose(), eyeDeviation);
 	return windowHandle;
 }
