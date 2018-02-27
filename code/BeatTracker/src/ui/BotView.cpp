@@ -29,7 +29,6 @@ using namespace std;
 
 BotView::BotView() {
 	windowHandle = 0; // set by derived view class
-	BotDrawer::getInstance().setup();
 }
 
 void BotView::drawCoordSystem(bool withRaster) {
@@ -196,12 +195,15 @@ int BotView::create(int mainWindow, string pTitle) {
 	glutMouseFunc( BotViewMouseCallback);
 	glutDisplayFunc(displayBotView);
 
+	botDrawer.setup();
+
 	setBodyPose(MoveMaker::getInstance().getDefaultBodyPose(), MoveMaker::getInstance().getDefaultHeadPose(), eyeDeviation);
 	return windowHandle;
 }
 
 
 void BotView::display() {
+
 	int savedWindowHandle = glutGetWindow();
 	glutSetWindow(windowHandle);
 
@@ -211,11 +213,12 @@ void BotView::display() {
 	setEyePosition();
 	glMatrixMode(GL_MODELVIEW);
 
-	BotDrawer::getInstance().displayBot(bodyPose, headPose);
+	botDrawer.displayBot(bodyPose, headPose);
 
 	drawCoordSystem(true);
 
 	glutSetWindow(savedWindowHandle);
+	justDisplayed = true;
 }
 
 

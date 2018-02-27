@@ -98,6 +98,7 @@ void setDancingMoveWidget() {
 			line++;
 	}
 
+	assert(row < DanceMoveRows);
 	currentDancingModeWidget[row]->set_int_val(line);
 
 	for (int i = 0;i<DanceMoveRows;i++) {
@@ -177,6 +178,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 
 bool WindowController::setup(int argc, char** argv) {
+
 	glutInit(&argc, argv);
 
 	// start the initialization in a thread so that this function returns
@@ -184,7 +186,7 @@ bool WindowController::setup(int argc, char** argv) {
 	// main thread can do something else while the UI is running
 	eventLoopThread = new std::thread(&WindowController::UIeventLoop, this);
 
-	// wait until UI is ready
+	// wait at most 20s until UI is ready
 	unsigned long startTime  = millis();
 	do { delay_ms(10); }
 	while ((millis() - startTime < 20000) && (!uiReady));
@@ -196,21 +198,28 @@ void WindowController::tearDown() {
 	glutExit();
 }
 
-// Idle callback is called by GLUI when nothing is to do.
+// Idle callback is called by GLUI when nothing is to be done
 void idleCallback( void )
 {
-	const int refreshRate = 50; // [Hz]
-	const milliseconds refreshRate_ms = 1000/refreshRate;
+	const int refreshRate = 20; // [Hz]
+	const milliseconds refreshRate_ms = 1000/refreshRate/2;
 	milliseconds now = millis();
 	static milliseconds lastDisplayRefreshCall = millis();
 
-	// update all screens once a second in case of refresh issues (happens)
+	// update all screens with 25Hz once a second in if new data is there
 	if ((now - lastDisplayRefreshCall > refreshRate_ms)) {
-		WindowController::getInstance().mainBotView.postRedisplay();
+		if (WindowController::getInstance().mainBotView.isJustDisplayed())
+			WindowController::getInstance().mainBotView.resetDisplayFlag();
+		else {
+			WindowController::getInstance().mainBotView.postRedisplay();
+		}
 		lastDisplayRefreshCall = now;
 
 		setDancingMoveWidget();
 	}
+
+	// be cpu friendly
+	delay_ms(5);
 }
 
 

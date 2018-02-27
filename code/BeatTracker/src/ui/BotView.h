@@ -30,6 +30,9 @@ public:
 
 	void setBodyPose(const Pose& bodyPose, const Pose& headPose, const Point& eyeDeviation);
 
+	void resetDisplayFlag() { justDisplayed = false; };
+	bool isJustDisplayed() { return justDisplayed; };
+
 private:
 	Pose bodyPose;
 	Pose headPose;
@@ -44,6 +47,9 @@ private:
 	int lastMouseScroll = 0;
 	enum mousePaneType { VIEW_PANE, NO_PANE };
 	mousePaneType mousePane = NO_PANE;
+
+	BotDrawer botDrawer;
+	bool justDisplayed = false;
 };
 
 #endif /* UI_BOTVIEW_H_ */

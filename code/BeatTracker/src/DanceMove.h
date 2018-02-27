@@ -15,8 +15,8 @@
 #include <vector>
 
 
-const double bodyHeight = 90.0;
-const double headHeight = 65.0;
+const double bodyHeight = 95.0;
+const double headHeight = 70.0;
 
 class Move {
 public:
@@ -25,7 +25,7 @@ public:
 					DIAGONAL_HEAD_SWING, DIPPED_DIAGONAL_HEAD_SWING, ROLLED_DIPPED_DIAGONAL_HEAD_SWING, EYED_DIPPED_DIAGONAL_HEAD_SWING,
 					BOLLYWOOD_HEAD_MOVE, DOUBLE_BOLLYWOOD_MOVE, SWING_DOUBLE_BOLLYWOOD_MOVE,
 					BODY_WAVE, DIPPED_BODY_WAVE, SIDE_DIPPED_BODY_WAVE,
-					SHIMMYS, HIGH_SPEED_SHIMMYS,
+					SHIMMYS, TRIPPLE_SHIMMYS, LEANING_TRIPPLE_SHIMMYS,
 					TURN_AND_SHOW_BACK, TWERK, TURN_BACK,
 					NO_MOVE};
 
@@ -96,7 +96,8 @@ public:
 	TotalBodyPose sidedDipBodyWaveMove(double movePercentage);
 
 	TotalBodyPose shimmys(double movePercentage);
-	TotalBodyPose highSpeedShimmys(double movePercentage);
+	TotalBodyPose trippleShimmys(double movePercentage);
+	TotalBodyPose leaningTrippleShimmys(double movePercentage);
 
 	TotalBodyPose turnAndShowBack(double movePercentage);
 	TotalBodyPose twerk(double movePercentage);

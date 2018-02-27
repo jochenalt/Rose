@@ -16,10 +16,6 @@
 class BotDrawer {
 public:
 	BotDrawer() {};
-	static BotDrawer& getInstance() {
-		static BotDrawer instance;
-		return instance;
-	}
 
 	// display Stewart platform
 	void displayBot(const Pose& bodyPose, const Pose& headPose);

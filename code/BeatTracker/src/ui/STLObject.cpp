@@ -213,7 +213,7 @@ void STLObject::display(const GLfloat* color,const GLfloat* accentColor) {
 
 	for(unsigned int i=0; i<triangles.size(); i++)
 	{
-		Triangle t = triangles[i];
+		Triangle& t = triangles[i];
 		glBegin(GL_TRIANGLES);
         	Coordinate& fnormal = t.normal;
         	Coordinate& fvertex1 = t.vertex1;

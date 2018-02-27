@@ -38,7 +38,7 @@ private:
 	float heightAngle = 0;
 	Point lookAt;
 protected:
-	int windowHandle;
+	int windowHandle = 0;
 };
 
 #endif /* BASEVIEW_H_ */
