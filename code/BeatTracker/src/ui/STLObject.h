@@ -37,16 +37,22 @@ public:
 	            z = 0.0;
 		}
 		virtual ~Coordinate() {};
+		Coordinate(const Coordinate& n) {
+			x = n.x;
+			y = n.y;
+			z = n.y;
+		}
 		Coordinate(GLfloat px, GLfloat py, GLfloat pz) {
 			x = px;
 			y = py;
 			z = pz;
 		}
 
-		void operator=(const Coordinate&  coord) {
+		Coordinate& operator=(const Coordinate&  coord) {
 			x = coord.x;
 			y = coord.y;
 			z = coord.z;
+			return *this;
 		}
 
 		GLfloat x;
@@ -73,11 +79,12 @@ public:
         		vertex3 = par.vertex3;
         		normal = par.normal;
         	};
-            void operator=(const Triangle&  par) {
+            Triangle& operator=(const Triangle&  par) {
             	vertex1 = par.vertex1;
             	vertex2 = par.vertex2;
             	vertex3 = par.vertex3;
             	normal = par.normal;
+            	return *this;
             };
        		virtual ~Triangle() {};
        		Coordinate vertex1;

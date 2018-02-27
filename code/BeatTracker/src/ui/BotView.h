@@ -34,11 +34,11 @@ public:
 	bool isJustDisplayed() { return justDisplayed; };
 
 private:
+	void drawCoordSystem(bool withRaster );
+
 	Pose bodyPose;
 	Pose headPose;
 	Point eyeDeviation;
-
-	void drawCoordSystem(bool withRaster );
 
 	string title;
 

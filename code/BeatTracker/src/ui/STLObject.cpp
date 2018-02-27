@@ -126,9 +126,11 @@ bool STLObject::parseSTLBinaryFormat()
     }
 
 
-	char header_info[80] = "";
+    const int headerBufferSize = 80;
+	char header_info[headerBufferSize] = "";
 	char n_triangles[4];
-	stl_file.read(header_info, 80);
+	stl_file.read(header_info, headerBufferSize);
+	header_info[headerBufferSize-1] = 0;
 	stl_file.read(n_triangles, 4);
 	std::string h(header_info);
 
