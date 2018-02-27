@@ -283,8 +283,8 @@ TotalBodyPose Move::bodyWaveMove(double movePercentage) {
 	double mLeftRight= baseCurveTriangle(scaleMove(movePercentage, 1.0, phaseShift + 0.5 ));
 
 	return absHead (
-			Pose(Point(0,0,bodyHeight + 10.0*mBase),Rotation (0,-radians(20)*mWave,radians(25)*mLeftRight)),
-			Pose(Point(0,0,headHeight + 10.0*mBase),Rotation (0,0,0)));
+			Pose(Point(0,0,bodyHeight + 10.0*mBase),Rotation (0,-radians(15)*mWave,radians(15)*mLeftRight)),
+			Pose(Point(0,0,headHeight + 5.0*mBase),Rotation (0,0,0)));
 }
 
 
@@ -298,8 +298,8 @@ TotalBodyPose Move::dipBodyWaveMove(double movePercentage) {
 	double mLeftRight= baseCurveTriangle(scaleMove(movePercentage, 1.0, 0.5 + phaseShift ));
 
 	return absHead (
-			Pose(Point(0,0,bodyHeight + 10.0*mBase),Rotation (0,-radians(15)*mWave,radians(25)*mLeftRight)),
-			Pose(Point(0,0,headHeight),Rotation (0,0,-radians(45)*mDip)));
+			Pose(Point(0,0,bodyHeight + 10.0*mBase),Rotation (0,-radians(15)*mWave,radians(15)*mLeftRight)),
+			Pose(Point(0,0,headHeight+5.0*mBase),Rotation (0,0,-radians(45)*mDip)));
 }
 
 
@@ -314,8 +314,8 @@ TotalBodyPose Move::sidedDipBodyWaveMove(double movePercentage) {
 	double mLeftRight= baseCurveTriangle(scaleMove(movePercentage, 1.0, 0.5 + phaseShift ));
 
 	return absHead (
-			Pose(Point(0,30.0*mSideHip,bodyHeight + 10.0*mBase),Rotation (0,-radians(15)*mWave,radians(25)*mLeftRight)),
-			Pose(Point(0,0,headHeight),Rotation (0,0,0)));
+			Pose(Point(0,30.0*mSideHip,bodyHeight + 10.0*mBase),Rotation (0,-radians(15)*mWave,radians(15)*mLeftRight)),
+			Pose(Point(0,0,headHeight+5.0*mBase),Rotation (0,0,0)));
 }
 
 TotalBodyPose Move::shimmys(double movePercentage) {

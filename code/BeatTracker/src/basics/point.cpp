@@ -172,10 +172,11 @@ Point Point::getRotatedAroundY(realnum alpha) const {
 }
 
 
-void Point::operator= (const Point& p) {
+Point& Point::operator= (const Point& p) {
 		x = p.x;
 		y = p.y;
 		z = p.z;
+		return *this;
 }
 
 void Point::operator= (const HomogeneousVector& p) {

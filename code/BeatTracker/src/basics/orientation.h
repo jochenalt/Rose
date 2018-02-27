@@ -28,6 +28,13 @@ public:
 
 	Quaternion(const EulerAngles &e);
 	Quaternion(const Rotation &r);
+	Quaternion& operator=(const Quaternion& q) {
+		x = q.x;
+		y = q.y;
+		z = q.z;
+		w = q.w;
+		return *this;
+	}
 
 	realnum x;
 	realnum y;
@@ -44,6 +51,13 @@ public:
 	EulerAngles(const EulerAngles &q);
 	EulerAngles(const Quaternion &q);
 	EulerAngles(const Rotation &q);
+
+	EulerAngles& operator=(const EulerAngles& e) {
+		roll = e.roll;
+		roll = e.nick;
+		roll = e.yaw;
+		return *this;
+	}
 
 	realnum roll;
 	realnum nick;
@@ -114,10 +128,11 @@ class Rotation {
 
 		void moveTo(const Rotation& b, realnum dT, realnum maxAngularSpeed);
 
-		void operator=(const Rotation& rot) {
+		Rotation& operator=(const Rotation& rot) {
 			x = rot.x;
 			y = rot.y;
 			z = rot.z;
+			return *this;
 		};
 		void operator+=(const Rotation& rot) {
 			x += rot.x;

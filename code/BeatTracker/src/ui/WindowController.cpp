@@ -88,9 +88,6 @@ void setDancingMoveWidget() {
 	int movesPerRow = (MoveMaker::getInstance().getNumMoves()+1)/DanceMoveRows  ;
 	Move::MoveType move = MoveMaker::getInstance().getCurrentMove();
 	int moveNumber = (int)move;
-	if (moveNumber == 11) {
-		cout << "jetzt";
-	}
 	int row = moveNumber / movesPerRow;
 	int line = moveNumber - movesPerRow*row;
 

@@ -31,7 +31,7 @@ class Point  : public Serializable {
 		Point getRotatedAroundY(angle_rad alpha) const;
 		Point getRotatedAroundX(angle_rad alpha) const;
 
-		void operator= (const Point& p);
+		Point& operator= (const Point& p);
 		void operator= (const HomogeneousVector& p);
 		void operator+= (const Point& p);
 		void operator-= (const Point& p);
