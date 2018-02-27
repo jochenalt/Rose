@@ -1,15 +1,15 @@
 
 #include <stdio.h>
-
 #include <assert.h>
+
 #include "basics/util.h"
-#include "MoveMaker.h"
-#include "DanceMove.h"
 
-
-#include "BotView.h"
 #include "uiconfig.h"
 #include "setup.h"
+
+#include "BotView.h"
+#include "MoveMaker.h"
+#include "DanceMove.h"
 
 #include "WindowController.h"
 
