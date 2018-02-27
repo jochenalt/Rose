@@ -85,7 +85,7 @@ void WindowController::setBodyPose(const Pose& bodyPose, const Pose& headPose) {
 }
 
 void setDancingMoveWidget() {
-	int movesPerRow = MoveMaker::getInstance().getNumMoves()/DanceMoveRows ;
+	int movesPerRow = (MoveMaker::getInstance().getNumMoves())/DanceMoveRows  ;
 	Move::MoveType move = MoveMaker::getInstance().getCurrentMove();
 	int moveNumber = (int)move;
 	int row = moveNumber / movesPerRow;
@@ -109,7 +109,7 @@ void setDancingMoveWidget() {
 
 
 void currentDancingMoveCallback(int widgetNo) {
-	int movesPerRow = MoveMaker::getInstance().getNumMoves()/DanceMoveRows ;
+	int movesPerRow = (MoveMaker::getInstance().getNumMoves())/DanceMoveRows ;
 	int row = widgetNo;
 	assert(row < DanceMoveRows);
 	if (widgetNo == 0) {
@@ -208,10 +208,12 @@ void idleCallback( void )
 
 	// update all screens with 25Hz once a second in if new data is there
 	if ((now - lastDisplayRefreshCall > refreshRate_ms)) {
-		if (WindowController::getInstance().mainBotView.isJustDisplayed())
+		// use a second chance loop in order to limit fps to a maximum
+		// ( there are other sources as well that can post a redisplay)
+		if (WindowController::getInstance().mainBotView.isJustDisplayed()) // if it has been just display, reset display flag
 			WindowController::getInstance().mainBotView.resetDisplayFlag();
 		else {
-			WindowController::getInstance().mainBotView.postRedisplay();
+			WindowController::getInstance().mainBotView.postRedisplay(); // post if we reset the flag in a previous run
 		}
 		lastDisplayRefreshCall = now;
 
@@ -226,7 +228,7 @@ void idleCallback( void )
 void WindowController::UIeventLoop() {
 
 	glutInitWindowSize(WindowWidth, WindowHeight);
-    wMain = glutCreateWindow("Private Dancer"); // Create a window with the given title
+    wMain = glutCreateWindow("Donna"); // Create a window with the given title
 	glutInitWindowPosition(20, 20); // Position the window's initial top-left corner
 	glutDisplayFunc(displayMainView);
 	glutReshapeFunc(reshape);
