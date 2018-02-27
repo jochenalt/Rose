@@ -6,12 +6,12 @@
 #include "MoveMaker.h"
 #include "DanceMove.h"
 
-#include "WindowController.h"
-
 
 #include "BotView.h"
 #include "uiconfig.h"
 #include "setup.h"
+
+#include "WindowController.h"
 
 using namespace std;
 
@@ -20,10 +20,10 @@ int WindowWidth = 600;
 int WindowHeight = 800;
 
 // GLUI Window handlers
-int wMain;			// main window
-int wMainBotView; 	// sub window with dancing bot
+int wMain = -1;			// main window
+int wMainBotView = -1; 	// sub window with dancing bot
 
-const int DanceMoveRows = 2;
+static const int DanceMoveRows = 2;
 GLUI_RadioGroup* currentDancingModeWidget[DanceMoveRows] = { NULL, NULL };
 int dancingModeLiveVar[DanceMoveRows] = { 0,0 };
 
@@ -62,30 +62,12 @@ void GluiReshapeCallback( int x, int y )
 	GLUI_Master.get_viewport_area( &tx, &ty, &tw, &th );
 	glViewport( tx, ty, tw, th );
 	glutSetWindow(saveWindow);
-	// WindowController::getInstance().postRedisplay();
 }
 
 
 void WindowController::setBodyPose(const Pose& bodyPose, const Pose& headPose) {
 
 	Point eyeLookAt = mainBotView.getEyePosition();
-	// Point eyeLookAt (500,0,100);
-
-	// compute the position of the look-at point from the heads perspective:
-	//      compute homogenous transformation matrix of head
-	// 		compute inverse homogenous matrix for reversing the coord system
-	// 	    get look at point from heads perspective by multiplying inverse matrix above with look-at-position
-	/*
-	HomogeneousMatrix bodyTransformation = HomogeneousMatrix(4,4,
-					{ 1, 	0,  	0,  	bodyPose.position.x,
-					  0, 	1, 		0,	 	bodyPose.position.y,
-					  0,	0,		1,		bodyPose.position.z,
-					  0,	0,		0,		1});
-	HomogeneousMatrix rotateBody;
-	createRotationMatrix(bodyPose.orientation, rotateBody);
-	bodyTransformation *= rotateBody;
-	HomogeneousMatrix inverseBodyTransformation;
-	*/
 	HomogeneousMatrix bodyTransformation;
 	HomogeneousMatrix inverseBodyTransformation;
 
@@ -148,18 +130,11 @@ void currentSequenceModeCallback(int widgetNo) {
 }
 
 GLUI* WindowController::createInteractiveWindow(int mainWindow) {
-
-	string emptyLine = "                                               ";
-
 	GLUI *windowHandle= GLUI_Master.create_glui_subwindow( wMain,  GLUI_SUBWINDOW_BOTTOM);
 	windowHandle->set_main_gfx_window( wMain );
 
 	GLUI_Panel* interactivePanel = new GLUI_Panel(windowHandle,"interactive panel", GLUI_PANEL_NONE);
-
 	GLUI_StaticText* text = NULL;
-	// GLUI_StaticText* text = new GLUI_StaticText(interactivePanel,"Current Dance Move                                                   ");
-	// text->set_alignment(GLUI_ALIGN_LEFT);
-
 	GLUI_Panel* dancingModePanel[DanceMoveRows];
 	int moveCounter = 0;
 	for (int row = 0;row < DanceMoveRows; row++) {
@@ -170,7 +145,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 		if (row == 0)
 			new GLUI_RadioButton(currentDancingModeWidget[0], Move::getMove(Move::NO_MOVE).getName().c_str());
 
-		while (moveCounter < MoveMaker::getInstance().getNumMoves()/DanceMoveRows*(row+1)) {
+		while (moveCounter < MoveMaker::getInstance().getNumMoves() / DanceMoveRows * (row+1)) {
 			Move& move = Move::getMove((Move::MoveType)moveCounter);
 			new GLUI_RadioButton(currentDancingModeWidget[row], move.getName().c_str());
 
@@ -179,7 +154,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 		// fill up with empty lines to have the containers of the same height
 		if (row == DanceMoveRows-1) {
-			for (int lines = moveCounter;lines < MoveMaker::getInstance().getNumMoves()+1;lines++)
+			for (int lines = moveCounter;lines < MoveMaker::getInstance().getNumMoves()+1-MoveMaker::getInstance().getNumMoves()%2;lines++)
 				new GLUI_StaticText(dancingModePanel[row],"");
 		}
 
@@ -224,15 +199,15 @@ void WindowController::tearDown() {
 // Idle callback is called by GLUI when nothing is to do.
 void idleCallback( void )
 {
-	const milliseconds emergencyRefreshRate = 1000; 		// refresh everything once a second at least due to refresh issues
-
-
+	const int refreshRate = 50; // [Hz]
+	const milliseconds refreshRate_ms = 1000/refreshRate;
 	milliseconds now = millis();
 	static milliseconds lastDisplayRefreshCall = millis();
 
 	// update all screens once a second in case of refresh issues (happens)
-	if ((now - lastDisplayRefreshCall > emergencyRefreshRate)) {
+	if ((now - lastDisplayRefreshCall > refreshRate_ms)) {
 		WindowController::getInstance().mainBotView.postRedisplay();
+		lastDisplayRefreshCall = now;
 
 		setDancingMoveWidget();
 	}
@@ -250,7 +225,7 @@ void WindowController::UIeventLoop() {
 	GLUI_Master.set_glutReshapeFunc( GluiReshapeCallback );
 	GLUI_Master.set_glutIdleFunc( idleCallback);
 
-	wMainBotView= mainBotView.create(wMain,"");
+	wMainBotView = mainBotView.create(wMain,"");
 
 	// Main Bot view has comprehensive mouse motion
 	glutSetWindow(wMainBotView);
