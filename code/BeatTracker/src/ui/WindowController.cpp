@@ -85,18 +85,14 @@ void WindowController::setBodyPose(const Pose& bodyPose, const Pose& headPose) {
 }
 
 void setDancingMoveWidget() {
-	int movesPerRow = (MoveMaker::getInstance().getNumMoves())/DanceMoveRows  ;
+	int movesPerRow = (MoveMaker::getInstance().getNumMoves()+1)/DanceMoveRows  ;
 	Move::MoveType move = MoveMaker::getInstance().getCurrentMove();
 	int moveNumber = (int)move;
+	if (moveNumber == 11) {
+		cout << "jetzt";
+	}
 	int row = moveNumber / movesPerRow;
 	int line = moveNumber - movesPerRow*row;
-	if (moveNumber == Move::MoveType::NO_MOVE) {
-		row = 0;
-		line = 0;
-	} else {
-		if (row == 0)
-			line++;
-	}
 
 	assert(row < DanceMoveRows);
 	currentDancingModeWidget[row]->set_int_val(line);
@@ -109,14 +105,11 @@ void setDancingMoveWidget() {
 
 
 void currentDancingMoveCallback(int widgetNo) {
-	int movesPerRow = (MoveMaker::getInstance().getNumMoves())/DanceMoveRows ;
+	int movesPerRow = (MoveMaker::getInstance().getNumMoves()+1)/DanceMoveRows ;
 	int row = widgetNo;
 	assert(row < DanceMoveRows);
-	if (widgetNo == 0) {
-		if (dancingModeLiveVar[row] == 0)
-			MoveMaker::getInstance().setCurrentMove(Move::MoveType::NO_MOVE);
-		else
-			MoveMaker::getInstance().setCurrentMove((Move::MoveType)(dancingModeLiveVar[row]-1));
+	if (row == 0) {
+		MoveMaker::getInstance().setCurrentMove((Move::MoveType)(dancingModeLiveVar[row]));
 	}
 	else
 		MoveMaker::getInstance().setCurrentMove((Move::MoveType)(dancingModeLiveVar[row] + row*movesPerRow));
@@ -143,10 +136,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 		currentDancingModeWidget[row] =  new GLUI_RadioGroup(dancingModePanel[row], dancingModeLiveVar + row, row, currentDancingMoveCallback);
 
-		if (row == 0)
-			new GLUI_RadioButton(currentDancingModeWidget[0], Move::getMove(Move::NO_MOVE).getName().c_str());
-
-		while (moveCounter < MoveMaker::getInstance().getNumMoves() / DanceMoveRows * (row+1)) {
+		while (moveCounter < (MoveMaker::getInstance().getNumMoves() +1) / DanceMoveRows * (row+1)) {
 			Move& move = Move::getMove((Move::MoveType)moveCounter);
 			new GLUI_RadioButton(currentDancingModeWidget[row], move.getName().c_str());
 
@@ -155,7 +145,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 		// fill up with empty lines to have the containers of the same height
 		if (row == DanceMoveRows-1) {
-			for (int lines = moveCounter;lines < MoveMaker::getInstance().getNumMoves()+1-MoveMaker::getInstance().getNumMoves()%2;lines++)
+			for (int lines = moveCounter;lines < MoveMaker::getInstance().getNumMoves()-MoveMaker::getInstance().getNumMoves()%2;lines++)
 				new GLUI_StaticText(dancingModePanel[row],"");
 		}
 
