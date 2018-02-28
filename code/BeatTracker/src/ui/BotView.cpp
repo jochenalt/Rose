@@ -203,10 +203,6 @@ int BotView::create(int mainWindow, string pTitle) {
 
 
 void BotView::display() {
-
-	int savedWindowHandle = glutGetWindow();
-	glutSetWindow(windowHandle);
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);  // To operate on the Projection matrix
 	glLoadIdentity();             // Reset the model-view matrix
@@ -214,10 +210,7 @@ void BotView::display() {
 	glMatrixMode(GL_MODELVIEW);
 
 	botDrawer.displayBot(bodyPose, headPose);
-
 	drawCoordSystem(true);
-
-	glutSetWindow(savedWindowHandle);
 	justDisplayed = true;
 }
 

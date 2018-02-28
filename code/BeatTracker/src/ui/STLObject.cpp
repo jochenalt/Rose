@@ -1,4 +1,5 @@
 #include "stdio.h"
+#include "assert.h"
 #include "basics/util.h"
 
 #include "STLObject.h"
@@ -46,10 +47,7 @@ bool STLObject::parseSTLAsciiFormat()
 		getline(file, line);
 
 
-        char *ch;
-        ch = new char[line.size()+1];
-        strcpy(ch,line.c_str());
-
+        const char *ch = line.c_str();
         GLfloat xyz[3];
 
         int idx = 0;
@@ -212,8 +210,8 @@ void STLObject::display(const GLfloat* color,const GLfloat* accentColor) {
    	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color);
 	glColor4fv(color);
 
-
-	for(unsigned int i=0; i<triangles.size(); i++)
+	unsigned numTriangles = triangles.size();
+	for(unsigned int i=0; i<numTriangles; i++)
 	{
 		Triangle& t = triangles[i];
 		glBegin(GL_TRIANGLES);
