@@ -210,6 +210,7 @@ void STLObject::display(const GLfloat* color,const GLfloat* accentColor) {
    	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color);
 	glColor4fv(color);
 
+
 	unsigned numTriangles = triangles.size();
 	for(unsigned int i=0; i<numTriangles; i++)
 	{

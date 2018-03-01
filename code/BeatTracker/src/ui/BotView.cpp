@@ -144,7 +144,7 @@ void BotView::drawCoordSystem(bool withRaster) {
 			glVertex3f(i, -arrowLength/2, 0.0f);glVertex3f(i,+arrowLength/2, 0.0f);
 		}
 
-		/*
+#ifdef DISPLAY_Z_AXIS
 		// robot's z-axis
 		glVertex3f(0.0f, -arrowLength, 0.0f);glVertex3f(0.0f, axisLength,0.0f);
 		glVertex3f(0.0f, axisLength,0.0f);glVertex3f(+arrowLength/2,axisLength-arrowLength, 0.0f);
@@ -152,15 +152,17 @@ void BotView::drawCoordSystem(bool withRaster) {
 		for (float i = 0;i<axisLength;i = i + unitLength ) {
 			glVertex3f(-arrowLength/2, i,0.0f);glVertex3f(+arrowLength/2, i,0.0f);
 		}
-		*/
+#endif
 	glEnd();
 
 	glRasterPos3f(axisLength+arrowLength, 0.0f, 0.0f);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_12,(const unsigned char*) "y");
 	glRasterPos3f(0.0f, 0.0f, axisLength+arrowLength);
 	glutBitmapString(GLUT_BITMAP_HELVETICA_12,(const unsigned char*) "x");
-	// glRasterPos3f(0.0f, axisLength+arrowLength,0.0f);
-	// glutBitmapString(GLUT_BITMAP_HELVETICA_12,(const unsigned char*) "z");
+#ifdef DISPLAY_Z_AXIS
+	glRasterPos3f(0.0f, axisLength+arrowLength,0.0f);
+	glutBitmapString(GLUT_BITMAP_HELVETICA_12,(const unsigned char*) "z");
+#endif
 }
 
 void displayBotView() {
@@ -203,6 +205,10 @@ int BotView::create(int mainWindow, string pTitle) {
 
 
 void BotView::display() {
+
+	int savedWindowHandle = glutGetWindow();
+	glutSetWindow(windowHandle);
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);  // To operate on the Projection matrix
 	glLoadIdentity();             // Reset the model-view matrix
@@ -211,6 +217,8 @@ void BotView::display() {
 
 	botDrawer.displayBot(bodyPose, headPose);
 	drawCoordSystem(true);
+
+	glutSetWindow(savedWindowHandle);
 	justDisplayed = true;
 }
 

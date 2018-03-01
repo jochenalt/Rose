@@ -50,12 +50,12 @@ void MoveMaker::createMove(double movePercentage) {
 	// limit acceleration after changing the move
 	double dT = moveTimer.dT();
 	if (movePercentage > 0.25) {
-		pose.body.moveTo(newPose.body, dT, 400.0, 6.0);
-		pose.head.moveTo(newPose.head, dT, 400.0, 6.0);
+		pose.body.moveTo(newPose.body, dT, 200.0, 6.0);
+		pose.head.moveTo(newPose.head, dT, 200.0, 6.0);
 	}
 	else {
-		pose.body.moveTo(newPose.body, dT, 100.0, 2.0);
-		pose.head.moveTo(newPose.head, dT, 100.0, 2.0);
+		pose.body.moveTo(newPose.body, dT, 20.0, 2.0);
+		pose.head.moveTo(newPose.head, dT, 20.0, 2.0);
 	}
 }
 
