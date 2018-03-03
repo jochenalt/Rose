@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <iomanip>
 
-#include "setup.h"
 #include "basics/util.h"
 #include <cstdarg>
 #include <iostream>
