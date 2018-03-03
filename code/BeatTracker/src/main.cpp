@@ -21,8 +21,8 @@
 #include <ao/ao.h>
 
 #include "basics/util.h"
-#include "BTrack.h"
-#include "AudioFile.h"
+#include "BTrack/BTrack.h"
+#include "AudioFile/AudioFile.h"
 #ifdef USE_OPENGL_UI
 #include "UI.h"
 #endif
