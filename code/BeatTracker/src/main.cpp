@@ -239,9 +239,11 @@ void sendBeatToRythmDetector(bool beat, double bpm) {
 
 	rd.loop(beat, bpm);
 	mm.loop(beat, bpm);
+#ifdef USE_OPENGL_UI
 	if (runUI) {
 		UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
 	}
+#endif
 }
 
 typedef void (*MoveCallbackFct)(bool beat, double Bpm);
