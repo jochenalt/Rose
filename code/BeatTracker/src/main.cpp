@@ -253,8 +253,10 @@ int main(int argc, char *argv[]) {
 	// print help
 	std::set_terminate([](){
 		std::cout << "Unhandled exception\n"; std::abort();
+#ifdef USE_OPENGL_UI
 	    if (runUI)
 	    	UI::getInstance().tearDown();
+#endif
 	});
 
 	// catch SIGINT (ctrl-C)
