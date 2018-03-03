@@ -66,5 +66,6 @@ private:
 };
 
 extern void servoTest();
+extern void ledTest();
 
 #endif /* PCA9685SERVO_H_ */

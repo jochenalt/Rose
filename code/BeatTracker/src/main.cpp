@@ -29,6 +29,7 @@
 #include "MoveMaker.h"
 #include "RhythmDetector.h"
 #include "Stewart/BodyKinematics.h"
+#include "servo/PCA9685Servo.h"
 
 // INITIALIZE_EASYLOGGINGPP
 
@@ -61,7 +62,9 @@ void printUsage() {
 		 << "            [-ui]                # start visualizer" << endl
 		 << "            [-s]                 # silent, do not play audio" << endl
 		 << "            [-i <n>]# start after n detected beats" << endl
-	     << "            [-t]                 # servotest" << endl;
+	     << "            [-t]                 # servo test" << endl
+         << "            [-l]                 # led test" << endl;
+
 }
 
 
@@ -276,6 +279,15 @@ int main(int argc, char *argv[]) {
     if (cmdOptionExists(argv, argv + argc, "-h")) {
     	printUsage();
     }
+
+    if (cmdOptionExists(argv, argv + argc, "-t")) {
+    	servoTest();
+    }
+
+    if (cmdOptionExists(argv, argv + argc, "-l")) {
+    	ledTest();
+    }
+
 
     if (cmdOptionExists(argv, argv + argc, "-s")) {
     	playback = false;

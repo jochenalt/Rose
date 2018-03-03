@@ -121,7 +121,26 @@ void PCA9685Servo::SetAngle(uint8_t nChannel, uint8_t nAngle) {
 
 #define ANGLE(x) ((uint8_t)(x))
 
+void ledTest() {
+	int bus = 1;
+	int address = 40;
+
+	std::cout << "set PCA9685 on bus " << bus << " on address " << address << std::endl;
+	PCA9685 led(bus,address);
+	led.setPWMFreq(1000);
+	for (int i = 0;i<1000;i++) {
+		std::cout << i << ".th run" << std::endl;
+		for (int l = 0;l<15;l++) {
+			for (int v = 0;i<4096;i++) {
+				std::cout << "set channel " << l << "=" << v << std::endl;
+				led.setPWM(0,v);
+			}
+		}
+	}
+}
+
 void servoTest() {
+
 		PCA9685Servo servo(1,8);
 
 		// MG90S Micro Servo
