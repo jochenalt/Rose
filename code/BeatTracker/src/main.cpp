@@ -23,7 +23,9 @@
 #include "basics/util.h"
 #include "BTrack.h"
 #include "AudioFile.h"
+#ifdef USE_OPENGL_UI
 #include "UI.h"
+#endif
 #include "MoveMaker.h"
 #include "RhythmDetector.h"
 #include "Stewart/BodyKinematics.h"
@@ -58,7 +60,8 @@ void printUsage() {
 		 << "            [-v <volume 0..100>] # set volume between 0 and 100" << endl
 		 << "            [-ui]                # start visualizer" << endl
 		 << "            [-s]                 # silent, do not play audio" << endl
-		 << "            [-i <n>]# start after n detected beats" << endl;
+		 << "            [-i <n>]# start after n detected beats" << endl
+	     << "            [-t]                 # servotest" << endl;
 }
 
 
@@ -172,8 +175,11 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 		} else {
 			// last frame not sufficient for a complete hop
 			cout << "end of song" << endl;
-			exit(1);
+#ifdef USE_OPENGL_UI
 			UI::getInstance().tearDown();
+#endif
+			exit(1);
+
 		}
 	}
 
@@ -190,9 +196,10 @@ bool exitMode = false;
 void signalHandler(int s){
 	exitMode = true;
 	cout << "Signal " << s << ". Exiting";
+#ifdef USE_OPENGL_UI
     if (runUI)
     	UI::getInstance().tearDown();
-
+#endif
 	cout.flush();
 	exit(1);
 }
@@ -302,11 +309,14 @@ int main(int argc, char *argv[]) {
     RhythmDetector::getInstance().setup();
     MoveMaker::getInstance().setStartAfterNBeats(startAfterNBeats);
 
+#ifdef USE_OPENGL_UI
     if (runUI)
     	UI::getInstance().setup(argc,argv);
-
+#endif
     processAudioFile(trackFilename, volumeArg/100.0, sendBeatToRythmDetector);
 
+#ifdef USE_OPENGL_UI
     if (runUI)
     	UI::getInstance().tearDown();
+#endif
 }

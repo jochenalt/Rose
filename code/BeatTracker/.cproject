@@ -25,6 +25,7 @@
 								<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.1333949172" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.575560144" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_KISS_FFT"/>
+									<listOptionValue builtIn="false" value="USE_OPENGL_UI"/>
 									<listOptionValue builtIn="false" value="FREEGLUT_STATIC"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.include.paths.296695038" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
