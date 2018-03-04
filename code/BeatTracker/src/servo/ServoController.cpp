@@ -89,7 +89,6 @@ void ServoController::calibrateViaKeyBoard() {
 		 << "select servo          : (0,1,2,3,4,5)" << endl
 	     << "set null value        : n" << endl
 	     << "change angle          : +/-" << endl;
-         << "change angle          : +/-" << endl;
 
 	changemode(1);
     while (true) {
