@@ -25,6 +25,7 @@
 #define _PCA9685_H
 #include <inttypes.h>
 #include "I2C.h"
+#include "i2c.h"
 
 // Register Definitions
 /* See 7.3 Register definitions */
@@ -69,6 +70,7 @@
 
 #define PCA9685_PWM_CHANNELS	16
 
+#define NEW
 enum TPCA9685FrequencyRange {
 	PCA9685_FREQUENCY_MIN = 24,
 	PCA9685_FREQUENCY_MAX = 1526
@@ -100,7 +102,12 @@ public:
 	uint16_t CalcFrequency(uint8_t nPreScale);
 
 private:
+#ifdef NEW
+	I2CInterface  *i2c;
+#else
 	I2C *i2c;
+#endif
+
 	void reset(void);
 };
 #endif

@@ -146,7 +146,7 @@ int I2CInterface::readLine(uint8_t *readBuffer, size_t bufferSize) {
 	if (!isOpenFlag)
 		std::cerr << "ERR:I2CInterface FD not open" << std::endl;
 
-	for (int i = 0;i<bufferSize;i++)
+	for (unsigned i = 0;i<bufferSize;i++)
 		readBuffer[i] = 255;
 	int bytesRead = ::read(i2cFD, readBuffer, bufferSize);
 	if( bytesRead < 0 )
@@ -171,6 +171,18 @@ bool I2CInterface::close() {
         this->isOpenFlag = false;
         return true;
     }
+}
+
+uint8_t I2CInterface::write_byte(uint8_t address, uint8_t data) {
+	return writeByte(address, data);
+}
+
+uint8_t I2CInterface::read_byte(uint8_t address) {
+	write_byte(address, 0);
+	uint8_t buffer[1];
+	readLine(buffer,1);
+	return buffer[0];
+
 }
 
 #endif

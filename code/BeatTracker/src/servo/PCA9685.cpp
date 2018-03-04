@@ -42,9 +42,16 @@
  \param address the device address on bus
  */
 PCA9685::PCA9685(int bus, int address) {
+#ifdef NEW
+	i2c = new I2CInterface();
+	i2c->setup("/dev/i2c-1", 40);
+	i2c->open( I2CInterface::ReadWrite );
+
+#else
 	i2c = new I2C(bus,address);
 	reset();
 	setPWMFreq(1000);
+#endif
 }
 
 PCA9685::~PCA9685() {

@@ -48,6 +48,9 @@ public:
 	void setup(std::string i2cPath, unsigned int i2cDeviceAddress);
 
     bool        open(OpenMode openMode);
+    uint8_t     write_byte(uint8_t address, uint8_t data);
+	uint8_t 	read_byte(uint8_t);
+
     bool        writeBlock(uint8_t registerAddr, uint8_t *writeBuffer, size_t bufferSize);
     bool        writeByte(uint8_t registerAddr, uint8_t value);
     int 		readLine(uint8_t *readBuffer, size_t bufferSize);
