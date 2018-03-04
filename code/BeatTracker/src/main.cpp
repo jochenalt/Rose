@@ -197,6 +197,8 @@ bool exitMode = false;
 
 void signalHandler(int s){
 	exitMode = true;
+	changemode(0);
+
 	cout << "Signal " << s << ". Exiting";
 #ifdef USE_OPENGL_UI
     if (runUI)
@@ -232,6 +234,7 @@ int main(int argc, char *argv[]) {
 	    if (runUI)
 	    	UI::getInstance().tearDown();
 #endif
+		changemode(0);
 	});
 
 	// catch SIGINT (ctrl-C)
