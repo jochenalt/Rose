@@ -123,7 +123,7 @@ void ServoController::calibrateViaKeyBoard() {
 				servo[currentServo + currentStewart*6].setAngle(currentAngle);
 				break;
 			}
-			cout << ((currentStewart == 0)?"A":"B") << "/" << currentServo << ">" << endl;
+			cout << ((currentStewart == 0)?"A":"B") << "/" << currentServo << " -> " << currentAngle << " deg null="  << getNullAngle(currentServo + currentStewart*6) << endl;
     	}
     }
 	changemode(0);
