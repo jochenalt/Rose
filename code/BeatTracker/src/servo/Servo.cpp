@@ -44,7 +44,7 @@ void Servo::setAngle(double newAngle) {
 
     angle = constrain(newAngle, minAngle, maxAngle);
 
-    double normalizedAngle = (angle - nullAngle);
+    double normalizedAngle = (angle + nullAngle);
     if (reverse)
     	normalizedAngle = -normalizedAngle;
 
