@@ -7,7 +7,7 @@
 
 #include <assert.h>
 #include <iostream>
-#include "util.h"
+#include "basics/util.h"
 #include <servo/ServoController.h>
 
 using namespace std;
