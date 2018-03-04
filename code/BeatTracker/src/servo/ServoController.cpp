@@ -103,8 +103,13 @@ void ServoController::calibrateViaKeyBoard() {
 			case 'b':
 				currentStewart = 1;
 				break;
-			case '0'-'5':
-				currentServo = inp - '0';
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			currentServo = inp - '0';
 				break;
 			case '+':
 				currentAngle += 1;
