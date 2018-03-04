@@ -111,6 +111,8 @@ realnum lowpass (realnum oldvalue, realnum newvalue, realnum tau, realnum dT);
 
 // get character from keyboard
 char getch();
+bool kbhit();
+
 
 // Usecase: break at the end of the movement such that speed goes down to zero.
 // use polynom 3rd grade with (f(0) = 0, f(1) = 0, f'(0) = grade, f'(1) = 0)

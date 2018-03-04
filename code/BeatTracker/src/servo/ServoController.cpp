@@ -78,6 +78,8 @@ void ServoController::setNullAngle(int servoNo, double newValue) {
 	servo[servoNo].nullAngle = newValue;
 }
 
+
+
 void ServoController::calibrateViaKeyBoard() {
 	setup();
 	int currentStewart = 0;
@@ -87,32 +89,35 @@ void ServoController::calibrateViaKeyBoard() {
 		 << "select servo          : (0,1,2,3,4,5)" << endl
 	     << "set null value        : n" << endl
 	     << "change angle          : +/-" << endl;
-    cout << ((currentStewart == 0)?"A":"B") << "/" << currentServo << ">" << endl;
 
     while (true) {
-    	char inp = getch();
-    	cout << inp; cout.flush();
-    	switch (inp) {
-    	case 'a':
-    		currentStewart = 0;
-    		break;
-    	case 'b':
-    		currentStewart = 1;
-    		break;
-    	case '0'-'5':
-    		currentServo = inp - '0';
-    		break;
-    	case '+':
-    		currentAngle += 1;
-			servo[currentServo + currentStewart*6].setAngle(currentAngle);
-    		break;
-		case 'n':
-			setNullAngle(currentServo + currentStewart*6, currentAngle - getNullAngle(currentServo + currentStewart*6));
-			break;
-		case '-':
-			currentAngle += 1;
-			servo[currentServo + currentStewart*6].setAngle(currentAngle);
-			break;
-		}
+
+    	if (kbhit()) {
+			char inp = getch();
+			cout << ((currentStewart == 0)?"A":"B") << "/" << currentServo << ">" << endl;
+
+			switch (inp) {
+			case 'a':
+				currentStewart = 0;
+				break;
+			case 'b':
+				currentStewart = 1;
+				break;
+			case '0'-'5':
+				currentServo = inp - '0';
+				break;
+			case '+':
+				currentAngle += 1;
+				servo[currentServo + currentStewart*6].setAngle(currentAngle);
+				break;
+			case 'n':
+				setNullAngle(currentServo + currentStewart*6, currentAngle - getNullAngle(currentServo + currentStewart*6));
+				break;
+			case '-':
+				currentAngle += 1;
+				servo[currentServo + currentStewart*6].setAngle(currentAngle);
+				break;
+			}
+    	}
     }
 }
