@@ -90,10 +90,11 @@ void ServoController::calibrateViaKeyBoard() {
 	     << "set null value        : n" << endl
 	     << "change angle          : +/-" << endl;
 
+	changemode(1);
     while (true) {
 
     	if (kbhit()) {
-			char inp = getch();
+    		char inp= getchar();
 			cout << ((currentStewart == 0)?"A":"B") << "/" << currentServo << ">" << endl;
 
 			switch (inp) {
@@ -120,4 +121,6 @@ void ServoController::calibrateViaKeyBoard() {
 			}
     	}
     }
+	changemode(0);
+
 }

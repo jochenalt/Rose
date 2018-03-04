@@ -192,7 +192,11 @@ bool almostEqual(realnum a, realnum b, realnum precision) {
 
 #include <unistd.h>
 #include <termios.h>
+#include <stdio.h>
 #include <termios.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/time.h>
 
 char getch() {
 	        char buf = 0;
@@ -216,19 +220,33 @@ char getch() {
 
 
 
-bool kbhit()
+void changemode(int dir)
 {
-    termios term;
-    tcgetattr(0, &term);
+  static struct termios oldt, newt;
 
-    termios term2 = term;
-    term2.c_lflag &= ~ICANON;
-    tcsetattr(0, TCSANOW, &term2);
+  if ( dir == 1 )
+  {
+    tcgetattr( STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~( ICANON | ECHO );
+    tcsetattr( STDIN_FILENO, TCSANOW, &newt);
+  }
+  else
+    tcsetattr( STDIN_FILENO, TCSANOW, &oldt);
+}
 
-    int byteswaiting;
-    ioctl(0, FIONREAD, &byteswaiting);
+int kbhit (void)
+{
+  struct timeval tv;
+  fd_set rdfs;
 
-    tcsetattr(0, TCSANOW, &term);
+  tv.tv_sec = 0;
+  tv.tv_usec = 0;
 
-    return byteswaiting > 0;
+  FD_ZERO(&rdfs);
+  FD_SET (STDIN_FILENO, &rdfs);
+
+  select(STDIN_FILENO+1, &rdfs, NULL, NULL, &tv);
+  return FD_ISSET(STDIN_FILENO, &rdfs);
+
 }

@@ -111,7 +111,8 @@ realnum lowpass (realnum oldvalue, realnum newvalue, realnum tau, realnum dT);
 
 // get character from keyboard
 char getch();
-bool kbhit();
+int kbhit();
+void changemode(int dir);
 
 
 // Usecase: break at the end of the movement such that speed goes down to zero.
