@@ -33,7 +33,9 @@
 
 #define MID_COUNT	(uint16_t) (.5 + ((204.8 * SERVO_CENTER_DEFAULT_US) / 1000))
 
-PCA9685Servo::PCA9685Servo(int bus, int address): PCA9685(bus, address), m_nLeftUs(SERVO_LEFT_DEFAULT_US), m_nRightUs(SERVO_RIGHT_DEFAULT_US) {
+PCA9685Servo::PCA9685Servo(int bus, int address): m_nLeftUs(SERVO_LEFT_DEFAULT_US), m_nRightUs(SERVO_RIGHT_DEFAULT_US) {
+	setup(bus, address);
+
 	setInvert(false);
 	setOutDriver(true);
 	setPWMFreq(100);
@@ -123,7 +125,8 @@ void ledTest() {
 	int address = 0x40;
 
 	std::cout << "set PCA9685 on bus " << bus << " on address " << address << std::endl;
-	PCA9685 led(bus,address);
+	PCA9685 led;
+	led.setup(bus,address);
 led.dump();
         float frequency = 100.0;
         float middle_us = 1520.;

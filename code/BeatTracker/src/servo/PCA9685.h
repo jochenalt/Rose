@@ -25,7 +25,6 @@
 #define _PCA9685_H
 #include <inttypes.h>
 #include "I2C.h"
-#include "i2c.h"
 
 // Register Definitions
 /* See 7.3 Register definitions */
@@ -83,8 +82,9 @@ enum TPCA9685Och {
 //! Main class that exports features for PCA9685 chip
 class PCA9685 {
 public:
-	PCA9685(int bus,int address);
+	PCA9685();
 	virtual ~PCA9685();
+	void setup(int bus,int address);
 
 	void setPWMFreq(int);
 	void setPWM(uint8_t, int, int);
@@ -101,11 +101,7 @@ public:
 	uint16_t CalcFrequency(uint8_t nPreScale);
 
 private:
-#ifdef NEW
-	I2CInterface  *i2c;
-#else
 	I2C *i2c;
-#endif
 
 	void reset(void);
 };

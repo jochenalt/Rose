@@ -30,6 +30,7 @@
 #include "RhythmDetector.h"
 #include "Stewart/BodyKinematics.h"
 #include "servo/PCA9685Servo.h"
+#include "servo/ServoController.h"
 
 // INITIALIZE_EASYLOGGINGPP
 
@@ -62,9 +63,7 @@ void printUsage() {
 		 << "            [-ui]                # start visualizer" << endl
 		 << "            [-s]                 # silent, do not play audio" << endl
 		 << "            [-i <n>]# start after n detected beats" << endl
-	     << "            [-t]                 # servo test" << endl
-         << "            [-l]                 # led test" << endl;
-
+	     << "            [-t]                 # servo calibration via keyboard" << endl;
 }
 
 
@@ -208,33 +207,6 @@ void signalHandler(int s){
 }
 
 
-/*
-void setupLogging(int argc, char *argv[]) {
-	// setup logger
-	el::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(el::Level::Error,el::ConfigurationType::Format, "%datetime %level [%func] [%loc] %msg");
-    defaultConf.set(el::Level::Error, el::ConfigurationType::Filename, "logs/manfred.log");
-
-    defaultConf.set(el::Level::Info,el::ConfigurationType::Format, "%datetime %level %msg");
-    defaultConf.set(el::Level::Info, el::ConfigurationType::Filename, "logs/manfred.log");
-
-    defaultConf.set(el::Level::Debug, el::ConfigurationType::ToStandardOutput,std::string("false"));
-    // defaultConf.set(el::Level::Debug, el::ConfigurationType::Enabled,std::string("false"));
-
-    defaultConf.set(el::Level::Debug, el::ConfigurationType::Format, std::string("%datetime %level [%func] [%loc] %msg"));
-    defaultConf.set(el::Level::Debug, el::ConfigurationType::Filename, "logs/manfred.log");
-
-    // logging from uC is on level Trace
-    defaultConf.set(el::Level::Trace, el::ConfigurationType::ToStandardOutput,std::string("false"));
-    defaultConf.set(el::Level::Trace, el::ConfigurationType::Format, std::string("%datetime %level [uC] %msg"));
-    defaultConf.set(el::Level::Trace, el::ConfigurationType::Filename, "logs/dancer.log");
-
-    el::Loggers::reconfigureLogger("default", defaultConf);
-
-    LOG(INFO) << "Private Dancer Setup";
-}
-*/
 
 void sendBeatToRythmDetector(bool beat, double bpm) {
 	RhythmDetector & rd = RhythmDetector::getInstance();
@@ -265,11 +237,6 @@ int main(int argc, char *argv[]) {
 	// catch SIGINT (ctrl-C)
     signal (SIGINT,signalHandler);
 
-
-	// initialize Logging
-	// setupLogging(argc, argv);
-
-
 	char * arg = getCmdOption(argv, argv + argc, "-f");
     string trackFilename;
     if(arg != NULL) {
@@ -281,11 +248,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (cmdOptionExists(argv, argv + argc, "-t")) {
-    	servoTest();
-    }
-
-    if (cmdOptionExists(argv, argv + argc, "-l")) {
-    	ledTest();
+    	ServoController::getInstance().calibrateViaKeyBoard();
     }
 
 
