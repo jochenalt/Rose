@@ -8,7 +8,7 @@ LDLIBS=-lpthread -lao -lm -lsamplerate
 OBJS=$(LIB)/AudioFile.o \
 $(LIB)/base64.o $(LIB)/orientation.o $(LIB)/point.o $(LIB)/serializer.o $(LIB)/spatial.o $(LIB)/stringhelper.o $(LIB)/util.o $(LIB)/zip.o  \
 $(LIB)/BTrack.o $(LIB)/OnsetDetectionFunction.o $(LIB)/kiss_fft.o \
-$(LIB)/I2C.o $(LIB)/PCA9685.o $(LIB)/PCA9685Servo.o  $(LIB)/i2c.o \
+$(LIB)/I2C.o $(LIB)/PCA9685.o $(LIB)/PCA9685Servo.o  $(LIB)/Servo.o  $(LIB)/ServoController.o\
 $(LIB)/BodyKinematics.o $(LIB)/StewartKinematics.o $(LIB)/DanceMove.o $(LIB)/main.o $(LIB)/MoveMaker.o $(LIB)/RhythmDetector.o
 
 
