@@ -1,8 +1,5 @@
-/**
- * @file servo.cpp
- *
- */
-/* Copyright (C) 2017-2018 by Arjan van Vught mailto:info@raspberrypi-dmx.nl
+/*
+ * Copyright (C) 2017-2018 by Arjan van Vught mailto:info@raspberrypi-dmx.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +36,7 @@
 PCA9685Servo::PCA9685Servo(int bus, int address): PCA9685(bus, address), m_nLeftUs(SERVO_LEFT_DEFAULT_US), m_nRightUs(SERVO_RIGHT_DEFAULT_US) {
 	setInvert(false);
 	setOutDriver(true);
-	setPWMFreq(50);
+	setPWMFreq(100);
 	CalcLeftCount();
 	CalcRightCount();
 }
@@ -123,66 +120,51 @@ void PCA9685Servo::SetAngle(uint8_t nChannel, uint8_t nAngle) {
 
 void ledTest() {
 	int bus = 1;
-	int address = 40;
+	int address = 0x40;
 
 	std::cout << "set PCA9685 on bus " << bus << " on address " << address << std::endl;
 	PCA9685 led(bus,address);
-	led.setPWMFreq(1000);
-	for (int i = 0;i<1000;i++) {
-		std::cout << i << ".th run" << std::endl;
-		for (int l = 0;l<15;l++) {
-			for (int v = 0;i<4096;i++) {
-				std::cout << "set channel " << l << "=" << v << std::endl;
-				led.setPWM(0,v);
-			}
-		}
+led.dump();
+        float frequency = 100.0;
+        float middle_us = 1520.;
+        float us_per_deg = 1000/90.0;
+	led.setPWMFreq(frequency);
+	for (;;) {
+             for (int i = 0;i<90;i++) {
+		int pwm = (middle_us + us_per_deg*i)/(1000000./frequency)*4096.;
+		std::cout << "set channel left " << i << " " << pwm << std::endl;
+		led.setPWM(2,pwm);
+   usleep(200000);
+}
+		int pwm = middle_us/(1000000./frequency)*4096.;
+		std::cout << "set channel mid " << pwm << std::endl;
+		led.setPWM(2,pwm);
+sleep (1);
+		std::cout << "set right " << std::endl;
+		pwm = (middle_us + 80.0*us_per_deg)/(1000000./frequency)*4096.;
+		std::cout << "set channel right " << pwm << std::endl;
+		led.setPWM(2,pwm);
+sleep(1);
 	}
 }
 
 void servoTest() {
 
-		PCA9685Servo servo(1,8);
+		PCA9685Servo servo(1,0x40);
 
 		// MG90S Micro Servo
-		servo.SetLeftUs(700);
-		servo.SetRightUs(2400);
+		servo.SetLeftUs(800);
+		servo.SetRightUs(2500);
 
 		servo.dump();
 
-		servo.SetAngle(CHANNEL(0), ANGLE(90));
-		servo.SetAngle(CHANNEL(1), ANGLE(90));
-		servo.SetAngle(CHANNEL(2), ANGLE(90));
-		servo.SetAngle(CHANNEL(3), ANGLE(90));
-
-		puts("Servo 0:90  Servo 1:90");
-		puts("Servo 2:90  Servo 3:90");
-
-		sleep(4);
-
 		for (;;) {
-			servo.SetAngle(CHANNEL(0), ANGLE(90));
-			servo.SetAngle(CHANNEL(1), ANGLE(0));
-			servo.SetAngle(CHANNEL(2), ANGLE(0));
-			servo.SetAngle(CHANNEL(3), ANGLE(0));
-			puts("");
-			puts("Servo 0:90  Servo 1:0");
-			puts("Servo 2:0  Servo 3:0");
-			sleep(2);
-			servo.SetAngle(CHANNEL(0), ANGLE(180));
-			servo.SetAngle(CHANNEL(1), ANGLE(180));
-			servo.SetAngle(CHANNEL(2), ANGLE(90));
-			servo.SetAngle(CHANNEL(3), ANGLE(90));
-			puts("");
-			puts("Servo 0:180 Servo 1:180");
-			puts("Servo 2:90  Servo 3:90");
-			sleep(2);
-			servo.SetAngle(CHANNEL(0), ANGLE(0));
-			servo.SetAngle(CHANNEL(1), ANGLE(90));
-			servo.SetAngle(CHANNEL(2), ANGLE(180));
-			servo.SetAngle(CHANNEL(3), ANGLE(180));
-			puts("");
-			puts("Servo 0:0   Servo 1:90");
-			puts("Servo 2:180  Servo 3:180");
-			sleep(2);
+                    for (int i = 0;i<=MAX_ANGLE; i+=(MAX_ANGLE/4)) {
+                        std::cout << "angle=" << i << " ";
+			servo.SetAngle(CHANNEL(2), ANGLE(i));
+                        int pwm = servo.getPWM(CHANNEL(2));
+                        std::cout << "pwm=" << pwm << std::endl;
+			sleep(1);
+                    }
 		}
 }
