@@ -35,19 +35,21 @@ void Servo::calibrate(double newMinAngle, double newMaxAngle, double newNullAngl
 }
 
 
-void Servo::setAngle(double angle) {
+void Servo::setAngle(double newAngle) {
 	// values of KST DS215MG
     const double middlePositionImpulseLen_us = 1520.0;
     const double impulseLenDiffPerDegree_us = 1000/90.0;
     const double minImpulseLen_us = 887;
     const double maxImpulseLen_us = 2470;
 
+    angle = constrain(newAngle, minAngle, maxAngle);
+
     double normalizedAngle = (angle - nullAngle);
     if (reverse)
     	normalizedAngle = -normalizedAngle;
-    double constrainedAngle = constrain(normalizedAngle, minAngle, maxAngle);
 
-    double target_impulse_len_us = (middlePositionImpulseLen_us + impulseLenDiffPerDegree_us * constrainedAngle);
+
+    double target_impulse_len_us = (middlePositionImpulseLen_us + impulseLenDiffPerDegree_us * normalizedAngle);
     target_impulse_len_us = constrain(target_impulse_len_us,minImpulseLen_us, maxImpulseLen_us );
 
     // PCA9685 resolves with 12 bit, which gives 4096 pwm values

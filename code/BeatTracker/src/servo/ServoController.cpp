@@ -78,6 +78,12 @@ void ServoController::setNullAngle(int servoNo, double newValue) {
 	servo[servoNo].nullAngle = newValue;
 }
 
+double ServoController::getAngle(int servoNo) {
+	return servo[servoNo].getAngle();
+}
+void ServoController::setAngle(int servoNo, double angle) {
+	servo[servoNo].setAngle(angle);
+}
 
 
 void ServoController::calibrateViaKeyBoard() {
@@ -123,6 +129,7 @@ void ServoController::calibrateViaKeyBoard() {
 				servo[currentServo + currentStewart*6].setAngle(currentAngle);
 				break;
 			}
+			currentAngle = getAngle(currentServo + currentStewart*6);
 			cout << ((currentStewart == 0)?"A":"B") << "/" << currentServo << " -> " << currentAngle << " deg null="  << getNullAngle(currentServo + currentStewart*6) << endl;
     	}
     }

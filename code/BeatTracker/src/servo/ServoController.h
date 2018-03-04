@@ -25,6 +25,10 @@ public:
 
 	void calibrateViaKeyBoard();
 
+
+	double  getAngle(int servoNo);
+	void setAngle(int servoNo, double angle);
+
 	double getMinAngle(int servoNo);
 	double getMaxAngle(int servoNo);
 	double getNullAngle(int servoNo);

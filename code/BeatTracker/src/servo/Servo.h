@@ -19,6 +19,7 @@ public:
 	void calibrate(double minAngle = -85, double maxAngle = 60, double nullAngle = 0);
 
 	void setAngle(double angle);
+	double getAngle() { return angle; };
 
 private:
 	int channel = 0;
@@ -28,6 +29,8 @@ private:
 	double minAngle = 0;
 	double maxAngle = 0;
 	double nullAngle = 0;
+
+	double angle = 0;
 
 };
 
