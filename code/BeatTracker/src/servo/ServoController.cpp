@@ -121,9 +121,12 @@ void ServoController::calibrateViaKeyBoard() {
 				currentAngle += 1;
 				servo[currentServo + currentStewart*6].setAngle(currentAngle);
 				break;
-			case 'n':
+			case 'n': {
+				int absAngle = currentAngle - getNullAngle(currentServo + currentStewart*6);
 				setNullAngle(currentServo + currentStewart*6, getNullAngle(currentServo + currentStewart*6)-currentAngle);
+				currentAngle = absAngle + getNullAngle(currentServo + currentStewart*6);
 				break;
+			}
 			case '-':
 				currentAngle -= 1;
 				servo[currentServo + currentStewart*6].setAngle(currentAngle);
