@@ -1,9 +1,110 @@
-https://github.com/hdavid/Patterns
-http://mziccard.me/2015/05/28/beats-detection-algorithms-1/
+
+-----------------------------
+------ setup odroid C2 ------
+-----------------------------
+# Ubuntu images are stored in http://de.eu.odroid.in/ubuntu_16.04lts/
+# my version was ubuntu64-16.04.3-mate-odroid-c2-20170927.img.xz
+
+# download WinDiskImager from http://com.odroid.com/sigong/blog/blog_list.php?bid=144
+# write Ubuntu Image to SD card 
+# plug in ethernet cable
 
 
-# Audio file importer
-https://github.com/adamstark/AudioFile
+# switch on C2, use serial interface cable with COM7/115200 baud log in via odroid/odroid
+# download WinDiskImager from http://com.odroid.com/sigong/blog/blog_list.php?bid=144
+
+
+# fetch odroid-utility
+>su
+>wget -O /usr/local/bin/odroid-utility.sh https://raw.githubusercontent.com/mdrjr/odroid-utility/master/odroid-utility.sh
+>chmod +x /usr/local/bin/odroid-utility.sh
+>/usr/local/bin/odroid-utility.sh
+# enhance partition, and update firmware/kernel
+# update everything 
+>apt-get update
+>apt-get upgrade
+>apt-get dist-upgrade
+
+----- configure WIFI on ODroid C2 -----
+# act according to http://linux.icydog.net/wpa.php to create /etc/wpa_supplicant.conf
+>sudo apt-get install wpasupplicant
+>sudo wpa_supplicant -Dwext -iwlan0 -c/etc/wpa_supplicant.conf
+# file /etc/wpa_supplicant.conf looks like this:
+network={
+        ssid="lorem ipsum dolor sit amet"
+        psk=8df9408615472876e09ba00a81fccefcec75f8c497ca54cd8f5d9d3fa7a791ae
+}
+
+> sudo vi /etc/network/interfaces
+# add the following lines
+auto wlan0
+allow-hotplug wlan0
+iface wlan0 inet dhcp
+wpa-conf /etc/wpa_supplicant.conf
+# boot 
+>sudo reboot
+# find out IP address with 
+>ifconfig
+# connect via kitty with ssh, ip address, port 22
+
+------- create sudo-enabled user  ----
+>adduser jochenalt
+>addgroup jochenalt sudo 
+
+
+
+---- sudo without password -----
+>su
+>vi /etc/sudoers
+# add to last line
+# odroid ALL=(ALL) NOPASSWD: ALL
+# jochenalt ALL=(ALL) NOPASSWD: ALL
+
+### CPU frequency ###
+>sudo apt-get install cpufrequtils
+>cpufreq-set -r -g ondemand
+>cpufreq-info
+>echo $((`cpufreq-info -f` /1000))'Mhz' $((`cat /sys/devices/virtual/thermal/thermal_zone0/temp` /1000))'°'
+>cpufreq-info -c 0 -f -m;cpufreq-info -c 1 -f -m;cpufreq-info -c 2 -f -m;cpufreq-info -c 3 -f -m; cpufreq-info -c 4 -f -m;cpufreq-info -c 5 -f -m;cpufreq-info -c 6 -f -m;cpufreq-info -c 7 -f -m;
+# add alias commands
+echo "" >> >> ~/.bashrc
+echo "# alias for cpu frequency and temperature" >> >> ~/.bashrc
+echo "alias cpu='cpufreq-info -c 0 -f -m;cpufreq-info -c 1 -f -m;cpufreq-info -c 2 -f -m;cpufreq-info -c 3 -f -m; cpufreq-info -c 4 -f -m;cpufreq-info -c 5 -f -m;cpufreq-info -c 6 -f -m;cpufreq-info -c 7 -f -m;'" >> ~/.bashrc
+echo "alias temperatur='echo $((`cpufreq-info -f` /1000))'Mhz' $((`cat /sys/devices/virtual/thermal/thermal_zone0/temp` /1000))'°''" >> ~/.bashrc
+
+------------------ prepare git ----------------------
+# set standard user name
+git config --global user.name "jochen.alt@gmx.net"
+# cache the credentials for one day
+git config --global credential.helper "cache --timeout=86400"
+
+------------------ Serial Interfaces -----------------
+# plugin Serial Interfaces, make devices writeable when they are plugged in. Necessary for Cortex and for Lidar sensor
+# create a new file:
+>sudo vi /etc/udev/rules.d/ttyusb.rules  
+# create rules that set maximum permissions once a serial or i2c port is plugged in
+KERNEL=="ttyUSB[0-9]*",MODE="0777"
+KERNEL=="ttyS[0-9]*", MODE="0777"
+KERNEL=="i2c-[0-9]*", MODE="0777"
+KERNEL=="i2c-[0-9]*", GROUP="i2c"
+
+# install minicom
+>sudo apt-get install minicom
+# use serial interface on 40-pin port 6(GND) 8(TX1) 10(RX1)
+minicom -D /dev/ttyS1 -b 460800
+
+# Odroid I2C setup accoding to https://www.abelectronics.co.uk/kb/article/1036/odroid-c2-running-ubuntu-i2c-setup
+sudo apt-get install python-smbus i2c-tools
+modprobe aml_i2c
+# to not load everytime, add to /etc/modules
+echo "aml_i2c" | sudo tee /etc/modules
+apt-get install i2c-tools
+# I2C device benutzbar machen für non root
+sudo chmod 666 /dev/i2c-4
+adduser odroid i2c
+
+# clone Donna
+git clone https://github.com/jochenalt/Donna.git
 
 # portable sound library
 https://www.sfml-dev.org
@@ -21,8 +122,6 @@ https://www.openal.org/documentation/OpenAL_Programmers_Guide.pdf
 http://www.dreamincode.net/forums/topic/184668-getting-microphone-input/
 
 
-##########################
-# vm und umgebung wie bei manfred
 
 # install samplerate on linux (required by BTrack)
 >sudo apt-get install libsamplerate-dev 
