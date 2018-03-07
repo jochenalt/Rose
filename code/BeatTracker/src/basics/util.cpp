@@ -222,7 +222,11 @@ char getch() {
 
 void changemode(int dir)
 {
+	static int existingDir = 0;
   static struct termios oldt, newt;
+
+  if (dir == existingDir )
+	  return;
 
   if ( dir == 1 )
   {

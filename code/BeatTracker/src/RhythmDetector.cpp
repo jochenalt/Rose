@@ -65,7 +65,7 @@ void RhythmDetector::loop(bool beat, double BPM) {
 		timeSinceBeat = secondsSinceEpoch() - timeOfLastBeat;
 
 		movePercentage = (beatCount % (4/rhythmInQuarters) )*rhythmInQuarters + timeSinceBeat/(60.0/BPM);
-		// cout << std::fixed << std::setprecision(2) << "(" << (beatCount % (4/rhythmInQuarters) ) << ") t=" << timeSinceBeat << "s " << " 60/BPM=" << 60.0/BPM <<"s rhyt=" << rhythmInQuarters << "% =" << movePercentage << " "  << endl;
+		// cout << std::fixed << std::setprecision(3) << "(" << (beatCount % (4/rhythmInQuarters) ) << ") =" << timeSinceBeat << "s (" << " 60/BPM=" << 60.0/BPM <<"s rhyt=" << rhythmInQuarters << "% =" << movePercentage << " "  << endl;
 
 	}
 }
