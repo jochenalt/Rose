@@ -26,6 +26,7 @@ public:
 					BOLLYWOOD_HEAD_MOVE, DOUBLE_BOLLYWOOD_MOVE, SWING_DOUBLE_BOLLYWOOD_MOVE,
 					BODY_WAVE, DIPPED_BODY_WAVE, SIDE_DIPPED_BODY_WAVE,
 					SHIMMYS, TRIPPLE_SHIMMYS, LEANING_TRIPPLE_SHIMMYS,
+					SHOULDER_MOVE,SHOULDER_CIRCLE, SHOULDER_DIP,
 					TURN_AND_SHOW_BACK, TWERK, TURN_BACK,
 					LAST_MOVE
 					};
@@ -99,6 +100,10 @@ public:
 	TotalBodyPose shimmys(double movePercentage);
 	TotalBodyPose trippleShimmys(double movePercentage);
 	TotalBodyPose leaningTrippleShimmys(double movePercentage);
+
+	TotalBodyPose shoulderMove(double movePercentage);
+	TotalBodyPose shoulderCircle(double movePercentage);
+	TotalBodyPose shoulderDipMove(double movePercentage);
 
 	TotalBodyPose turnAndShowBack(double movePercentage);
 	TotalBodyPose twerk(double movePercentage);

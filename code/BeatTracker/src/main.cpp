@@ -97,8 +97,8 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 			 exit(1);
 		}
     }
-	int hopSize = 512;
-	int frameSize = hopSize*4; // cpu load goes up linear with the framesize
+	int hopSize = 128;
+	int frameSize = hopSize*8; // cpu load goes up linear with the framesize
 	BTrack b(hopSize, frameSize);
 
 	// position within the input buffer
@@ -170,7 +170,7 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 
 			if (beat)
 			{
-				cout << std::fixed << std::setprecision(1) << "Beat (" << b.getCurrentTempoEstimate() << ")" << std::setprecision(1) << (elapsedFrameTime) << "s" << endl;
+				cout << std::fixed << std::setprecision(2) << "Beat (" << b.getCurrentTempoEstimate() << ")" << std::setprecision(2) << (elapsedFrameTime) << "s" << endl;
 			};
 
 			delay_ms((elapsedFrameTime - elapsedTime)*1000.0);
