@@ -38,7 +38,6 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 	glLoadIdentity();             // Reset the model-view matrix to world coordinate system
 	glRotatef(-90, 1.0,0.0,0.0);
 	glRotatef(-90, 0.0,0.0,1.0);
-
 	stewartBase.display(glStewartPlateColor,glStewartPlateColor);
 
 	glPushMatrix();
@@ -134,6 +133,8 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 
 	glPopMatrix();
 
+	// draw body as volume of revolution
+	body.display(bodyPose, headPose, glBodyColor);
 
 	glPopMatrix();
 	glPopAttrib();

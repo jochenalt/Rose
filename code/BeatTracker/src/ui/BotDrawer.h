@@ -12,6 +12,7 @@
 
 #include "STLObject.h"
 #include "basics/spatial.h"
+#include "VolumeOfRevolution.h"
 
 class BotDrawer {
 public:
@@ -40,6 +41,8 @@ private:
 	STLObject stewartSmallRod;
 	STLObject stewartHead;
 	STLObject stewartSmallServoArm;
+
+	VolumeOfRevolution body;
 };
 
 #endif /* UI_BOTDRAWER_H_ */
