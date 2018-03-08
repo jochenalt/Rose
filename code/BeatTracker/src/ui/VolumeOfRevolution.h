@@ -15,7 +15,7 @@ public:
 	virtual ~VolumeOfRevolution();
 
 
-   void display(const Pose& bodyPose, const Pose& headPose, const GLfloat* color);
+   void display(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, const GLfloat* color);
    void set(double newBaseRadius, double newBodyRadius, double newHeadRadius) {
 	   baseRadius = newBaseRadius;
 	   bodyRadius = newBodyRadius;
@@ -27,13 +27,12 @@ public:
 
    unsigned int m_segments;
    unsigned int m_angles;
-   float        m_rotation;
 
    double baseRadius;
    double bodyRadius;
    double headRadius;
-   float genRadius(const Pose& bodyPose, const Pose& headPose, float z);
-   Point genCentre(const Pose& bodyPose, const Pose& headPose, float z);
+   float genRadius(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, float z);
+   Point genCentre(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, float z);
 
 };
 

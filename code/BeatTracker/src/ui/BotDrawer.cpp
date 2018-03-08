@@ -130,11 +130,11 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 		glPopMatrix();
 	}
 
-
 	glPopMatrix();
 
 	// draw body as volume of revolution
-	body.display(bodyPose, headPose, glBodyColor);
+	body.set(60,70,20);
+	body.display(Pose(), bodyPose, headPose, glBodyColor);
 
 	glPopMatrix();
 	glPopAttrib();

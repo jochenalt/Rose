@@ -5,17 +5,17 @@
  *      Author: jochenalt
  */
 
+#include <assert.h>
 #include <GL/gl.h>
 #include <math.h>
 
 #include <VolumeOfRevolution.h>
-
+#include "setup.h"
 
 VolumeOfRevolution::VolumeOfRevolution()
 {
     m_segments     = 30;
     m_angles       = 30;
-    m_rotation     = 0.0f;
 }
 
 
@@ -25,40 +25,7 @@ VolumeOfRevolution::~VolumeOfRevolution()
 
 
 
-
-//polynomial interpretation for N points
-float polyint ( float  points[][3], float x, int N )
-{
-  float y;
-
-  float num = 1.0, den = 1.0;
-  float sum = 0.0;
-
-  for ( int i = 0; i < N; ++i ) {
-    num = den = 1.0;
-    for ( int j = 0; j < N; ++j ) {
-      if ( j == i ) continue;
-
-      num = num * ( x - points[j][0] );		 	//x - xj
-    }
-    for ( int j = 0; j < N; ++j ) {
-      if ( j == i ) continue;
-      den = den * ( points[i][0] - points[j][0] );	//xi - xj
-    }
-    sum += num / den * points[i][1];
-  }
-  y = sum;
-
-  return y;
-}
-
-GLfloat ctrlpoints[4][3] = {
-	{ 0.0, 0.0, 0.0}, { 1.0, 0.5, 0.0},
-	{2.0, 1.2, 0.0}, {3.0, 3, 0.0}};
-
-
-
-void VolumeOfRevolution::display(const Pose& bodyPose, const Pose& headPose, const GLfloat* color)
+void VolumeOfRevolution::display(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, const GLfloat* color)
 {
     unsigned int i, j;
 
@@ -69,66 +36,93 @@ void VolumeOfRevolution::display(const Pose& bodyPose, const Pose& headPose, con
     glMatrixMode(GL_MODELVIEW);
 
 
-	   float x, y, z, r;				//current coordinates
-	   float x1, y1, z1, r1;			//next coordinates
-	   float theta;
+   float x1 = 0,y1 = 0,z1 = 0,r1 = 0;
+   float x = 0,y = 0,z = 0,r = 0;
+   Point centre, centre1;
 
-	   const float startx = 0, endx = 3;
-	   const int nx = 20;				//number of slices along x-direction
-	   const int ntheta = 20;			//number of angular slices
-	   const float dx = (endx - startx) / nx;	//x step size
-	   const float dtheta = 2*M_PI / ntheta;		//angular step size
+   float theta;
 
-	   x = startx;
-	   r = genRadius( bodyPose, headPose, x*100.);
-	   glPushMatrix();
+   float startx = basePose.position.z;
+   float endx = bodyPose.position.z + headPose.position.z;
+   const int nx = 20;				//number of slices along x-direction
+   const int ntheta = 20;			//number of angular slices
+   const float dx = (endx - startx) / nx;	//x step size
+   const float dtheta = 2*M_PI / ntheta;		//angular step size
 
-	   for ( i = 0; i < nx; ++i ) {			//step through x
-	      theta = 0;
-	      x1 = x + dx;				//next x
-	      r1 = polyint( ctrlpoints, x1, 4);		//next f(x)
-		   r1 = genRadius( bodyPose, headPose, x1);
+   x = startx;
+   r = genRadius( basePose, bodyPose, headPose, x);
+   centre = genCentre( basePose, bodyPose, headPose, x);
 
-	      //draw the surface composed of quadrilaterals by sweeping theta
-	      glBegin( GL_LINE_STRIP );
-	      // glBegin( GL_QUAD_STRIP );
+   glPushMatrix();
 
-	      for ( j = 0; j <= ntheta; ++j ) {
-		  theta += dtheta;
-		  double cosa = cos( theta );
-		  double sina = sin ( theta );
-		  y = r * cosa;  y1 = r1 * cosa;	//current and next y
-		  z = r * sina;	 z1 = r1 * sina;	//current and next z
+   for ( i = 0; i < nx; ++i ) {			//step through x
+	   theta = 0;
 
-		  //edge from point at x to point at next x
-		  glVertex3f (100.*z, 100.*x, 100.*y);
-		  glVertex3f (100.*z1, 100.*x1, 100.*y1);
+	   // compute next z position and radius
+	   x1 = x + dx;
+	   r1 = genRadius( basePose, bodyPose, headPose, x1);
+	   centre1 = genCentre( basePose, bodyPose, headPose, x1);
 
-		  //forms quad with next pair of points with incremented theta value
-		}
-	      glEnd();
-	      x = x1;
-	      r = r1;
-	   } //for i
+	   glBegin( GL_LINE_STRIP );
+	   // glBegin( GL_QUAD_STRIP );
 
-	   glPopMatrix();
+	   for ( j = 0; j <= ntheta; ++j ) {
+		   	  theta += dtheta;
+		   	  double cosa = cos( theta );
+		   	  double sina = sin ( theta );
+			  y = r * cosa + centre.x;
+			  z = r * sina + centre.y;
+		   	  y1 = r1 * cosa + centre1.x;	//current and next y
+		   	  z1 = r1 * sina + centre1.y;	//current and next z
 
+		  glVertex3f (z, x, y);
+		  glVertex3f (z1, x1, y1);
 
-	    // restore old color
+	   }
+	    glEnd();
+
+	    // define next point as current point
+	    r = r1;
+		centre = centre1;
+		x = x1;
+
+	} //for i
+
+	glPopMatrix();
     glPopAttrib();
-} // render()
-
-
-float VolumeOfRevolution::genRadius(const Pose& bodyPose, const Pose& headPose, float z)
-{
-    return sin(z*M_PI);
 }
 
-Point VolumeOfRevolution::genCentre(const Pose& bodyPose, const Pose& headPose, float z) {
+
+float VolumeOfRevolution::genRadius(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, float z)
+{
 	if (z < bodyPose.position.z) {
-		return Point(0,0,z);
+		double t = (z-basePose.position.z)/(bodyPose.position.z - basePose.position.z) ;
+ 		return (1.0-t)*baseRadius + t*bodyRadius;
 	}
-	else {
-		return Point(0,0,z);
+
+	double t = (z-bodyPose.position.z)/headPose.position.z;
+	return (1.0-t)*bodyRadius + t*headRadius;
+}
+
+
+Point bezierCurve (double t, const Point& a, const Point& aSupport, const Point& b, const Point& bSupport) {
+	// formula of cubic bezier curve (wikipedia)
+	assert ((t >= 0) && (t <= 1.0));
+	return a*(1-t)*(1-t)*(1-t) + aSupport*3*t*(1-t)*(1-t) + bSupport*3*t*t*(1-t) + b*t*t*t;
+}
+
+Point VolumeOfRevolution::genCentre(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, float z) {
+
+	if (z < bodyPose.position.z) {
+		double t = (z-basePose.position.z)/(bodyPose.position.z - basePose.position.z) ;
+		// return basePose.position + bodyPose.position*t;
+		Point supportA = basePose.position + Point(0,0,(bodyPose.position.z + basePose.position.z)/2.0);
+		Point supportB = headPose.position/headPose.position.length() *(-1.0) * (bodyPose.position.length())/2.0;
+
+		return bezierCurve(t, basePose.position, supportA, bodyPose.position, supportB);
 	}
+
+	double t = (z-bodyPose.position.z)/(headPose.position.z) ;
+	return bodyPose.position + headPose.position*t;
+	// return bodyPose.position + bezierCurve(t, basePose.position, bodyPose.position, bodyPose.position, basePose.position);
 }
