@@ -238,6 +238,8 @@ void solveTrgLinearCombinationWithEqualPhase(realnum a, realnum b, realnum c, re
 void createRotationMatrix(const Rotation &r, HomogeneousMatrix& m);
 // create a rotation matrix from a given rotation around all axes
 HomogeneousMatrix createRotationMatrix(const Rotation &r);
+HomogeneousMatrix createTransformationMatrix(const Point& p);
+
 
 void computeInverseTransformationMatrix(HomogeneousMatrix m, HomogeneousMatrix& inverse);
 HomogeneousMatrix computeInverseTransformationMatrix(HomogeneousMatrix m);

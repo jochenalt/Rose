@@ -255,7 +255,22 @@ void createTransformationMatrix(const Pose& p, HomogeneousMatrix& m) {
 	m *= rotate;
 }
 
+void createTransformationMatrix(const Point& p, HomogeneousMatrix& m) {
+	m = HomogeneousMatrix(4,4,
+						{ 1, 	0,  	0,  	p.x,
+						  0, 	1, 		0,	 	p.y,
+						  0,	0,		1,		p.z,
+						  0,	0,		0,		1});
+}
+
+
 HomogeneousMatrix createTransformationMatrix(const Pose& p) {
+	HomogeneousMatrix result;
+	createTransformationMatrix(p, result);
+	return result;
+}
+
+HomogeneousMatrix createTransformationMatrix(const Point& p) {
 	HomogeneousMatrix result;
 	createTransformationMatrix(p, result);
 	return result;

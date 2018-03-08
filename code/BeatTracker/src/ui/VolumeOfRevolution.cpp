@@ -14,8 +14,13 @@
 
 VolumeOfRevolution::VolumeOfRevolution()
 {
-    m_segments     = 30;
-    m_angles       = 30;
+    numSegments     = 12;
+    numAngles       = 20;
+    headRadius = 0;
+    bodyRadius = 0;
+    headLen = 0;
+    bodyLen = 0;
+    baseRadius = 0;
 }
 
 
@@ -24,67 +29,79 @@ VolumeOfRevolution::~VolumeOfRevolution()
 }
 
 
-
-void VolumeOfRevolution::display(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, const GLfloat* color)
+void VolumeOfRevolution::display(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, const GLfloat* color, const GLfloat* gridColor )
 {
-    unsigned int i, j;
-
 	glPushAttrib(GL_CURRENT_BIT);
-   	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color);
-	glColor4fv(color);
 	glPushMatrix();
     glMatrixMode(GL_MODELVIEW);
 
 
-   float x1 = 0,y1 = 0,z1 = 0,r1 = 0;
-   float x = 0,y = 0,z = 0,r = 0;
-   Point centre, centre1;
-
-   float theta;
-
-   float startx = basePose.position.z;
-   float endx = bodyPose.position.z + headPose.position.z;
-   const int nx = 20;				//number of slices along x-direction
-   const int ntheta = 20;			//number of angular slices
-   const float dx = (endx - startx) / nx;	//x step size
-   const float dtheta = 2*M_PI / ntheta;		//angular step size
-
-   x = startx;
-   r = genRadius( basePose, bodyPose, headPose, x);
-   centre = genCentre( basePose, bodyPose, headPose, x);
+   Pose centre, centre1;
+   HomogeneousMatrix rotationTrans;
+   double r = getRadius( basePose, bodyPose, headPose, 0);
+   centre = getCentrePose( basePose, bodyPose, headPose, 0);
+   rotationTrans = createRotationMatrix(centre.orientation);
 
    glPushMatrix();
 
-   for ( i = 0; i < nx; ++i ) {			//step through x
-	   theta = 0;
+   for ( float t = 0; t <= 80./(60.+80.); t += 1.0/numSegments ) {
+	   double r1 = getRadius( basePose, bodyPose, headPose, t);
+	   centre1 = getCentrePose( basePose, bodyPose, headPose, t);
+	   HomogeneousMatrix rotationTrans1 = createRotationMatrix(centre1.orientation);
 
-	   // compute next z position and radius
-	   x1 = x + dx;
-	   r1 = genRadius( basePose, bodyPose, headPose, x1);
-	   centre1 = genCentre( basePose, bodyPose, headPose, x1);
 
-	   glBegin( GL_LINE_STRIP );
-	   // glBegin( GL_QUAD_STRIP );
+	   // cout << "t=" << t << " centre1=" << centre1.orientation
+		// 	<< "tmp=" << getPointByTransformationMatrix(c)  << endl;
+	   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color);
+	   glColor4fv(color);
 
-	   for ( j = 0; j <= ntheta; ++j ) {
-		   	  theta += dtheta;
-		   	  double cosa = cos( theta );
-		   	  double sina = sin ( theta );
-			  y = r * cosa + centre.x;
-			  z = r * sina + centre.y;
-		   	  y1 = r1 * cosa + centre1.x;	//current and next y
-		   	  z1 = r1 * sina + centre1.y;	//current and next z
+	   glBegin( GL_QUAD_STRIP);
+	   for ( float angle = 0; angle <= M_PI*2.0 + 0.01; angle += 2.0*M_PI / numAngles) {
+		   double sina = sin(angle);
+		   double cosa = cos(angle);
 
-		  glVertex3f (z, x, y);
-		  glVertex3f (z1, x1, y1);
+		   Point circle (r * cosa + centre.position.x, r * sina + centre.position.y, 0);
+		   HomogeneousMatrix circleTrans = rotationTrans*createTransformationMatrix(circle);
+		   Point target = getPointByTransformationMatrix(circleTrans) + Point(0,0,centre.position.z);
+
+		   Point circle1 (r1 * cosa + centre1.position.x, r1 * sina + centre1.position.y, 0);
+		   HomogeneousMatrix circleTrans1 = rotationTrans1*createTransformationMatrix(circle1);
+		   Point target1 = getPointByTransformationMatrix(circleTrans1) + Point(0,0,centre1.position.z);
+
+		  // 1  3  4
+		  // 2  4  5 ...
+		  glVertex3f (target.y, target.z, target.x);
+		  glVertex3f (target1.y, target1.z, target1.x);
 
 	   }
-	    glEnd();
+	   glEnd();
+	   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, gridColor);
+	   glColor4fv(gridColor);
 
-	    // define next point as current point
+	   glBegin( GL_LINE_STRIP  );
+	   for ( float angle = 0; angle <= M_PI*2.0+0.01; angle += 2.0*M_PI / numAngles) {
+		   double sina = sin(angle);
+		   double cosa = cos(angle);
+
+		   Point circle ((r+5) * cosa + centre.position.x, (r+5) * sina + centre.position.y, 0);
+		   HomogeneousMatrix circleTrans = rotationTrans*createTransformationMatrix(circle);
+		   Point target = getPointByTransformationMatrix(circleTrans) + Point(0,0,centre.position.z);
+
+		   Point circle1 ((r1+5) * cosa + centre1.position.x, (r1+5) * sina + centre1.position.y, 0);
+		   HomogeneousMatrix circleTrans1 = rotationTrans1*createTransformationMatrix(circle1);
+		   Point target1 = getPointByTransformationMatrix(circleTrans1) + Point(0,0,centre1.position.z);
+		   // 1  3  4
+		   // 2  4  5 ...
+		   glVertex3f (target.y, target.z, target.x);
+		   glVertex3f (target1.y, target1.z, target1.x);
+	   }
+	   glEnd();
+
+
 	    r = r1;
 		centre = centre1;
-		x = x1;
+		rotationTrans = rotationTrans1;
+
 
 	} //for i
 
@@ -93,36 +110,68 @@ void VolumeOfRevolution::display(const Pose& basePose, const Pose& bodyPose, con
 }
 
 
-float VolumeOfRevolution::genRadius(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, float z)
-{
-	if (z < bodyPose.position.z) {
-		double t = (z-basePose.position.z)/(bodyPose.position.z - basePose.position.z) ;
- 		return (1.0-t)*baseRadius + t*bodyRadius;
-	}
-
-	double t = (z-bodyPose.position.z)/headPose.position.z;
-	return (1.0-t)*bodyRadius + t*headRadius;
-}
-
-
-Point bezierCurve (double t, const Point& a, const Point& aSupport, const Point& b, const Point& bSupport) {
+double bezierCurve (double t, double a, double aSupport, double b, double bSupport) {
 	// formula of cubic bezier curve (wikipedia)
-	assert ((t >= 0) && (t <= 1.0));
+	if (t> 1.0)
+		t = 1.0;
 	return a*(1-t)*(1-t)*(1-t) + aSupport*3*t*(1-t)*(1-t) + bSupport*3*t*t*(1-t) + b*t*t*t;
 }
 
-Point VolumeOfRevolution::genCentre(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, float z) {
+Point bezierCurve (double t, const Point& a, const Point& aSupport, const Point& b, const Point& bSupport) {
+	// formula of cubic bezier curve (wikipedia)
+	if (t> 1.0)
+		t = 1.0;
+	return a*(1-t)*(1-t)*(1-t) + aSupport*3*t*(1-t)*(1-t) + bSupport*3*t*t*(1-t) + b*t*t*t;
+}
 
-	if (z < bodyPose.position.z) {
-		double t = (z-basePose.position.z)/(bodyPose.position.z - basePose.position.z) ;
-		// return basePose.position + bodyPose.position*t;
-		Point supportA = basePose.position + Point(0,0,(bodyPose.position.z + basePose.position.z)/2.0);
-		Point supportB = headPose.position/headPose.position.length() *(-1.0) * (bodyPose.position.length())/2.0;
+Pose bezierCurve (double t, const Pose& a, const Pose& aSupport, const Pose& b, const Pose& bSupport) {
+	// formula of cubic bezier curve (wikipedia)
+	if (t> 1.0)
+		t = 1.0;
+	return a*(1-t)*(1-t)*(1-t) + aSupport*3*t*(1-t)*(1-t) + bSupport*3*t*t*(1-t) + b*t*t*t;
+}
 
-		return bezierCurve(t, basePose.position, supportA, bodyPose.position, supportB);
+
+
+float VolumeOfRevolution::getRadius(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, float t)
+{
+	return bezierCurve(t,baseRadius, baseRadius, headRadius, baseRadius);
+}
+
+
+Pose VolumeOfRevolution::getCentrePose(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, float t) {
+
+	// get absolute pose of head
+	HomogeneousMatrix headTransformation  = createTransformationMatrix(bodyPose) * createTransformationMatrix(headPose);
+	Pose absHeadPose = getPoseByTransformationMatrix(headTransformation);
+
+	// double headLen = headPose.position.length();
+	// double bodyLen = bodyPose.position.length();
+
+	Point normalizedHead = headPose.position/headLen;
+	Point normalizedBody= bodyPose.position/bodyLen;
+
+	Pose supportBase = basePose + Pose(Point(0,0,bodyLen/3.0), Rotation(0,0,0));
+	HomogeneousMatrix supportBaseTrans = createTransformationMatrix(bodyPose) * createTransformationMatrix(Point(0,0,-bodyLen/3.0));
+	Pose supportBaseBody =  getPoseByTransformationMatrix(supportBaseTrans);
+
+	double bodyHeadBoundary = bodyLen / ( bodyLen + headLen);
+	if (t < bodyHeadBoundary) {
+		// we calculate the body
+
+		double localT = t/bodyHeadBoundary;
+
+		// compute bezier curve from base to body
+		Pose result = bezierCurve(localT, basePose , supportBase, bodyPose, supportBaseBody);
+		// result.orientation.z = t*radians(10);
+		return result;
 	}
+	// we calculate the head
 
-	double t = (z-bodyPose.position.z)/(headPose.position.z) ;
-	return bodyPose.position + headPose.position*t;
-	// return bodyPose.position + bezierCurve(t, basePose.position, bodyPose.position, bodyPose.position, basePose.position);
+
+
+	double localT = (t-bodyHeadBoundary)/(1.0-bodyHeadBoundary);
+	return bodyPose + headPose*localT;
+
+	// return bodyPose.position + bezierCurve(t, basePose.position, supportBodyBase, headPose.position, supportHeadBody);
 }

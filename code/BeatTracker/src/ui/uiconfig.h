@@ -41,7 +41,8 @@ static const GLfloat glChickenHeadColor[] 				= GL_COLOR_4v(WhiteAluminium, glAl
 static const GLfloat glChickenEyeBallsColor[] 			= GL_COLOR_4v(PureWhite, glAlphaSolid );
 static const GLfloat glChickenEyeIrisColor[] 			= GL_COLOR_4v(BlackBrown, glAlphaSolid );
 static const GLfloat glChickenBeak[] 					= GL_COLOR_4v(OrientRed, glAlphaSolid );
-static const GLfloat glBodyColor[] 						= GL_COLOR_4v(BrownBeige, glAlphaTransparent );
+static const GLfloat glBodyColor[] 						= GL_COLOR_4v(BrownGrey, glAlphaTransparent );
+static const GLfloat glGridColor[] 						= GL_COLOR_4v(YellowGrey, glAlphaSolid );
 
 
 #endif /* UI_UICONFIG_H_ */
