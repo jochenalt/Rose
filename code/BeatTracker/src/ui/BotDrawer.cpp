@@ -100,7 +100,7 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 	glRotatef(degrees(bodyPose.orientation.x), 1.0,0.0,0.0);
 
 
-	// we are in the frame of the plate, so draw servos of second stewart platform
+	// current frame is body plate, now draw servo arms towards of head plate
 	for (int i = 0;i<6;i++) {
 		// render the servo arm
 		glPushMatrix();
@@ -132,13 +132,13 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 
 	glPopMatrix();
 
-	// draw body as volume of revolution
-	body.set(60,70,20, 80, 60);
-	body.setDiamonds(false);
+	// draw body as flexible volume of revolution along a bezier curve
+	body.set(60,70,20, 80, 60); //
+	body.setDiamondTexture(false);	// use diamonds or checks as texture
 	body.display(Pose(), bodyPose, headPose, glBodyColor1, glBodyColor2, glGridColor);
 
-	glPopMatrix();
-	glPopAttrib();
+	glPopMatrix(); // restore old model matrix
+	glPopAttrib(); // restore old color
 }
 
 

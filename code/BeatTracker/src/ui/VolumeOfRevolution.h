@@ -25,7 +25,7 @@ public:
 
    }
 
-   void setDiamonds(bool ok) { useDiamonds = ok; };
+   void setDiamondTexture(bool ok) { useDiamonds = ok; };
  protected:
 
    bool useDiamonds;

@@ -371,7 +371,6 @@ TotalBodyPose Move::shoulderCircle(double movePercentage) {
 	double startPhase =  latencyShift;
 	double mShoulderY = baseCurveCos(scaleMove(movePercentage, 2.0,2.8+startPhase));
 	double mShoulderX = baseCurveCos(scaleMove(movePercentage, 2.0,1.0 + 2.8+startPhase));
-	// cout << std::fixed << std::setprecision(3) << "s=" << scaleMove(movePercentage, 2.0,2.8+startPhase) << "|" << baseCurveCos(scaleMove(movePercentage, 2.0,2.8+startPhase)) << endl;
 
 	return absHead (
 			Pose(Point(0,0,bodyHeight),Rotation (radians(10)*mShoulderY,radians(10)*mShoulderX,0)),
@@ -386,7 +385,7 @@ TotalBodyPose Move::shoulderDipMove(double movePercentage) {
 	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.75)));
 
 	return absHead (
-			Pose(Point(0,mBaseMove*10.0,bodyHeight+mDip*10.0),Rotation (radians(10)*mShoulderMove,0,0)),
+			Pose(Point(0,mBaseMove*10.0,bodyHeight-mDip*10.0),Rotation (radians(10)*mShoulderMove,0,0)),
 			Pose(Point(0,-mShoulderMove*20.0,headHeight),Rotation (0,0,0)));
 }
 
