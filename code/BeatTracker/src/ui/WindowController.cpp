@@ -30,9 +30,14 @@ int dancingModeLiveVar[DanceMoveRows] = { 0,0 };
 GLUI_RadioGroup* currentSequenceModeWidget = NULL;
 int currentSequenceModeLiveVar = 0;
 
+WindowController instance;
 
-/* Handler for window-repaint event. Call back when the window first appears and
- whenever the window needs to be re-painted. */
+WindowController& WindowController::getInstance() {
+	return instance;
+}
+
+// Handler for window-repaint event. Call back when the window first appears and
+// whenever the window needs to be re-painted.
 void displayMainView() {
 }
 

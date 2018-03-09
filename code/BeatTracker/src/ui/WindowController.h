@@ -26,11 +26,7 @@ public:
 		uiReady = false;
 	};
 
-	static WindowController& getInstance() {
-			static WindowController instance;
-			return instance;
-	}
-
+	static WindowController& getInstance();
 	bool readyForControllerEvent();
 	bool isReady() { return uiReady; };
 	bool setup(int argc, char** argv);
