@@ -21,6 +21,7 @@ VolumeOfRevolution::VolumeOfRevolution()
     headLen = 0;
     bodyLen = 0;
     baseRadius = 0;
+    useDiamonds = false;
 }
 
 
@@ -29,7 +30,7 @@ VolumeOfRevolution::~VolumeOfRevolution()
 }
 
 
-void VolumeOfRevolution::display(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, const GLfloat* color, const GLfloat* gridColor )
+void VolumeOfRevolution::display(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, const GLfloat* bodyColor1,const GLfloat* bodyColor2, const GLfloat* gridColor )
 {
 	glPushAttrib(GL_CURRENT_BIT);
 	glPushMatrix();
@@ -43,18 +44,21 @@ void VolumeOfRevolution::display(const Pose& basePose, const Pose& bodyPose, con
    rotationTrans = createRotationMatrix(centre.orientation);
    glPushMatrix();
 
-   bool oddLine = true;
+   bool oddLine = false;
    for ( float t = 0; t <= 1.0; t += 1.0/numSegments ) {
+	   oddLine = !oddLine;
 	   double r1 = getRadius( basePose, bodyPose, headPose, t);
 	   centre1 = getCentrePose( basePose, bodyPose, headPose, t);
 	   HomogeneousMatrix rotationTrans1 = createRotationMatrix(centre1.orientation);
 
 
-	   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color);
-	   glColor4fv(color);
+	   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, bodyColor1);
+	   glColor4fv(bodyColor1);
 
 	   glBegin( GL_QUAD_STRIP);
+	   bool oddRow = false;
 	   for ( float angle = 0; angle <= M_PI*2.0 + 0.01; angle += 2.0*M_PI / numAngles) {
+		   oddRow = !oddRow;
 		   double sina = sin(angle);
 		   double cosa = cos(angle);
 
@@ -66,42 +70,65 @@ void VolumeOfRevolution::display(const Pose& basePose, const Pose& bodyPose, con
 		   HomogeneousMatrix circleTrans1 = rotationTrans1*createTransformationMatrix(circle1);
 		   Point target1 = getPointByTransformationMatrix(circleTrans1) + Point(0,0,centre1.position.z);
 
-		  // 1  3  4
-		  // 2  4  5 ...
-		  glVertex3f (target.y, target.z, target.x);
-		  glVertex3f (target1.y, target1.z, target1.x);
-
+		   if (oddRow) {
+			   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, bodyColor2);
+			   glColor4fv(bodyColor2);
+		   } else {
+			   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, bodyColor1);
+			   glColor4fv(bodyColor1);
+		   }
+		   // 1  3  4
+		   // 2  4  5 ...
+		   glVertex3f (target.y, target.z, target.x);
+		   glVertex3f (target1.y, target1.z, target1.x);
 	   }
 	   glEnd();
 	   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, gridColor);
 	   glColor4fv(gridColor);
 	   glBegin( GL_LINE_STRIP  );
-	   float startAngle = oddLine?0:M_PI / numAngles;
-	   // oddLine = !oddLine;
+	   oddRow = false;
+	   float startAngle = (oddLine && useDiamonds)?M_PI / numAngles:0;
 	   for ( float angle = startAngle; angle <= M_PI*2.0+startAngle + 0.01; angle += 2.0*M_PI / numAngles) {
-		   double sina = sin(angle);
-		   double cosa = cos(angle);
+		   oddRow = !oddRow;
 
-		   double sin1a = sin(angle + 2.0* M_PI / numAngles);
-		   double cos1a = cos(angle + 2.0*M_PI / numAngles);
+		   double sina = sin(angle);
+  		   double cosa = cos(angle);
 
 		   Point circle ((r+1) * cosa + centre.position.x, (r+1) * sina + centre.position.y, 0);
 		   HomogeneousMatrix circleTrans = rotationTrans*createTransformationMatrix(circle);
 		   Point target = getPointByTransformationMatrix(circleTrans) + Point(0,0,centre.position.z);
 
-		   Point circle1 ((r1+1) * cosa + centre1.position.x, (r1+1) * sina + centre1.position.y, 0);
-		   HomogeneousMatrix circleTrans1 = rotationTrans1*createTransformationMatrix(circle1);
-		   Point target1 = getPointByTransformationMatrix(circleTrans1) + Point(0,0,centre1.position.z);
+		   if (useDiamonds) {
+			   //   2
+			   // 1    .
 
-		   Point circle2 ((r1+1) * cos1a + centre1.position.x, (r1+1) * sin1a + centre1.position.y, 0);
-		   HomogeneousMatrix circleTrans2 = rotationTrans1*createTransformationMatrix(circle2);
-		   Point target2 = getPointByTransformationMatrix(circleTrans2) + Point(0,0,centre1.position.z);
+	  		   double sin1a = sin(angle + M_PI / numAngles);
+	  		   double cos1a = cos(angle + M_PI / numAngles);
 
-		   // 2  3
-		   // 1    .
-		   glVertex3f (target.y, target.z, target.x);
-		   glVertex3f (target1.y, target1.z, target1.x);
-		   glVertex3f (target2.y, target2.z, target2.x);
+	  		   Point circle1 ((r1+1) * cos1a + centre1.position.x, (r1+1) * sin1a + centre1.position.y, 0);
+	  		   HomogeneousMatrix circleTrans1 = rotationTrans1*createTransformationMatrix(circle1);
+	  		   Point target1 = getPointByTransformationMatrix(circleTrans1) + Point(0,0,centre1.position.z);
+
+			   glVertex3f (target.y, target.z, target.x);
+			   glVertex3f (target1.y, target1.z, target1.x);
+		   } else {
+
+			   Point circle1 ((r1+1) * cosa + centre1.position.x, (r1+1) * sina + centre1.position.y, 0);
+			   HomogeneousMatrix circleTrans1 = rotationTrans1*createTransformationMatrix(circle1);
+			   Point target1 = getPointByTransformationMatrix(circleTrans1) + Point(0,0,centre1.position.z);
+
+			   // 2  3  6
+			   // 1  4  5
+			   if (oddRow) {
+				   glVertex3f (target.y, target.z, target.x);
+				   glVertex3f (target1.y, target1.z, target1.x);
+			   }
+			   else {
+				   glVertex3f (target1.y, target1.z, target1.x);
+				   glVertex3f (target.y, target.z, target.x);
+			   }
+			   // glVertex3f (target2.y, target2.z, target2.x);
+		   }
 	   }
 	   glEnd();
 
