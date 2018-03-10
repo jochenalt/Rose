@@ -40,6 +40,12 @@ bool runUI = false;
 bool playback = true;
 
 
+string getCmdOption(char ** begin, int argc, int i ) {
+	assert ((i>=0) && (i<argc));
+	char** arg = begin + i;
+	return string(*arg);
+}
+
 char* getCmdOption(char ** begin, char ** end, const std::string & option)
 {
     char ** itr = std::find(begin, end, option);
@@ -227,7 +233,7 @@ typedef void (*MoveCallbackFct)(bool beat, double Bpm);
 
 
 int main(int argc, char *argv[]) {
-	// print help
+	// exit correctly when exception arises
 	std::set_terminate([](){
 		std::cout << "Unhandled exception\n"; std::abort();
 #ifdef USE_OPENGL_UI
@@ -240,51 +246,58 @@ int main(int argc, char *argv[]) {
 	// catch SIGINT (ctrl-C)
     signal (SIGINT,signalHandler);
 
-	char * arg = getCmdOption(argv, argv + argc, "-f");
     string trackFilename;
-    if(arg != NULL) {
-    	trackFilename = string(arg);
-    }
-
-    if (cmdOptionExists(argv, argv + argc, "-h")) {
-    	printUsage();
-    }
-
-    if (cmdOptionExists(argv, argv + argc, "-t")) {
-    	ServoController::getInstance().calibrateViaKeyBoard();
-    }
-
-
-    if (cmdOptionExists(argv, argv + argc, "-s")) {
-    	playback = false;
-    }
-
-    arg = getCmdOption(argv, argv + argc, "-v");
     int volumeArg = 20;
-    if(arg != NULL) {
-    	volumeArg  = atoi(arg);
-    	if ((volumeArg < 0) || (volumeArg > 100))
-    	{
-    		cerr << "volume (" << volumeArg << ") has to be within [0..100]" << endl;
-    		exit(1);
-    	}
-    	cout << "volume " << volumeArg << endl;
-
-    }
-
-    arg = getCmdOption(argv, argv + argc, "-i");
     int startAfterNBeats = 4;
-    if(arg != NULL) {
-    	startAfterNBeats  = atoi(arg);
-    	if ((startAfterNBeats < 2))
-    	{
-    		cerr << "number of beats I await needs to be >= 2] but is (" << startAfterNBeats << endl;
+
+    for (int i = 1;i<argc;i++) {
+    	string arg = getCmdOption(argv, argc,i);
+    	if (arg == "-f") {
+    		if (i+1 >= argc) {
+    			cerr << "-f requires a filename" << endl;
+    			exit(1);
+    		}
+    		trackFilename = getCmdOption(argv, argc, i+1);
+    		i++;
+    	} else if (arg == "-h") {
+    	    	printUsage();
+    	} else if (arg == "-t") {
+	    	ServoController::getInstance().calibrateViaKeyBoard();
+	    } else if (arg == "-s") {
+	    	playback = false;
+    	} else if (arg == "-v") {
+    		if (i+1 >= argc) {
+    			cerr << "-v requires a number 0..100" << endl;
+    			exit(1);
+    		}
+    		arg = getCmdOption(argv, argc, i+1);
+    		i++;
+        	volumeArg  = atoi(arg.c_str());
+        	if ((volumeArg < 0) || (volumeArg > 100))
+        	{
+        		cerr << "volume (" << volumeArg << ") has to be within [0..100]" << endl;
+        		exit(1);
+        	}
+    	} else if (arg == "-i") {
+    		if (i+1 >= argc) {
+    			cerr << "-i requires a number" << endl;
+    			exit(1);
+    		}
+    		arg = getCmdOption(argv, argc, i+1);
+    		startAfterNBeats  = atoi(arg.c_str());
+    		if (startAfterNBeats <2) {
+    			cerr << "-i requires a number >=2" << endl;
+    			exit(1);
+    		}
+    	} else if (arg == "-ui") {
+    	    runUI = true;
+    	} else {
+    		cerr << "unknown option " << arg << endl;
     		exit(1);
     	}
-    	cout << "starting after " << startAfterNBeats << " beats." << endl;
+
     }
 
-    runUI = cmdOptionExists(argv, argv + argc, "-ui");
 
 	BodyKinematics::getInstance().setup();
     MoveMaker::getInstance().setup();

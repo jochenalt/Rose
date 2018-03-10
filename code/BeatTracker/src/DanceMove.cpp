@@ -164,12 +164,12 @@ TotalBodyPose Move::travoltaHeadNicker(double movePercentage) {
 	double startPhase =  latencyShift;
 
 	// used move curves
-	double mBase = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase + 0.5));
+	double mBase = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase));
 	double mUpDown = baseCurveTrapezoid(scaleMove(movePercentage, 2.0, 1.0 + startPhase));
 
 	return absHead (
-				Pose(Point(0,15*mBase,bodyHeight + 10.0*mBase),Rotation (0,-radians(15)*mUpDown,radians(20)*mUpDown)),
-				Pose(Point(0,0,headHeight),Rotation (0,-radians(20)*mUpDown,radians(25)*mUpDown)));
+				Pose(Point(mUpDown*20.0,15*mBase,bodyHeight + 10.0*mBase),Rotation (0,-radians(10)*mUpDown,radians(10)*mUpDown)),
+				Pose(Point(-mUpDown*30.0,0,headHeight),Rotation (0,-radians(25)*mUpDown,radians(25)*mUpDown)));
 
 }
 
@@ -382,10 +382,11 @@ TotalBodyPose Move::shoulderDipMove(double movePercentage) {
 	double mBaseMove  = baseCurveFatCos(scaleMove(movePercentage, 1.0,startPhase));
 
 	double mShoulderMove  = baseCurveFatCos(scaleMove(movePercentage, 2.0,2.8+startPhase));
-	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.75)));
+	double mDip  = (baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.75)));
+	double mDipAbs  = fabs(mDip);
 
 	return absHead (
-			Pose(Point(0,mBaseMove*10.0,bodyHeight-mDip*10.0),Rotation (radians(10)*mShoulderMove,0,0)),
+			Pose(Point(0,mDip*20.0,bodyHeight+10.0-mDipAbs*20.0),Rotation (radians(10)*mShoulderMove,0,0)),
 			Pose(Point(0,-mShoulderMove*20.0,headHeight),Rotation (0,0,0)));
 }
 
