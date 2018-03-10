@@ -1,10 +1,10 @@
 
-code/BeatTracker/Debug/
-
-code/eclipse-workspace/\.metadata/
-CAD/OldVersions/
 *.lck
 ~$*.*
+code/BeatTracker/Debug/
+code/eclipse-workspace/\.metadata/
+CAD/OldVersions/
 CAD/ODroid C2/OldVersions/
 CAD/Teensy 3.5-3.6/OldVersions/
-CAD/KST DS215MG/OldVersions/
+CAD/OldVersions/
+CAD/Components/OldVersions/
