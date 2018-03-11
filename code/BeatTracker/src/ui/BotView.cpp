@@ -5,6 +5,7 @@
  */
 
 
+#include <BotRenderer.h>
 #include <thread>
 
 #include <GL/gl.h>
@@ -22,7 +23,6 @@
 #include <WindowController.h>
 #include "MoveMaker.h"
 
-#include "BotDrawer.h"
 #include "uiconfig.h"
 
 using namespace std;

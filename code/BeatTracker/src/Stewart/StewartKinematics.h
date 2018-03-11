@@ -23,9 +23,12 @@ struct StewartConfiguration {
 
 	double rodLength_mm;				// length of the rod between base and plate
 	double servoArmLength_mm; 		    // length of the servo lever
-	double servoCentreHeight_mm;		// height of servo centre from the ground
+	double servoCentreHeight_mm;		// height of servo centre from the base platforms origin
 
-	double plateBallJointHeight_mm;		// height of the plate relative to the ball joints
+	double plateBallJointHeight_mm;		// height of the plate's origin relative to the ball joints
+
+	double bottomPlatformRadius_mm;		// radius of base platform where the clothes are mounted on
+	double topPlatformRadius_mm;		// radius of top platform where the clothes are mounted on
 
 	double bottomServoLimit_rad;		// limit of servo against horizontal axis when turning up
 	double topServoLimit_rad;			// limit of servo against horizontal axis when turning down

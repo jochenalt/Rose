@@ -5,13 +5,13 @@
  */
 
 
+#include <BotRenderer.h>
 #include <GL/gl.h>
 #include <GL/freeglut.h>
 #include <GL/glut.h>
 #include <GL/glui.h>
 
 #include "basics/stringhelper.h"
-#include <BotDrawer.h>
 #include <Stewart/StewartKinematics.h>
 #include <Stewart/BodyKinematics.h>
 
@@ -21,7 +21,7 @@
 #include "basics/spatial.h"
 
 
-void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
+void BotRenderer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 	glPushAttrib(GL_CURRENT_BIT);
 	glPushMatrix();
 
@@ -134,7 +134,9 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 
 	// draw body as flexible volume of revolution along a bezier curve
 	if (!isStripper) {
-		body.set(65,65,50, 80, 60); //
+		double r1,r2,r3, h1,h2;
+		BodyKinematics::getInstance().getPlatformMetrics(r1,r2,r3, h1,h2);
+		body.set(r1, r2, r3, h1, h2); //
 		body.display(Pose(), bodyPose, headPose, glBodyColor1, glBodyColor2, glGridColor);
 	}
 
@@ -143,16 +145,17 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 }
 
 
-void BotDrawer::readSTLFiles(string path) {
+void BotRenderer::readSTLFiles(string path) {
 	head.loadFile(path + "/Head.stl");
 	eyeBall.loadFile(path + "/Eyes.stl");
 	iris.loadFile(path + "/Iris.stl");
 
-	baseStewart.loadFile(path + "/BaseStewart.stl");
+	baseStewart.loadFile(path + "/BottomPlatform.stl");
 	baseStewartRod.loadFile(path + "/BaseStewartRod.stl");
 	baseStewartServoArm.loadFile(path + "/BaseStewartServoArm.stl");
+	stewartPlate.loadFile(path + "/IntermediatePlatform.stl");
 
-	stewartPlate.loadFile(path + "/Stewart-Body.stl");
+
 	stewartRod.loadFile(path + "/Stewart-Head-Rod.stl");
 
 	stewartHead.loadFile(path + "/Stewart-Head.stl");
@@ -160,7 +163,7 @@ void BotDrawer::readSTLFiles(string path) {
 
 }
 
-void BotDrawer::setup() {
+void BotRenderer::setup() {
 	static bool setupDone = false;
 	if (!setupDone) {
 		// search for stl files
