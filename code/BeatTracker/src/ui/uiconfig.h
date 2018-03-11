@@ -26,23 +26,33 @@ const int InteractiveWindowHeight=200;			// height of the interactive window
 const float glAlphaSolid = 1.0;
 const float glAlphaTransparent = 0.5;
 
+//  colors of map, raster and coordinate system
 static const GLfloat glCoordSystemAreaColor4v[]			= GL_COLOR_4v(TeleGrey4, glAlphaSolid );
 static const GLfloat glCoordSystemAxisColor4v[] 		= GL_COLOR_4v(PearlMouseGrey, glAlphaSolid );
 static const GLfloat glRasterColor4v[] 					= GL_COLOR_4v(GraniteGrey, glAlphaSolid );
-
 static const GLfloat glMapBackgroundColor4v[]		    = GL_COLOR_4v( AnthraciteGrey, 0.01);
 static const GLfloat glMapAreaColor4v[]		    		= GL_COLOR_4v( AnthraciteGrey, glAlphaTransparent);
+
+// colors of stewart platform
 static const GLfloat glBallJointColor[] 				= GL_COLOR_4v(YellowGrey, glAlphaSolid );
 static const GLfloat glServoArmColor[] 					= GL_COLOR_4v(GreenBlue, glAlphaSolid );
-static const GLfloat glServoCentreColor[] 				= GL_COLOR_4v(WhiteAluminium, glAlphaSolid );
 static const GLfloat glStewartRodColor[] 				= GL_COLOR_4v(GraniteGrey, glAlphaSolid );
 static const GLfloat glStewartPlateColor[] 				= GL_COLOR_4v(GreyBeige, glAlphaSolid );
+
+// colors of head
 static const GLfloat glHeadColor[] 						= GL_COLOR_4v(NutBrown, glAlphaSolid );
 static const GLfloat glEyeBallsColor[] 					= GL_COLOR_4v(BlackOlive, glAlphaSolid );
 static const GLfloat glIrisColor[] 						= GL_COLOR_4v(PebbleGrey, glAlphaSolid );
-static const GLfloat glBodyColor1[] 					= GL_COLOR_4v(BrownGrey, glAlphaTransparent );
-static const GLfloat glBodyColor2[] 					= GL_COLOR_4v(WhiteAluminium, glAlphaTransparent );
-static const GLfloat glGridColor[] 						= GL_COLOR_4v(YellowGrey, glAlphaSolid );
+
+// colors of body in transparent mode
+static const GLfloat glTranspBodyColor1[] 				= GL_COLOR_4v(NutBrown, glAlphaTransparent );
+static const GLfloat glTranspBodyColor2[] 				= GL_COLOR_4v(WhiteAluminium, glAlphaTransparent );
+static const GLfloat glTranspGridColor[] 				= GL_COLOR_4v(YellowGrey, glAlphaSolid );
+
+// colors of body in non-transparent mode
+static const GLfloat glBodyColor[] 						= GL_COLOR_4v(NutBrown, glAlphaSolid );
+static const GLfloat glGridColor[] 						= GL_COLOR_4v(SepiaBrown, glAlphaSolid );
+
 
 
 #endif /* UI_UICONFIG_H_ */

@@ -30,10 +30,13 @@ int dancingModeLiveVar[DanceMoveRows] = { 0,0 };
 GLUI_RadioGroup* currentSequenceModeWidget = NULL;
 int currentSequenceModeLiveVar = 0;
 
-GLUI_Checkbox* clothesOnCheckbox;
+GLUI_RadioGroup* stripperRadioButtons = NULL;
 int clothesOnLiveVar = 0;
 
-GLUI_Spinner* ambitionSpinner;
+GLUI_Checkbox* transparentCheckbox = NULL;
+int transparentLiveVar = 0;
+
+GLUI_Spinner* ambitionSpinner = NULL;
 int ambitionLiveVar = 0;
 
 WindowController instance;
@@ -132,7 +135,7 @@ void currentSequenceModeCallback(int widgetNo) {
 }
 
 void clothesOnCallback(int widgetNo) {
-	WindowController::getInstance().mainBotView.getBotRenderer().setStripper(clothesOnLiveVar);
+	WindowController::getInstance().mainBotView.getBotRenderer().setClothingMode((BotRenderer::ClothingModeType)clothesOnLiveVar);
 }
 
 void ambitionCallback(int widgetNo) {
@@ -190,8 +193,10 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 	GLUI_Panel* clothesPanel= new GLUI_Panel(interactiveModePanel,"Clothes", GLUI_PANEL_NONE);
 	clothesPanel->set_alignment(GLUI_ALIGN_LEFT);
-	GLUI_Checkbox* stripperCheckbox = new GLUI_Checkbox(clothesPanel, "strip",&clothesOnLiveVar, 0, clothesOnCallback);
-	stripperCheckbox->set_alignment(GLUI_ALIGN_LEFT);
+	stripperRadioButtons =  new GLUI_RadioGroup(clothesPanel, &clothesOnLiveVar, 0, clothesOnCallback);
+	new GLUI_RadioButton(stripperRadioButtons, "full clothed");
+	new GLUI_RadioButton(stripperRadioButtons, "slutty");
+	new GLUI_RadioButton(stripperRadioButtons, "naked");
 
 	GLUI_Panel* ambitionPanel= new GLUI_Panel(interactiveModePanel,"Ambition", GLUI_PANEL_NONE);
 	ambitionPanel->set_alignment(GLUI_ALIGN_LEFT);

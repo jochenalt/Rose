@@ -18,7 +18,7 @@ StewartConfiguration bodyStewartConfig = {"body",
 										  74.0,   				// rodLength_mm
 										  29.478,				// servoArmLength_mm
 										  31.2,					// servoCentreHeight_mm
-										  3.595,				// plateBallJointHeight_mm
+										  4.0,					// plateBallJointHeight_mm
 										  65.0, 				// bottomPlatformRadius_mm
 										  65.0, 				// topPlatformRadius_mm
 										  radians(60.0),		// topServoLimit_rad
@@ -27,18 +27,18 @@ StewartConfiguration bodyStewartConfig = {"body",
 
 
 StewartConfiguration headStewartConfig = {"head",
-		                                  16.955, 				// servoCentreRadius_mm
-										  radians(21.277),		// servoCentreAngle_rad
-										  22.41, 				// servoArmCentreRadius_mm (for rendering only)
-										  radians(15.93),		// servoArmCentreAngle_mm (for rendering only)
-										  16.134,				// plateJointRadius_mm
-										  radians(12.53),		// plateJointAngle_rad
+										  27.354, 				// servoCentreRadius_mm
+										  radians(12.83),		// servoCentreAngle_rad
+										  35.211, 				// servoArmCentreRadius_mm (for rendering only)
+										  radians(9.93),		// servoArmCentreAngle_mm (for rendering only)
+										  28.036,				// plateJointRadius_mm
+										  radians(8.2),		    // plateJointAngle_rad
 										  69.0,				    // rodLength_mm
-										  17.0,					// servoArmLength_mm
-										  25.0,   	 		    // servoCentreHeight_mm
+										  29.478,				// servoArmLength_mm
+										  24.450,  	 		    // servoCentreHeight_mm
 										  4.0,					// plateBallJointHeight_mm
 										  65.0, 				// bottomPlatformRadius_mm
-										  65.0, 				// topPlatformRadius_mm
+										  45.0, 				// topPlatformRadius_mm
 										  radians(60.0),		// topServoLimit_rad
 										  radians(90.0)			// bottomServoLimit_rad
 
@@ -55,7 +55,7 @@ BodyKinematics::~BodyKinematics() {
 void BodyKinematics::getPlatformMetrics(double& basePlatformRadius, double &intermediatePlatformRadius, double& topPlatformRadius, double& bottomRodLength, double & topRodLength) {
 	basePlatformRadius = bodyStewartConfig.bottomPlatformRadius_mm;
 	intermediatePlatformRadius = bodyStewartConfig.topPlatformRadius_mm;
-	topPlatformRadius = headStewartConfig.bottomPlatformRadius_mm;
+	topPlatformRadius = headStewartConfig.topPlatformRadius_mm;
 	bottomRodLength = bodyStewartConfig.rodLength_mm;
 	topRodLength = headStewartConfig.rodLength_mm;
 
