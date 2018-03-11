@@ -15,7 +15,7 @@ StewartConfiguration bodyStewartConfig = {"body",
 										  radians(9.93),		// servoArmCentreAngle_mm (for rendering only)
 										  39.071,				// plateJointRadius_mm
 										  radians(7.35),		// plateJointAngle_rad
-										  74.0,   				// rodLength_mm
+										  94.0,   				// rodLength_mm
 										  29.478,				// servoArmLength_mm
 										  31.2,					// servoCentreHeight_mm
 										  3.595,				// plateBallJointHeight_mm

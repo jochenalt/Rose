@@ -89,7 +89,7 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 
 		glRotatef(degrees(zRotation), 0.0,0.0,1.0);
 		glRotatef(degrees(xRotation), 0.0,1.0,0.0);
-		stewartRod.display(glStewartRodColor,glStewartRodColor);
+		baseStewartRod.display(glStewartRodColor,glStewartRodColor);
 		glPopMatrix();
 	}
 
@@ -126,7 +126,7 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 
 		glRotatef(degrees(zRotation), 0.0,0.0,1.0);
 		glRotatef(degrees(xRotation), 0.0,1.0,0.0);
-		baseStewartRod.display(glStewartRodColor,glStewartRodColor);
+		stewartRod.display(glStewartRodColor,glStewartRodColor);
 		glPopMatrix();
 	}
 
@@ -153,7 +153,7 @@ void BotDrawer::readSTLFiles(string path) {
 	baseStewartServoArm.loadFile(path + "/BaseStewartServoArm.stl");
 
 	stewartPlate.loadFile(path + "/Stewart-Body.stl");
-	stewartRod.loadFile(path + "/Stewart-Body-Rod.stl");
+	stewartRod.loadFile(path + "/Stewart-Head-Rod.stl");
 
 	stewartHead.loadFile(path + "/Stewart-Head.stl");
 	stewartSmallServoArm.loadFile(path + "/Stewart-Head-Servo-Arm.stl");
