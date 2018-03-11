@@ -58,6 +58,7 @@ public:
 	// return current move
 	Move::MoveType getCurrentMove()  { return currentMove; };
 
+	void setAmbition(int percentage) { ambition = percentage/100.0; };
 private:
 	void doNewMove();
 	void createMove(double movePercentage);
@@ -68,6 +69,7 @@ private:
 	SequenceModeType sequenceMode;
 	vector<Move> moveLibrary;
 	int startAfterNBeats;
+	double ambition = 0.5;
 };
 
 #endif /* MOVEMAKER_H_ */

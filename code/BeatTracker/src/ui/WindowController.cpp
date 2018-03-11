@@ -16,7 +16,7 @@
 using namespace std;
 
 // Initial main window size
-int WindowWidth = 600;
+int WindowWidth = 900;
 int WindowHeight = 800;
 
 // GLUI Window handlers
@@ -29,6 +29,12 @@ int dancingModeLiveVar[DanceMoveRows] = { 0,0 };
 
 GLUI_RadioGroup* currentSequenceModeWidget = NULL;
 int currentSequenceModeLiveVar = 0;
+
+GLUI_Checkbox* clothesOnCheckbox;
+int clothesOnLiveVar = 0;
+
+GLUI_Spinner* ambitionSpinner;
+int ambitionLiveVar = 0;
 
 WindowController instance;
 
@@ -125,16 +131,27 @@ void currentSequenceModeCallback(int widgetNo) {
 	MoveMaker::getInstance().setSequenceMode((MoveMaker::SequenceModeType)currentSequenceModeLiveVar);
 }
 
+void clothesOnCallback(int widgetNo) {
+	WindowController::getInstance().mainBotView.getBotRenderer().setStripper(clothesOnLiveVar);
+}
+
+void ambitionCallback(int widgetNo) {
+	MoveMaker::getInstance().setAmbition(ambitionLiveVar);
+}
 GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	GLUI *windowHandle= GLUI_Master.create_glui_subwindow( wMain,  GLUI_SUBWINDOW_BOTTOM);
 	windowHandle->set_main_gfx_window( wMain );
+	GLUI_StaticText* text = NULL;
 
 	GLUI_Panel* interactivePanel = new GLUI_Panel(windowHandle,"interactive panel", GLUI_PANEL_NONE);
-	GLUI_StaticText* text = NULL;
+	GLUI_Panel* movePanel = new GLUI_Panel(interactivePanel,"Move Panel", GLUI_PANEL_RAISED);
+	text = new GLUI_StaticText(movePanel, "MOVE CONSOLE");
+	GLUI_Panel* moveRowsPanel = new GLUI_Panel(movePanel,"Move Panel", GLUI_PANEL_NONE);
+
 	GLUI_Panel* dancingModePanel[DanceMoveRows];
 	int moveCounter = 0;
 	for (int row = 0;row < DanceMoveRows; row++) {
-		dancingModePanel[row] = new GLUI_Panel(interactivePanel,"Dancing Mode Panel", GLUI_PANEL_RAISED);
+		dancingModePanel[row] = new GLUI_Panel(moveRowsPanel,"Dancing Mode Panel", GLUI_PANEL_NONE);
 
 		currentDancingModeWidget[row] =  new GLUI_RadioGroup(dancingModePanel[row], dancingModeLiveVar + row, row, currentDancingMoveCallback);
 
@@ -152,18 +169,37 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 		}
 
 		// add a column for next row
-		if (row < DanceMoveRows)
-			windowHandle->add_column_to_panel(interactivePanel, false);
+		if (row < DanceMoveRows) {
+			windowHandle->add_column_to_panel(moveRowsPanel, false);
+		}
 
 	}
+	windowHandle->add_column_to_panel(interactivePanel, false);
 
-	GLUI_Panel* sequenceModePanel= new GLUI_Panel(interactivePanel,"Sequence Mode", GLUI_PANEL_RAISED);
-	text = new GLUI_StaticText(sequenceModePanel,"Sequence Move");
+	GLUI_Panel* interactiveModePanel = new GLUI_Panel(interactivePanel,"mode panel", GLUI_PANEL_RAISED);
+	interactiveModePanel->set_alignment(GLUI_ALIGN_LEFT);
+	text = new GLUI_StaticText(interactiveModePanel, "MODE CONSOLE");
 	text->set_alignment(GLUI_ALIGN_LEFT);
+
+	GLUI_Panel* sequenceModePanel= new GLUI_Panel(interactiveModePanel,"Sequence Mode", GLUI_PANEL_NONE);
+	sequenceModePanel->set_alignment(GLUI_ALIGN_LEFT);
 
 	currentSequenceModeWidget =  new GLUI_RadioGroup(sequenceModePanel, &currentSequenceModeLiveVar, 0, currentSequenceModeCallback);
 	new GLUI_RadioButton(currentSequenceModeWidget, "Automated Sequence");
 	new GLUI_RadioButton(currentSequenceModeWidget, "Selected Dance Move");
+
+	GLUI_Panel* clothesPanel= new GLUI_Panel(interactiveModePanel,"Clothes", GLUI_PANEL_NONE);
+	clothesPanel->set_alignment(GLUI_ALIGN_LEFT);
+	GLUI_Checkbox* stripperCheckbox = new GLUI_Checkbox(clothesPanel, "strip",&clothesOnLiveVar, 0, clothesOnCallback);
+	stripperCheckbox->set_alignment(GLUI_ALIGN_LEFT);
+
+	GLUI_Panel* ambitionPanel= new GLUI_Panel(interactiveModePanel,"Ambition", GLUI_PANEL_NONE);
+	ambitionPanel->set_alignment(GLUI_ALIGN_LEFT);
+	GLUI_Spinner* ambitionSpinner = new GLUI_Spinner(ambitionPanel, "ambition",&ambitionLiveVar, 0, ambitionCallback);
+	ambitionSpinner->set_alignment(GLUI_ALIGN_LEFT);
+	ambitionSpinner->set_int_limits(0,100);
+	ambitionSpinner->set_int_val(50);
+
 
 	return windowHandle;
 }

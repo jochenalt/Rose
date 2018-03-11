@@ -15,7 +15,7 @@
 #include <vector>
 
 
-const double bodyHeight = 95.0;
+const double bodyHeight = 125.0;
 const double headHeight = 70.0;
 
 class Move {

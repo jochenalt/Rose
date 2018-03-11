@@ -38,7 +38,7 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 	glLoadIdentity();             // Reset the model-view matrix to world coordinate system
 	glRotatef(-90, 1.0,0.0,0.0);
 	glRotatef(-90, 0.0,0.0,1.0);
-	stewartBase.display(glStewartPlateColor,glStewartPlateColor);
+	baseStewart.display(glStewartPlateColor,glStewartPlateColor);
 
 	glPushMatrix();
 	// draw body plate
@@ -74,7 +74,7 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 		else
 			glRotatef(-angle, 1.0,0.0,0.0);
 
-		stewartServoArm.display(glServoArmColor,glServoArmColor);
+		baseStewartServoArm.display(glServoArmColor,glServoArmColor);
 		glPopMatrix();
 
 		// render the rod between servo and top plate
@@ -126,15 +126,17 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 
 		glRotatef(degrees(zRotation), 0.0,0.0,1.0);
 		glRotatef(degrees(xRotation), 0.0,1.0,0.0);
-		stewartSmallRod.display(glStewartRodColor,glStewartRodColor);
+		baseStewartRod.display(glStewartRodColor,glStewartRodColor);
 		glPopMatrix();
 	}
 
 	glPopMatrix();
 
 	// draw body as flexible volume of revolution along a bezier curve
-	body.set(65,65,50, 80, 60); //
-	body.display(Pose(), bodyPose, headPose, glBodyColor1, glBodyColor2, glGridColor);
+	if (!isStripper) {
+		body.set(65,65,50, 80, 60); //
+		body.display(Pose(), bodyPose, headPose, glBodyColor1, glBodyColor2, glGridColor);
+	}
 
 	glPopMatrix(); // restore old model matrix
 	glPopAttrib(); // restore old color
@@ -146,12 +148,13 @@ void BotDrawer::readSTLFiles(string path) {
 	eyeBall.loadFile(path + "/Eyes.stl");
 	iris.loadFile(path + "/Iris.stl");
 
-	stewartBase.loadFile(path + "/Stewart-Base.stl");
+	baseStewart.loadFile(path + "/BaseStewart.stl");
+	baseStewartRod.loadFile(path + "/BaseStewartRod.stl");
+	baseStewartServoArm.loadFile(path + "/BaseStewartServoArm.stl");
+
 	stewartPlate.loadFile(path + "/Stewart-Body.stl");
-	stewartServoArm.loadFile(path + "/Stewart-Body-Servo-Arm.stl");
 	stewartRod.loadFile(path + "/Stewart-Body-Rod.stl");
 
-	stewartSmallRod.loadFile(path + "/Stewart-Head-Rod.stl");
 	stewartHead.loadFile(path + "/Stewart-Head.stl");
 	stewartSmallServoArm.loadFile(path + "/Stewart-Head-Servo-Arm.stl");
 

@@ -33,6 +33,8 @@ public:
 	void resetDisplayFlag() { justDisplayed = false; };
 	bool isJustDisplayed() { return justDisplayed; };
 
+	BotDrawer& getBotRenderer() { return botDrawer; }
+
 private:
 	void drawCoordSystem(bool withRaster );
 
