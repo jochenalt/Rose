@@ -21,7 +21,6 @@ VolumeOfRevolution::VolumeOfRevolution()
     headLen = 0;
     bodyLen = 0;
     baseRadius = 0;
-    useDiamonds = false;
 }
 
 
@@ -89,6 +88,7 @@ void VolumeOfRevolution::display(const Pose& basePose, const Pose& bodyPose, con
 	   glColor4fv(gridColor);
 	   glBegin( GL_LINE_STRIP  );
 	   oddRow = false;
+	   bool useDiamonds = false;
 	   float startAngle = (oddLine && useDiamonds)?M_PI / numAngles:0;
 	   for ( float angle = startAngle; angle <= M_PI*2.0+startAngle + 0.01; angle += 2.0*M_PI / numAngles) {
 		   oddRow = !oddRow;

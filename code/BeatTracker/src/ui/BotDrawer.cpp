@@ -56,10 +56,10 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 	stewartHead.display(glStewartPlateColor,glStewartPlateColor);
 
 	// draw chicken head
-	chickenHead.display(glChickenHeadColor,glChickenHeadColor);
-	chickenBeak.display(glChickenBeak,glChickenBeak);
-	chickenEyeBall.display(glChickenEyeBallsColor,glChickenEyeBallsColor);
-	chickenEyeIris.display(glChickenEyeIrisColor,glChickenEyeIrisColor);
+	head.display(glHeadColor,glHeadColor);
+	eyeBall.display(glEyeBallsColor,glEyeBallsColor);
+	iris.display(glIrisColor,glIrisColor);
+
 	glPopMatrix();
 
 	for (int i = 0;i<6;i++) {
@@ -133,8 +133,7 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 	glPopMatrix();
 
 	// draw body as flexible volume of revolution along a bezier curve
-	body.set(60,70,20, 80, 60); //
-	body.setDiamondTexture(false);	// use diamonds or checks as texture
+	body.set(65,65,50, 80, 60); //
 	body.display(Pose(), bodyPose, headPose, glBodyColor1, glBodyColor2, glGridColor);
 
 	glPopMatrix(); // restore old model matrix
@@ -143,10 +142,9 @@ void BotDrawer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 
 
 void BotDrawer::readSTLFiles(string path) {
-	chickenHead.loadFile(path + "/Chickenhead-Head.stl");
-	chickenEyeBall.loadFile(path + "/Chickenhead-Eyeball.stl");
-	chickenEyeIris.loadFile(path + "/Chickenhead-Iris.stl");
-	chickenBeak.loadFile(path + "/Chickenhead-Beak.stl");
+	head.loadFile(path + "/Head.stl");
+	eyeBall.loadFile(path + "/Eyes.stl");
+	iris.loadFile(path + "/Iris.stl");
 
 	stewartBase.loadFile(path + "/Stewart-Base.stl");
 	stewartPlate.loadFile(path + "/Stewart-Body.stl");
@@ -163,15 +161,15 @@ void BotDrawer::setup() {
 	static bool setupDone = false;
 	if (!setupDone) {
 		// search for stl files
-		if (fileExists("./stl/Chickenhead-Beak.stl")) {
+		if (fileExists("./stl/Head.stl")) {
 			readSTLFiles("./stl");
 		} else {
-			if (fileExists("./Chickenhead-Beak.stl"))
+			if (fileExists("./Head.stl"))
 				readSTLFiles("./");
-			if (fileExists("../../stl/Chickenhead-Beak.stl"))
+			if (fileExists("../../stl/Head.stl"))
 				readSTLFiles("../../stl");
 			else
-				if (fileExists("../../../stl/Chickenhead-Beak.stl"))
+				if (fileExists("../../../stl/Head.stl"))
 					readSTLFiles("../../../stl");
 		}
 		setupDone = true;
