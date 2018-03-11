@@ -38,7 +38,7 @@ void BotRenderer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 	glLoadIdentity();             // Reset the model-view matrix to world coordinate system
 	glRotatef(-90, 1.0,0.0,0.0);
 	glRotatef(-90, 0.0,0.0,1.0);
-	baseStewart.display(glStewartPlateColor,glStewartPlateColor);
+	baseStewartPlatform.display(glStewartPlateColor,glStewartPlateColor);
 
 	glPushMatrix();
 	// draw body plate
@@ -46,14 +46,14 @@ void BotRenderer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 	glRotatef(degrees(bodyPose.orientation.z), 0.0,0.0,1.0);
 	glRotatef(degrees(bodyPose.orientation.y), 0.0,1.0,0.0);
 	glRotatef(degrees(bodyPose.orientation.x), 1.0,0.0,0.0);
-	stewartPlate.display(glStewartPlateColor,glStewartPlateColor);
+	intermediateStewartPlatform.display(glStewartPlateColor,glStewartPlateColor);
 
 	// draw head plate (headPose is relative to the bodyPose)
 	glTranslatef(headPose.position.x, headPose.position.y,headPose.position.z);
 	glRotatef(degrees(headPose.orientation.z), 0.0,0.0,1.0);
 	glRotatef(degrees(headPose.orientation.y), 0.0,1.0,0.0);
 	glRotatef(degrees(headPose.orientation.x), 1.0,0.0,0.0);
-	stewartHead.display(glStewartPlateColor,glStewartPlateColor);
+	headStewartPlatform.display(glStewartPlateColor,glStewartPlateColor);
 
 	// draw chicken head
 	head.display(glHeadColor,glHeadColor);
@@ -112,7 +112,7 @@ void BotRenderer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 		else
 			glRotatef(-angle, 1.0,0.0,0.0);
 
-		stewartSmallServoArm.display(glServoArmColor,glServoArmColor);
+		topStewartServoArm.display(glServoArmColor,glServoArmColor);
 		glPopMatrix();
 		// render the rod between servo and top plate
 		glPushMatrix();
@@ -150,16 +150,13 @@ void BotRenderer::readSTLFiles(string path) {
 	eyeBall.loadFile(path + "/Eyes.stl");
 	iris.loadFile(path + "/Iris.stl");
 
-	baseStewart.loadFile(path + "/BottomPlatform.stl");
+	baseStewartPlatform.loadFile(path + "/BottomPlatform.stl");
 	baseStewartRod.loadFile(path + "/BaseStewartRod.stl");
 	baseStewartServoArm.loadFile(path + "/BaseStewartServoArm.stl");
-	stewartPlate.loadFile(path + "/IntermediatePlatform.stl");
-
-
-	stewartRod.loadFile(path + "/Stewart-Head-Rod.stl");
-
-	stewartHead.loadFile(path + "/Stewart-Head.stl");
-	stewartSmallServoArm.loadFile(path + "/Stewart-Head-Servo-Arm.stl");
+	intermediateStewartPlatform.loadFile(path + "/IntermediatePlatform.stl");
+	topStewartServoArm.loadFile(path + "/HeadStewartServoArm.stl");
+	stewartRod.loadFile(path + "/HeadStewartRod.stl");
+	headStewartPlatform.loadFile(path + "/TopPlatform.stl");
 
 }
 

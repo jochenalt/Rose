@@ -34,15 +34,15 @@ private:
 	STLObject eyeBall;
 	STLObject iris;
 
-	STLObject baseStewart;
+	STLObject baseStewartPlatform;
 	STLObject baseStewartServoArm;
 	STLObject baseStewartRod;
 
-	STLObject stewartPlate;
+	STLObject intermediateStewartPlatform;
 	STLObject stewartRod;
 
-	STLObject stewartHead;
-	STLObject stewartSmallServoArm;
+	STLObject headStewartPlatform;
+	STLObject topStewartServoArm;
 
 	VolumeOfRevolution body;
 	bool isStripper = false; // Donna is not a slut
