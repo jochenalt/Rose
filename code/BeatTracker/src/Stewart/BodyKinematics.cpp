@@ -9,15 +9,15 @@
 
 
 StewartConfiguration bodyStewartConfig = {"body",
-										  28.972, 				// servoCentreRadius_mm
-										  radians(12.28),		// servoCentreAngle_rad
-										  34.763 , 				// servoArmCentreRadius_mm (for rendering only)
-										  radians(10.19),		// servoArmCentreAngle_mm (for rendering only)
+										  27.354, 				// servoCentreRadius_mm
+										  radians(12.83),		// servoCentreAngle_rad
+										  35.21 , 				// servoArmCentreRadius_mm (for rendering only)
+										  radians(9.93),		// servoArmCentreAngle_mm (for rendering only)
 										  39.071,				// plateJointRadius_mm
 										  radians(7.35),		// plateJointAngle_rad
 										  74.0,   				// rodLength_mm
-										  38.0,					// servoArmLength_mm
-										  25.0,					// servoCentreHeight_mm
+										  29.478,				// servoArmLength_mm
+										  31.2,					// servoCentreHeight_mm
 										  3.595,				// plateBallJointHeight_mm
 										  radians(60.0),		// topServoLimit_rad
 									      radians(90.0)			// bottomServoLimit_rad

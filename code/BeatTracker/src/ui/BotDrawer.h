@@ -24,6 +24,8 @@ public:
 	// setup by looking for the STL files
 	void setup();
 
+	void setStripper(bool ok) { isStripper = ok; };
+
 private:
 	// read the stl files per actuator in that path
 	void readSTLFiles(string path);
@@ -32,16 +34,18 @@ private:
 	STLObject eyeBall;
 	STLObject iris;
 
-	STLObject stewartBase;
+	STLObject baseStewart;
+	STLObject baseStewartServoArm;
+	STLObject baseStewartRod;
+
 	STLObject stewartPlate;
-	STLObject stewartServoArm;
 	STLObject stewartRod;
 
-	STLObject stewartSmallRod;
 	STLObject stewartHead;
 	STLObject stewartSmallServoArm;
 
 	VolumeOfRevolution body;
+	bool isStripper = false; // Donna is not a slut
 };
 
 #endif /* UI_BOTDRAWER_H_ */
