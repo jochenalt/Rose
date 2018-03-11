@@ -31,6 +31,10 @@ public:
 
 	// compute relative head pose out of the absolute pose that is projected above the body's belly button
 	Pose computeHeadPose(const Pose& bodyPose, const Pose &PoseAboveBellyButton);
+
+	// get static metrics of the platform
+	void getPlatformMetrics(double& basePlatformRadius, double &intermediatePlatformRadius, double& topPlatformRadius,
+							double& bottomRodLength, double & topRodLength);
 private:
 	StewartKinematics bodyKin;
 	StewartKinematics headKin;

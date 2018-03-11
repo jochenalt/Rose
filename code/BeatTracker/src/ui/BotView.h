@@ -8,8 +8,8 @@
 #ifndef UI_BOTVIEW_H_
 #define UI_BOTVIEW_H_
 
+#include <BotRenderer.h>
 #include <string>
-#include "BotDrawer.h"
 #include "BaseView.h"
 
 using namespace std;
@@ -33,7 +33,7 @@ public:
 	void resetDisplayFlag() { justDisplayed = false; };
 	bool isJustDisplayed() { return justDisplayed; };
 
-	BotDrawer& getBotRenderer() { return botDrawer; }
+	BotRenderer& getBotRenderer() { return botDrawer; }
 
 private:
 	void drawCoordSystem(bool withRaster );
@@ -50,7 +50,7 @@ private:
 	enum mousePaneType { VIEW_PANE, NO_PANE };
 	mousePaneType mousePane = NO_PANE;
 
-	BotDrawer botDrawer;
+	BotRenderer botDrawer;
 	bool justDisplayed = false;
 };
 

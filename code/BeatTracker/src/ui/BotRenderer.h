@@ -14,9 +14,9 @@
 #include "basics/spatial.h"
 #include "VolumeOfRevolution.h"
 
-class BotDrawer {
+class BotRenderer {
 public:
-	BotDrawer() {};
+	BotRenderer() {};
 
 	// display Stewart platform
 	void displayBot(const Pose& bodyPose, const Pose& headPose);

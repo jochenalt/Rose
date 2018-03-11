@@ -11,14 +11,16 @@
 StewartConfiguration bodyStewartConfig = {"body",
 										  27.354, 				// servoCentreRadius_mm
 										  radians(12.83),		// servoCentreAngle_rad
-										  35.21 , 				// servoArmCentreRadius_mm (for rendering only)
+										  35.211, 				// servoArmCentreRadius_mm (for rendering only)
 										  radians(9.93),		// servoArmCentreAngle_mm (for rendering only)
-										  39.071,				// plateJointRadius_mm
-										  radians(7.35),		// plateJointAngle_rad
+										  28.036,				// plateJointRadius_mm
+										  radians(8.2),  		// plateJointAngle_rad
 										  94.0,   				// rodLength_mm
 										  29.478,				// servoArmLength_mm
 										  31.2,					// servoCentreHeight_mm
 										  3.595,				// plateBallJointHeight_mm
+										  65.0, 				// bottomPlatformRadius_mm
+										  65.0, 				// topPlatformRadius_mm
 										  radians(60.0),		// topServoLimit_rad
 									      radians(90.0)			// bottomServoLimit_rad
 };
@@ -35,6 +37,8 @@ StewartConfiguration headStewartConfig = {"head",
 										  17.0,					// servoArmLength_mm
 										  25.0,   	 		    // servoCentreHeight_mm
 										  4.0,					// plateBallJointHeight_mm
+										  65.0, 				// bottomPlatformRadius_mm
+										  65.0, 				// topPlatformRadius_mm
 										  radians(60.0),		// topServoLimit_rad
 										  radians(90.0)			// bottomServoLimit_rad
 
@@ -47,6 +51,15 @@ BodyKinematics::BodyKinematics() {
 BodyKinematics::~BodyKinematics() {
 }
 
+
+void BodyKinematics::getPlatformMetrics(double& basePlatformRadius, double &intermediatePlatformRadius, double& topPlatformRadius, double& bottomRodLength, double & topRodLength) {
+	basePlatformRadius = bodyStewartConfig.bottomPlatformRadius_mm;
+	intermediatePlatformRadius = bodyStewartConfig.topPlatformRadius_mm;
+	topPlatformRadius = headStewartConfig.bottomPlatformRadius_mm;
+	bottomRodLength = bodyStewartConfig.rodLength_mm;
+	topRodLength = headStewartConfig.rodLength_mm;
+
+}
 
 void BodyKinematics::setup() {
 	bodyKin.setup(bodyStewartConfig);
