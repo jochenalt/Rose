@@ -28,10 +28,9 @@ private:
 	// read the stl files per actuator in that path
 	void readSTLFiles(string path);
 
-	STLObject chickenHead;
-	STLObject chickenEyeBall;
-	STLObject chickenEyeIris;
-	STLObject chickenBeak;
+	STLObject head;
+	STLObject eyeBall;
+	STLObject iris;
 
 	STLObject stewartBase;
 	STLObject stewartPlate;

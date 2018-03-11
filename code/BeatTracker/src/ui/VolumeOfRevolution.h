@@ -24,11 +24,7 @@ public:
 	   headLen = newHeadLen;
 
    }
-
-   void setDiamondTexture(bool ok) { useDiamonds = ok; };
  protected:
-
-   bool useDiamonds;
    unsigned int numSegments;
    unsigned int numAngles;
 
