@@ -132,12 +132,16 @@ void BotRenderer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 
 	glPopMatrix();
 
+	double r1,r2,r3, h1,h2;
+	BodyKinematics::getInstance().getPlatformMetrics(r1,r2,r3, h1,h2);
+	body.set(r1, r2, r3, h1, h2); //
+
 	// draw body as flexible volume of revolution along a bezier curve
-	if (!isStripper) {
-		double r1,r2,r3, h1,h2;
-		BodyKinematics::getInstance().getPlatformMetrics(r1,r2,r3, h1,h2);
-		body.set(r1, r2, r3, h1, h2); //
-		body.display(Pose(), bodyPose, headPose, glBodyColor1, glBodyColor2, glGridColor);
+	switch (clothingMode) {
+		case NORMAL: body.display(Pose(), bodyPose, headPose, glBodyColor, glBodyColor, glGridColor); break;
+		case TRANSPARENT: body.display(Pose(), bodyPose, headPose, glTranspBodyColor1, glTranspBodyColor2, glTranspGridColor); break;
+		default:
+			break;
 	}
 
 	glPopMatrix(); // restore old model matrix
@@ -153,13 +157,12 @@ void BotRenderer::readSTLFiles(string path) {
 	baseStewart.loadFile(path + "/BottomPlatform.stl");
 	baseStewartRod.loadFile(path + "/BaseStewartRod.stl");
 	baseStewartServoArm.loadFile(path + "/BaseStewartServoArm.stl");
+
 	stewartPlate.loadFile(path + "/IntermediatePlatform.stl");
 
-
-	stewartRod.loadFile(path + "/Stewart-Head-Rod.stl");
-
-	stewartHead.loadFile(path + "/Stewart-Head.stl");
-	stewartSmallServoArm.loadFile(path + "/Stewart-Head-Servo-Arm.stl");
+	stewartHead.loadFile(path + "/TopPlatform.stl");
+	stewartRod.loadFile(path + "/HeadStewartRod.stl");
+	stewartSmallServoArm.loadFile(path + "/BaseStewartServoArm.stl");
 
 }
 

@@ -16,7 +16,10 @@
 
 class BotRenderer {
 public:
+	enum ClothingModeType { NORMAL, TRANSPARENT, NAKED };
+
 	BotRenderer() {};
+	~BotRenderer() {};
 
 	// display Stewart platform
 	void displayBot(const Pose& bodyPose, const Pose& headPose);
@@ -24,7 +27,7 @@ public:
 	// setup by looking for the STL files
 	void setup();
 
-	void setStripper(bool ok) { isStripper = ok; };
+	void setClothingMode (ClothingModeType mode) { clothingMode = mode; };
 
 private:
 	// read the stl files per actuator in that path
@@ -45,7 +48,8 @@ private:
 	STLObject stewartSmallServoArm;
 
 	VolumeOfRevolution body;
-	bool isStripper = false; // Donna is not a slut
+
+	ClothingModeType clothingMode = NORMAL;
 };
 
 #endif /* UI_BOTDRAWER_H_ */
