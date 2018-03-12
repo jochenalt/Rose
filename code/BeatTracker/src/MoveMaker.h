@@ -58,7 +58,9 @@ public:
 	// return current move
 	Move::MoveType getCurrentMove()  { return currentMove; };
 
+	// scale the amplitude of all moves by ambition
 	void setAmbition(int percentage) { ambition = percentage/100.0; };
+	double getAmbition() { return ambition; };
 private:
 	void doNewMove();
 	void createMove(double movePercentage);
@@ -69,7 +71,7 @@ private:
 	SequenceModeType sequenceMode;
 	vector<Move> moveLibrary;
 	int startAfterNBeats;
-	double ambition = 0.5;
+	double ambition = 1.0;
 };
 
 #endif /* MOVEMAKER_H_ */

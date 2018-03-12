@@ -33,7 +33,7 @@ StewartConfiguration headStewartConfig = {"head",
 										  radians(9.93),		// servoArmCentreAngle_mm (for rendering only)
 										  28.036,				// plateJointRadius_mm
 										  radians(8.2),		    // plateJointAngle_rad
-										  69.0,				    // rodLength_mm
+										  74.0,				    // rodLength_mm
 										  29.478,				// servoArmLength_mm
 										  24.450,  	 		    // servoCentreHeight_mm
 										  4.0,					// plateBallJointHeight_mm
@@ -80,23 +80,29 @@ void BodyKinematics::getServoArmCentre(Point servoArmCentre_world[6]) {
 	bodyKin.getServoArmCentre(servoArmCentre_world);
 }
 
-Pose BodyKinematics::computeHeadPose(const Pose& bodyPose, const Pose &relPoseAboveBellyButton) {
-	// regular headPose is relative to body Pose. This function computes this relative
+Pose BodyKinematics::computeHeadStewartPose(const Pose& bodyPose, const Pose &relPoseAboveBellyButton) {
+	// regular headPose is right above the bodys origin with its own orientation.
+
+	// This function computes this relative
 	// head pose out of an absolute pose that is right above the belly button
-	// bodyPose * headPose = poseAboveBellyButton
-	// -> headPose = bodyPose^-1 * poseAboveBellyButton
+	// headPose*bodyPose = poseAboveBellyButton
+	// -> headPose =  poseAboveBellyButton * bodyPose^-1
 
 	Pose poseAboveBellyButton(relPoseAboveBellyButton);
-	poseAboveBellyButton.position.x += bodyPose.position.x;
-	poseAboveBellyButton.position.y += bodyPose.position.y;
-	poseAboveBellyButton.position.z += bodyPose.position.z;
+	poseAboveBellyButton.position += bodyPose.position;
 
-	// compute head pose in world coordinates
+	// compute head pose in relative to the body platform
 	HomogeneousMatrix bodyBaseTransformation = createTransformationMatrix(bodyPose);
 	HomogeneousMatrix inverseBodyTransformation = computeInverseTransformationMatrix(bodyBaseTransformation);
 	HomogeneousMatrix poseAboveBellyTransformation = createTransformationMatrix(poseAboveBellyButton);
-	HomogeneousMatrix headTransformation = inverseBodyTransformation * poseAboveBellyTransformation;
+	HomogeneousMatrix headTransformation = inverseBodyTransformation*poseAboveBellyTransformation;
 	Pose headPose = getPoseByTransformationMatrix(headTransformation);
+	HomogeneousMatrix tmp1 = createTransformationMatrix(headPose);
+	HomogeneousMatrix tmp2 = bodyBaseTransformation*tmp1;
+	Pose r = getPoseByTransformationMatrix(tmp2);
+	cout << "poseRel=" << poseAboveBellyButton << " bodyPose=" << bodyPose << " headPose=" << headPose << "r=" << r << endl;
+
+
 	return headPose;
 }
 

@@ -203,7 +203,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	GLUI_Spinner* ambitionSpinner = new GLUI_Spinner(ambitionPanel, "ambition",&ambitionLiveVar, 0, ambitionCallback);
 	ambitionSpinner->set_alignment(GLUI_ALIGN_LEFT);
 	ambitionSpinner->set_int_limits(0,100);
-	ambitionSpinner->set_int_val(50);
+	ambitionSpinner->set_int_val(100);
 
 
 	return windowHandle;

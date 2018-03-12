@@ -30,7 +30,7 @@ public:
 	void resetSpeedMeasurement() { bodyKin.resetSpeedMeasurement(); headKin.resetSpeedMeasurement(); };
 
 	// compute relative head pose out of the absolute pose that is projected above the body's belly button
-	Pose computeHeadPose(const Pose& bodyPose, const Pose &PoseAboveBellyButton);
+	Pose computeHeadStewartPose(const Pose& bodyPose, const Pose &PoseAboveBellyButton);
 
 	// get static metrics of the platform
 	void getPlatformMetrics(double& basePlatformRadius, double &intermediatePlatformRadius, double& topPlatformRadius,

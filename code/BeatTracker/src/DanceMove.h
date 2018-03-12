@@ -15,15 +15,15 @@
 #include <vector>
 
 
-const double bodyHeight = 105.0;
-const double headHeight = 90.0;
+const double bodyHeight = 100.0;
+const double headHeight = 95.0;
 
 class Move {
 public:
 	enum MoveType { NO_MOVE, PHYSICISTS_HEAD_NICKER, TENNIS_HEAD_NICKER, WEASELS_MOVE,
 		            TRAVOLTA_HEAD_NICKER, ENHANCED_TRAVOLTA_HEAD_NICKER,
 					DIAGONAL_HEAD_SWING, DIPPED_DIAGONAL_HEAD_SWING, ROLLED_DIPPED_DIAGONAL_HEAD_SWING, EYED_DIPPED_DIAGONAL_HEAD_SWING,
-					BOLLYWOOD_HEAD_MOVE, DOUBLE_BOLLYWOOD_MOVE, SWING_DOUBLE_BOLLYWOOD_MOVE,
+					BELLY_MOVE, BOLLYWOOD_HEAD_MOVE, SWING_DOUBLE_BOLLYWOOD_MOVE,
 					BODY_WAVE, DIPPED_BODY_WAVE, SIDE_DIPPED_BODY_WAVE,
 					SHIMMYS, TRIPPLE_SHIMMYS, LEANING_TRIPPLE_SHIMMYS,
 					SHOULDER_MOVE,SHOULDER_CIRCLE, SHOULDER_DIP,
@@ -75,6 +75,8 @@ public:
 	double baseCurveDip(double movePercentage);
 	double baseCurveFatDip(double movePercentage);
 
+	double scaleAmbition(double value);
+
 	TotalBodyPose absHead (const Pose& bodyPose, const Pose& relHeadPose);
 	// methods implementing dance moves
 	TotalBodyPose physicistsHeadNicker(double movePercentage);
@@ -90,7 +92,7 @@ public:
 	TotalBodyPose eyedDippedDiagonalSwing(double movePercentage);
 
 	TotalBodyPose bollywoodHeadMove(double movePercentage);
-	TotalBodyPose doubleBollywoodHeadMove(double movePercentage);
+	TotalBodyPose bellySwingingMove(double movePercentage);
 	TotalBodyPose swingDoubleBollywoodHeadMove(double movePercentage);
 
 	TotalBodyPose bodyWaveMove(double movePercentage);

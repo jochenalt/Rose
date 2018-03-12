@@ -284,6 +284,7 @@ int main(int argc, char *argv[]) {
     			exit(1);
     		}
     		arg = getCmdOption(argv, argc, i+1);
+    		i++;
     		startAfterNBeats  = atoi(arg.c_str());
     		if (startAfterNBeats <2) {
     			cerr << "-i requires a number >=2" << endl;

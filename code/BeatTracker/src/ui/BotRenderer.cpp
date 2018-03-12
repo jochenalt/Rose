@@ -55,7 +55,7 @@ void BotRenderer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 	glRotatef(degrees(headPose.orientation.x), 1.0,0.0,0.0);
 	stewartHead.display(glStewartPlateColor,glStewartPlateColor);
 
-	// draw chicken head
+	// draw head
 	head.display(glHeadColor,glHeadColor);
 	eyeBall.display(glEyeBallsColor,glEyeBallsColor);
 	iris.display(glIrisColor,glIrisColor);
