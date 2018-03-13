@@ -44,14 +44,7 @@ void MoveMaker::setup() {
 
 void MoveMaker::createMove(double movePercentage) {
 	TotalBodyPose newPose = Move::getMove(currentMove).move(movePercentage);
-
-	static TimeSamplerStatic moveTimer;
-
 	pose = newPose;
-	// limit acceleration after changing the move
-	double dT = moveTimer.dT();
-	pose.body.moveTo(newPose.body, dT, 100.0, 10.0);
-	pose.head.moveTo(newPose.head, dT, 100.0, 10.0);
 }
 
 void MoveMaker::loop(bool beat, double BPM) {

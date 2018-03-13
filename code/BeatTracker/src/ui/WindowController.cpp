@@ -191,16 +191,19 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	new GLUI_RadioButton(currentSequenceModeWidget, "Automated Sequence");
 	new GLUI_RadioButton(currentSequenceModeWidget, "Selected Dance Move");
 
-	GLUI_Panel* clothesPanel= new GLUI_Panel(interactiveModePanel,"Clothes", GLUI_PANEL_NONE);
+	GLUI_Panel* clothesPanel= new GLUI_Panel(interactiveModePanel,"Attitude", GLUI_PANEL_NONE);
 	clothesPanel->set_alignment(GLUI_ALIGN_LEFT);
 	stripperRadioButtons =  new GLUI_RadioGroup(clothesPanel, &clothesOnLiveVar, 0, clothesOnCallback);
-	new GLUI_RadioButton(stripperRadioButtons, "full clothed");
+	new GLUI_RadioButton(stripperRadioButtons, "proper");
 	new GLUI_RadioButton(stripperRadioButtons, "slutty");
-	new GLUI_RadioButton(stripperRadioButtons, "naked");
+	new GLUI_RadioButton(stripperRadioButtons, "trampy");
 
 	GLUI_Panel* ambitionPanel= new GLUI_Panel(interactiveModePanel,"Ambition", GLUI_PANEL_NONE);
 	ambitionPanel->set_alignment(GLUI_ALIGN_LEFT);
-	GLUI_Spinner* ambitionSpinner = new GLUI_Spinner(ambitionPanel, "ambition",&ambitionLiveVar, 0, ambitionCallback);
+	text = new GLUI_StaticText(ambitionPanel, "bored            ambitious");
+	text->set_alignment(GLUI_ALIGN_LEFT);
+
+	GLUI_Scrollbar* ambitionSpinner = new GLUI_Scrollbar(ambitionPanel, "ambition",1, &ambitionLiveVar, 1, ambitionCallback);
 	ambitionSpinner->set_alignment(GLUI_ALIGN_LEFT);
 	ambitionSpinner->set_int_limits(0,100);
 	ambitionSpinner->set_int_val(100);

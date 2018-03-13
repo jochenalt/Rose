@@ -132,7 +132,21 @@ double Move::baseCurveTrapezoid(double movePercentage) {
 
 
 TotalBodyPose Move::absHead (const Pose& bodyPose, const Pose& relHeadPose) {
-	return TotalBodyPose(bodyPose,BodyKinematics::getInstance().computeHeadStewartPose(bodyPose, relHeadPose));
+
+	static bool firstCall = true;
+	static Pose restrictedBodyPose;
+	static Pose restrictedRelHeadPose ;
+	static TimeSamplerStatic moveTimer;
+	double dT = moveTimer.dT();
+	if (firstCall) {
+		restrictedBodyPose = bodyPose;
+		restrictedRelHeadPose = relHeadPose;
+	} else {
+		// limit acceleration between two moves
+		restrictedBodyPose.moveTo(bodyPose, dT, 100.0, 10.0);
+		restrictedRelHeadPose.moveTo(relHeadPose, dT, 100.0, 10.0);
+	}
+	return TotalBodyPose(restrictedBodyPose,BodyKinematics::getInstance().computeHeadStewartPose(restrictedBodyPose, restrictedRelHeadPose));
 }
 
 
@@ -204,7 +218,7 @@ TotalBodyPose Move::diagonalSwing(double movePercentage) {
 	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0,  startPhase)));
 
 	return absHead (
-				Pose(Point(-20.0*mBase,20.0*mBase,bodyHeight + 20.0*mDip),Rotation (radians(15)*mBase,-radians(15)*mBase,0)),
+				Pose(Point(-20.0*mBase,20.0*mBase,bodyHeight - 10.0 +20.0*mDip),Rotation (radians(15)*mBase,-radians(15)*mBase,0)),
 				Pose(Point(0,0,headHeight),Rotation (0,0,0)));
 
 }
@@ -278,13 +292,12 @@ TotalBodyPose Move::bollywoodHeadMove(double movePercentage) {
 TotalBodyPose Move::swingDoubleBollywoodHeadMove(double movePercentage) {
 	double startPhase = latencyShift;
 	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 2.50 + startPhase));
-	double mDip  = fabs(baseCurveCos(scaleMove(movePercentage, 1.0, 0.875 + startPhase)));
-	double mHeadMove = baseCurveFatCos(scaleMove(movePercentage, 4.0, 1.0 + startPhase ));
+	double mDip  = fabs(baseCurveCos(scaleMove(movePercentage, 1.0, 1.5 + startPhase)));
 	double mSwing = baseCurveCos(scaleMove(movePercentage, 2.0,    startPhase - 0.75));
 
 	return  absHead (
-				Pose(Point(0,30.0*mBase, bodyHeight + 10.0*mDip),Rotation (0,radians(20)*mSwing,0)),
-				Pose(Point(0,mHeadMove*15.0,headHeight),Rotation (0,0,0)));
+				Pose(Point(0,30.0*mBase, bodyHeight + 20.0-20.0*mDip),Rotation (0,radians(20)*mSwing,0)),
+				Pose(Point(0,0,headHeight),Rotation (0,0,0)));
 }
 
 TotalBodyPose Move::bodyWaveMove(double movePercentage) {
@@ -388,7 +401,6 @@ TotalBodyPose Move::shoulderCircle(double movePercentage) {
 
 TotalBodyPose Move::shoulderDipMove(double movePercentage) {
 	double startPhase =  latencyShift;
-	double mBaseMove  = baseCurveFatCos(scaleMove(movePercentage, 1.0,startPhase));
 
 	double mShoulderMove  = baseCurveFatCos(scaleMove(movePercentage, 2.0,2.8+startPhase));
 	double mDip  = (baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.75)));
@@ -405,7 +417,7 @@ TotalBodyPose Move::turnAndShowBack(double movePercentage) {
 	// used move curves
 	double mHeadNicker= baseCurveFatCos(scaleMove(movePercentage, 4.0,startPhase));
 	double mTurn= movePercentage/4.0;
-	return TotalBodyPose (
+	return absHead (
 			Pose(Point(0,0,bodyHeight + 20.0*mHeadNicker), Rotation (0,0,radians(mTurn*180.0))),
 			getDefaultHeadPose());
 }
@@ -417,7 +429,7 @@ TotalBodyPose Move::twerk(double movePercentage) {
 	double mAsWave = baseCurveCos(scaleMove(movePercentage, 6.0, startPhase));
 
 	double mSideHip  = baseCurveTriangle(scaleMove(movePercentage, 1.0, 0.0 + latencyShift));
-	return TotalBodyPose (
+	return absHead (
 			Pose(Point(0,50.0*mSideHip,bodyHeight),Rotation (0,-radians(30)*mAsWave+radians(15),radians(180.0))),
 			getDefaultHeadPose());
 }
@@ -427,7 +439,7 @@ TotalBodyPose Move::turnBack(double movePercentage) {
 	double mHeadNicker = baseCurveFatCos(scaleMove(movePercentage, 4.0,latencyShift));
 	double mTurn= movePercentage/4.0;
 
-	return TotalBodyPose (
+	return absHead (
 			Pose(Point(0,0,bodyHeight + 30.0*mHeadNicker), Rotation (0,0,radians(180.0-180.0*mTurn))),
 			getDefaultHeadPose());
 }

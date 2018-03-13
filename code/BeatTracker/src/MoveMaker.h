@@ -15,6 +15,7 @@
 
 
 class MoveMaker {
+	friend class Move;
 public:
 	enum SequenceModeType { AUTOMATIC_SEQUENCE, SELECTED_MOVE};
 
@@ -64,6 +65,7 @@ public:
 private:
 	void doNewMove();
 	void createMove(double movePercentage);
+
 
 	TotalBodyPose pose;
 	Move::MoveType currentMove;
