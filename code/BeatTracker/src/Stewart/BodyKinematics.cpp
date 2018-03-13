@@ -33,7 +33,7 @@ StewartConfiguration headStewartConfig = {"head",
 										  radians(9.93),		// servoArmCentreAngle_mm (for rendering only)
 										  28.036,				// plateJointRadius_mm
 										  radians(8.2),		    // plateJointAngle_rad
-										  74.0,				    // rodLength_mm
+										  84.0,				    // rodLength_mm
 										  29.478,				// servoArmLength_mm
 										  24.450,  	 		    // servoCentreHeight_mm
 										  4.0,					// plateBallJointHeight_mm
@@ -97,11 +97,6 @@ Pose BodyKinematics::computeHeadStewartPose(const Pose& bodyPose, const Pose &re
 	HomogeneousMatrix poseAboveBellyTransformation = createTransformationMatrix(poseAboveBellyButton);
 	HomogeneousMatrix headTransformation = inverseBodyTransformation*poseAboveBellyTransformation;
 	Pose headPose = getPoseByTransformationMatrix(headTransformation);
-	HomogeneousMatrix tmp1 = createTransformationMatrix(headPose);
-	HomogeneousMatrix tmp2 = bodyBaseTransformation*tmp1;
-	Pose r = getPoseByTransformationMatrix(tmp2);
-	cout << "poseRel=" << poseAboveBellyButton << " bodyPose=" << bodyPose << " headPose=" << headPose << "r=" << r << endl;
-
 
 	return headPose;
 }

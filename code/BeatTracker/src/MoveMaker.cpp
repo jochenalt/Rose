@@ -47,16 +47,11 @@ void MoveMaker::createMove(double movePercentage) {
 
 	static TimeSamplerStatic moveTimer;
 
+	pose = newPose;
 	// limit acceleration after changing the move
 	double dT = moveTimer.dT();
-	if (movePercentage > 0.25) {
-		pose.body.moveTo(newPose.body, dT, 100.0, 6.0);
-		pose.head.moveTo(newPose.head, dT, 100.0, 6.0);
-	}
-	else {
-		pose.body.moveTo(newPose.body, dT, 20.0, 2.0);
-		pose.head.moveTo(newPose.head, dT, 20.0, 2.0);
-	}
+	pose.body.moveTo(newPose.body, dT, 100.0, 10.0);
+	pose.head.moveTo(newPose.head, dT, 100.0, 10.0);
 }
 
 void MoveMaker::loop(bool beat, double BPM) {
@@ -80,7 +75,6 @@ void MoveMaker::loop(bool beat, double BPM) {
 
 	// wait 4 beats to detect the rhythm
 	if ((RhythmDetector::getInstance().getAbsoluteBeatCount() > startAfterNBeats) && (RhythmDetector::getInstance().hasBeatStarted())) {
-		// cout << std::fixed << std::setprecision(2) << "-->" << RhythmDetector::getInstance().getRythmPercentage() << bodyPose << endl;
 		createMove(RhythmDetector::getInstance().getRythmPercentage());
 	}
 }

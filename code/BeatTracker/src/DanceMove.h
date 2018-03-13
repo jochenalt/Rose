@@ -16,7 +16,7 @@
 
 
 const double bodyHeight = 100.0;
-const double headHeight = 95.0;
+const double headHeight = 105.0;
 
 class Move {
 public:
