@@ -254,3 +254,41 @@ int kbhit (void)
   return FD_ISSET(STDIN_FILENO, &rdfs);
 
 }
+
+
+ErrorCodeType glbError = ErrorCodeType::ABSOLUTELY_NO_ERROR;
+
+void resetError() {
+	glbError = ErrorCodeType::ABSOLUTELY_NO_ERROR;
+}
+
+ErrorCodeType getLastError() {
+	return glbError;
+}
+
+void setError(ErrorCodeType err) {
+	// set error only if error has been reset upfront
+	if (glbError == ErrorCodeType::ABSOLUTELY_NO_ERROR)
+		glbError = err;
+}
+
+bool isError() {
+	return glbError != ErrorCodeType::ABSOLUTELY_NO_ERROR;
+}
+
+std::string getErrorMessage(ErrorCodeType err) {
+	std::ostringstream msg;
+	switch (err) {
+	case ABSOLUTELY_NO_ERROR: msg << "no error";break;
+
+	// hostCommunication
+	case FILE_NOT_FOUND: 			msg << "file not found";break;
+	case UNKNOWN_ERROR: 			msg << "mysterious error";break;
+
+	default:
+		msg << "unknown error message";
+	}
+	msg << " (" << (int)err << ")";
+
+	return msg.str();
+}

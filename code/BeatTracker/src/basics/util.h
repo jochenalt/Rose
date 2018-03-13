@@ -257,5 +257,30 @@ public:
 };
 
 
+enum ErrorCodeType { ABSOLUTELY_NO_ERROR = 0,
+	// cortex communication errors
+	FILE_NOT_FOUND = 1,
+	UNKNOWN_ERROR= 99
+};
+
+
+// set global error to NO_ERROR
+void resetError();
+
+// return last error set by setError
+ErrorCodeType getLastError();
+
+// set the passed error
+void setError(ErrorCodeType err);
+
+// returns prosa message of error code
+string getErrorMessage(ErrorCodeType err);
+
+// errors are stored in a globale variables. This gives the most recent one unless resetError is called
+string getLastErrorMessage();
+
+// true, if error has been set. When called again after an error, false is returned.
+bool isError();
+
 
 #endif

@@ -19,6 +19,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <ao/ao.h>
+#include <basics/stringhelper.h>
 
 #include "basics/util.h"
 #include "BTrack/BTrack.h"
@@ -31,8 +32,7 @@
 #include "Stewart/BodyKinematics.h"
 #include "servo/PCA9685Servo.h"
 #include "servo/ServoController.h"
-
-// INITIALIZE_EASYLOGGINGPP
+#include "webserver/Webserver.h"
 
 using namespace std;
 
@@ -65,6 +65,8 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
 void printUsage() {
 	cout << "BeatTracker -f <wav.file>        # define the track to be played" << endl
 	     << "            [-h]                 # print this" << endl
+	     << "            [-port <port>]       # set port of webserver if different from 8080" << endl
+	     << "            [-webroot <path>]    # set path of ./webroot" << endl
 		 << "            [-v <volume 0..100>] # set volume between 0 and 100" << endl
 		 << "            [-ui]                # start visualizer" << endl
 		 << "            [-s]                 # silent, do not play audio" << endl
@@ -249,7 +251,13 @@ int main(int argc, char *argv[]) {
     string trackFilename;
     int volumeArg = 20;
     int startAfterNBeats = 4;
+    string webrootPath = string(argv[0]);
+	int idx = webrootPath.find_last_of("/");
+	webrootPath = webrootPath.substr(0,idx) + "/webroot";
 
+
+    webrootPath+ string("../webroot");
+    int webserverPort = 8080;
     for (int i = 1;i<argc;i++) {
     	string arg = getCmdOption(argv, argc,i);
     	if (arg == "-f") {
@@ -265,7 +273,27 @@ int main(int argc, char *argv[]) {
 	    	ServoController::getInstance().calibrateViaKeyBoard();
 	    } else if (arg == "-s") {
 	    	playback = false;
-    	} else if (arg == "-v") {
+	    } else if (arg == "-port") {
+    		if (i+1 >= argc) {
+    			cerr << "-port requires a number 0..100" << endl;
+    			exit(1);
+    		}
+	    	i++;
+	    	bool ok = true;
+	    	webserverPort = -1;
+	    	webserverPort = stringToInt(getCmdOption(argv, argc, i), ok);
+	    	if ((webserverPort < 1000) || (webserverPort > 9999)) {
+	    		cerr << "port should be between 1000..9999" << endl;
+	    		exit(1);
+	    	}
+	    } else if (arg == "-webroot") {
+    		if (i+1 >= argc) {
+    			cerr << "-webroot required a path, e.g. " << argv[0] << "/webroot" << endl;
+    			exit(1);
+    		}
+    		i++;
+	    	webrootPath = getCmdOption(argv, argc, i);
+	    } else if (arg == "-v") {
     		if (i+1 >= argc) {
     			cerr << "-v requires a number 0..100" << endl;
     			exit(1);
@@ -299,10 +327,12 @@ int main(int argc, char *argv[]) {
 
     }
 
-
+    Webserver::getInstance().setup(webserverPort, webrootPath);
 	BodyKinematics::getInstance().setup();
     MoveMaker::getInstance().setup();
     RhythmDetector::getInstance().setup();
+
+
     MoveMaker::getInstance().setStartAfterNBeats(startAfterNBeats);
 
 #ifdef USE_OPENGL_UI
