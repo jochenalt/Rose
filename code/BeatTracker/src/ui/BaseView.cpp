@@ -14,10 +14,10 @@
 #include "basics/spatial.h"
 #include "basics/util.h"
 
-#include <BaseView.h>
-#include "uiconfig.h"
+#include <ui/BaseView.h>
+#include <ui/uiconfig.h>
 
-#include <WindowController.h>
+#include <ui/WindowController.h>
 
 
 BaseView::BaseView() {

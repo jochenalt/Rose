@@ -1,15 +1,15 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <Dancer.h>
-#include <Move.h>
-#include "basics/util.h"
+#include <dance/Dancer.h>
+#include <dance/Move.h>
+#include <basics/util.h>
 
-#include "uiconfig.h"
-#include "setup.h"
+#include <ui/uiconfig.h>
+#include <ui/setup.h>
 
-#include "BotView.h"
-#include "WindowController.h"
+#include <ui/BotView.h>
+#include <ui/WindowController.h>
 
 using namespace std;
 

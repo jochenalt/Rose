@@ -9,7 +9,7 @@
 #include <GL/gl.h>
 #include <math.h>
 
-#include <VolumeOfRevolution.h>
+#include <ui/VolumeOfRevolution.h>
 #include "setup.h"
 
 VolumeOfRevolution::VolumeOfRevolution()

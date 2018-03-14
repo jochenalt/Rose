@@ -7,7 +7,7 @@
 
 #include "basics/util.h"
 
-#include <RhythmDetector.h>
+#include <dance/RhythmDetector.h>
 
 RhythmDetector::RhythmDetector() {
 }

@@ -5,12 +5,11 @@
  *      Author: jochenalt
  */
 
+#include <basics/util.h>
 
-#include <Dancer.h>
-#include "basics/util.h"
-
-#include "RhythmDetector.h"
-#include "Stewart/BodyKinematics.h"
+#include <dance/Dancer.h>
+#include <dance/RhythmDetector.h>
+#include <Stewart/BodyKinematics.h>
 
 
 Dancer ::Dancer () {
@@ -47,7 +46,7 @@ void Dancer ::createMove(double movePercentage) {
 	pose = newPose;
 }
 
-void Dancer::setDanceParameters(Move::MoveType newCurrentMove, double newAmbition, const Pose& newBodyPose, const Pose& newHeadPose ) {
+void Dancer::imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition, const Pose& newBodyPose, const Pose& newHeadPose ) {
 	currentMove = newCurrentMove;
 	ambition = newAmbition;
 	pose.body = newBodyPose;

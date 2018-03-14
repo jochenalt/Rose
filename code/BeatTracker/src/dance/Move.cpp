@@ -7,8 +7,8 @@
 
 #include <math.h>
 #include <assert.h>
-#include <Dancer.h>
-#include <Move.h>
+#include <dance/Dancer.h>
+#include <dance/Move.h>
 #include "Stewart/BodyKinematics.h"
 
 

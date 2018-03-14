@@ -7,16 +7,15 @@
 
 #include <stdlib.h>
 #include <ctype.h>
-#include <Dancer.h>
 #include <string.h>
 #include <stdio.h>
 #include <vector>
 
 #include "basics/stringhelper.h"
 #include "basics/util.h"
+#include <dance/Dancer.h>
 
-#include "mongoose.h"
-
+#include <webserver/mongoose.h>
 #include <webserver/Webserver.h>
 using namespace std;
 

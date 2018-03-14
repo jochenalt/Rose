@@ -20,18 +20,18 @@
 #include <algorithm>
 #include <ao/ao.h>
 #include <basics/stringhelper.h>
-#include <Dancer.h>
+#include <dance/Dancer.h>
 
-#include "basics/util.h"
-#include "BTrack/BTrack.h"
-#include "AudioFile/AudioFile.h"
-#include "UI.h"
-#include "RhythmDetector.h"
-#include "Stewart/BodyKinematics.h"
-#include "servo/PCA9685Servo.h"
-#include "servo/ServoController.h"
-#include "webserver/Webserver.h"
-#include "client/BotClient.h"
+#include <basics/util.h>
+#include <BTrack/BTrack.h>
+#include <AudioFile/AudioFile.h>
+#include <ui/UI.h>
+#include "dance/RhythmDetector.h"
+#include <Stewart/BodyKinematics.h>
+#include <servo/PCA9685Servo.h>
+#include <servo/ServoController.h>
+#include <webserver/Webserver.h>
+#include <client/BotClient.h>
 
 using namespace std;
 
@@ -60,7 +60,6 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
     return std::find(begin, end, option) != end;
 }
 
-
 void printUsage() {
 	cout << "BeatTracker -f <wav.file>        # define the track to be played" << endl
 	     << "            [-h]                 # print this" << endl
@@ -73,8 +72,6 @@ void printUsage() {
 		 << "            [-i <n>]# start after n detected beats" << endl
 	     << "            [-t]                 # servo calibration via keyboard" << endl;
 }
-
-
 
 typedef void (*BeatCallbackFct)(bool beat, double Bpm);
 
@@ -185,10 +182,6 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 		} else {
 			// last frame not sufficient for a complete hop
 			cout << "end of song" << endl;
-			if (runUI)
-				UI::getInstance().tearDown();
-			exit(1);
-
 		}
 	}
 
@@ -229,7 +222,7 @@ void sendDanceToClient(bool beat, double bpm) {
 	BotClient& client = BotClient::getInstance();
 
 	// fetch cached data from webserver  and set into Dance machine
-	mm.setDanceParameters(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
+	mm.imposeDanceParams(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
 
 	// send data to ui
 	if (runUI) {
@@ -362,10 +355,13 @@ int main(int argc, char *argv[]) {
     	BotClient::getInstance().setup(webclientHost);
 
 	BodyKinematics::getInstance().setup();
-    Dancer ::getInstance().setup();
+    Dancer::getInstance().setup();
     RhythmDetector::getInstance().setup();
 
-    Dancer ::getInstance().setStartAfterNBeats(startAfterNBeats);
+    Dancer::getInstance().setStartAfterNBeats(startAfterNBeats);
+
+    if (isWebServer)
+    	ServoController::getInstance().setup();
 
     if (runUI)
     	UI::getInstance().setup(argc,argv);
@@ -382,7 +378,7 @@ int main(int argc, char *argv[]) {
     			client.getStatus();
 
 				// fetch cached data from webserver  and set into Dance machine
-				mm.setDanceParameters(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
+				mm.imposeDanceParams(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
 
 				// send data to ui
 				if (runUI) {

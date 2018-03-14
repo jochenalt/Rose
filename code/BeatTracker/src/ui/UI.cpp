@@ -7,8 +7,8 @@
 
 #include <iostream>
 #include "basics/spatial.h"
-#include <UI.h>
-#include "WindowController.h"
+#include <ui/UI.h>
+#include "ui/WindowController.h"
 
 UI::UI() {
 }

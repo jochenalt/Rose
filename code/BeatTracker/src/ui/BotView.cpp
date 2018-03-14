@@ -5,7 +5,7 @@
  */
 
 
-#include <BotRenderer.h>
+#include <ui/BotRenderer.h>
 #include <thread>
 
 #include <GL/gl.h>
@@ -16,13 +16,13 @@
 #include "basics/spatial.h"
 #include "basics/util.h"
 
-#include <BotView.h>
-#include <Dancer.h>
+#include <ui/BotView.h>
+#include <dance/Dancer.h>
 #include <Stewart/StewartKinematics.h>
 #include <Stewart/BodyKinematics.h>
 
-#include <WindowController.h>
-#include "uiconfig.h"
+#include <ui/WindowController.h>
+#include <ui/uiconfig.h>
 
 using namespace std;
 

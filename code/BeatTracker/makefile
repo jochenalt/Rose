@@ -9,7 +9,7 @@ OBJS=$(LIB)/AudioFile.o \
 $(LIB)/base64.o $(LIB)/orientation.o $(LIB)/point.o $(LIB)/serializer.o $(LIB)/spatial.o $(LIB)/stringhelper.o $(LIB)/util.o $(LIB)/zip.o  \
 $(LIB)/BTrack.o $(LIB)/OnsetDetectionFunction.o $(LIB)/kiss_fft.o \
 $(LIB)/I2C.o $(LIB)/PCA9685.o $(LIB)/PCA9685Servo.o  $(LIB)/Servo.o  $(LIB)/ServoController.o\
-$(LIB)/BodyKinematics.o $(LIB)/StewartKinematics.o $(LIB)/DanceMove.o $(LIB)/main.o $(LIB)/MoveMaker.o $(LIB)/RhythmDetector.o
+$(LIB)/BodyKinematics.o $(LIB)/StewartKinematics.o $(LIB)/Move.o $(LIB)/main.o $(LIB)/Dancer.o $(LIB)/RhythmDetector.o
 
 
 INCLUDES=-I$(SRC) 
@@ -38,7 +38,16 @@ $(LIB)/%.o:$(SRC)/Stewart/%.cpp $(SRC)/Stewart/%.h
 $(LIB)/%.o:$(SRC)/%.cpp $(SRC)/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
-$(LIB)/%.o:$(SRC)/kiss_fft130/%.c $(SRC)/kiss_fft130/%.h
+$(LIB)/%.o:$(SRC)/fft/%.c $(SRC)/fft/%.h
+	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
+
+$(LIB)/%.o:$(SRC)/restclient/%.c $(SRC)/restclient/%.h
+	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
+
+$(LIB)/%.o:$(SRC)/webserver/%.c $(SRC)/webserver/%.h
+	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
+
+$(LIB)/%.o:$(SRC)/client/%.c $(SRC)/client/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
 $(LIB)/%.o:$(SRC)/%.cpp 

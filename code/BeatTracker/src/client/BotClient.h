@@ -8,7 +8,7 @@
 #ifndef SRC_CLIENT_BOTCLIENT_H_
 #define SRC_CLIENT_BOTCLIENT_H_
 
-#include <Move.h>
+#include <dance/Move.h>
 #include "restclient/restclient.h"
 #include "restclient/connection.h"
 

@@ -8,9 +8,10 @@
 #ifndef MOVEMAKER_H_
 #define MOVEMAKER_H_
 
-#include <Move.h>
-#include "basics/spatial.h"
 #include <string>
+
+#include <dance/Move.h>
+#include "basics/spatial.h"
 
 
 
@@ -35,7 +36,7 @@ public:
 	void danceLoop(bool beat, double BPM);
 
 	// call this with data coming from the webserver to define the current dancing parameters withou generating them
-	void setDanceParameters(Move::MoveType newCurrentMove, double newAmbition, const Pose& newBodyPose, const Pose& newHeadPose );
+	void imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition, const Pose& newBodyPose, const Pose& newHeadPose );
 
 	// current body pose within the move
 	Pose& getBodyPose() { return pose.body; };
@@ -46,8 +47,8 @@ public:
 	// set the number of moves after that the next move happens
 	void switchMovePeriodically(int afterHowManyMoves);
 
+	// sequence mode is if we change the move automatically or stick to the same move forever
 	SequenceModeType getSequenceMode() { return sequenceMode; };
-
 	void setSequenceMode(SequenceModeType newSequenceMode) { sequenceMode = newSequenceMode; };
 
 	// get number of actual moves (without NO_MOVE)
@@ -56,10 +57,10 @@ public:
 	// get nice name of a move
 	string getMoveName(Move::MoveType m) { return Move::getMove(m).getName(); };
 
-	// set current move
+	// switch immediatelly to the passed dance move
 	void setCurrentMove(Move::MoveType m);
 
-	// return current move
+	// return currently danced move
 	Move::MoveType getCurrentMove()  { return currentMove; };
 
 	// scale the amplitude of all moves by ambition

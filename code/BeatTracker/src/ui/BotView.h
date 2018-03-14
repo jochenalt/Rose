@@ -8,7 +8,7 @@
 #ifndef UI_BOTVIEW_H_
 #define UI_BOTVIEW_H_
 
-#include <BotRenderer.h>
+#include <ui/BotRenderer.h>
 #include <string>
 #include "BaseView.h"
 
