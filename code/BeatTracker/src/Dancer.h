@@ -8,20 +8,20 @@
 #ifndef MOVEMAKER_H_
 #define MOVEMAKER_H_
 
+#include <Move.h>
 #include "basics/spatial.h"
 #include <string>
 
-#include "DanceMove.h"
 
 
-class MoveMaker {
+class Dancer  {
 	friend class Move;
 public:
 	enum SequenceModeType { AUTOMATIC_SEQUENCE, SELECTED_MOVE};
 
-	MoveMaker();
-	virtual ~MoveMaker();
-	static MoveMaker& getInstance();
+	Dancer ();
+	virtual ~Dancer ();
+	static Dancer & getInstance();
 	Pose getDefaultBodyPose();
 	Pose getDefaultHeadPose();
 
@@ -31,8 +31,11 @@ public:
 	// set the number of beats awaited until the first move starts
 	void setStartAfterNBeats(int n) { startAfterNBeats = n; };
 
-	// call this, and the move is updated. Should be invoked with 25Hz
-	void loop(bool beat, double BPM);
+	// call this with audio data to update the move. Should be invoked with 25Hz
+	void danceLoop(bool beat, double BPM);
+
+	// call this with data coming from the webserver to define the current dancing parameters withou generating them
+	void setDanceParameters(Move::MoveType newCurrentMove, double newAmbition, const Pose& newBodyPose, const Pose& newHeadPose );
 
 	// current body pose within the move
 	Pose& getBodyPose() { return pose.body; };

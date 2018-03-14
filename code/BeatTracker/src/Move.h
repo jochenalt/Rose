@@ -5,8 +5,8 @@
  *      Author: jochenalt
  */
 
-#ifndef SRC_DANCEMOVE_H_
-#define SRC_DANCEMOVE_H_
+#ifndef SRC_MOVE_H_
+#define SRC_MOVE_H_
 
 
 
@@ -119,4 +119,4 @@ public:
 	static std::vector<Move> moveLibrary;
 };
 
-#endif /* SRC_DANCEMOVE_H_ */
+#endif /* SRC_MOVE_H_ */

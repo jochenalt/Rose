@@ -170,4 +170,10 @@ std::ostream& serializePrim(std::ostream &in, int item) {
 	return in;
 };
 
+string Serializable::toString() {
+	ostringstream out;
+	serialize(out);
+	return out.str();
+}
+
 

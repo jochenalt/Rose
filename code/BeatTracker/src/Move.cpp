@@ -7,11 +7,10 @@
 
 #include <math.h>
 #include <assert.h>
-
+#include <Dancer.h>
+#include <Move.h>
 #include "Stewart/BodyKinematics.h"
 
-#include <DanceMove.h>
-#include <MoveMaker.h>
 
 
 std::vector<Move> Move::moveLibrary;
@@ -69,7 +68,7 @@ double Move::scaleMove(double movePercentage, double speedFactor, double phase) 
 }
 
 double Move::scaleAmbition(double value) {
-	return MoveMaker::getInstance().getAmbition()*value;
+	return Dancer ::getInstance().getAmbition()*value;
 }
 
 double Move::baseCurveCos(double movePercentage) {

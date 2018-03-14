@@ -1,16 +1,14 @@
 
 #include <stdio.h>
 #include <assert.h>
-
+#include <Dancer.h>
+#include <Move.h>
 #include "basics/util.h"
 
 #include "uiconfig.h"
 #include "setup.h"
 
 #include "BotView.h"
-#include "MoveMaker.h"
-#include "DanceMove.h"
-
 #include "WindowController.h"
 
 using namespace std;
@@ -99,8 +97,8 @@ void WindowController::setBodyPose(const Pose& bodyPose, const Pose& headPose) {
 }
 
 void setDancingMoveWidget() {
-	int movesPerRow = (MoveMaker::getInstance().getNumMoves()+1)/DanceMoveRows  ;
-	Move::MoveType move = MoveMaker::getInstance().getCurrentMove();
+	int movesPerRow = (Dancer ::getInstance().getNumMoves()+1)/DanceMoveRows  ;
+	Move::MoveType move = Dancer ::getInstance().getCurrentMove();
 	int moveNumber = (int)move;
 	int row = moveNumber / movesPerRow;
 	int line = moveNumber - movesPerRow*row;
@@ -116,22 +114,22 @@ void setDancingMoveWidget() {
 
 
 void currentDancingMoveCallback(int widgetNo) {
-	int movesPerRow = (MoveMaker::getInstance().getNumMoves()+1)/DanceMoveRows ;
+	int movesPerRow = (Dancer ::getInstance().getNumMoves()+1)/DanceMoveRows ;
 	int row = widgetNo;
 	assert(row < DanceMoveRows);
 	if (row == 0) {
-		MoveMaker::getInstance().setCurrentMove((Move::MoveType)(dancingModeLiveVar[row]));
+		Dancer ::getInstance().setCurrentMove((Move::MoveType)(dancingModeLiveVar[row]));
 	}
 	else
-		MoveMaker::getInstance().setCurrentMove((Move::MoveType)(dancingModeLiveVar[row] + row*movesPerRow));
+		Dancer ::getInstance().setCurrentMove((Move::MoveType)(dancingModeLiveVar[row] + row*movesPerRow));
 }
 
 void setSequenceModeWidget() {
-	currentSequenceModeWidget->set_int_val((int)MoveMaker::getInstance().getSequenceMode());
+	currentSequenceModeWidget->set_int_val((int)Dancer ::getInstance().getSequenceMode());
 }
 
 void currentSequenceModeCallback(int widgetNo) {
-	MoveMaker::getInstance().setSequenceMode((MoveMaker::SequenceModeType)currentSequenceModeLiveVar);
+	Dancer ::getInstance().setSequenceMode((Dancer ::SequenceModeType)currentSequenceModeLiveVar);
 }
 
 void clothesOnCallback(int widgetNo) {
@@ -139,7 +137,7 @@ void clothesOnCallback(int widgetNo) {
 }
 
 void ambitionCallback(int widgetNo) {
-	MoveMaker::getInstance().setAmbition(ambitionLiveVar);
+	Dancer ::getInstance().setAmbition(ambitionLiveVar);
 }
 GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	GLUI *windowHandle= GLUI_Master.create_glui_subwindow( wMain,  GLUI_SUBWINDOW_BOTTOM);
@@ -158,7 +156,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 		currentDancingModeWidget[row] =  new GLUI_RadioGroup(dancingModePanel[row], dancingModeLiveVar + row, row, currentDancingMoveCallback);
 
-		while (moveCounter < (MoveMaker::getInstance().getNumMoves() +1) / DanceMoveRows * (row+1)) {
+		while (moveCounter < (Dancer ::getInstance().getNumMoves() +1) / DanceMoveRows * (row+1)) {
 			Move& move = Move::getMove((Move::MoveType)moveCounter);
 			new GLUI_RadioButton(currentDancingModeWidget[row], move.getName().c_str());
 
@@ -167,7 +165,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 		// fill up with empty lines to have the containers of the same height
 		if (row == DanceMoveRows-1) {
-			for (int lines = moveCounter;lines < MoveMaker::getInstance().getNumMoves()-MoveMaker::getInstance().getNumMoves()%2;lines++)
+			for (int lines = moveCounter;lines < Dancer ::getInstance().getNumMoves()-Dancer ::getInstance().getNumMoves()%2;lines++)
 				new GLUI_StaticText(dancingModePanel[row],"");
 		}
 

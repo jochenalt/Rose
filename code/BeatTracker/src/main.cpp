@@ -20,19 +20,18 @@
 #include <algorithm>
 #include <ao/ao.h>
 #include <basics/stringhelper.h>
+#include <Dancer.h>
 
 #include "basics/util.h"
 #include "BTrack/BTrack.h"
 #include "AudioFile/AudioFile.h"
-#ifdef USE_OPENGL_UI
 #include "UI.h"
-#endif
-#include "MoveMaker.h"
 #include "RhythmDetector.h"
 #include "Stewart/BodyKinematics.h"
 #include "servo/PCA9685Servo.h"
 #include "servo/ServoController.h"
 #include "webserver/Webserver.h"
+#include "client/BotClient.h"
 
 using namespace std;
 
@@ -66,7 +65,8 @@ void printUsage() {
 	cout << "BeatTracker -f <wav.file>        # define the track to be played" << endl
 	     << "            [-h]                 # print this" << endl
 	     << "            [-port <port>]       # set port of webserver if different from 8080" << endl
-	     << "            [-webroot <path>]    # set path of ./webroot" << endl
+	     << "            [-host <host:port>]  # define this process as client accessing this webserver" << endl
+		 << "            [-webroot <path>]    # set path of ./webroot" << endl
 		 << "            [-v <volume 0..100>] # set volume between 0 and 100" << endl
 		 << "            [-ui]                # start visualizer" << endl
 		 << "            [-s]                 # silent, do not play audio" << endl
@@ -185,9 +185,8 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 		} else {
 			// last frame not sufficient for a complete hop
 			cout << "end of song" << endl;
-#ifdef USE_OPENGL_UI
-			UI::getInstance().tearDown();
-#endif
+			if (runUI)
+				UI::getInstance().tearDown();
 			exit(1);
 
 		}
@@ -201,17 +200,13 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 }
 
 
-bool exitMode = false;
 
 void signalHandler(int s){
-	exitMode = true;
 	changemode(0);
 
 	cout << "Signal " << s << ". Exiting";
-#ifdef USE_OPENGL_UI
     if (runUI)
     	UI::getInstance().tearDown();
-#endif
 	cout.flush();
 	exit(1);
 }
@@ -220,15 +215,26 @@ void signalHandler(int s){
 
 void sendBeatToRythmDetector(bool beat, double bpm) {
 	RhythmDetector & rd = RhythmDetector::getInstance();
-	MoveMaker& mm = MoveMaker::getInstance();
+	Dancer & mm = Dancer::getInstance();
 
 	rd.loop(beat, bpm);
-	mm.loop(beat, bpm);
-#ifdef USE_OPENGL_UI
+	mm.danceLoop(beat, bpm);
 	if (runUI) {
 		UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
 	}
-#endif
+}
+
+void sendDanceToClient(bool beat, double bpm) {
+	Dancer & mm = Dancer::getInstance();
+	BotClient& client = BotClient::getInstance();
+
+	// fetch cached data from webserver  and set into Dance machine
+	mm.setDanceParameters(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
+
+	// send data to ui
+	if (runUI) {
+		UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
+	}
 }
 
 typedef void (*MoveCallbackFct)(bool beat, double Bpm);
@@ -238,25 +244,37 @@ int main(int argc, char *argv[]) {
 	// exit correctly when exception arises
 	std::set_terminate([](){
 		std::cout << "Unhandled exception\n"; std::abort();
-#ifdef USE_OPENGL_UI
 	    if (runUI)
 	    	UI::getInstance().tearDown();
-#endif
 		changemode(0);
 	});
 
 	// catch SIGINT (ctrl-C)
     signal (SIGINT,signalHandler);
 
+    // currently played filename
     string trackFilename;
+
+    // default volume
     int volumeArg = 20;
+
+    // default latency of the moves
     int startAfterNBeats = 4;
+
+    // if we run a webserver, this is the path where static content is stored
     string webrootPath = string(argv[0]);
 	int idx = webrootPath.find_last_of("/");
 	webrootPath = webrootPath.substr(0,idx) + "/webroot";
 
+	// dont run the engine on yourself but call the webserver
+	bool isWebClient = false;
 
-    webrootPath+ string("../webroot");
+	// run a webserver to serve a client
+	bool isWebServer = true;
+
+	// if client, this is the host of the webserver
+	string webclientHost = "127.0.0.1:8080";
+
     int webserverPort = 8080;
     for (int i = 1;i<argc;i++) {
     	string arg = getCmdOption(argv, argc,i);
@@ -280,12 +298,23 @@ int main(int argc, char *argv[]) {
     		}
 	    	i++;
 	    	bool ok = true;
+	    	isWebClient = false;
+	    	isWebServer = true;
 	    	webserverPort = -1;
 	    	webserverPort = stringToInt(getCmdOption(argv, argc, i), ok);
 	    	if ((webserverPort < 1000) || (webserverPort > 9999)) {
 	    		cerr << "port should be between 1000..9999" << endl;
 	    		exit(1);
 	    	}
+	    } else if (arg == "-host") {
+    		if (i+1 >= argc) {
+    			cerr << "-host requires a string like 127.0.0.1:8080" << endl;
+    			exit(1);
+    		}
+	    	i++;
+	    	isWebClient = true;
+	    	isWebServer = false;
+	    	webclientHost = getCmdOption(argv, argc, i);
 	    } else if (arg == "-webroot") {
     		if (i+1 >= argc) {
     			cerr << "-webroot required a path, e.g. " << argv[0] << "/webroot" << endl;
@@ -327,22 +356,45 @@ int main(int argc, char *argv[]) {
 
     }
 
-    Webserver::getInstance().setup(webserverPort, webrootPath);
+    if (isWebServer)
+    	Webserver::getInstance().setup(webserverPort, webrootPath);
+    if (isWebClient)
+    	BotClient::getInstance().setup(webclientHost);
+
 	BodyKinematics::getInstance().setup();
-    MoveMaker::getInstance().setup();
+    Dancer ::getInstance().setup();
     RhythmDetector::getInstance().setup();
 
+    Dancer ::getInstance().setStartAfterNBeats(startAfterNBeats);
 
-    MoveMaker::getInstance().setStartAfterNBeats(startAfterNBeats);
-
-#ifdef USE_OPENGL_UI
     if (runUI)
     	UI::getInstance().setup(argc,argv);
-#endif
-    processAudioFile(trackFilename, volumeArg/100.0, sendBeatToRythmDetector);
 
-#ifdef USE_OPENGL_UI
+    if (isWebServer)
+    	processAudioFile(trackFilename, volumeArg/100.0, sendBeatToRythmDetector);
+
+    if (isWebClient) {
+		Dancer & mm = Dancer::getInstance();
+		BotClient& client = BotClient::getInstance();
+		TimeSamplerStatic clientLoopTimer;
+    	while (true) {
+    		if (clientLoopTimer.isDue(20)) {
+    			client.getStatus();
+
+				// fetch cached data from webserver  and set into Dance machine
+				mm.setDanceParameters(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
+
+				// send data to ui
+				if (runUI) {
+					UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
+				}
+    		}
+    		else
+    			delay_ms(1);
+    	}
+    }
+
     if (runUI)
     	UI::getInstance().tearDown();
-#endif
+
 }

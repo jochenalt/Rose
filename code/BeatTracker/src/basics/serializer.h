@@ -18,8 +18,10 @@
 using namespace std;
 
 class Serializable {
+public:
 	virtual std::ostream& serialize(std::ostream &out) const = 0;
 	virtual std::istream& deserialize(std::istream &in, bool &ok) = 0;
+	string toString();
 };
 
 void parseCharacter(istream& in, char ch, bool &ok);

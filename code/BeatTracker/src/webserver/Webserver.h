@@ -24,7 +24,13 @@ public:
 		return instance;
 	}
 
+	// is webserver running?
+	bool isActive() { return isWebserverActive; };
+
+	// initialize and start webserver
 	void setup(int port, string webRootPath);
+
+	// stop webserver
 	void teardown() {
 		terminateThread = true; // let the thread run
 	}
@@ -47,6 +53,9 @@ private:
 
 	// flag to indicate the flag to terminbate
 	bool terminateThread = false;
+
+	// flag to indicate if webserver is running
+	bool isWebserverActive = false;
 
 };
 

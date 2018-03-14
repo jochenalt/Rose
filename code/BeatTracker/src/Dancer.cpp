@@ -6,34 +6,34 @@
  */
 
 
+#include <Dancer.h>
 #include "basics/util.h"
 
-#include "MoveMaker.h"
 #include "RhythmDetector.h"
 #include "Stewart/BodyKinematics.h"
 
 
-MoveMaker::MoveMaker() {
+Dancer ::Dancer () {
 }
 
-MoveMaker::~MoveMaker() {
+Dancer ::~Dancer () {
 }
 
-MoveMaker& MoveMaker::getInstance() {
-	static MoveMaker mm;
+Dancer & Dancer ::getInstance() {
+	static Dancer  mm;
 	return mm;
 }
 
 
-Pose MoveMaker::getDefaultBodyPose() {
+Pose Dancer ::getDefaultBodyPose() {
 	return Pose(Point(0,0,bodyHeight), Rotation (0,0,0));
 }
 
-Pose MoveMaker::getDefaultHeadPose() {
+Pose Dancer ::getDefaultHeadPose() {
 	return Pose(Point(0,0,headHeight), Rotation (0,0,0));
 }
 
-void MoveMaker::setup() {
+void Dancer ::setup() {
 	pose.body = getDefaultBodyPose();
 	pose.head = getDefaultHeadPose();
 
@@ -42,12 +42,19 @@ void MoveMaker::setup() {
 	startAfterNBeats = 4;
 }
 
-void MoveMaker::createMove(double movePercentage) {
+void Dancer ::createMove(double movePercentage) {
 	TotalBodyPose newPose = Move::getMove(currentMove).move(movePercentage);
 	pose = newPose;
 }
 
-void MoveMaker::loop(bool beat, double BPM) {
+void Dancer::setDanceParameters(Move::MoveType newCurrentMove, double newAmbition, const Pose& newBodyPose, const Pose& newHeadPose ) {
+	currentMove = newCurrentMove;
+	ambition = newAmbition;
+	pose.body = newBodyPose;
+	pose.head = newHeadPose;
+}
+
+void Dancer ::danceLoop(bool beat, double BPM) {
 	if (beat) {
 
 		// first move is the classical head nicker
@@ -72,7 +79,7 @@ void MoveMaker::loop(bool beat, double BPM) {
 	}
 }
 
-void MoveMaker::doNewMove() {
+void Dancer ::doNewMove() {
 	// when all moves are shown, omit plain headnicker
 	if ((int)currentMove >= Move::numMoves()-1)
 		currentMove = (Move::MoveType)1; // don't restart with physicists move
@@ -83,7 +90,7 @@ void MoveMaker::doNewMove() {
 	cout << "new move: " << Move::getMove(currentMove).getName() << "(" << (int)currentMove << ")" << endl;
 }
 
-void MoveMaker::setCurrentMove(Move::MoveType m) {
+void Dancer ::setCurrentMove(Move::MoveType m) {
 	currentMove = m;
 	passedBeatsInCurrentMove = 0;
 }

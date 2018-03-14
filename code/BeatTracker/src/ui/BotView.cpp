@@ -17,12 +17,11 @@
 #include "basics/util.h"
 
 #include <BotView.h>
+#include <Dancer.h>
 #include <Stewart/StewartKinematics.h>
 #include <Stewart/BodyKinematics.h>
 
 #include <WindowController.h>
-#include "MoveMaker.h"
-
 #include "uiconfig.h"
 
 using namespace std;
@@ -199,7 +198,7 @@ int BotView::create(int mainWindow, string pTitle) {
 
 	botDrawer.setup();
 
-	setBodyPose(MoveMaker::getInstance().getDefaultBodyPose(), MoveMaker::getInstance().getDefaultHeadPose(), eyeDeviation);
+	setBodyPose(Dancer ::getInstance().getDefaultBodyPose(), Dancer ::getInstance().getDefaultHeadPose(), eyeDeviation);
 	return windowHandle;
 }
 

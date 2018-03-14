@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <ctype.h>
+#include <Dancer.h>
 #include <string.h>
 #include <stdio.h>
 #include <vector>
@@ -17,7 +18,6 @@
 #include "mongoose.h"
 
 #include <webserver/Webserver.h>
-#include "MoveMaker.h"
 using namespace std;
 
 Webserver::Webserver() {
@@ -94,6 +94,9 @@ void Webserver::setup(int port, string webRootPath) {
 	cout << "webserver is running at port " << port << endl;
 	terminateThread = false;
 	webserverThread = new std::thread(&Webserver::runningThread, this);
+
+	// webserver is running
+	isWebserverActive = true;
 }
 
 void Webserver::runningThread() {
@@ -141,9 +144,9 @@ void compileURLParameter(string uri, vector<string> &names, vector<string> &valu
 string getResponse(bool ok) {
 	std::ostringstream s;
 	if (ok) {
-		s << "\"ok\":true";
+		s << "\"status\":true";
 	} else {
-		s << "\"ok\":false, \"error\":" << getLastError() << ", \"errormessage\":" << stringToJSonString(getErrorMessage(getLastError()));
+		s << "\"status\":false, \"error\":" << getLastError() << ", \"errormessage\":" << stringToJSonString(getErrorMessage(getLastError()));
 	}
 	string response = s.str();
 	return response;
@@ -217,18 +220,18 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 	if (hasPrefix(uri, "/status")) {
 		string engineCommand = uri.substr(string("/status").length());
 
-		MoveMaker mm = MoveMaker::getInstance();
+		Dancer  mm = Dancer ::getInstance();
 		std::ostringstream out;
-		out << "{ \"response\"= { \"body\"=";
-		mm.getBodyPose().serialize(out);
-		out << ", \"head\"=";
-		mm.getHeadPose().serialize(out);
-		out << ", \"ambition\"=" << mm.getAmbition();
-		out << ", \"move\"=" << (int)mm.getCurrentMove();
-		out << "} , " << getResponse(true);
-		out << "}";
+		out << "{ \"response\": "
+		    <<     "{ \"body\":"<<  mm.getBodyPose().toString()
+		    <<     ", \"head\":" << mm.getHeadPose().toString()
+		    <<     ", \"ambition\":" << mm.getAmbition()
+		    <<     ", \"move\":" << (int)mm.getCurrentMove()
+			<<     "} , " << getResponse(true)
+		    << "}";
 		response = out.str();
-		return true;
+		okOrNOk = true;
+		return okOrNOk;
 	}
 
 	okOrNOk = false;
