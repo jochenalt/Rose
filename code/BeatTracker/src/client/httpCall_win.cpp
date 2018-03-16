@@ -1,5 +1,6 @@
 
 
+#ifdef _WIN32
 #include "client/httpCall.h"
 
 #include <windows.h>
@@ -210,3 +211,4 @@ void callHttp(string host, int port, string param, string& httpResponse, int &ht
 }
 
 
+#endif

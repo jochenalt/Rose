@@ -291,8 +291,6 @@ int main(int argc, char *argv[]) {
     		}
 	    	i++;
 	    	bool ok = true;
-	    	isWebClient = false;
-	    	isWebServer = true;
 	    	webserverPort = -1;
 	    	webserverPort = stringToInt(getCmdOption(argv, argc, i), ok);
 	    	if ((webserverPort < 1000) || (webserverPort > 9999)) {
@@ -301,7 +299,7 @@ int main(int argc, char *argv[]) {
 	    	}
 	    } else if (arg == "-host") {
     		if (i+1 >= argc) {
-    			cerr << "-host requires a string like 127.0.0.1:8080" << endl;
+    			cerr << "-host requires a string like 127.0.0.1" << endl;
     			exit(1);
     		}
 	    	i++;
@@ -352,7 +350,7 @@ int main(int argc, char *argv[]) {
     if (isWebServer)
     	Webserver::getInstance().setup(webserverPort, webrootPath);
     if (isWebClient)
-    	BotClient::getInstance().setup(webclientHost);
+    	BotClient::getInstance().setup(webclientHost, webserverPort);
 
 	BodyKinematics::getInstance().setup();
     Dancer::getInstance().setup();

@@ -6,16 +6,13 @@
  */
 
 #include <client/BotClient.h>
-#include "restclient/restclient.h"
+#include <client/httpCall.h>
 
 BotClient::BotClient() {
 
 }
 
 BotClient::~BotClient() {
-	// deinit RestClient. After calling this you have to call RestClient::init()
-	// again before you can use it
-	RestClient::disable();
 }
 
 
@@ -25,49 +22,22 @@ BotClient& BotClient::getInstance() {
 }
 
 
-void BotClient::setup(string host) {
-	// initialize RestClient
-	RestClient::init();
+void BotClient::setup(string newHost, int newPort) {
 
-	// get a connection object
-	webserverConnection = new RestClient::Connection(host);
-
-	// configure basic auth
-	// webserverConnection->SetBasicAuth("odroid", "odroid");
-
-	// set connection timeout to 5s
-	webserverConnection->SetTimeout(5);
-
-	// set custom user agent
-	// webserverConnection->SetUserAgent("foo/cool");
-
-	// enable following of redirects (default is off)
-	// webserverConnection->FollowRedirects(true);
-
-	// set headers
-	RestClient::HeaderFields headers;
-	headers["Accept"] = "application/json";
-	webserverConnection->SetHeaders(headers);
-
-	// append additional headers
-	// webserverConnection->AppendHeader("X-MY-HEADER", "foo");
-
-	// if using a non-standard Certificate Authority (CA) trust file
-	// webserverConnection->SetCAInfoFilePath("/etc/custom-ca.crt");
-
-	// set different content header for POST and PUT
-	webserverConnection->AppendHeader("Content-Type", "text/json");
-
+	host = newHost;
+	port = newPort;
 	// webclient is ready
 	isWebClientActive = true;
 }
 
 
 void BotClient::getStatus() {
-	RestClient::Response r = webserverConnection->get("/status");
-	if (r.code != 200)
-		cerr << "/status returned http code " << r.code << endl;
-	std::istringstream in(r.body);
+	int httpStatus = -1;
+	string httpResponse;
+	callHttp(host, port, "/status", httpResponse, httpStatus);
+	if (httpStatus != 200)
+		cerr << "/status returned http code " << httpResponse << endl;
+	std::istringstream in(httpResponse);
 	bool ok = true;
 	parseCharacter(in, '{', ok);
 	parseString(in, ok); // "response"
@@ -95,11 +65,8 @@ void BotClient::getStatus() {
 	parseCharacter(in, ',', ok);
 	parseString(in, ok); // "status"
    	parseCharacter(in, ':', ok);
-   	bool status;
-   	status = parseBool(in, ok);
+   	bool status = parseBool(in, ok);
 	parseCharacter(in, '}', ok);
-	if (!status)
-		cerr << "rest response of /status " << r.body << endl;
 }
 
 

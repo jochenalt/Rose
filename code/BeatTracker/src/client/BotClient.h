@@ -25,7 +25,7 @@ public:
 	bool isActive() { return isWebClientActive; };
 
 	// setup rest connection to server
-	void setup(string host);
+	void setup(string host, int port);
 
 	// fetch current state of the bot
 	void getStatus();
@@ -36,12 +36,14 @@ public:
 	Move::MoveType getMove() { return move; };
 
 private:
-	RestClient::Connection* webserverConnection = NULL;
+
 	Pose bodyPose;
 	Pose headPose;
 	float ambition = 0;
 	Move::MoveType move = Move::MoveType::NO_MOVE;
 	bool isWebClientActive = false;
+	string host;
+	int port;
 };
 
 #endif /* SRC_CLIENT_BOTCLIENT_H_ */
