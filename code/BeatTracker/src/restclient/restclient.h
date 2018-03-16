@@ -9,6 +9,9 @@
 #ifndef INCLUDE_RESTCLIENT_CPP_RESTCLIENT_H_
 #define INCLUDE_RESTCLIENT_CPP_RESTCLIENT_H_
 
+#ifdef __linux__
+
+
 #include <string>
 #include <map>
 #include <cstdlib>
@@ -60,3 +63,5 @@ Response head(const std::string& url);
 }  // namespace RestClient
 
 #endif  // INCLUDE_RESTCLIENT_CPP_RESTCLIENT_H_
+
+#endif

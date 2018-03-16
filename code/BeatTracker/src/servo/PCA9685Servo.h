@@ -26,6 +26,8 @@
 #ifndef PCA9685SERVO_H_
 #define PCA9685SERVO_H_
 
+#ifdef __linux__
+
 #include <stdint.h>
 #include <iostream>
 
@@ -68,4 +70,5 @@ private:
 extern void servoTest();
 extern void ledTest();
 
+#endif
 #endif /* PCA9685SERVO_H_ */

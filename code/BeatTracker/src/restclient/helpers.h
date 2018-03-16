@@ -9,6 +9,8 @@
 #ifndef INCLUDE_RESTCLIENT_CPP_HELPERS_H_
 #define INCLUDE_RESTCLIENT_CPP_HELPERS_H_
 
+#ifdef __linux__
+
 #include <string>
 #include <cctype>
 #include <algorithm>
@@ -71,3 +73,4 @@ namespace Helpers {
 };  // namespace RestClient
 
 #endif  // INCLUDE_RESTCLIENT_CPP_HELPERS_H_
+#endif

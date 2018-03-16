@@ -4,6 +4,8 @@
  * @author Daniel Schauenberg <d@unwiredcouch.com>
  */
 
+#ifdef __linux__
+
 #include "restclient/connection.h"
 
 #include <curl/curl.h>
@@ -509,3 +511,5 @@ RestClient::Connection::head(const std::string& url) {
 
     return this->performCurlRequest(url);
 }
+
+#endif

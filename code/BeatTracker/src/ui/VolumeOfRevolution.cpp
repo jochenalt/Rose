@@ -7,6 +7,8 @@
 
 #include <assert.h>
 #include <GL/gl.h>
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <math.h>
 
 #include <ui/VolumeOfRevolution.h>

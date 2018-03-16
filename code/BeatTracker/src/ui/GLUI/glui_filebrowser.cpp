@@ -116,7 +116,6 @@ void GLUI_FileBrowser::fbreaddir(const char *d) {
     list->delete_all();
     if (hFind != INVALID_HANDLE_VALUE) {
       do {
-        int len = strlen(FN.cFileName);
         if (FN.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
           item = '\\';
           item += FN.cFileName;

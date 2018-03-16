@@ -16,7 +16,7 @@
 
 class BotRenderer {
 public:
-	enum ClothingModeType { NORMAL, TRANSPARENT, NAKED };
+	enum ClothingModeType { NORMAL_MODE, TRANSPARENT_MODE, NAKED_MODE };
 
 	BotRenderer() {};
 	~BotRenderer() {};
@@ -49,7 +49,7 @@ private:
 
 	VolumeOfRevolution body;
 
-	ClothingModeType clothingMode = NORMAL;
+	ClothingModeType clothingMode = NORMAL_MODE;
 };
 
 #endif /* UI_BOTDRAWER_H_ */

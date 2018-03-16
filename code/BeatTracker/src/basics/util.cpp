@@ -1,9 +1,12 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
 
 #include <stdlib.h>
 #include <chrono>
 #include <unistd.h>
 #include <iomanip>
 
+#include "basics/stringhelper.h"
 #include "basics/util.h"
 #include <cstdarg>
 #include <iostream>
@@ -11,7 +14,6 @@
 #include <thread>
 #include <chrono>
 
-#include "basics/stringhelper.h"
 
 void ExclusiveMutex::lock() {
 	isInBlock = true;
@@ -141,12 +143,12 @@ void delay_us(long us) {
 }
 
 
-realnum radians(realnum degrees) {
+double radians(double degrees) {
 	const realnum fac = (M_PI / 180.0);
 	return degrees * fac;
 }
 
-realnum  degrees(realnum radians) {
+double degrees(double radians) {
 	const realnum fac = (180.0 / M_PI);
 	return radians * fac;
 }
@@ -190,6 +192,7 @@ bool almostEqual(realnum a, realnum b, realnum precision) {
 
 }
 
+#ifdef __linux__
 #include <unistd.h>
 #include <termios.h>
 #include <stdio.h>
@@ -254,7 +257,7 @@ int kbhit (void)
   return FD_ISSET(STDIN_FILENO, &rdfs);
 
 }
-
+#endif
 
 ErrorCodeType glbError = ErrorCodeType::ABSOLUTELY_NO_ERROR;
 

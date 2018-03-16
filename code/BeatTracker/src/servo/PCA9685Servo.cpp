@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 
+#ifdef __linux
 #include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -171,3 +172,5 @@ void servoTest() {
                     }
 		}
 }
+
+#endif

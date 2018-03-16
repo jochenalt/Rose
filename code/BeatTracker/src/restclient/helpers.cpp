@@ -4,6 +4,8 @@
  * @author Daniel Schauenberg <d@unwiredcouch.com>
  */
 
+#ifdef __linux__
+
 #include "restclient/helpers.h"
 
 #include <cstring>
@@ -88,3 +90,4 @@ size_t RestClient::Helpers::read_callback(void *data, size_t size,
   /** return copied size */
   return copy_size;
 }
+#endif

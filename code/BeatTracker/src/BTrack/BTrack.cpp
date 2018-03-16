@@ -19,6 +19,8 @@
  */
 //=======================================================================
 
+#ifdef __linux__
+
 #include <cmath>
 #include <algorithm>
 #include "BTrack.h"
@@ -816,3 +818,5 @@ void BTrack::predictBeat()
 	// set next prediction time
 	m0 = beatCounter + round (beatPeriod / 2);
 }
+
+#endif

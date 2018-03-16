@@ -5,6 +5,8 @@
  *      Author: jochenalt
  */
 
+#ifdef __linux__
+
 #include <assert.h>
 #include <iostream>
 #include "basics/util.h"
@@ -138,3 +140,5 @@ void ServoController::calibrateViaKeyBoard() {
 	changemode(0);
 
 }
+
+#endif

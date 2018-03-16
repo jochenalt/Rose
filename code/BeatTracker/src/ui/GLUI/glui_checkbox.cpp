@@ -150,7 +150,7 @@ void    GLUI_Checkbox::draw_active_area( void )
 
   text_width = _glutBitmapWidthString( glui->font, name.c_str() );
   left       = text_x_offset-3;
-  right      = left + 7 + text_width;
+  // right      = left + 7 + text_width;
 
   // Jochen: do not like the stripple around the text box, is ugly
   /*

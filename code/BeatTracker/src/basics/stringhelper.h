@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <fstream>
 
+bool endsWith(std::string const & value, std::string const & ending);
+
 // old c-like printf
 std::string stringFormat(const std::string &fmt, ...);
 

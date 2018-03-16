@@ -138,8 +138,8 @@ void BotRenderer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 
 	// draw body as flexible volume of revolution along a bezier curve
 	switch (clothingMode) {
-		case NORMAL: body.display(Pose(), bodyPose, headPose, glBodyColor, glBodyColor, glGridColor); break;
-		case TRANSPARENT: body.display(Pose(), bodyPose, headPose, glTranspBodyColor1, glTranspBodyColor2, glTranspGridColor); break;
+		case NORMAL_MODE: body.display(Pose(), bodyPose, headPose, glBodyColor, glBodyColor, glGridColor); break;
+		case TRANSPARENT_MODE: body.display(Pose(), bodyPose, headPose, glTranspBodyColor1, glTranspBodyColor2, glTranspGridColor); break;
 		default:
 			break;
 	}

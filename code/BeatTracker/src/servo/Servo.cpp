@@ -10,7 +10,7 @@
 #include <servo/Servo.h>
 #include <servo/PCA9685.h>
 
-
+#ifdef __linux__
 
 Servo::Servo() {
 
@@ -58,3 +58,5 @@ void Servo::setAngle(double newAngle) {
     // send pwm value to PCA9685 (channels start with 1! )
     pca9685->setPWM(channel+1, pwmValue);
 }
+
+#endif
