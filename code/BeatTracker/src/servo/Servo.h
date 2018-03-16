@@ -8,6 +8,7 @@
 #ifndef SRC_SERVO_SERVO_H_
 #define SRC_SERVO_SERVO_H_
 
+#ifdef __linux__
 #include "PCA9685.h"
 
 class Servo {
@@ -33,5 +34,5 @@ private:
 	double angle = 0;
 
 };
-
+#endif
 #endif /* SRC_SERVO_SERVO_H_ */

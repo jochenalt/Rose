@@ -5,6 +5,8 @@
  *      Author: jochenalt
  */
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <math.h>
 #include <assert.h>
 #include <dance/Dancer.h>

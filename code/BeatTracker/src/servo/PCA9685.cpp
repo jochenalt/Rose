@@ -21,6 +21,7 @@
  * Copyright © 2012 Georgi Todorov  <terahz@geodar.com>
  */
 
+#ifdef __linux__
 #include "assert.h"
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -233,3 +234,5 @@ uint16_t PCA9685::CalcFrequency(uint8_t nPreScale) {
 
 	return (f_max + f_min) / 2;
 }
+
+#endif

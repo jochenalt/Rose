@@ -22,6 +22,9 @@
 #ifndef __BTRACK_H
 #define __BTRACK_H
 
+#ifdef __linux__
+
+
 #include "OnsetDetectionFunction.h"
 #include "CircularBuffer.h"
 #include <vector>
@@ -232,4 +235,5 @@ private:
 
 };
 
+#endif
 #endif

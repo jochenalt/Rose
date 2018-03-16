@@ -8,8 +8,10 @@
 #ifndef SRC_SERVO_SERVOCONTROLLER_H_
 #define SRC_SERVO_SERVOCONTROLLER_H_
 
+#ifdef __linux__
 #include "PCA9685.h"
 #include "Servo.h"
+
 
 class ServoController {
 public:
@@ -44,4 +46,5 @@ private:
 	Servo servo[numServos];
 };
 
+#endif
 #endif /* SRC_SERVO_SERVOCONTROLLER_H_ */

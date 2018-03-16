@@ -20,7 +20,7 @@
  *
  * Copyright © 2012 Georgi Todorov  <terahz@geodar.com>
  */
-
+#ifdef __linux__
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <stdio.h>      /* Standard I/O functions */
@@ -107,3 +107,5 @@ void I2C::openfd() {
 				errno);
 	}
 }
+
+#endif

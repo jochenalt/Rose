@@ -101,8 +101,8 @@ bool almostEqual(realnum a, realnum b, realnum precision);		// true, if both val
 float roundValue(float x);											// round passed value to next floatPrecision number
 
 realnum arctanApprox(realnum x);
-realnum radians(realnum degrees);
-realnum degrees(realnum radians);
+double radians(double degrees);
+double degrees(double radians);
 realnum triangleAlpha(realnum a, realnum b, realnum c);			// cosine law
 realnum triangleGamma(realnum a, realnum b, realnum c);			// cosine law
 bool polynomRoot2ndOrder(realnum a, realnum b, realnum c, realnum& root0, realnum& root1);

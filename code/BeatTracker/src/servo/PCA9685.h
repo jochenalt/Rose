@@ -23,6 +23,9 @@
 
 #ifndef _PCA9685_H
 #define _PCA9685_H
+
+#ifdef __linux__
+
 #include <inttypes.h>
 #include "I2C.h"
 
@@ -105,4 +108,6 @@ private:
 
 	void reset(void);
 };
+
+#endif
 #endif

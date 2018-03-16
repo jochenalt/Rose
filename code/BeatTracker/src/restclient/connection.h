@@ -9,6 +9,8 @@
 #ifndef INCLUDE_RESTCLIENT_CPP_CONNECTION_H_
 #define INCLUDE_RESTCLIENT_CPP_CONNECTION_H_
 
+#ifdef __linux__
+
 #include <curl/curl.h>
 #include <string>
 #include <map>
@@ -207,4 +209,5 @@ class Connection {
 };
 };  // namespace RestClient
 
+#endif
 #endif  // INCLUDE_RESTCLIENT_CPP_CONNECTION_H_

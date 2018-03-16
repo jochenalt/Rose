@@ -11,6 +11,9 @@
  * @author Daniel Schauenberg <d@unwiredcouch.com>
  */
 
+#ifdef __linux__
+
+
 #include "restclient/restclient.h"
 
 #include <curl/curl.h>
@@ -121,3 +124,5 @@ RestClient::Response RestClient::head(const std::string& url) {
   delete conn;
   return ret;
 }
+
+#endif
