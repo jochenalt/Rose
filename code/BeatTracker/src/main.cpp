@@ -1,11 +1,3 @@
-//============================================================================
-// Name        : Tracker.cpp
-// Author      : 
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
-//============================================================================
-
 #include <iostream>
 
 #include <stdlib.h>
@@ -67,7 +59,7 @@ void printUsage() {
 	cout << "BeatTracker -f <wav.file>        # define the track to be played" << endl
 	     << "            [-h]                 # print this" << endl
 	     << "            [-port <port>]       # set port of webserver if different from 8080" << endl
-	     << "            [-host <host:port>]  # define this process as client accessing this webserver" << endl
+	     << "            [-host <host>]       # define this process as client accessing this webserver" << endl
 		 << "            [-webroot <path>]    # set path of ./webroot" << endl
 		 << "            [-v <volume 0..100>] # set volume between 0 and 100" << endl
 		 << "            [-ui]                # start visualizer" << endl
@@ -309,14 +301,15 @@ int main(int argc, char *argv[]) {
 	    		cerr << "port should be between 1000..9999" << endl;
 	    		exit(1);
 	    	}
+	    } else if (arg == "-client") {
+	    		isWebServer= false;
+	    		isWebClient = true;
 	    } else if (arg == "-host") {
     		if (i+1 >= argc) {
     			cerr << "-host requires a string like 127.0.0.1" << endl;
     			exit(1);
     		}
 	    	i++;
-	    	isWebClient = true;
-	    	isWebServer = false;
 	    	webclientHost = getCmdOption(argv, argc, i);
 	    } else if (arg == "-webroot") {
     		if (i+1 >= argc) {
@@ -379,7 +372,7 @@ int main(int argc, char *argv[]) {
     	UI::getInstance().setup(argc,argv);
     }
 
-#ifdef __linux_
+#ifdef __linux__
     if (isWebServer)
     	processAudioFile(trackFilename, volumeArg/100.0, sendBeatToRythmDetector);
 #endif

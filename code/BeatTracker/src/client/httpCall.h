@@ -8,6 +8,9 @@
 #ifdef __WIN32
 #include <windows.h>
 #endif
+#ifdef __linux__
+#include <restclient/connection.h>
+#endif
 
 using namespace std;
 
@@ -21,6 +24,9 @@ public:
 private:
 #ifdef __WIN32
     SOCKET conn = (SOCKET)NULL;
+#endif
+#ifdef __linux__
+    RestClient::Connection* webserverConnection = NULL;
 #endif
     string host;
     int port;

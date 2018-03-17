@@ -143,52 +143,51 @@ void HttpConnection::setup(string newHost, int newPort) {
 }
 
 void HttpConnection::get(string param, string &httpResponse, int& httpStatus) {
-	 const int bufSize = 512;
+	const int bufSize = 512;
     char sendBuffer[bufSize], tmpBuffer[bufSize];
 
-	    ///////////// step 2, send GET request /////////////
-	    sprintf(tmpBuffer, "GET %s HTTP/1.0", param.c_str());
-	    strcpy(sendBuffer, tmpBuffer);
-	    strcat(sendBuffer, "\r\n");
-	    sprintf(tmpBuffer, "Host: %s", host.c_str());
-	    strcat(sendBuffer, tmpBuffer);
-	    strcat(sendBuffer, "\r\n");
-	    strcat(sendBuffer, "\r\n");
-	    send(conn, sendBuffer, strlen(sendBuffer), 0);
+    ///////////// step 2, send GET request /////////////
+	sprintf(tmpBuffer, "GET %s HTTP/1.0", param.c_str());
+	strcpy(sendBuffer, tmpBuffer);
+	strcat(sendBuffer, "\r\n");
+	sprintf(tmpBuffer, "Host: %s", host.c_str());
+	strcat(sendBuffer, tmpBuffer);
+	strcat(sendBuffer, "\r\n");
+	strcat(sendBuffer, "\r\n");
+	send(conn, sendBuffer, strlen(sendBuffer), 0);
 
-	    ///////////// step 3 - get received bytes ////////////////
-	    // Receive until the peer closes the connection
-	    int contentLength = -1;
-	    int headerLen = -1;
-	    httpStatus = -1;
-	    string response = "";
-	    while ((contentLength == -1) || (headerLen == -1) || ((int)response.length() < headerLen + contentLength))
-	    {
-	    	const int readBufferSize = 1024;
-	    	char readBuffer[readBufferSize];
-	        memset(readBuffer, 0, readBufferSize);
-	        int chunkSize = recv (conn, readBuffer, readBufferSize, 0);
-	        if ( chunkSize <= 0 )
-	            break;
+	///////////// step 3 - get received bytes ////////////////
+	// Receive until the peer closes the connection
+	int contentLength = -1;
+	int headerLen = -1;
+	httpStatus = -1;
+	string response = "";
+	while ((contentLength == -1) || (headerLen == -1) || ((int)response.length() < headerLen + contentLength))
+	{
+		const int readBufferSize = 1024;
+		char readBuffer[readBufferSize];
+		memset(readBuffer, 0, readBufferSize);
+		int chunkSize = recv (conn, readBuffer, readBufferSize, 0);
+		if ( chunkSize <= 0 )
+			break;
 
-	        response += string (readBuffer,chunkSize);
-	        if (headerLen == -1)
-	        	headerLen = getHeaderLength(response);
-	        if (contentLength == -1)
-	        	contentLength = getContentLength(response);
-	    }
+		response += string (readBuffer,chunkSize);
+		if (headerLen == -1)
+			headerLen = getHeaderLength(response);
+		if (contentLength == -1)
+			contentLength = getContentLength(response);
+	}
 
-	    if (httpStatus == -1)
-	    	httpStatus = getHttpStatus(response);
+	if (httpStatus == -1)
+		httpStatus = getHttpStatus(response);
 
-
-	    if ((int)response.length() ==  headerLen + contentLength) {
-	    	httpResponse = response.substr(headerLen);
-	    }
-	    else {
-	    	httpResponse = "";
-	    	cerr << "incomplete response in " << param << endl;
-	    }
+	if ((int)response.length() ==  headerLen + contentLength) {
+		httpResponse = response.substr(headerLen);
+	}
+	else {
+		httpResponse = "";
+		cerr << "incomplete response in " << param << endl;
+	}
 }
 
 #endif

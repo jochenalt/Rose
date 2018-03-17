@@ -5,21 +5,35 @@
 #include <restclient/restclient.h>
 #include <restclient/connection.h>
 
+#include <basics/stringhelper.h>
 using namespace std;
 
-RestClient::Connection* webserverConnection = NULL;
 
 
-void  callHttp(string host, int port, string param, string &response, int& httpStatus) {
+HttpConnection::HttpConnection() {
 	// initialize RestClient
 	RestClient::init();
 
+}
+
+HttpConnection::~HttpConnection() {
+	// deinit RestClient. After calling this you have to call RestClient::init()
+	// again before you can use it
+	RestClient::disable();
+}
+
+void HttpConnection::setup(string host,int port) {
+
 	// get a connection object
-	webserverConnection = new RestClient::Connection(host);
+	string baseUrl = host + ":" + intToString(port);
+	webserverConnection = new RestClient::Connection(baseUrl);
 
 	// set connection timeout to 5s
 	webserverConnection->SetTimeout(5);
+}
 
+
+void HttpConnection::get(string param, string &response, int& httpStatus) {
 	// set headers
 	RestClient::HeaderFields headers;
 	headers["Accept"] = "application/json";
@@ -28,13 +42,10 @@ void  callHttp(string host, int port, string param, string &response, int& httpS
 	// set different content header for POST and PUT
 	webserverConnection->AppendHeader("Content-Type", "text/json");
 
-	RestClient::Response r = webserverConnection->get("/status");
+	RestClient::Response r = webserverConnection->get(param);
 	httpStatus = r.code;
 	response = r.body;
-
-	// deinit RestClient. After calling this you have to call RestClient::init()
-	// again before you can use it
-	RestClient::disable();
 }
+
 
 #endif
