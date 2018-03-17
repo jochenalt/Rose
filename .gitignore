@@ -10,3 +10,5 @@ CAD/OldVersions/
 CAD/Components/OldVersions/
 CAD/opengl/OldVersions/
 *.zcode
+code/BeatTracker/.settings/
+code/workspace/
