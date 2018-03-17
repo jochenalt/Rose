@@ -9,6 +9,7 @@
 #define SRC_CLIENT_BOTCLIENT_H_
 
 #include <dance/Move.h>
+#include <client/httpCall.h>
 #include "restclient/restclient.h"
 #include "restclient/connection.h"
 
@@ -42,8 +43,8 @@ private:
 	float ambition = 0;
 	Move::MoveType move = Move::MoveType::NO_MOVE;
 	bool isWebClientActive = false;
-	string host;
-	int port;
+
+	HttpConnection conn;
 };
 
 #endif /* SRC_CLIENT_BOTCLIENT_H_ */

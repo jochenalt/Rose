@@ -88,10 +88,6 @@ KERNEL=="ttyS[0-9]*", MODE="0777"
 KERNEL=="i2c-[0-9]*", MODE="0777"
 KERNEL=="i2c-[0-9]*", GROUP="i2c"
 
-# install minicom
->sudo apt-get install minicom
-# use serial interface on 40-pin port 6(GND) 8(TX1) 10(RX1)
-minicom -D /dev/ttyS1 -b 460800
 
 # Odroid I2C setup accoding to https://www.abelectronics.co.uk/kb/article/1036/odroid-c2-running-ubuntu-i2c-setup
 sudo apt-get install python-smbus i2c-tools
@@ -121,7 +117,8 @@ openal
 https://www.openal.org/documentation/OpenAL_Programmers_Guide.pdf
 http://www.dreamincode.net/forums/topic/184668-getting-microphone-input/
 
-
+# install curl for REST client
+sudo apt-get curl
 
 # install samplerate on linux (required by BTrack)
 >sudo apt-get install libsamplerate-dev 

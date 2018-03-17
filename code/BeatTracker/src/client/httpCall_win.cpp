@@ -12,49 +12,6 @@
 using namespace std;
 
 
-HINSTANCE hInst;
-WSADATA wsaData;
-
-
-SOCKET connectToServer(string szServerName, WORD portNum)
-{
-    struct hostent *hp;
-    unsigned int addr;
-    struct sockaddr_in server;
-    SOCKET conn;
-
-    conn = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (conn == INVALID_SOCKET)
-        return (SOCKET)NULL;
-
-    if(inet_addr(szServerName.c_str())==INADDR_NONE)
-    {
-        hp=gethostbyname(szServerName.c_str());
-    }
-    else
-    {
-        addr=inet_addr(szServerName.c_str());
-        hp=gethostbyaddr((char*)&addr,sizeof(addr),AF_INET);
-    }
-
-    if(hp==NULL)
-    {
-        closesocket(conn);
-        return (SOCKET)NULL;
-    }
-
-    server.sin_addr.s_addr=*((unsigned long*)hp->h_addr);
-    server.sin_family=AF_INET;
-    server.sin_port=htons(portNum);
-    if(connect(conn,(struct sockaddr*)&server,sizeof(server)))
-    {
-        closesocket(conn);
-        return (SOCKET)NULL;
-    }
-    return conn;
-}
-
-
 void parseUrl(string mUrl, string &serverName, string &filepath)
 {
     string::size_type n;
@@ -131,84 +88,107 @@ int getHeaderLength(string content)
     return ofset;
 }
 
-void  readUrl(int port, string url, string &httpResponse, int& httpStatus)
-{
-    const int bufSize = 512;
-    char sendBuffer[bufSize], tmpBuffer[bufSize];
-    SOCKET conn;
-    string serverName, filepath;
 
-    parseUrl(url, serverName, filepath);
-
-    ///////////// step 1, connect //////////////////////
-    conn = connectToServer(serverName, port);
-
-    ///////////// step 2, send GET request /////////////
-    sprintf(tmpBuffer, "GET %s HTTP/1.0", filepath.c_str());
-    strcpy(sendBuffer, tmpBuffer);
-    strcat(sendBuffer, "\r\n");
-    sprintf(tmpBuffer, "Host: %s", serverName.c_str());
-    strcat(sendBuffer, tmpBuffer);
-    strcat(sendBuffer, "\r\n");
-    strcat(sendBuffer, "\r\n");
-    send(conn, sendBuffer, strlen(sendBuffer), 0);
-
-    ///////////// step 3 - get received bytes ////////////////
-    // Receive until the peer closes the connection
-    int contentLength = -1;
-    int headerLen = -1;
-    httpStatus = -1;
-    string response("");
-    while ((contentLength == -1) || (headerLen == -1) || ((int)response.length() < headerLen + contentLength))
-    {
-    	const int readBufferSize = 1024;
-    	char readBuffer[readBufferSize];
-        memset(readBuffer, 0, readBufferSize);
-        int chunkSize = recv (conn, readBuffer, readBufferSize, 0);
-        if ( chunkSize <= 0 )
-            break;
-
-        response += string (readBuffer,chunkSize);
-        if (headerLen == -1)
-        	headerLen = getHeaderLength(response);
-        if (contentLength == -1)
-        	contentLength = getContentLength(response);
-    }
-
-    if (httpStatus == -1)
-    	httpStatus = getHttpStatus(response);
-
-    closesocket(conn);
-
-    if ((int)response.length() ==  headerLen + contentLength) {
-    	httpResponse = response.substr(headerLen);
-    }
-    else {
-    	httpResponse = "";
-    	cerr << "incomplete response in " << url << endl;
+HttpConnection::HttpConnection() {
+    WSADATA wsaData;
+    if ( WSAStartup(0x101, &wsaData) != 0) {
+        cerr << "WSAStartup failed" << endl;
+        return;
     }
 }
 
-
-void callHttp(string host, int port, string param, string& httpResponse, int &httpStatus)
-{
-    string request = "http://" + host ;
-    if (param[0] != '/')
-    	request += "/";
-    request += param;
-
-    char *szUrl = (char*)request.c_str();
-
-    if ( WSAStartup(0x101, &wsaData) != 0) {
-    	cerr << request << " failed" << endl;
-    	httpStatus = 404;
-        return;
-    }
-
-    readUrl(port, szUrl, httpResponse, httpStatus);
+HttpConnection::~HttpConnection() {
+    closesocket(conn);
 
     WSACleanup();
 }
 
+void HttpConnection::setup(string newHost, int newPort) {
+	host = newHost;
+	port = newPort;
+	  struct hostent *hp;
+	    unsigned int addr;
+	    struct sockaddr_in server;
+
+	    conn = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	    if (conn == INVALID_SOCKET)
+	        return ;
+
+	    if(inet_addr(host.c_str())==INADDR_NONE)
+	    {
+	        hp=gethostbyname(host.c_str());
+	    }
+	    else
+	    {
+	        addr=inet_addr(host.c_str());
+	        hp=gethostbyaddr((char*)&addr,sizeof(addr),AF_INET);
+	    }
+
+	    if(hp==NULL)
+	    {
+	        closesocket(conn);
+	        conn = 0;
+	        return;
+	    }
+
+	    server.sin_addr.s_addr=*((unsigned long*)hp->h_addr);
+	    server.sin_family=AF_INET;
+	    server.sin_port=htons(port);
+	    if(connect(conn,(struct sockaddr*)&server,sizeof(server)))
+	    {
+	        closesocket(conn);
+	        conn = 0;
+	        return;
+	    }
+}
+
+void HttpConnection::get(string param, string &httpResponse, int& httpStatus) {
+	 const int bufSize = 512;
+    char sendBuffer[bufSize], tmpBuffer[bufSize];
+
+	    ///////////// step 2, send GET request /////////////
+	    sprintf(tmpBuffer, "GET %s HTTP/1.0", param.c_str());
+	    strcpy(sendBuffer, tmpBuffer);
+	    strcat(sendBuffer, "\r\n");
+	    sprintf(tmpBuffer, "Host: %s", host.c_str());
+	    strcat(sendBuffer, tmpBuffer);
+	    strcat(sendBuffer, "\r\n");
+	    strcat(sendBuffer, "\r\n");
+	    send(conn, sendBuffer, strlen(sendBuffer), 0);
+
+	    ///////////// step 3 - get received bytes ////////////////
+	    // Receive until the peer closes the connection
+	    int contentLength = -1;
+	    int headerLen = -1;
+	    httpStatus = -1;
+	    string response = "";
+	    while ((contentLength == -1) || (headerLen == -1) || ((int)response.length() < headerLen + contentLength))
+	    {
+	    	const int readBufferSize = 1024;
+	    	char readBuffer[readBufferSize];
+	        memset(readBuffer, 0, readBufferSize);
+	        int chunkSize = recv (conn, readBuffer, readBufferSize, 0);
+	        if ( chunkSize <= 0 )
+	            break;
+
+	        response += string (readBuffer,chunkSize);
+	        if (headerLen == -1)
+	        	headerLen = getHeaderLength(response);
+	        if (contentLength == -1)
+	        	contentLength = getContentLength(response);
+	    }
+
+	    if (httpStatus == -1)
+	    	httpStatus = getHttpStatus(response);
+
+
+	    if ((int)response.length() ==  headerLen + contentLength) {
+	    	httpResponse = response.substr(headerLen);
+	    }
+	    else {
+	    	httpResponse = "";
+	    	cerr << "incomplete response in " << param << endl;
+	    }
+}
 
 #endif

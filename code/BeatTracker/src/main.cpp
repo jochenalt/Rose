@@ -18,7 +18,6 @@
 #include <unistd.h>
 #include <iomanip>
 #include <algorithm>
-#include <ao/ao.h>
 #include <basics/stringhelper.h>
 #include <dance/Dancer.h>
 
@@ -32,6 +31,10 @@
 #include <servo/ServoController.h>
 #include <webserver/Webserver.h>
 #include <client/BotClient.h>
+
+#ifdef __linux__
+#include <ao/ao.h>
+#endif
 
 using namespace std;
 
@@ -75,6 +78,7 @@ void printUsage() {
 
 typedef void (*BeatCallbackFct)(bool beat, double Bpm);
 
+#ifdef __linux__
 void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCallbackFct beatCallback) {
     // load input filec, char *argv
 	AudioFile<double> audioFile;
@@ -83,6 +87,7 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 	int numSamples = audioFile.getNumSamplesPerChannel();
 	int numInputChannels = audioFile.getNumChannels();
 	audioFile.printSummary();
+
 
 	// initialize output device
     ao_initialize();
@@ -193,13 +198,17 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 }
 
 
+#endif
+
 
 void signalHandler(int s){
+#ifdef __linux__
 	changemode(0);
-
+#endif
 	cout << "Signal " << s << ". Exiting";
-    if (runUI)
+    if (runUI) {
     	UI::getInstance().tearDown();
+    }
 	cout.flush();
 	exit(1);
 }
@@ -237,8 +246,9 @@ int main(int argc, char *argv[]) {
 	// exit correctly when exception arises
 	std::set_terminate([](){
 		std::cout << "Unhandled exception\n"; std::abort();
-	    if (runUI)
+	    if (runUI) {
 	    	UI::getInstance().tearDown();
+	    }
 		changemode(0);
 	});
 
@@ -266,7 +276,7 @@ int main(int argc, char *argv[]) {
 	bool isWebServer = true;
 
 	// if client, this is the host of the webserver
-	string webclientHost = "127.0.0.1:8080";
+	string webclientHost = "127.0.0.1";
 
     int webserverPort = 8080;
     for (int i = 1;i<argc;i++) {
@@ -280,8 +290,10 @@ int main(int argc, char *argv[]) {
     		i++;
     	} else if (arg == "-h") {
     	    	printUsage();
+#ifdef __linux__
     	} else if (arg == "-t") {
 	    	ServoController::getInstance().calibrateViaKeyBoard();
+#endif
 	    } else if (arg == "-s") {
 	    	playback = false;
 	    } else if (arg == "-port") {
@@ -347,26 +359,30 @@ int main(int argc, char *argv[]) {
 
     }
 
-    if (isWebServer)
+    if (isWebServer) {
     	Webserver::getInstance().setup(webserverPort, webrootPath);
-    if (isWebClient)
+    }
+    if (isWebClient) {
     	BotClient::getInstance().setup(webclientHost, webserverPort);
-
+    }
 	BodyKinematics::getInstance().setup();
     Dancer::getInstance().setup();
     RhythmDetector::getInstance().setup();
 
     Dancer::getInstance().setStartAfterNBeats(startAfterNBeats);
-
-    if (isWebServer)
+#ifdef __linux__
+    if (isWebServer) {
     	ServoController::getInstance().setup();
-
-    if (runUI)
+    }
+#endif
+    if (runUI) {
     	UI::getInstance().setup(argc,argv);
+    }
 
+#ifdef __linux_
     if (isWebServer)
     	processAudioFile(trackFilename, volumeArg/100.0, sendBeatToRythmDetector);
-
+#endif
     if (isWebClient) {
 		Dancer & mm = Dancer::getInstance();
 		BotClient& client = BotClient::getInstance();
@@ -382,6 +398,7 @@ int main(int argc, char *argv[]) {
 				if (runUI) {
 					UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
 				}
+
     		}
     		else
     			delay_ms(1);

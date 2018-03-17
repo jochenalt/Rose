@@ -22,19 +22,19 @@ BotClient& BotClient::getInstance() {
 }
 
 
-void BotClient::setup(string newHost, int newPort) {
+void BotClient::setup(string host, int port) {
 
-	host = newHost;
-	port = newPort;
 	// webclient is ready
 	isWebClientActive = true;
+	conn.setup(host, port);
 }
 
 
 void BotClient::getStatus() {
 	int httpStatus = -1;
 	string httpResponse;
-	callHttp(host, port, "/status", httpResponse, httpStatus);
+	conn.get("/status", httpResponse, httpStatus);
+
 	if (httpStatus != 200)
 		cerr << "/status returned http code " << httpResponse << endl;
 	std::istringstream in(httpResponse);
