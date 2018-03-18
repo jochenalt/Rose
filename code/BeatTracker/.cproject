@@ -55,10 +55,6 @@
 								<option id="gnu.cpp.link.option.libs.575609597" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="samplerate"/>
 									<listOptionValue builtIn="false" value="Common"/>
-									<listOptionValue builtIn="false" value="curl"/>
-									<listOptionValue builtIn="false" value="GLU"/>
-									<listOptionValue builtIn="false" value="glut"/>
-									<listOptionValue builtIn="false" value="GL"/>
 									<listOptionValue builtIn="false" value="pthread"/>
 									<listOptionValue builtIn="false" value="ao"/>
 									<listOptionValue builtIn="false" value="m"/>
