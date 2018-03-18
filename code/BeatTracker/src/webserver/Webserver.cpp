@@ -45,6 +45,17 @@ void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
     			string query(hm->query_string.p, hm->query_string.len);
     	        string body(hm->body.p, hm->body.len);
 
+    	        // check body encoding
+    	        for (unsigned i=0;i<MG_MAX_HTTP_HEADERS;i++) {
+    	        	if (hm->header_names[i].p != NULL) {
+    	        		const string encodingName = "Content-Transfer-Encoding";
+    	        		if (strncmp(hm->header_names[i].p, encodingName.c_str(), encodingName.length()) == 0) {
+							if (strncmp(hm->header_values[i].p, "base64", 6) == 0)
+								body = base64_decode(body);
+						}
+    	        	} else
+    	        		break; // first
+    	        }
     	        bool ok;
     			string response;
     			// if our dispatcher knows the command, it creates a response and returns true.
@@ -190,6 +201,7 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 
 			okOrNOk = true;
 			// write file
+			string bodyDecoded = base64_decode(body);
 			ofstream songWavFile;
 			songWavFile.open (name);
 			songWavFile << base64_decode(body);

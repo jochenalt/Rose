@@ -125,6 +125,9 @@ public:
      */
     AudioBuffer samples;
     
+    bool decodeWaveFile (std::vector<uint8_t>& fileData);
+    bool decodeAiffFile (std::vector<uint8_t>& fileData);
+
 private:
     
     //=============================================================
@@ -136,8 +139,6 @@ private:
     
     //=============================================================
     AudioFileFormat determineAudioFileFormat (std::vector<uint8_t>& fileData);
-    bool decodeWaveFile (std::vector<uint8_t>& fileData);
-    bool decodeAiffFile (std::vector<uint8_t>& fileData);
     
     //=============================================================
     bool saveToWaveFile (std::string filePath);
