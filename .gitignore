@@ -13,3 +13,7 @@ CAD/opengl/OldVersions/
 code/BeatTracker/.settings/
 code/workspace/
 code/Client/.settings/
+
+code/Common/\.settings/
+
+code/Common/Debug/
