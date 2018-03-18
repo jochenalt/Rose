@@ -4,6 +4,7 @@
 #include <dance/Dancer.h>
 #include <dance/Move.h>
 #include <basics/util.h>
+#include <basics/stringhelper.h>
 
 #include <client/BotClient.h>
 
@@ -16,7 +17,7 @@
 using namespace std;
 
 // Initial main window size
-int WindowWidth = 700;
+int WindowWidth = 1000;
 int WindowHeight = 900;
 
 // GLUI Window handlers
@@ -38,6 +39,8 @@ int transparentLiveVar = 0;
 
 GLUI_Spinner* ambitionSpinner = NULL;
 int ambitionLiveVar = 0;
+
+GLUI_FileBrowser* fileBrowser = NULL;
 
 WindowController instance;
 
@@ -140,6 +143,28 @@ void ambitionCallback(int widgetNo) {
 	BotClient::getInstance().setAmbition(((float)ambitionLiveVar)/100.0);
 	Dancer::getInstance().setAmbition(((float)ambitionLiveVar)/100.0);
 }
+
+void fileCallback(int widgetNo) {
+	string filename = fileBrowser->get_file();
+	 if (fileExists(filename)) {
+		 if (endsWith(filename, ".wav")) {
+			 string fileContent = readFileContent(filename);
+			 string name = filename;
+			 // std::replace( name.begin(), name.end(), ' ', '_');
+			 name = name.substr(0,name.length()-4);
+
+			 BotClient::getInstance().setWavFile(name, fileContent);
+		 }
+		 else
+			 cerr << "file " << filename << " is no wav file" << endl;
+	 }
+	 else {
+		 cerr << "file " << filename << " not found" << endl;
+	 }
+}
+void buttonCallback(int widgetNo) {
+}
+
 GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	GLUI *windowHandle= GLUI_Master.create_glui_subwindow( wMain,  GLUI_SUBWINDOW_BOTTOM);
 	windowHandle->set_main_gfx_window( wMain );
@@ -166,7 +191,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 		// fill up with empty lines to have the containers of the same height
 		if (row == DanceMoveRows-1) {
-			for (int lines = moveCounter;lines < Dancer ::getInstance().getNumMoves()-Dancer::getInstance().getNumMoves()%2-1;lines++)
+			for (int lines = moveCounter;lines < Dancer ::getInstance().getNumMoves()-Dancer::getInstance().getNumMoves()%2;lines++)
 				new GLUI_StaticText(dancingModePanel[row],"");
 		}
 
@@ -194,8 +219,8 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	clothesPanel->set_alignment(GLUI_ALIGN_LEFT);
 	stripperRadioButtons =  new GLUI_RadioGroup(clothesPanel, &clothesOnLiveVar, 0, clothesOnCallback);
 	new GLUI_RadioButton(stripperRadioButtons, "proper");
-	new GLUI_RadioButton(stripperRadioButtons, "slutty");
-	new GLUI_RadioButton(stripperRadioButtons, "trampy");
+	new GLUI_RadioButton(stripperRadioButtons, "a bit slutty");
+	new GLUI_RadioButton(stripperRadioButtons, "terminator style");
 
 	GLUI_Panel* ambitionPanel= new GLUI_Panel(interactiveModePanel,"Ambition", GLUI_PANEL_NONE);
 	ambitionPanel->set_alignment(GLUI_ALIGN_LEFT);
@@ -207,6 +232,19 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	ambitionSpinner->set_int_limits(0,100);
 	ambitionSpinner->set_int_val(100);
 
+	windowHandle->add_column_to_panel(interactivePanel, false);
+	GLUI_Panel* songPanel = new GLUI_Panel(interactivePanel,"song panel", GLUI_PANEL_RAISED);
+	songPanel->set_alignment(GLUI_ALIGN_LEFT);
+	text = new GLUI_StaticText(songPanel, "SONG CONSOLE");
+	text->set_alignment(GLUI_ALIGN_LEFT);
+
+	GLUI_Panel* filePanel = new GLUI_Panel(songPanel,"song panel", GLUI_PANEL_NONE);
+	filePanel->set_alignment(GLUI_ALIGN_LEFT);
+
+	fileBrowser = new GLUI_FileBrowser(filePanel, "select a .wav song", false, 0, fileCallback);
+	fileBrowser->set_alignment(GLUI_ALIGN_LEFT);
+	fileBrowser->set_h(170);
+	fileBrowser->set_w(100);
 
 	return windowHandle;
 }

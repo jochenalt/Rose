@@ -18,6 +18,10 @@ std::string stringFormat(const std::string &fmt, ...);
 // returns true if file is there
 bool fileExists(const std::string& filename);
 
+// read complete content of a file
+std::string readFileContent(const std::string& filename);
+
+
 // converts a string to an integer, ok is set if successful
 int stringToInt (const std::string &str, bool& ok);
 
