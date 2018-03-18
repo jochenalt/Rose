@@ -118,6 +118,12 @@ bool getURLParameter(vector<string> names, vector<string> values, string key, st
 	return false;
 }
 
+string getURLParamValue(vector<string> names, vector<string> values, string key, bool& ok) {
+	string value;
+	ok = getURLParameter(names,values,key, value);
+	return value;
+}
+
 
 void compileURLParameter(string uri, vector<string> &names, vector<string> &values) {
 	names.clear();
@@ -159,10 +165,10 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 	response = "";
 	string urlPath = getPath(uri);
 
-	vector<string> urlParamName;
-	vector<string> urlParamValue;
+	vector<string> urlParamNames;
+	vector<string> urlParamValues;
 
-	compileURLParameter(query,urlParamName,urlParamValue);
+	compileURLParameter(query,urlParamNames,urlParamValues);
 
 	if (hasPrefix(uri, "/console")) {
 		string engineCommand = uri.substr(string("/status").length());
@@ -179,18 +185,56 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 		}
 		else if (hasPrefix(engineCommand, "/song")) {
 			okOrNOk = true;
+
 			response = getResponse(okOrNOk);
 			return true;
 		}
 		else if (hasPrefix(engineCommand, "/ambition")) {
+			bool ok = true;
+			string value = getURLParamValue(urlParamNames,urlParamValues, "value",ok);
+			if (ok) {
+				double ambition = stringToFloat(value, ok);
+				Dancer::getInstance().setAmbition(ambition);
+			}
+
+			std::ostringstream out;
+			out << "{ " << getResponse(ok) << "}";
+			response = out.str();
+
 			okOrNOk = true;
-			response = getResponse(okOrNOk);
-			return true;
+			return okOrNOk;
 		}
-		else if (hasPrefix(engineCommand, "/move")) {
+		else if (hasPrefix(engineCommand, "/movemode")) {
+			bool ok = true;
+			string value = getURLParamValue(urlParamNames,urlParamValues, "value",ok);
+			if (ok) {
+				int moveMode = stringToFloat(value, ok);
+				Dancer::getInstance().setSequenceMode((Dancer::SequenceModeType)moveMode);
+			}
+
+			std::ostringstream out;
+			out << "{ " << getResponse(ok)
+			    << "}";
+			response = out.str();
+
 			okOrNOk = true;
-			response = getResponse(okOrNOk);
-			return true;
+			return okOrNOk;
+		}
+
+		else if (hasPrefix(engineCommand, "/move")) {
+			bool ok = true;
+			string value = getURLParamValue(urlParamNames,urlParamValues, "value",ok);
+			if (ok) {
+				int moveNo = stringToInt(value, ok);
+				Dancer::getInstance().setCurrentMove((Move::MoveType)moveNo);
+			}
+
+			std::ostringstream out;
+			out << "{ " << getResponse(ok)
+			    << "}";
+			response = out.str();
+			okOrNOk = true;
+			return okOrNOk;
 		} else {
 			okOrNOk = true;
 			response = getResponse(okOrNOk);
@@ -232,6 +276,9 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 		okOrNOk = true;
 		return okOrNOk;
 	}
+
+
+
 
 	okOrNOk = false;
 	return false;

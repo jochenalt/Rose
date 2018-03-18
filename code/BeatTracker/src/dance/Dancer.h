@@ -64,7 +64,7 @@ public:
 	Move::MoveType getCurrentMove()  { return currentMove; };
 
 	// scale the amplitude of all moves by ambition
-	void setAmbition(int percentage) { ambition = percentage/100.0; };
+	void setAmbition(float ambitionValue) { ambition = ambitionValue; };
 	double getAmbition() { return ambition; };
 private:
 	void doNewMove();

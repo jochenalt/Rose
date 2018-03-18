@@ -14,6 +14,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+<<<<<<< Updated upstream
 				<configuration artifactName="${ProjName}" buildProperties="" description="" id="cdt.managedbuild.toolchain.gnu.base.1332741880" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.1332741880.1559420063" name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.2103403031" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
@@ -25,6 +26,25 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1979730110" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.263425991" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+=======
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.mingw.lib.debug.318445746" name="Debug" parent="cdt.managedbuild.config.gnu.mingw.lib.debug">
+					<folderInfo id="cdt.managedbuild.config.gnu.mingw.lib.debug.318445746." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.lib.debug.237918952" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.lib.debug">
+							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.lib.debug.938051088" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.lib.debug"/>
+							<builder buildPath="${workspace_loc:/Common}/Debug" id="cdt.managedbuild.tool.gnu.builder.mingw.base.1123895789" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.lib.debug.1083779078" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.lib.debug">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1285686348" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.lib.debug.433513883" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.lib.debug"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.lib.debug.743776736" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.lib.debug">
+								<option id="gnu.cpp.compiler.mingw.lib.debug.option.optimization.level.2055266333" name="Optimization Level" superClass="gnu.cpp.compiler.mingw.lib.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.mingw.lib.debug.option.debugging.level.1620540165" name="Debug Level" superClass="gnu.cpp.compiler.mingw.lib.debug.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.include.paths.1343316472" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.dialect.std.1239682279" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.c++11" valueType="enumerated"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.695662511" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+>>>>>>> Stashed changes
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1199293332" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1772842873" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
@@ -63,7 +83,14 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
+<<<<<<< Updated upstream
 		<configuration configurationName="Default">
+=======
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/Common"/>
+		</configuration>
+		<configuration configurationName="Release">
+>>>>>>> Stashed changes
 			<resource resourceType="PROJECT" workspacePath="/Common"/>
 		</configuration>
 	</storageModule>
