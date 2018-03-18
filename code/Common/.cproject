@@ -84,12 +84,18 @@
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 		<configuration configurationName="Default">
 =======
+=======
+>>>>>>> Stashed changes
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/Common"/>
 		</configuration>
 		<configuration configurationName="Release">
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 			<resource resourceType="PROJECT" workspacePath="/Common"/>
 		</configuration>
