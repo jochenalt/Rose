@@ -16,8 +16,8 @@
 using namespace std;
 
 // Initial main window size
-int WindowWidth = 900;
-int WindowHeight = 1000;
+int WindowWidth = 700;
+int WindowHeight = 900;
 
 // GLUI Window handlers
 int wMain = -1;			// main window

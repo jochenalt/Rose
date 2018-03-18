@@ -22,10 +22,6 @@
 
 using namespace std;
 
-bool runUI = false;
-bool playback = true;
-
-
 string getCmdOption(char ** begin, int argc, int i ) {
 	assert ((i>=0) && (i<argc));
 	char** arg = begin + i;
@@ -61,9 +57,7 @@ typedef void (*BeatCallbackFct)(bool beat, double Bpm);
 
 void signalHandler(int s){
 	cout << "Signal " << s << ". Exiting";
-    if (runUI) {
-    	UI::getInstance().tearDown();
-    }
+   	UI::getInstance().tearDown();
 	cout.flush();
 	exit(1);
 }
@@ -76,9 +70,7 @@ void sendBeatToRythmDetector(bool beat, double bpm) {
 
 	rd.loop(beat, bpm);
 	mm.danceLoop(beat, bpm);
-	if (runUI) {
-		UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
-	}
+	UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
 }
 
 void sendDanceToClient(bool beat, double bpm) {
@@ -89,9 +81,7 @@ void sendDanceToClient(bool beat, double bpm) {
 	mm.imposeDanceParams(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
 
 	// send data to ui
-	if (runUI) {
-		UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
-	}
+	UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
 }
 
 typedef void (*MoveCallbackFct)(bool beat, double Bpm);
@@ -101,9 +91,7 @@ int main(int argc, char *argv[]) {
 	// exit correctly when exception arises
 	std::set_terminate([](){
 		std::cout << "Unhandled exception\n"; std::abort();
-	    if (runUI) {
-	    	UI::getInstance().tearDown();
-	    }
+    	UI::getInstance().tearDown();
 		changemode(0);
 	});
 
@@ -139,8 +127,6 @@ int main(int argc, char *argv[]) {
     		i++;
     	} else if (arg == "-h") {
     	    	printUsage();
-	    } else if (arg == "-s") {
-	    	playback = false;
 	    } else if (arg == "-port") {
     		if (i+1 >= argc) {
     			cerr << "-port requires a number 0..100" << endl;
@@ -186,8 +172,6 @@ int main(int argc, char *argv[]) {
     			cerr << "-i requires a number >=2" << endl;
     			exit(1);
     		}
-    	} else if (arg == "-ui") {
-    	    runUI = true;
     	} else {
     		cerr << "unknown option " << arg << endl;
     		exit(1);
@@ -202,9 +186,7 @@ int main(int argc, char *argv[]) {
     RhythmDetector::getInstance().setup();
 
     Dancer::getInstance().setStartAfterNBeats(startAfterNBeats);
-    if (runUI) {
-    	UI::getInstance().setup(argc,argv);
-    }
+   	UI::getInstance().setup(argc,argv);
 
 	Dancer & mm = Dancer::getInstance();
 	BotClient& client = BotClient::getInstance();
@@ -217,15 +199,11 @@ int main(int argc, char *argv[]) {
 			mm.imposeDanceParams(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
 
 			// send data to ui
-			if (runUI) {
-				UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
-			}
+			UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
    		}
    		else
    			delay_ms(1);
    	}
 
-    if (runUI)
-    	UI::getInstance().tearDown();
-
+   	UI::getInstance().tearDown();
 }

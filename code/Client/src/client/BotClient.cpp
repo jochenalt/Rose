@@ -31,6 +31,8 @@ void BotClient::setup(string host, int port) {
 
 
 string BotClient::get(string requestUrl, bool& ok) {
+	static ExclusiveMutex mutex;
+	CriticalBlock criticalBlock(mutex) ;
 	int httpStatus = -1;
 	string httpResponse;
 	conn.get(requestUrl, httpResponse, httpStatus);
