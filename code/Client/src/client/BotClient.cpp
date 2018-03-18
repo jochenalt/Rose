@@ -6,7 +6,7 @@
  */
 
 #include <client/BotClient.h>
-#include <client/httpCall.h>
+#include <client/HttpConnection.h>
 
 BotClient::BotClient() {
 
@@ -30,49 +30,102 @@ void BotClient::setup(string host, int port) {
 }
 
 
-void BotClient::getStatus() {
+string BotClient::get(string requestUrl, bool& ok) {
 	int httpStatus = -1;
 	string httpResponse;
-	conn.get("/status", httpResponse, httpStatus);
+	conn.get(requestUrl, httpResponse, httpStatus);
+	if (httpStatus != 200) {
+		cerr << "request " << requestUrl << " returned http code " << httpResponse << endl;
+		ok = false;
+	} else {
+		ok = true;
+	}
+	return httpResponse;
+}
+void BotClient::getStatus() {
+	bool ok;
+	string httpResponse = get("/status", ok);
+	if (ok) {
+		std::istringstream in(httpResponse);
+		parseCharacter(in, '{', ok);
+		parseString(in, ok); // "response"
+		parseCharacter(in, ':', ok);
+		parseCharacter(in, '{', ok);
+		parseString(in, ok); // "body"
+		parseCharacter(in, ':', ok);
 
-	if (httpStatus != 200)
-		cerr << "/status returned http code " << httpResponse << endl;
-	std::istringstream in(httpResponse);
-	bool ok = true;
-	parseCharacter(in, '{', ok);
-	parseString(in, ok); // "response"
-   	parseCharacter(in, ':', ok);
-	parseCharacter(in, '{', ok);
-	parseString(in, ok); // "body"
-   	parseCharacter(in, ':', ok);
+		bodyPose.deserialize(in, ok);
+		parseCharacter(in, ',', ok);
+		parseString(in, ok); // "head"
+		parseCharacter(in, ':', ok);
 
-	bodyPose.deserialize(in, ok);
-	parseCharacter(in, ',', ok);
-	parseString(in, ok); // "head"
-   	parseCharacter(in, ':', ok);
-
-	headPose.deserialize(in, ok);
-	parseCharacter(in, ',', ok);
-	parseString(in, ok); // "ambition"
-   	parseCharacter(in, ':', ok);
-	ambition = parseFloat(in, ok); // "ambition"
-	parseCharacter(in, ',', ok);
-	parseString(in, ok); // "move"
-   	parseCharacter(in, ':', ok);
-	int moveTmp = parseInt(in, ok); // "move"
-	move = (Move::MoveType)moveTmp;
-	parseCharacter(in, '}', ok);
-	parseCharacter(in, ',', ok);
-	parseString(in, ok); // "status"
-   	parseCharacter(in, ':', ok);
-   	bool status = parseBool(in, ok);
-	parseCharacter(in, '}', ok);
+		headPose.deserialize(in, ok);
+		parseCharacter(in, ',', ok);
+		parseString(in, ok); // "ambition"
+		parseCharacter(in, ':', ok);
+		ambition = parseFloat(in, ok); // "ambition"
+		parseCharacter(in, ',', ok);
+		parseString(in, ok); // "move"
+		parseCharacter(in, ':', ok);
+		int moveTmp = parseInt(in, ok); // "move"
+		move = (Move::MoveType)moveTmp;
+		parseCharacter(in, '}', ok);
+		parseCharacter(in, ',', ok);
+		parseString(in, ok); // "status"
+		parseCharacter(in, ':', ok);
+		parseBool(in, ok);
+		parseCharacter(in, '}', ok);
+	}
 }
 
 
+void BotClient::setMoveMode(Dancer::SequenceModeType moveMode) {
+	std::ostringstream request;
+	request << "/console/movemode?value=" << (int) moveMode;
 
+	bool ok;
+	string httpResponse = get(request.str(), ok);
+	if (ok) {
+		std::istringstream in(httpResponse);
+		parseCharacter(in, '{', ok);
+		parseString(in, ok); // "status="
+		parseCharacter(in, ':', ok);
+		parseBool(in, ok);
+		parseCharacter(in, '}', ok);
+	}
+}
 
+// set the current move
+void BotClient::setMove(Move::MoveType move) {
+	std::ostringstream request;
+	request << "/console/movemoe?value=" << (int) move;
+	bool ok;
+	string httpResponse = get(request.str(), ok);
+	if (ok) {
+		std::istringstream in(httpResponse);
+		parseCharacter(in, '{', ok);
+		parseString(in, ok); // "status="
+		parseCharacter(in, ':', ok);
+		parseBool(in, ok);
+		parseCharacter(in, '}', ok);
+	}
+}
 
+// set the current amplitude
+void BotClient::setAmbition(float ambition) {
+	std::ostringstream request;
+	request << "/console/ambition?value=" << std::fixed << std::setprecision(3) << ambition;
+	bool ok;
+	string httpResponse = get(request.str(), ok);
+	if (ok) {
+		std::istringstream in(httpResponse);
+		parseCharacter(in, '{', ok);
+		parseString(in, ok); // "status="
+		parseCharacter(in, ':', ok);
+		parseBool(in, ok);
+		parseCharacter(in, '}', ok);
+	}
+}
 
 
 

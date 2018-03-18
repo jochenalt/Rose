@@ -1,7 +1,7 @@
 
 
 #ifdef _WIN32
-#include "client/httpCall.h"
+#include "client/HttpConnection.h"
 
 #include <windows.h>
 #include <string>

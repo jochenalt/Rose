@@ -8,8 +8,11 @@
 #ifndef SRC_CLIENT_BOTCLIENT_H_
 #define SRC_CLIENT_BOTCLIENT_H_
 
+#include <client/HttpConnection.h>
+
 #include <dance/Move.h>
-#include <client/httpCall.h>
+#include <dance/Dancer.h>
+
 
 class BotClient {
 public:
@@ -25,8 +28,17 @@ public:
 	// setup rest connection to server
 	void setup(string host, int port);
 
-	// fetch current state of the bot
+	// fetch current state of the bot, used to continously get the current pose
 	void getStatus();
+
+	// switch between automatic or manual move change
+	void setMoveMode(Dancer::SequenceModeType moveMode);
+
+	// set the current move
+	void setMove(Move::MoveType move);
+
+	// set the current amplitude of the move
+	void setAmbition(float ambition);
 
 	Pose getHeadPose() { return headPose; };
 	Pose getBodyPose() { return bodyPose; };
@@ -34,6 +46,7 @@ public:
 	Move::MoveType getMove() { return move; };
 
 private:
+	string get(string requestUrl, bool& ok);
 
 	Pose bodyPose;
 	Pose headPose;

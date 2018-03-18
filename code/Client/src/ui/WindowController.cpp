@@ -5,6 +5,8 @@
 #include <dance/Move.h>
 #include <basics/util.h>
 
+#include <client/BotClient.h>
+
 #include <ui/uiconfig.h>
 #include <ui/setup.h>
 
@@ -15,7 +17,7 @@ using namespace std;
 
 // Initial main window size
 int WindowWidth = 900;
-int WindowHeight = 800;
+int WindowHeight = 1000;
 
 // GLUI Window handlers
 int wMain = -1;			// main window
@@ -117,11 +119,8 @@ void currentDancingMoveCallback(int widgetNo) {
 	int movesPerRow = (Dancer ::getInstance().getNumMoves()+1)/DanceMoveRows ;
 	int row = widgetNo;
 	assert(row < DanceMoveRows);
-	if (row == 0) {
-		Dancer ::getInstance().setCurrentMove((Move::MoveType)(dancingModeLiveVar[row]));
-	}
-	else
-		Dancer ::getInstance().setCurrentMove((Move::MoveType)(dancingModeLiveVar[row] + row*movesPerRow));
+	Move::MoveType newMove = (Move::MoveType)(dancingModeLiveVar[row] + row*movesPerRow);
+	BotClient::getInstance().setMove(newMove);
 }
 
 void setSequenceModeWidget() {
@@ -129,7 +128,8 @@ void setSequenceModeWidget() {
 }
 
 void currentSequenceModeCallback(int widgetNo) {
-	Dancer ::getInstance().setSequenceMode((Dancer ::SequenceModeType)currentSequenceModeLiveVar);
+	Dancer::getInstance().setSequenceMode((Dancer::SequenceModeType)currentSequenceModeLiveVar);
+	BotClient::getInstance().setMoveMode((Dancer::SequenceModeType)currentSequenceModeLiveVar);
 }
 
 void clothesOnCallback(int widgetNo) {
@@ -137,7 +137,8 @@ void clothesOnCallback(int widgetNo) {
 }
 
 void ambitionCallback(int widgetNo) {
-	Dancer ::getInstance().setAmbition(ambitionLiveVar);
+	BotClient::getInstance().setAmbition(((float)ambitionLiveVar)/100.0);
+	Dancer::getInstance().setAmbition(((float)ambitionLiveVar)/100.0);
 }
 GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	GLUI *windowHandle= GLUI_Master.create_glui_subwindow( wMain,  GLUI_SUBWINDOW_BOTTOM);
