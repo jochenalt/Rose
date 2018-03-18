@@ -28,7 +28,6 @@ void RhythmDetector::setup() {
 	timeOfLastBeat = 0;
 	movePercentage = 0;
 	firstBeat = false;
-
 }
 
 

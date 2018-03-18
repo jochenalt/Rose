@@ -13,6 +13,8 @@
 
 #include "basics/stringhelper.h"
 #include "basics/util.h"
+#include <basics/base64.h>
+
 #include <dance/Dancer.h>
 
 #include <webserver/mongoose.h>
@@ -171,8 +173,7 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 	compileURLParameter(query,urlParamNames,urlParamValues);
 
 	if (hasPrefix(uri, "/console")) {
-		string engineCommand = uri.substr(string("/status").length());
-
+		string engineCommand = uri.substr(string("/console").length());
 		if (hasPrefix(engineCommand, "/on")) {
 			okOrNOk = true;
 			response = getResponse(okOrNOk);
@@ -184,8 +185,15 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 			return true;
 		}
 		else if (hasPrefix(engineCommand, "/song")) {
-			okOrNOk = true;
+			bool ok = true;
+			string name = getURLParamValue(urlParamNames,urlParamValues, "name",ok);
 
+			okOrNOk = true;
+			// write file
+			ofstream songWavFile;
+			songWavFile.open (name);
+			songWavFile << base64_decode(body);
+			songWavFile.close();
 			response = getResponse(okOrNOk);
 			return true;
 		}
@@ -194,7 +202,9 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 			string value = getURLParamValue(urlParamNames,urlParamValues, "value",ok);
 			if (ok) {
 				double ambition = stringToFloat(value, ok);
-				Dancer::getInstance().setAmbition(ambition);
+				if (ok && (ambition >=0) && (ambition <=1.0)) {
+					Dancer::getInstance().setAmbition(ambition);
+				}
 			}
 
 			std::ostringstream out;

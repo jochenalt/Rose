@@ -8,8 +8,6 @@
 #ifndef SRC_MOVE_H_
 #define SRC_MOVE_H_
 
-
-
 #include "basics/spatial.h"
 #include <string>
 #include <vector>

@@ -3,6 +3,7 @@
 	<name>BeatTracker</name>
 	<comment></comment>
 	<projects>
+		<project>Common</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -25,4 +26,3 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
 </projectDescription>
-

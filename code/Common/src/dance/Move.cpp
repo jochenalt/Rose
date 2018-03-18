@@ -70,7 +70,7 @@ double Move::scaleMove(double movePercentage, double speedFactor, double phase) 
 }
 
 double Move::scaleAmbition(double value) {
-	return Dancer ::getInstance().getAmbition()*value;
+	return Dancer::getInstance().getAmbition()*value;
 }
 
 double Move::baseCurveCos(double movePercentage) {
