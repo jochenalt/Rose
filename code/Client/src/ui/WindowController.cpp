@@ -124,6 +124,7 @@ void currentDancingMoveCallback(int widgetNo) {
 	assert(row < DanceMoveRows);
 	Move::MoveType newMove = (Move::MoveType)(dancingModeLiveVar[row] + row*movesPerRow);
 	BotClient::getInstance().setMove(newMove);
+	Dancer::getInstance().setCurrentMove(newMove);
 }
 
 void setSequenceModeWidget() {

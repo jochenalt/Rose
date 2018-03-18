@@ -116,7 +116,7 @@ void BotClient::setMoveMode(Dancer::SequenceModeType moveMode) {
 // set the current move
 void BotClient::setMove(Move::MoveType move) {
 	std::ostringstream request;
-	request << "/console/movemode?value=" << (int) move;
+	request << "/console/move?value=" << (int) move;
 	bool ok;
 	string httpResponse = get(request.str(), ok);
 	if (ok) {
