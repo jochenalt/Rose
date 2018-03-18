@@ -33,7 +33,7 @@ public:
 	ExclusiveMutex();
 	virtual ~ExclusiveMutex();
 
-	bool isInBlock;
+	volatile bool isInBlock;
 };
 
 class CriticalBlock  {

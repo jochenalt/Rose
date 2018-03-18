@@ -8,6 +8,9 @@
 #include <client/BotClient.h>
 #include <client/HttpConnection.h>
 
+static ExclusiveMutex mutex;
+
+
 BotClient::BotClient() {
 
 }
@@ -31,7 +34,6 @@ void BotClient::setup(string host, int port) {
 
 
 string BotClient::get(string requestUrl, bool& ok) {
-	static ExclusiveMutex mutex;
 	CriticalBlock criticalBlock(mutex) ;
 	int httpStatus = -1;
 	string httpResponse;
@@ -44,6 +46,22 @@ string BotClient::get(string requestUrl, bool& ok) {
 	}
 	return httpResponse;
 }
+
+string BotClient::post(string requestUrl, const string& httpBody, bool& ok) {
+	CriticalBlock criticalBlock(mutex) ;
+	int httpStatus = -1;
+	string httpResponse;
+	// conn.post(requestUrl, httpBody, httpResponse, httpStatus);
+	if (httpStatus != 200) {
+		cerr << "request " << requestUrl << " returned http code " << httpResponse << endl;
+		ok = false;
+	} else {
+		ok = true;
+	}
+	return httpResponse;
+
+}
+
 void BotClient::getStatus() {
 	bool ok;
 	string httpResponse = get("/status", ok);
@@ -100,7 +118,7 @@ void BotClient::setMoveMode(Dancer::SequenceModeType moveMode) {
 // set the current move
 void BotClient::setMove(Move::MoveType move) {
 	std::ostringstream request;
-	request << "/console/movemoe?value=" << (int) move;
+	request << "/console/movemode?value=" << (int) move;
 	bool ok;
 	string httpResponse = get(request.str(), ok);
 	if (ok) {
@@ -127,6 +145,23 @@ void BotClient::setAmbition(float ambition) {
 		parseBool(in, ok);
 		parseCharacter(in, '}', ok);
 	}
+}
+
+// play this .wav file
+void BotClient::setWavFile(string name, string wavContent) {
+	bool ok;
+	std::ostringstream request;
+	request << "/console/song?name=" <<name;
+	string httpResponse = post(request.str(), wavContent, ok);
+	if (ok) {
+		std::istringstream in(httpResponse);
+		parseCharacter(in, '{', ok);
+		parseString(in, ok); // "status="
+		parseCharacter(in, ':', ok);
+		parseBool(in, ok);
+		parseCharacter(in, '}', ok);
+	}
+
 }
 
 

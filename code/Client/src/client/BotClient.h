@@ -40,6 +40,9 @@ public:
 	// set the current amplitude of the move
 	void setAmbition(float ambition);
 
+	// play this .wav file
+	void setWavFile(string name, string wavContent);
+
 	Pose getHeadPose() { return headPose; };
 	Pose getBodyPose() { return bodyPose; };
 	double getAmbition() { return ambition; };
@@ -47,6 +50,7 @@ public:
 
 private:
 	string get(string requestUrl, bool& ok);
+	string post(string requestUrl, const string& httpBody, bool& ok);
 
 	Pose bodyPose;
 	Pose headPose;
@@ -55,6 +59,8 @@ private:
 	bool isWebClientActive = false;
 
 	HttpConnection conn;
+	ExclusiveMutex mutex;
+
 };
 
 #endif /* SRC_CLIENT_BOTCLIENT_H_ */

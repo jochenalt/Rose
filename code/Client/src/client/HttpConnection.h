@@ -17,6 +17,8 @@ public:
 	~HttpConnection();
 	void setup(string host, int port);
 	void get(string param, string &response, int& httpStatus);
+	void post(string param, const string &query, string &httpResponse, int& httpStatus);
+
 
 private:
 #ifdef __WIN32
