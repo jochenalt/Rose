@@ -8,8 +8,6 @@
 #include <client/BotClient.h>
 #include <client/HttpConnection.h>
 
-static ExclusiveMutex mutex;
-
 
 BotClient::BotClient() {
 
@@ -51,7 +49,7 @@ string BotClient::post(string requestUrl, const string& httpBody, bool& ok) {
 	CriticalBlock criticalBlock(mutex) ;
 	int httpStatus = -1;
 	string httpResponse;
-	// conn.post(requestUrl, httpBody, httpResponse, httpStatus);
+	conn.post(requestUrl, httpBody, httpResponse, httpStatus);
 	if (httpStatus != 200) {
 		cerr << "request " << requestUrl << " returned http code " << httpResponse << endl;
 		ok = false;
