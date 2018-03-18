@@ -166,7 +166,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 		// fill up with empty lines to have the containers of the same height
 		if (row == DanceMoveRows-1) {
-			for (int lines = moveCounter;lines < Dancer ::getInstance().getNumMoves()-Dancer ::getInstance().getNumMoves()%2;lines++)
+			for (int lines = moveCounter;lines < Dancer ::getInstance().getNumMoves()-Dancer::getInstance().getNumMoves()%2-1;lines++)
 				new GLUI_StaticText(dancingModePanel[row],"");
 		}
 
