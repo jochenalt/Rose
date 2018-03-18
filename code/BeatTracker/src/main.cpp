@@ -16,21 +16,16 @@
 #include <basics/util.h>
 #include <BTrack/BTrack.h>
 #include <AudioFile/AudioFile.h>
-#include <ui/UI.h>
 #include "dance/RhythmDetector.h"
 #include <Stewart/BodyKinematics.h>
 #include <servo/PCA9685Servo.h>
 #include <servo/ServoController.h>
 #include <webserver/Webserver.h>
-#include <client/BotClient.h>
 
-#ifdef __linux__
 #include <ao/ao.h>
-#endif
 
 using namespace std;
 
-bool runUI = false;
 bool playback = true;
 
 
@@ -62,7 +57,6 @@ void printUsage() {
 	     << "            [-host <host>]       # define this process as client accessing this webserver" << endl
 		 << "            [-webroot <path>]    # set path of ./webroot" << endl
 		 << "            [-v <volume 0..100>] # set volume between 0 and 100" << endl
-		 << "            [-ui]                # start visualizer" << endl
 		 << "            [-s]                 # silent, do not play audio" << endl
 		 << "            [-i <n>]# start after n detected beats" << endl
 	     << "            [-t]                 # servo calibration via keyboard" << endl;
@@ -70,7 +64,6 @@ void printUsage() {
 
 typedef void (*BeatCallbackFct)(bool beat, double Bpm);
 
-#ifdef __linux__
 void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCallbackFct beatCallback) {
     // load input filec, char *argv
 	AudioFile<double> audioFile;
@@ -190,17 +183,9 @@ void processAudioFile (string trackFilename, double volume /* [0..1] */, BeatCal
 }
 
 
-#endif
-
-
 void signalHandler(int s){
-#ifdef __linux__
 	changemode(0);
-#endif
 	cout << "Signal " << s << ". Exiting";
-    if (runUI) {
-    	UI::getInstance().tearDown();
-    }
 	cout.flush();
 	exit(1);
 }
@@ -213,22 +198,6 @@ void sendBeatToRythmDetector(bool beat, double bpm) {
 
 	rd.loop(beat, bpm);
 	mm.danceLoop(beat, bpm);
-	if (runUI) {
-		UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
-	}
-}
-
-void sendDanceToClient(bool beat, double bpm) {
-	Dancer & mm = Dancer::getInstance();
-	BotClient& client = BotClient::getInstance();
-
-	// fetch cached data from webserver  and set into Dance machine
-	mm.imposeDanceParams(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
-
-	// send data to ui
-	if (runUI) {
-		UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
-	}
 }
 
 typedef void (*MoveCallbackFct)(bool beat, double Bpm);
@@ -238,9 +207,6 @@ int main(int argc, char *argv[]) {
 	// exit correctly when exception arises
 	std::set_terminate([](){
 		std::cout << "Unhandled exception\n"; std::abort();
-	    if (runUI) {
-	    	UI::getInstance().tearDown();
-	    }
 		changemode(0);
 	});
 
@@ -260,13 +226,6 @@ int main(int argc, char *argv[]) {
     string webrootPath = string(argv[0]);
 	int idx = webrootPath.find_last_of("/");
 	webrootPath = webrootPath.substr(0,idx) + "/webroot";
-
-	// dont run the engine on yourself but call the webserver
-	bool isWebClient = false;
-
-	// run a webserver to serve a client
-	bool isWebServer = true;
-
 	// if client, this is the host of the webserver
 	string webclientHost = "127.0.0.1";
 
@@ -282,10 +241,8 @@ int main(int argc, char *argv[]) {
     		i++;
     	} else if (arg == "-h") {
     	    	printUsage();
-#ifdef __linux__
     	} else if (arg == "-t") {
 	    	ServoController::getInstance().calibrateViaKeyBoard();
-#endif
 	    } else if (arg == "-s") {
 	    	playback = false;
 	    } else if (arg == "-port") {
@@ -301,9 +258,6 @@ int main(int argc, char *argv[]) {
 	    		cerr << "port should be between 1000..9999" << endl;
 	    		exit(1);
 	    	}
-	    } else if (arg == "-client") {
-	    		isWebServer= false;
-	    		isWebClient = true;
 	    } else if (arg == "-host") {
     		if (i+1 >= argc) {
     			cerr << "-host requires a string like 127.0.0.1" << endl;
@@ -343,8 +297,6 @@ int main(int argc, char *argv[]) {
     			cerr << "-i requires a number >=2" << endl;
     			exit(1);
     		}
-    	} else if (arg == "-ui") {
-    	    runUI = true;
     	} else {
     		cerr << "unknown option " << arg << endl;
     		exit(1);
@@ -352,53 +304,14 @@ int main(int argc, char *argv[]) {
 
     }
 
-    if (isWebServer) {
-    	Webserver::getInstance().setup(webserverPort, webrootPath);
-    }
-    if (isWebClient) {
-    	BotClient::getInstance().setup(webclientHost, webserverPort);
-    }
+   	Webserver::getInstance().setup(webserverPort, webrootPath);
 	BodyKinematics::getInstance().setup();
     Dancer::getInstance().setup();
     RhythmDetector::getInstance().setup();
 
     Dancer::getInstance().setStartAfterNBeats(startAfterNBeats);
-#ifdef __linux__
-    if (isWebServer) {
-    	ServoController::getInstance().setup();
-    }
-#endif
-    if (runUI) {
-    	UI::getInstance().setup(argc,argv);
-    }
+   	ServoController::getInstance().setup();
 
-#ifdef __linux__
-    if (isWebServer)
-    	processAudioFile(trackFilename, volumeArg/100.0, sendBeatToRythmDetector);
-#endif
-    if (isWebClient) {
-		Dancer & mm = Dancer::getInstance();
-		BotClient& client = BotClient::getInstance();
-		TimeSamplerStatic clientLoopTimer;
-    	while (true) {
-    		if (clientLoopTimer.isDue(20)) {
-    			client.getStatus();
-
-				// fetch cached data from webserver  and set into Dance machine
-				mm.imposeDanceParams(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
-
-				// send data to ui
-				if (runUI) {
-					UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
-				}
-
-    		}
-    		else
-    			delay_ms(1);
-    	}
-    }
-
-    if (runUI)
-    	UI::getInstance().tearDown();
+   	processAudioFile(trackFilename, volumeArg/100.0, sendBeatToRythmDetector);
 
 }
