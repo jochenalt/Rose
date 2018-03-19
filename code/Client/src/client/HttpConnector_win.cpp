@@ -99,7 +99,6 @@ HttpConnection::HttpConnection() {
 }
 
 HttpConnection::~HttpConnection() {
-    closesocket(conn);
 
     WSACleanup();
 }
@@ -151,9 +150,7 @@ void HttpConnection::call(HttpAction op, const string& param, const string& quer
 	}
 	if (op == POST) {
 		string bodyBase64 = base64_encode(query);
-
 		headerStream << "POST " << param << " HTTP/1.0" << "\r\n";
-		if (contentType == )
 		headerStream << "Content-Type: text/plain\r\n";
 		headerStream << "Content-Transfer-Encoding: base64\r\n";
 		headerStream << "Content-Length: " << bodyBase64.length() << "\r\n";
@@ -162,7 +159,9 @@ void HttpConnection::call(HttpAction op, const string& param, const string& quer
 
 	}
 	string header = headerStream.str();
-    send(conn, header.c_str(), header.length(), 0);
+    int sendResult = send(conn, header.c_str(), header.length(), 0);
+    if (sendResult != header.length())
+    	cout << "send returns other than " << header.length() << " bytes:" << sendResult << endl;
 
     int contentLength = -1;
 	int headerLen = -1;
@@ -170,18 +169,18 @@ void HttpConnection::call(HttpAction op, const string& param, const string& quer
 	string response = "";
 	while ((contentLength == -1) || (headerLen == -1) || ((int)response.length() < headerLen + contentLength))
 	{
-	    	const int readBufferSize = 1024;
-	    	char readBuffer[readBufferSize];
-	        memset(readBuffer, 0, readBufferSize);
-	        int chunkSize = recv (conn, readBuffer, readBufferSize, 0);
-	        if ( chunkSize <= 0 )
-	            break;
+	    const int readBufferSize = 1024;
+	    char readBuffer[readBufferSize];
+	    memset(readBuffer, 0, readBufferSize);
+	    int chunkSize = recv (conn, readBuffer, readBufferSize, 0);
+	    if ( chunkSize <= 0 )
+	    	break;
 
-	        response += string (readBuffer,chunkSize);
-	        if (headerLen == -1)
-	        	headerLen = getHeaderLength(response);
-	        if (contentLength == -1)
-	        	contentLength = getContentLength(response);
+	    response += string (readBuffer,chunkSize);
+	    if (headerLen == -1)
+	    	headerLen = getHeaderLength(response);
+	    if (contentLength == -1)
+	    	contentLength = getContentLength(response);
 	}
 
 	if (httpStatus == -1)
@@ -195,6 +194,7 @@ void HttpConnection::call(HttpAction op, const string& param, const string& quer
 		httpResponse = "";
 		cerr << "incomplete response in " << param << endl;
 	}
+
 }
 
 void HttpConnection::get(const string& param, string &response, int& status) {

@@ -28,7 +28,7 @@ bool fileExists(const string& fileName) {
 }
 
 string readFileContent(const string& filename) {
-	std::ifstream ifs(filename);
+	std::ifstream ifs(filename,std::ios::binary);
 	std::string content( (std::istreambuf_iterator<char>(ifs) ),
 	                     (std::istreambuf_iterator<char>()    ) );
 	return content;
