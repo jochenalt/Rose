@@ -23,10 +23,16 @@ public:
 	}
 
 	// call setup before anything else
-	void setup();
+	void setup(BeatCallbackFct beatCallback);
+
+	// set wav content to be processed with next loop
+	void setWavContent(std::vector<uint8_t>& wavData);
+	bool isWavContentPending() { return wavData.size() > 0; };
 
 	// process content of a wav
-	void processWav(std::vector<uint8_t>& wavData, BeatCallbackFct beatCallback);
+	void processWav();
+
+	void stopProcessing() { stopCurrProcessing = true; };
 
 	// get/set volume [0..1]
 	void setVolume(double newVolume);
@@ -36,10 +42,14 @@ public:
 	bool getPlayback();
 private:
 
+	volatile bool stopCurrProcessing = false;
+	volatile bool currProcessingStopped = true;
+
 	double volume = 1.0;
 	bool withPlayback = true;
 	ao_device* outputDevice = NULL;
-
+	BeatCallbackFct beatCallback;
+	std::vector<uint8_t> wavData;
 };
 
 #endif /* SRC_AUDIOPROCESSOR_H_ */

@@ -194,16 +194,26 @@ int main(int argc, char *argv[]) {
 
     Dancer::getInstance().setStartAfterNBeats(startAfterNBeats);
    	ServoController::getInstance().setup();
-   	AudioProcessor::getInstance().setup();
+   	AudioProcessor::getInstance().setup(sendBeatToRythmDetector);
    	AudioProcessor::getInstance().setVolume((float)volumeArg/100.0);
 
-   	if (trackFilename != "") {
+	if (trackFilename != "") {
 		std::ifstream file (trackFilename, std::ios::binary);
 		file.unsetf (std::ios::skipws);
 		std::istream_iterator<uint8_t> begin (file), end;
 		std::vector<uint8_t> wavContent (begin, end);
-	   	AudioProcessor::getInstance().processWav(wavContent, sendBeatToRythmDetector);
+		string s;
+		for (int i = 0;i< wavContent.size();i++)
+			s += (char)wavContent[i];
+		cout << "songl=" << wavContent.size() << " start=" << std::hex << s.substr(0,64) << endl;
 
+		AudioProcessor::getInstance().setWavContent(wavContent);
+	}
+
+   	while (true) {
+   		if (AudioProcessor::getInstance().isWavContentPending()) {
+   			AudioProcessor::getInstance().processWav();
+		}
+		delay_ms(10);
    	}
-
 }

@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <vector>
+#include <iterator>
 
 #include "basics/stringhelper.h"
 #include "basics/util.h"
@@ -19,6 +20,9 @@
 
 #include <webserver/mongoose.h>
 #include <webserver/Webserver.h>
+#include <AudioProcessor.h>
+
+
 using namespace std;
 
 Webserver::Webserver() {
@@ -198,14 +202,20 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 		else if (hasPrefix(engineCommand, "/song")) {
 			bool ok = true;
 			string name = getURLParamValue(urlParamNames,urlParamValues, "name",ok);
-
+			std::vector<uint8_t> wavContent;
+			cout << "songl=" << body.length() << " start=" << std::hex << body.substr(0,32) << endl;
+			wavContent.resize(body.length());
+			for (unsigned i = 0;i<body.length();i++) {
+				wavContent[i] = body[i];
+			}
+			/*
+			std::istringstream strStream (body, std::ios::binary);
+			strStream.unsetf (std::ios::skipws);
+			std::istream_iterator<uint8_t> begin (strStream), end;
+			std::vector<uint8_t> wavContent (begin, end);
+			*/
+			AudioProcessor::getInstance().setWavContent(wavContent);
 			okOrNOk = true;
-			// write file
-			string bodyDecoded = base64_decode(body);
-			ofstream songWavFile;
-			songWavFile.open (name);
-			songWavFile << base64_decode(body);
-			songWavFile.close();
 			response = getResponse(okOrNOk);
 			return true;
 		}
