@@ -23,28 +23,27 @@ struct RecordContext {
     struct SoundIoRingBuffer *ring_buffer;
 };
 static enum SoundIoFormat prioritized_formats[] = {
-	    SoundIoFormatU16NE,
-	    SoundIoFormatU16FE,
+	SoundIoFormatU16NE,
+	SoundIoFormatU16FE,
+	SoundIoFormatS16NE,
+	SoundIoFormatS16FE,
+	SoundIoFormatS8,
+    SoundIoFormatU8,
 
-		SoundIoFormatS16NE,
-	    SoundIoFormatS16FE,
+	SoundIoFormatU32NE,
+	SoundIoFormatU32FE,
+	SoundIoFormatU24NE,
+	SoundIoFormatU24FE,
 
-		SoundIoFormatU32NE,
-	    SoundIoFormatU32FE,
-	    SoundIoFormatU24NE,
-	    SoundIoFormatU24FE,
-
-		SoundIoFormatS32NE,
+	SoundIoFormatS32NE,
     SoundIoFormatS32FE,
     SoundIoFormatS24NE,
     SoundIoFormatS24FE,
     SoundIoFormatFloat64NE,
     SoundIoFormatFloat64FE,
 	SoundIoFormatFloat32NE,
-SoundIoFormatFloat32FE,
+	SoundIoFormatFloat32FE,
 
-	SoundIoFormatS8,
-    SoundIoFormatU8,
     SoundIoFormatInvalid,
 };
 static int prioritized_sample_rates[] = {
@@ -92,7 +91,7 @@ static void read_callback(struct SoundIoInStream *instream, int frame_count_min,
             }
         }
         if ((err = soundio_instream_end_read(instream))) {
-            fprintf(stderr, "end read error: %s", soundio_strerror(err));
+        	cerr << "end read error: " << soundio_strerror(err) << endl;
             exit(1);
         }
         frames_left -= frame_count;
@@ -102,9 +101,10 @@ static void read_callback(struct SoundIoInStream *instream, int frame_count_min,
     int advance_bytes = write_frames * instream->bytes_per_frame;
     soundio_ring_buffer_advance_write_ptr(rc->ring_buffer, advance_bytes);
 }
+
 static void overflow_callback(struct SoundIoInStream *instream) {
     static int count = 0;
-    fprintf(stderr, "overflow %d\n", ++count);
+	cerr << "overflow: " << ++count << endl;
 }
 static int usage(char *exe) {
     fprintf(stderr, "Usage: %s [options] outfile.wav\n"
@@ -114,6 +114,12 @@ static int usage(char *exe) {
             "  [--raw]\n"
             , exe);
     return 1;
+}
+
+int getSignedFrame(bool signedSample, int bits, int sample) {
+	if (signedSample && (sample > (1<<(bits-1))))
+		sample -= (1<<bits);
+	return sample;
 }
 
 int microphone(int argc, char **argv) {
@@ -157,13 +163,13 @@ int microphone(int argc, char **argv) {
     struct RecordContext rc;
     struct SoundIo *soundio = soundio_create();
     if (!soundio) {
-        fprintf(stderr, "out of memory\n");
+    	cerr << "soundio_create:out of memory" << endl;
         return 1;
     }
     int err = (backend == SoundIoBackendNone) ?
         soundio_connect(soundio) : soundio_connect_backend(soundio, backend);
     if (err) {
-        fprintf(stderr, "error connecting: %s", soundio_strerror(err));
+    	cerr << "error connecting: " << soundio_strerror(err) << endl;
         return 1;
     }
     soundio_flush_events(soundio);
@@ -178,20 +184,19 @@ int microphone(int argc, char **argv) {
             soundio_device_unref(device);
         }
         if (!selected_device) {
-            fprintf(stderr, "Invalid device id: %s\n", device_id);
+        	cerr << "Invalid device id: " << device_id << endl;
             return 1;
         }
     } else {
         int device_index = soundio_default_input_device_index(soundio);
         selected_device = soundio_get_input_device(soundio, device_index);
         if (!selected_device) {
-            fprintf(stderr, "No input devices available.\n");
+        	cerr << "No input devices available." << endl;
             return 1;
         }
     }
-    fprintf(stderr, "Device: %s\n", selected_device->name);
     if (selected_device->probe_error) {
-        fprintf(stderr, "Unable to probe device: %s\n", soundio_strerror(selected_device->probe_error));
+    	cerr << "Unable to probe device:" << soundio_strerror(selected_device->probe_error) << endl;
         return 1;
     }
     soundio_device_sort_channel_layouts(selected_device);
@@ -217,7 +222,7 @@ int microphone(int argc, char **argv) {
         fmt = selected_device->formats[0];
     struct SoundIoInStream *instream = soundio_instream_create(selected_device);
     if (!instream) {
-        fprintf(stderr, "out of memory\n");
+    	cerr << "soundio_instream_create: out of memory" << endl;
         return 1;
     }
     instream->format = fmt;
@@ -226,20 +231,20 @@ int microphone(int argc, char **argv) {
     instream->overflow_callback = overflow_callback;
     instream->userdata = &rc;
     if ((err = soundio_instream_open(instream))) {
-        fprintf(stderr, "unable to open input stream: %s", soundio_strerror(err));
+    	cerr << "unable to open input stream: " << soundio_strerror(err) << endl;
         return 1;
     }
-    fprintf(stderr, "%s %dHz %s interleaved\n",
-            instream->layout.name, sample_rate, soundio_format_string(fmt));
+
+    cout << "microphone input device " << selected_device->name << " layout:" << instream->layout.name << " rate: " << sample_rate << "Hz, format:" << soundio_format_string(fmt) << " interleaved" << endl;
     const int ring_buffer_duration_seconds = 30;
     int capacity = ring_buffer_duration_seconds * instream->sample_rate * instream->bytes_per_frame;
     rc.ring_buffer = soundio_ring_buffer_create(soundio, capacity);
     if (!rc.ring_buffer) {
-        fprintf(stderr, "out of memory\n");
+    	cerr << "soundio_ring_buffer_create: out of memory" << endl;
         return 1;
     }
     if ((err = soundio_instream_start(instream))) {
-        fprintf(stderr, "unable to start input device: %s", soundio_strerror(err));
+    	cerr << "unable to start input device: " << soundio_strerror(err) << endl;
         return 1;
     }
 
@@ -254,6 +259,7 @@ int microphone(int argc, char **argv) {
         int channels = instream->layout.channel_count;
         int bytePerSample= instream->bytes_per_sample;
         int outputBufferCounter = 0;
+        bool signedSamples = true;
         int outputBuffer[fill_bytes*channels];
         for (int i = 0;i<fill_bytes;i += channels*bytePerSample) {
         	float audioValue = 0;
@@ -264,16 +270,20 @@ int microphone(int argc, char **argv) {
         		} else {
                 	audioValue = (((uint8_t)read_buf[i+1]) << 8) + (((uint8_t)read_buf[i+0]));
         		}
+        		audioValue = getSignedFrame(signedSamples, bytePerSample*8, audioValue);
         	} else {
         		if (bytePerSample == 2) {
-                	float audioValue1 = (((uint8_t)read_buf[i+1]) << 8) + (((uint8_t)read_buf[i+0]));
-                	float audioValue2 = (((uint8_t)read_buf[i+3]) << 8) + (((uint8_t)read_buf[i+2]));
-
-                	audioValue = (audioValue1+audioValue2);
+                	int audioValue1 = (((uint8_t)read_buf[i+1]) << 8) + (((uint8_t)read_buf[i+0]));
+                	audioValue1 = getSignedFrame(signedSamples, bytePerSample*8, audioValue1);
+                	int audioValue2 = (((uint8_t)read_buf[i+3]) << 8) + (((uint8_t)read_buf[i+2]));
+                	audioValue2 = getSignedFrame(signedSamples, bytePerSample*8, audioValue2);
+                	audioValue = (audioValue1+audioValue2)/2;
         		} else {
-                	float audioValue1 =  (((uint8_t)read_buf[i+0]));
-                	float audioValue2 = (((uint8_t)read_buf[i+1]));
-                	audioValue = (audioValue1+audioValue2);
+                	int audioValue1 =  (((uint8_t)read_buf[i+0]));
+                	audioValue1 = getSignedFrame(signedSamples, bytePerSample*8, audioValue1);
+                	int audioValue2 = (((uint8_t)read_buf[i+1]));
+                	audioValue2 = getSignedFrame(signedSamples, bytePerSample*8, audioValue2);
+                	audioValue = (audioValue1+audioValue2)/2;
         		}
         	}
         	assert(outputBufferCounter < fill_bytes*channels);
