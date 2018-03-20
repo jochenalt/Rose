@@ -32,12 +32,11 @@ public:
 	void setWavContent(std::vector<uint8_t>& wavData);
 	void setMicrophoneInput();
 
-	bool isWavContentPending() { return wavData.size() > 0; };
-	bool isMicrophoneInputPending() { return wavData.size() == 0; };
+	bool isWavContentPending() { return currentInputType == WAV_INPUT; };
+	bool isMicrophoneInputPending() { return currentInputType == MICROPHONE_INPUT;; };
 
 	// process content of a wav
-	void processWav();
-	void processMicrophoneInput();
+	void processInput();
 
 	void stopProcessing() { stopCurrProcessing = true; };
 
@@ -48,6 +47,7 @@ public:
 	void setPlayback(bool ok);
 	bool getPlayback();
 private:
+	enum InputType { WAV_INPUT, MICROPHONE_INPUT };
 	int readMicrophoneInput(float buffer[], unsigned BufferSize);
 	int readWavInput(float buffer[], unsigned BufferSize);
 
@@ -57,11 +57,11 @@ private:
 	double volume = 1.0;
 	bool withPlayback = true;
 	BeatCallbackFct beatCallback;
-	std::vector<uint8_t> wavData;
 	Playback playback;
 	pa_simple *pulseAudioConnection = NULL;
 	AudioFile<double> audioFile;
-	int posInputSamples = -1;
+	int wavInputPosition = -1;
+	InputType currentInputType = MICROPHONE_INPUT;
 };
 
 #endif /* SRC_AUDIOPROCESSOR_H_ */

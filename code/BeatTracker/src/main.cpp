@@ -212,11 +212,12 @@ int main(int argc, char *argv[]) {
 
    	while (true) {
    		if (AudioProcessor::getInstance().isWavContentPending()) {
-   			AudioProcessor::getInstance().processWav();
-		}
+   			AudioProcessor::getInstance().processInput();
+
+   		}
    		if (AudioProcessor::getInstance().isMicrophoneInputPending()) {
-   			AudioProcessor::getInstance().processMicrophoneInput();
-		}
+   			AudioProcessor::getInstance().processInput();
+   		}
 
 		delay_ms(10);
    	}
