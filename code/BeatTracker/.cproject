@@ -54,6 +54,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.545269177" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
 								<option id="gnu.cpp.link.option.libs.575609597" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="samplerate"/>
+									<listOptionValue builtIn="false" value="soundio"/>
 									<listOptionValue builtIn="false" value="Common"/>
 									<listOptionValue builtIn="false" value="pthread"/>
 									<listOptionValue builtIn="false" value="ao"/>

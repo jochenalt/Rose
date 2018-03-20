@@ -120,10 +120,10 @@ void AudioProcessor::processWav() {
 					inputSampleValue= audioFile.samples[0][posInputSamples + i];
 					break;
 				case 2:
-					inputSampleValue = (audioFile.samples[0][posInputSamples + i]+audioFile.samples[1][posInputSamples + i])/2.0;
+					inputSampleValue = (audioFile.samples[0][posInputSamples + i]+audioFile.samples[1][posInputSamples + i]);
 					break;
 				default:
-					 inputSampleValue = 0;
+					inputSampleValue = 0;
 					for (int j = 0;j<numInputChannels;j++)
 						inputSampleValue += audioFile.samples[j][posInputSamples + i];
 					inputSampleValue = inputSampleValue / numInputChannels;

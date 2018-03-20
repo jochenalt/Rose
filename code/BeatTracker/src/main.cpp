@@ -86,7 +86,11 @@ void sendBeatToRythmDetector(bool beat, double bpm) {
 typedef void (*MoveCallbackFct)(bool beat, double Bpm);
 
 
+extern int microphone(int argc, char *argv[]);
+
 int main(int argc, char *argv[]) {
+	microphone(argc, argv);
+	return 0;
 	// exit correctly when exception arises
 	std::set_terminate([](){
 		std::cout << "Unhandled exception\n"; std::abort();
@@ -203,7 +207,7 @@ int main(int argc, char *argv[]) {
 		std::istream_iterator<uint8_t> begin (file), end;
 		std::vector<uint8_t> wavContent (begin, end);
 		string s;
-		for (int i = 0;i< wavContent.size();i++)
+		for (unsigned i = 0;i< wavContent.size();i++)
 			s += (char)wavContent[i];
 		cout << "songl=" << wavContent.size() << " start=" << std::hex << s.substr(0,64) << endl;
 
