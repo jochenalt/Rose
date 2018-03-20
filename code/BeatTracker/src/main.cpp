@@ -30,7 +30,7 @@
 
 using namespace std;
 
-bool playback = true;
+bool mplayback = true;
 
 
 string getCmdOption(char ** begin, int argc, int i ) {
@@ -87,6 +87,7 @@ typedef void (*MoveCallbackFct)(bool beat, double Bpm);
 
 
 extern int microphone(int argc, char *argv[]);
+extern int processMicroponeInputsetup();
 
 int main(int argc, char *argv[]) {
 	// microphone(argc, argv);
@@ -131,7 +132,7 @@ int main(int argc, char *argv[]) {
     	} else if (arg == "-t") {
 	    	ServoController::getInstance().calibrateViaKeyBoard();
 	    } else if (arg == "-s") {
-	    	playback = false;
+	    	mplayback = false;
 	    } else if (arg == "-port") {
     		if (i+1 >= argc) {
     			cerr << "-port requires a number 0..100" << endl;
@@ -213,6 +214,10 @@ int main(int argc, char *argv[]) {
    		if (AudioProcessor::getInstance().isWavContentPending()) {
    			AudioProcessor::getInstance().processWav();
 		}
+   		if (AudioProcessor::getInstance().isMicrophoneInputPending()) {
+   			AudioProcessor::getInstance().processMicrophoneInput();
+		}
+
 		delay_ms(10);
    	}
 }

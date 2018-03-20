@@ -40,11 +40,11 @@ void Playback::setup(int sampleRate) {
    	}
 }
 
-void Playback::playbackSample(double volume /* 0..1 */ ,int outputBuffer[], int outputBufferSize) {
+void Playback::playbackSample(double volume /* 0..1 */ ,float outputBuffer[], int outputBufferSize) {
 	char playBuffer[outputBufferSize*2];
 	int outputBufferCount = 0;
 	for (int i = 0;i<outputBufferSize;i++) {
-		unsigned aoBufferValue = ((float)outputBuffer[i])*volume;
+		unsigned aoBufferValue = outputBuffer[i]*volume*(float)(1<<16);
 		// set frame value into output buffer to be played later on
 		// use unsigned 16bits, little endian (U16LE)
 		assert (outputBufferCount  < outputBufferSize*2);

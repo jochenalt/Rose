@@ -9,6 +9,9 @@
 #define SRC_AUDIOPROCESSOR_H_
 
 #include "Playback.h"
+#include <pulse/simple.h>
+#include <pulse/error.h>
+
 typedef void (*BeatCallbackFct)(bool beat, double Bpm);
 
 class AudioProcessor {
@@ -26,10 +29,14 @@ public:
 
 	// set wav content to be processed with next loop
 	void setWavContent(std::vector<uint8_t>& wavData);
+	void setMicrophoneInput();
+
 	bool isWavContentPending() { return wavData.size() > 0; };
+	bool isMicrophoneInputPending() { return wavData.size() == 0; };
 
 	// process content of a wav
 	void processWav();
+	void processMicrophoneInput();
 
 	void stopProcessing() { stopCurrProcessing = true; };
 
@@ -40,6 +47,7 @@ public:
 	void setPlayback(bool ok);
 	bool getPlayback();
 private:
+	int readMicrophoneInput(float buffer[], unsigned BufferSize);
 
 	volatile bool stopCurrProcessing = false;
 	volatile bool currProcessingStopped = true;
@@ -49,6 +57,7 @@ private:
 	BeatCallbackFct beatCallback;
 	std::vector<uint8_t> wavData;
 	Playback playback;
+	pa_simple *pulseAudioConnection = NULL;
 };
 
 #endif /* SRC_AUDIOPROCESSOR_H_ */

@@ -19,7 +19,7 @@ public:
 		return instance;
 	}
 	void setup(int sampleRate);
-	void playbackSample(double volume /* 0..1 */, int outputBuffer[], int outputBufferSize);
+	void playbackSample(double volume /* 0..1 */, float outputBuffer[], int outputBufferSize);
 private:
 	ao_device* outputDevice = NULL;
 };
