@@ -22,34 +22,18 @@ using namespace std;
 struct RecordContext {
     struct SoundIoRingBuffer *ring_buffer;
 };
+
 static enum SoundIoFormat prioritized_formats[] = {
 	SoundIoFormatU16NE,
 	SoundIoFormatU16FE,
 	SoundIoFormatS16NE,
 	SoundIoFormatS16FE,
-	SoundIoFormatS8,
-    SoundIoFormatU8,
-
-	SoundIoFormatU32NE,
-	SoundIoFormatU32FE,
-	SoundIoFormatU24NE,
-	SoundIoFormatU24FE,
-
-	SoundIoFormatS32NE,
-    SoundIoFormatS32FE,
-    SoundIoFormatS24NE,
-    SoundIoFormatS24FE,
-    SoundIoFormatFloat64NE,
-    SoundIoFormatFloat64FE,
-	SoundIoFormatFloat32NE,
-	SoundIoFormatFloat32FE,
-
     SoundIoFormatInvalid,
 };
+
 static int prioritized_sample_rates[] = {
     48000,
     44100,
-    96000,
     24000,
     0,
 };
@@ -116,7 +100,7 @@ static int usage(char *exe) {
     return 1;
 }
 
-int getSignedFrame(bool signedSample, int bits, int sample) {
+int getSample(bool signedSample, int bits, int sample) {
 	if (signedSample && (sample > (1<<(bits-1))))
 		sample -= (1<<bits);
 	return sample;
@@ -270,19 +254,19 @@ int microphone(int argc, char **argv) {
         		} else {
                 	audioValue = (((uint8_t)read_buf[i+1]) << 8) + (((uint8_t)read_buf[i+0]));
         		}
-        		audioValue = getSignedFrame(signedSamples, bytePerSample*8, audioValue);
+        		audioValue = getSample(signedSamples, bytePerSample*8, audioValue);
         	} else {
         		if (bytePerSample == 2) {
                 	int audioValue1 = (((uint8_t)read_buf[i+1]) << 8) + (((uint8_t)read_buf[i+0]));
-                	audioValue1 = getSignedFrame(signedSamples, bytePerSample*8, audioValue1);
+                	audioValue1 = getSample(signedSamples, bytePerSample*8, audioValue1);
                 	int audioValue2 = (((uint8_t)read_buf[i+3]) << 8) + (((uint8_t)read_buf[i+2]));
-                	audioValue2 = getSignedFrame(signedSamples, bytePerSample*8, audioValue2);
+                	audioValue2 = getSample(signedSamples, bytePerSample*8, audioValue2);
                 	audioValue = (audioValue1+audioValue2)/2;
         		} else {
                 	int audioValue1 =  (((uint8_t)read_buf[i+0]));
-                	audioValue1 = getSignedFrame(signedSamples, bytePerSample*8, audioValue1);
+                	audioValue1 = getSample(signedSamples, bytePerSample*8, audioValue1);
                 	int audioValue2 = (((uint8_t)read_buf[i+1]));
-                	audioValue2 = getSignedFrame(signedSamples, bytePerSample*8, audioValue2);
+                	audioValue2 = getSample(signedSamples, bytePerSample*8, audioValue2);
                 	audioValue = (audioValue1+audioValue2)/2;
         		}
         	}

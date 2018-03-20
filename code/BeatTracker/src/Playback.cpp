@@ -15,7 +15,7 @@
 using namespace std;
 
 Playback::Playback() {
-
+    ao_initialize();
 	outputDevice = NULL;
 }
 
@@ -25,7 +25,6 @@ Playback::~Playback() {
 
 
 void Playback::setup(int sampleRate) {
-    ao_initialize();
     // initialize output device
    	ao_sample_format audioOutputFormat;
    	memset(&audioOutputFormat, 0, sizeof(audioOutputFormat));
@@ -47,12 +46,11 @@ void Playback::playbackSample(double volume /* 0..1 */ ,int outputBuffer[], int 
 	for (int i = 0;i<outputBufferSize;i++) {
 		unsigned aoBufferValue = ((float)outputBuffer[i])*volume;
 		// set frame value into output buffer to be played later on
+		// use unsigned 16bits, little endian (U16LE)
 		assert (outputBufferCount  < outputBufferSize*2);
-		playBuffer[outputBufferCount] = (uint8_t)(aoBufferValue & 0xFF);
-		outputBufferCount++;
+		playBuffer[outputBufferCount++] = (uint8_t)(aoBufferValue & 0xFF);
 		assert (outputBufferCount < outputBufferSize*2);
-		playBuffer[outputBufferCount] = (uint8_t)(aoBufferValue >> 8);
-		outputBufferCount++;
+		playBuffer[outputBufferCount++] = (uint8_t)(aoBufferValue >> 8);
 	}
 
 	// play the buffer of hopSize asynchronously

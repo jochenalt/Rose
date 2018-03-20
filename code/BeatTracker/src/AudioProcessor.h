@@ -8,8 +8,7 @@
 #ifndef SRC_AUDIOPROCESSOR_H_
 #define SRC_AUDIOPROCESSOR_H_
 
-#include <ao/ao.h>
-
+#include "Playback.h"
 typedef void (*BeatCallbackFct)(bool beat, double Bpm);
 
 class AudioProcessor {
@@ -47,9 +46,9 @@ private:
 
 	double volume = 1.0;
 	bool withPlayback = true;
-	ao_device* outputDevice = NULL;
 	BeatCallbackFct beatCallback;
 	std::vector<uint8_t> wavData;
+	Playback playback;
 };
 
 #endif /* SRC_AUDIOPROCESSOR_H_ */

@@ -19,28 +19,24 @@
 #include <iomanip>
 #include <algorithm>
 
-#include <ao/ao.h>
-
 #include <basics/stringhelper.h>
 #include <basics/util.h>
 #include <AudioProcessor.h>
 #include <AudioFile/AudioFile.h>
+#include <Playback.h>
+
 #include <BTrack/BTrack.h>
 
 using namespace std;
 
 AudioProcessor::AudioProcessor() {
-
 }
 
 AudioProcessor::~AudioProcessor() {
 
-	ao_shutdown();
 }
 
 void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
-    ao_initialize();
-
     beatCallback = newBeatCallback;
 }
 
@@ -66,6 +62,25 @@ void AudioProcessor::setWavContent(std::vector<uint8_t>& newWavData) {
 	wavData = newWavData;
 }
 
+int getSample(bool signedSample, bool littleEndian, int bits, char sample[]) {
+	int bytes = bits/8;
+	int totSample = 0;
+	if (littleEndian) {
+		for (int i = 0;i<bytes;i++) {
+			totSample = (totSample << 8)  + sample[i];
+		}
+	}
+	else {
+		for (int i = bytes-1;i>=0;i--) {
+			totSample = (totSample << 8)  + sample[i];
+		}
+	}
+	if (signedSample && (totSample > (1<<(bits-1))))
+		totSample -= (1<<bits);
+	return totSample;
+}
+
+
 void AudioProcessor::processWav() {
 	stopCurrProcessing = false;
 	currProcessingStopped = false;
@@ -77,20 +92,9 @@ void AudioProcessor::processWav() {
 	int numInputChannels = audioFile.getNumChannels();
 	audioFile.printSummary();
 
-	// initialize output device
-	ao_sample_format audioOutputFormat;
-	memset(&audioOutputFormat, 0, sizeof(audioOutputFormat));
-	audioOutputFormat.bits = 16;
-	audioOutputFormat.channels = 1;
-	audioOutputFormat.rate = sampleRate;
-	audioOutputFormat.byte_format = AO_FMT_LITTLE;
-	int defaultDriverHandle = ao_default_driver_id();
-	outputDevice = NULL;
-	outputDevice = ao_open_live(defaultDriverHandle, &audioOutputFormat, NULL /* no options */);
-	if (outputDevice == NULL) {
-		cerr << "Could not open sound deviceError opening sound device" << endl;
-		exit(1);
-	}
+	if (withPlayback)
+		playback.setup(sampleRate);
+
 	int hopSize = 128;
 	int frameSize = hopSize*8; // cpu load goes up linear with the framesize
 	BTrack b(hopSize, frameSize);
@@ -103,24 +107,22 @@ void AudioProcessor::processWav() {
 
 		double frame[hopSize];
 		int numInputSamples = min(hopSize, numSamples-posInputSamples);
-		int outputBufferSize = numInputSamples*audioOutputFormat.channels*(audioOutputFormat.bits/8);
-	    char outputBuffer[outputBufferSize];
-
-	    int outputBufferCount = 0;
-		double outputVolumeScaler = (1<<15)*volume;
+		int playbackBufferSize = numInputSamples;
+	    int playbackBuffer[playbackBufferSize];
+	    int playbackBufferCount = 0;
 
 		// process only, if the sample is big enough for a complete hop
 		if (numInputSamples == hopSize) {
 			for (int i = 0; i < numInputSamples; i++)
 			{
-				double inputSampleValue;
+				double inputSampleValue = 0;
 				assert(posInputSamples+1 < numSamples);
 				switch (numInputChannels) {
 				case 1:
 					inputSampleValue= audioFile.samples[0][posInputSamples + i];
 					break;
 				case 2:
-					inputSampleValue = (audioFile.samples[0][posInputSamples + i]+audioFile.samples[1][posInputSamples + i]);
+					inputSampleValue = (audioFile.samples[0][posInputSamples + i]+audioFile.samples[1][posInputSamples + i])/2;
 					break;
 				default:
 					inputSampleValue = 0;
@@ -131,19 +133,15 @@ void AudioProcessor::processWav() {
 				assert(i<hopSize);
 				frame[i] = inputSampleValue;
 				// set frame value into output buffer to be played later on
-				unsigned aoBufferValue = frame[i]*outputVolumeScaler;
-				assert (outputBufferCount  < outputBufferSize);
-				outputBuffer[outputBufferCount] = (uint8_t)(aoBufferValue & 0xFF);
-				outputBufferCount++;
-				assert (outputBufferCount < outputBufferSize);
-				outputBuffer[outputBufferCount] = (uint8_t)(aoBufferValue >> 8);
-				outputBufferCount++;
+				assert (playbackBufferCount  < playbackBufferSize);
+				playbackBuffer[playbackBufferCount++] = inputSampleValue*(1<<15);
 			}
 			posInputSamples += numInputSamples;
 
 			// play the buffer of hopSize asynchronously
 			if (withPlayback)
-				ao_play(outputDevice, outputBuffer, outputBufferCount);
+				playback.playbackSample(volume, playbackBuffer,playbackBufferCount);
+
 			// detect beat and bpm of that hop size
 			b.processAudioFrame(frame);
 
@@ -170,6 +168,5 @@ void AudioProcessor::processWav() {
 			posInputSamples  = numSamples;
 		}
 	}
-	ao_close(outputDevice);
 	currProcessingStopped = true;
 }
