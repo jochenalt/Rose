@@ -11,6 +11,7 @@
 #include "Playback.h"
 #include <pulse/simple.h>
 #include <pulse/error.h>
+#include <AudioFile/AudioFile.h>
 
 typedef void (*BeatCallbackFct)(bool beat, double Bpm);
 
@@ -48,6 +49,7 @@ public:
 	bool getPlayback();
 private:
 	int readMicrophoneInput(float buffer[], unsigned BufferSize);
+	int readWavInput(float buffer[], unsigned BufferSize);
 
 	volatile bool stopCurrProcessing = false;
 	volatile bool currProcessingStopped = true;
@@ -58,6 +60,8 @@ private:
 	std::vector<uint8_t> wavData;
 	Playback playback;
 	pa_simple *pulseAudioConnection = NULL;
+	AudioFile<double> audioFile;
+	int posInputSamples = -1;
 };
 
 #endif /* SRC_AUDIOPROCESSOR_H_ */

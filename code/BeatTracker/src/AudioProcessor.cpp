@@ -78,6 +78,7 @@ void AudioProcessor::setWavContent(std::vector<uint8_t>& newWavData) {
 	while (!currProcessingStopped)
 		delay_ms(1);
 	wavData = newWavData;
+	audioFile.decodeWaveFile(wavData);
 }
 
 void AudioProcessor::setMicrophoneInput() {
@@ -87,15 +88,40 @@ void AudioProcessor::setMicrophoneInput() {
 	wavData.clear();
 }
 
+int AudioProcessor::readWavInput(float buffer[], unsigned BufferSize) {
+	int numSamples = audioFile.getNumSamplesPerChannel();
+	int numInputSamples = min((int)BufferSize, (int)numSamples-posInputSamples);
+	int numInputChannels = audioFile.getNumChannels();
+
+	int bufferCount = 0;
+	for (int i = 0; i < numInputSamples; i++)
+	{
+		double inputSampleValue = 0;
+		assert(posInputSamples+1 < numSamples);
+		switch (numInputChannels) {
+		case 1:
+			inputSampleValue= audioFile.samples[0][posInputSamples + i];
+			break;
+		case 2:
+			inputSampleValue = (audioFile.samples[0][posInputSamples + i]+audioFile.samples[1][posInputSamples + i])/2;
+			break;
+		default:
+			inputSampleValue = 0;
+			for (int j = 0;j<numInputChannels;j++)
+				inputSampleValue += audioFile.samples[j][posInputSamples + i];
+			inputSampleValue = inputSampleValue / numInputChannels;
+		}
+		buffer[bufferCount++] = inputSampleValue;
+	}
+	return bufferCount;
+}
+
 void AudioProcessor::processWav() {
 	stopCurrProcessing = false;
 	currProcessingStopped = false;
-    // load input filec, char *argv
-	AudioFile<double> audioFile;
-	audioFile.decodeWaveFile(wavData);
+
 	int sampleRate = audioFile.getSampleRate();
 	int numSamples = audioFile.getNumSamplesPerChannel();
-	int numInputChannels = audioFile.getNumChannels();
 	audioFile.printSummary();
 
 	if (withPlayback)
@@ -106,7 +132,7 @@ void AudioProcessor::processWav() {
 	BTrack b(hopSize, frameSize);
 
 	// position within the input buffer
-	int posInputSamples = 0;
+	posInputSamples = 0;
 	double elapsedTime = 0;
 	uint32_t startTime_ms = millis();
 	while (!stopCurrProcessing && (posInputSamples < numSamples)) {
@@ -119,23 +145,11 @@ void AudioProcessor::processWav() {
 
 		// process only, if the sample is big enough for a complete hop
 		if (numInputSamples == hopSize) {
-			for (int i = 0; i < numInputSamples; i++)
+			float inputBuffer[numInputSamples];
+			int readFrames = readWavInput(inputBuffer, numInputSamples);
+			for (int i = 0; i < readFrames; i++)
 			{
-				double inputSampleValue = 0;
-				assert(posInputSamples+1 < numSamples);
-				switch (numInputChannels) {
-				case 1:
-					inputSampleValue= audioFile.samples[0][posInputSamples + i];
-					break;
-				case 2:
-					inputSampleValue = (audioFile.samples[0][posInputSamples + i]+audioFile.samples[1][posInputSamples + i])/2;
-					break;
-				default:
-					inputSampleValue = 0;
-					for (int j = 0;j<numInputChannels;j++)
-						inputSampleValue += audioFile.samples[j][posInputSamples + i];
-					inputSampleValue = inputSampleValue / numInputChannels;
-				}
+				double inputSampleValue = inputBuffer[i];
 				assert(i<hopSize);
 				frame[i] = inputSampleValue;
 				// set frame value into output buffer to be played later on
@@ -190,7 +204,6 @@ int AudioProcessor::readMicrophoneInput(float buffer[], unsigned BufferSize) {
         }
 
         int bits = 16;
-
         int outBufferSize = 0;
         // decode buffer in PA_SAMPLE_S16LE format
         for (unsigned i = 0;i<InputBufferSize;i+=4) {
@@ -220,8 +233,6 @@ void AudioProcessor::processMicrophoneInput() {
 
 	// position within the input buffer
 	int posInputSamples = 0;
-	double elapsedTime = 0;
-	uint32_t startTime_ms = millis();
 	while (!stopCurrProcessing) {
 
 		double frame[hopSize];
@@ -259,7 +270,6 @@ void AudioProcessor::processMicrophoneInput() {
 		double bpm = b.getCurrentTempoEstimate();
 
 		// insert a delay to synchronize played audio and beat detection
-		elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;
 		double elapsedFrameTime = (double)posInputSamples / (float)MicrophoneSampleRate;
 
 		beatCallback(beat, bpm);
