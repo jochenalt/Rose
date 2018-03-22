@@ -17,16 +17,15 @@
 #include <dance/Dancer.h>
 
 #include <basics/util.h>
-#include <BTrack/BTrack.h>
-#include <AudioFile/AudioFile.h>
 #include "dance/RhythmDetector.h"
 #include <Stewart/BodyKinematics.h>
 #include <servo/PCA9685Servo.h>
 #include <servo/ServoController.h>
 #include <webserver/Webserver.h>
-#include <AudioProcessor.h>
-
 #include <ao/ao.h>
+#include <audio/AudioFile.h>
+#include <audio/AudioProcessor.h>
+#include <beat/BTrack.h>
 
 using namespace std;
 
@@ -211,14 +210,15 @@ int main(int argc, char *argv[]) {
 	}
 
    	while (true) {
-   		if (AudioProcessor::getInstance().isWavContentPending()) {
+   		// if content is available from whatever source, process it (i.e. perform beat detection via sendBeatToRythmDetector)
+   		if (AudioProcessor::getInstance().isWavContentPending() ||
+   			AudioProcessor::getInstance().isMicrophoneInputPending()) {
+
+   			// do it. Returns when current content type is empty
    			AudioProcessor::getInstance().processInput();
 
    		}
-   		if (AudioProcessor::getInstance().isMicrophoneInputPending()) {
-   			AudioProcessor::getInstance().processInput();
-   		}
-
-		delay_ms(10);
+   		// be cpu friendly
+		delay_ms(1);
    	}
 }

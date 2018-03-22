@@ -23,7 +23,7 @@
 
 #include <cmath>
 #include <algorithm>
-#include "BTrack.h"
+#include <beat/BTrack.h>
 #include "samplerate.h"
 #include <iostream>
 

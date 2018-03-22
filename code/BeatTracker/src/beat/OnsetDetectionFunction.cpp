@@ -19,8 +19,8 @@
  */
 //=======================================================================
 
+#include <beat/OnsetDetectionFunction.h>
 #include <math.h>
-#include "OnsetDetectionFunction.h"
 
 //=======================================================================
 OnsetDetectionFunction::OnsetDetectionFunction (int hopSize_,int frameSize_)

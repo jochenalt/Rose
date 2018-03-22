@@ -25,8 +25,8 @@
 #ifdef __linux__
 
 
-#include "OnsetDetectionFunction.h"
-#include "CircularBuffer.h"
+#include <beat/OnsetDetectionFunction.h>
+#include <beat/CircularBuffer.h>
 #include <vector>
 
 //=======================================================================

@@ -8,12 +8,14 @@
 #ifndef SRC_AUDIOPROCESSOR_H_
 #define SRC_AUDIOPROCESSOR_H_
 
-#include "Playback.h"
+#include <audio/AudioFile.h>
+#include <audio/Playback.h>
 #include <pulse/simple.h>
 #include <pulse/error.h>
-#include <AudioFile/AudioFile.h>
+#include "audio/MicrophoneInput.h"
 
 typedef void (*BeatCallbackFct)(bool beat, double Bpm);
+
 
 class AudioProcessor {
 public:
@@ -33,17 +35,18 @@ public:
 	void setMicrophoneInput();
 
 	bool isWavContentPending() { return currentInputType == WAV_INPUT; };
-	bool isMicrophoneInputPending() { return currentInputType == MICROPHONE_INPUT;; };
+	bool isMicrophoneInputPending() { return currentInputType == MICROPHONE_INPUT; };
 
-	// process content of a wav
+	// process content of passed wav content or content coming from microphone.
+	// returns whenever the current content is empty (valid of wav content only)
+	// needs to be called repeatedly.
 	void processInput();
-
-	void stopProcessing() { stopCurrProcessing = true; };
 
 	// get/set volume [0..1]
 	void setVolume(double newVolume);
 	double getVolume();
 
+	// switch playback on or off
 	void setPlayback(bool ok);
 	bool getPlayback();
 private:
@@ -58,7 +61,7 @@ private:
 	bool withPlayback = true;
 	BeatCallbackFct beatCallback;
 	Playback playback;
-	pa_simple *pulseAudioConnection = NULL;
+	MicrophoneInput microphone;
 	AudioFile<double> audioFile;
 	int wavInputPosition = -1;
 	InputType currentInputType = MICROPHONE_INPUT;

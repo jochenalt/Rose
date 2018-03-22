@@ -20,7 +20,7 @@
 
 #include <webserver/mongoose.h>
 #include <webserver/Webserver.h>
-#include <AudioProcessor.h>
+#include <audio/AudioProcessor.h>
 
 
 using namespace std;

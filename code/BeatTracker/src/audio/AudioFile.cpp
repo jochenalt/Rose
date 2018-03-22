@@ -20,7 +20,7 @@
  */
 //=======================================================================
 
-#include "AudioFile.h"
+#include <audio/AudioFile.h>
 #include <fstream>
 #include <unordered_map>
 #include <iterator>

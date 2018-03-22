@@ -14,12 +14,12 @@ class Playback {
 public:
 	Playback();
 	virtual ~Playback();
-	static Playback& getInstance() {
-		static Playback instance;
-		return instance;
-	}
+
+	// initialize the playback with the given sample rate.
 	void setup(int sampleRate);
-	void playbackSample(double volume /* 0..1 */, float outputBuffer[], int outputBufferSize);
+
+	// play a sample with the sample rate as defined in setup. Samples should between 0..1
+	void play(double volume /* 0..1 */, float outputBuffer[], int outputBufferSize);
 private:
 	ao_device* outputDevice = NULL;
 };

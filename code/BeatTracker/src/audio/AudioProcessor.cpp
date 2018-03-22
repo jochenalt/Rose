@@ -5,6 +5,7 @@
  *      Author: Jochen Alt
  */
 
+#include <audio/AudioFile.h>
 #include <iostream>
 #include <string.h>
 
@@ -21,42 +22,23 @@
 
 #include <basics/stringhelper.h>
 #include <basics/util.h>
-#include <AudioProcessor.h>
-#include <AudioFile/AudioFile.h>
-#include <Playback.h>
+#include <audio/AudioProcessor.h>
+#include <audio/Playback.h>
 
-#include <BTrack/BTrack.h>
+#include <beat/BTrack.h>
 
 using namespace std;
-
-// with microphone we use a standard sample rate
-const int MicrophoneSampleRate = 44100;
 
 AudioProcessor::AudioProcessor() {
 }
 
 AudioProcessor::~AudioProcessor() {
-    if (pulseAudioConnection)
-        pa_simple_free(pulseAudioConnection);
 }
 
 void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
     beatCallback = newBeatCallback;
 	playback.setup(MicrophoneSampleRate);
-
-    // define microphone input connection format
-    static const pa_sample_spec ss = {
-        .format = PA_SAMPLE_S16LE,
-        .rate = MicrophoneSampleRate,
-        .channels = 2
-    };
-
-    int error = 0;
-    // Create the recording stream
-    if (!(pulseAudioConnection = pa_simple_new(NULL, "Donna", PA_STREAM_RECORD, NULL, "record", &ss, NULL, NULL, &error))) {
-        cout << "could not open microphone via pa_simple_new err=" << error;
-        exit(1);
-    }
+	microphone.setup(MicrophoneSampleRate);
 }
 
 void AudioProcessor::setVolume(double newVolume) {
@@ -141,34 +123,6 @@ int AudioProcessor::readWavInput(float buffer[], unsigned BufferSize) {
 }
 
 
-int AudioProcessor::readMicrophoneInput(float buffer[], unsigned BufferSize) {
-    	const unsigned InputBufferSize = BufferSize*4;
-        uint8_t inputBuffer[InputBufferSize];
-
-        // record data from microphone connection
-        int error;
-        if (pa_simple_read(pulseAudioConnection, inputBuffer, InputBufferSize, &error) < 0) {
-            cerr << "reading microphone input: pa_simple_read failed: %i\n" << error << endl;
-            exit(1);
-        }
-
-        int bits = 16;
-        int outBufferSize = 0;
-        // decode buffer in PA_SAMPLE_S16LE format
-        for (unsigned i = 0;i<InputBufferSize;i+=4) {
-        	float inputSample1 = (inputBuffer[i+1] << 8) + (inputBuffer[i]);
-        	if (inputSample1 > (1<<(bits-1)))
-        		inputSample1 -= (1<<bits);
-        	inputSample1 /= (float)(1<<bits);
-        	float inputSample2 = (inputBuffer[i+3] << 8) + (inputBuffer[i+2]);
-        	if (inputSample2 > (1<<(bits-1)))
-        		inputSample2 -= (1<<bits);
-        	inputSample2 /= (float)(1<<bits);
-
-        	buffer[outBufferSize++] = (inputSample2 + inputSample1)/2.0;
-        }
-        return outBufferSize;
-}
 
 void AudioProcessor::processInput() {
 	stopCurrProcessing = false;
@@ -188,15 +142,25 @@ void AudioProcessor::processInput() {
 
 		int readSamples  = 0;
 		if (currentInputType == MICROPHONE_INPUT) {
-			readSamples = readMicrophoneInput(inputBuffer, numInputSamples);
+			readSamples = microphone.readMicrophoneInput(inputBuffer, numInputSamples);
 			sampleRate = MicrophoneSampleRate;
 		}
 		if (currentInputType == WAV_INPUT) {
 			readSamples = readWavInput(inputBuffer, numInputSamples);
 			sampleRate = audioFile.getSampleRate();
+			if (readSamples < numInputSamples) {
+				cout << "end of song. Switching to microphone." << endl;
+
+				// indicate that current processing stopped (setMicrophoneInput waits for this)
+				currProcessingStopped = true;
+
+				// use microphone instead of wav input
+				setMicrophoneInput();
+				return;
+			}
 		}
 		if (readSamples != numInputSamples)
-			cerr << "not enough samples " << endl;
+			cerr << "not enough samples " << readSamples << "vs " << numInputSamples << " type=" << currentInputType << endl;
 
 		int beatDetectionBufferSize = numInputSamples;
 		double beatDetectionBuffer[beatDetectionBufferSize];
@@ -221,7 +185,7 @@ void AudioProcessor::processInput() {
 
 		// play the buffer of hopSize asynchronously
 		if (withPlayback)
-			playback.playbackSample(volume, playbackBuffer,playbackBufferCount);
+			playback.play(volume, playbackBuffer,playbackBufferCount);
 
 		// detect beat and bpm of that hop size
 		b.processAudioFrame(beatDetectionBuffer);
