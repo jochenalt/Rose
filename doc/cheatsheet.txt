@@ -125,5 +125,6 @@ sudo apt-get curl
 >sudo apt-get install libao-dev (required for playing sound)
 # install freeglut (required for openGL)
 >sudo apt-get install freeglut3-dev
-# install openal (required to get microphone input)
->sudo apt-get install libalut-dev
+
+
+
