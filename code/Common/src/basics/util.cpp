@@ -240,6 +240,7 @@ void changemode(int dir)
   }
   else
     tcsetattr( STDIN_FILENO, TCSANOW, &oldt);
+  existingDir = dir;
 }
 
 int kbhit (void)
