@@ -241,7 +241,7 @@ void createRotationMatrix(const Rotation &r, HomogeneousMatrix& m) {
 }
 
 HomogeneousMatrix createRotationMatrix(const Rotation &r) {
-	HomogeneousMatrix result;
+	HomogeneousMatrix result(4,4);
 	createRotationMatrix(r, result);
 	return result;
 }
@@ -267,13 +267,13 @@ void createTransformationMatrix(const Point& p, HomogeneousMatrix& m) {
 
 
 HomogeneousMatrix createTransformationMatrix(const Pose& p) {
-	HomogeneousMatrix result;
+	HomogeneousMatrix result(4,4);
 	createTransformationMatrix(p, result);
 	return result;
 }
 
 HomogeneousMatrix createTransformationMatrix(const Point& p) {
-	HomogeneousMatrix result;
+	HomogeneousMatrix result(4,4);
 	createTransformationMatrix(p, result);
 	return result;
 }

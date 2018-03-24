@@ -5,11 +5,15 @@ RM=rm -f
 SRC=./src
 LIB=./lib
 LDLIBS=-lpthread -lao -lm -lsamplerate
-OBJS=$(LIB)/AudioFile.o \
-$(LIB)/base64.o $(LIB)/orientation.o $(LIB)/point.o $(LIB)/serializer.o $(LIB)/spatial.o $(LIB)/stringhelper.o $(LIB)/util.o $(LIB)/zip.o  \
-$(LIB)/BTrack.o $(LIB)/OnsetDetectionFunction.o $(LIB)/kiss_fft.o \
-$(LIB)/I2C.o $(LIB)/PCA9685.o $(LIB)/PCA9685Servo.o  $(LIB)/Servo.o  $(LIB)/ServoController.o\
-$(LIB)/BodyKinematics.o $(LIB)/StewartKinematics.o $(LIB)/Move.o $(LIB)/main.o $(LIB)/Dancer.o $(LIB)/RhythmDetector.o
+OBJS=$(LIB)/AudioFile.o $(LIB)/audio/AudioProcessor.o $(LIB)/MicrophoneInput.o $(LIB)/Playback.o \
+$(LIB)/beat/BTrack.o $(LIB)/beat/OnsetDetectionFunction.o $(LIB)/fft/kiss_fft.o\
+$(LIB)/servo/I2C.o $(LIB)/servo/PCA9685.o $(LIB)/servo/Servo.o $(LIB)/servo/ServoController.o \
+$(LIB)/webserver/mongoose.o $(LIB)/Webserver.o \
+$(LIB)/Common/basics/base64.o $(LIB)/Common/basics/orientation.o $(LIB)/Common/basics/point.o $(LIB)/Common/basics/serializer.o \
+$(LIB)/Common/basics/spatial.o $(LIB)/Common/basics/stringhelper.o $(LIB)/Common/basics/util.o $(LIB)/Common/basics/zip.o  \
+$(LIB)/Common/Stewart/BodyKinematics.o $(LIB)/Common/Stewart/StewartKinematics.o \
+$(LIB)/Common/dance/Move.o $(LIB)/Common/dance/Dancer.o $(LIB)/Common/dance\RhythmDetector.o
+$(LIB)/main.o 
 
 
 INCLUDES=-I$(SRC) 
@@ -20,38 +24,34 @@ all: Donna
 Donna: $(OBJS) 
 	$(CXX) $(LDFLAGS) -o Donna $(OBJS) $(LDLIBS) 
 
-$(LIB)/%.o:$(SRC)/AudioFile/%.cpp $(SRC)/AudioFile/%.h
+$(LIB)/%.o:$(SRC)/audio/%.cpp $(SRC)/audio/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
-$(LIB)/%.o:$(SRC)/basics/%.cpp $(SRC)/basics/%.h
+$(LIB)/%.o:$(SRC)/beat/%.cpp $(SRC)/beat/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
-$(LIB)/%.o:$(SRC)/BTrack/%.cpp $(SRC)/BTrack/%.h
+$(LIB)/%.o:$(SRC)/fft/%.cpp $(SRC)/fft/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
-$(LIB)/%.o:$(SRC)/servo/%.cpp $(SRC)/servo/%.h
-	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
-
-$(LIB)/%.o:$(SRC)/Stewart/%.cpp $(SRC)/Stewart/%.h
+$(LIB)/%.o:$(SRC)/webserver/%.cpp $(SRC)/webserver/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
 $(LIB)/%.o:$(SRC)/%.cpp $(SRC)/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
-$(LIB)/%.o:$(SRC)/fft/%.c $(SRC)/fft/%.h
+$(LIB)/%.o:$(SRC)/../Common/basics/%.cpp $(SRC)/Common/basics/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
-$(LIB)/%.o:$(SRC)/restclient/%.c $(SRC)/restclient/%.h
+$(LIB)/%.o:$(SRC)/../Common/dance/%.cpp $(SRC)/Common/dance/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
-$(LIB)/%.o:$(SRC)/webserver/%.c $(SRC)/webserver/%.h
+$(LIB)/%.o:$(SRC)/../Common/Stewart/%.cpp $(SRC)/Stewart/dance/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
-$(LIB)/%.o:$(SRC)/client/%.c $(SRC)/client/%.h
+
+$(LIB)/%.o:$(SRC)/BTrack/%.cpp $(SRC)/BTrack/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
-$(LIB)/%.o:$(SRC)/%.cpp 
-	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
 
 clean:

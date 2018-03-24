@@ -219,5 +219,5 @@ float AudioProcessor::getLatency() {
 	if (currentInputType == MICROPHONE_INPUT)
 		return MicrophoneLatency;
 	else
-		return 0.3;
+		return 0.5;
 }

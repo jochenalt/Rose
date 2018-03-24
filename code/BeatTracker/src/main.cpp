@@ -78,15 +78,15 @@ void compensateLatency(bool& beat, double& bpm) {
 	static TimeSamplerStatic latencyTimer;
 	static queue<uint32_t> pendingBeatTime;
 	uint32_t now = millis();
-	static uint32_t lastBeat= millis();
+	// static uint32_t lastBeat= millis();
 
 	// add beats to the queue
 	if (beat && (RhythmDetector::getInstance().getRhythmInQuarters() != 0)) {
 		// compute the necessary delay to compensate microphone latency
 		// assume 2/4 beat
-		float myBpm = 60000.0/(float)(now - lastBeat);
+		// float myBpm = 60000.0/(float)(now - lastBeat);
 		// cout << "   t=" << now - lastBeat << "ms -> BPM=" << myBpm << " riq=" << RhythmDetector::getInstance().getRhythmInQuarters() << endl;
-		lastBeat = now;
+		// lastBeat = now;
 		float secondsPerBeat = 1.0*60.0/(bpm/RhythmDetector::getInstance().getRhythmInQuarters());
 		int numOfDelayedBeats = AudioProcessor::getInstance().getLatency() / secondsPerBeat + 1;
 		float currentBeatDelay = fmod(numOfDelayedBeats*secondsPerBeat-AudioProcessor::getInstance().getLatency(),secondsPerBeat); // [s]
@@ -103,7 +103,7 @@ void compensateLatency(bool& beat, double& bpm) {
 	if (!pendingBeatTime.empty() && pendingBeatTime.front() <= now) {
 		pendingBeatTime.pop();
 		beat = true;
-		cout << "   BEAT! now=" << now << endl;
+		cout << "   latency BEAT!" << endl;
 	}
 }
 
