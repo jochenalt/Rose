@@ -20,8 +20,12 @@ public:
 
 	// play a sample with the sample rate as defined in setup. Samples should between 0..1
 	void play(double volume /* 0..1 */, float outputBuffer[], int outputBufferSize);
+
+	void setPlayback (bool ok) { playback = ok; };
+	bool getPlayback() { return playback; };
 private:
 	ao_device* outputDevice = NULL;
+	bool playback = true;
 };
 
 #endif /* SRC_PLAYBACK_H_ */

@@ -63,7 +63,6 @@ private:
 	volatile bool currProcessingStopped = true;
 
 	double volume = 1.0;
-	bool withPlayback = true;
 	BeatCallbackFct beatCallback;
 	Playback playback;
 	MicrophoneInput microphone;
