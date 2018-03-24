@@ -155,7 +155,7 @@ TotalBodyPose Move::physicistsHeadNicker(double movePercentage) {
 	double startPhase = latencyShift;
 	double mUpDown = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase));
 
-	return absHead(Pose(Point(0,0,bodyHeight + 15.0*mUpDown), Rotation (0,0,0)),
+	return absHead(Pose(Point(0,0,bodyHeight + 10.0*mUpDown), Rotation (0,0,0)),
 			       Pose(Point(-15.0*mUpDown,0,headHeight), Rotation(0,0,0)));
 }
 
@@ -167,7 +167,7 @@ TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
 	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.75)));
 
 	return absHead (
-			Pose(Point(mDip*20,0,bodyHeight  +15.0*mUpDown),Rotation (0,-radians(15)*mDip,-radians(15)*mBase)),
+			Pose(Point(mDip*20,0,bodyHeight  +10.0*mUpDown),Rotation (0,-radians(15)*mDip,-radians(15)*mBase)),
 			Pose(Point(-mDip*40,0,headHeight),Rotation (0,-radians(20)*mDip,-radians(20)*mBase)));
 
 }

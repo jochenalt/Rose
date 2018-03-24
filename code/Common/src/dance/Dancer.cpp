@@ -43,10 +43,20 @@ void Dancer ::setup() {
 
 void Dancer ::createMove(double movePercentage) {
 	TotalBodyPose newPose = Move::getMove(currentMove).move(movePercentage);
+	CriticalBlock block(poseMutex);
 	pose = newPose;
 }
 
+void Dancer::getThreadSafePose(Pose& bodyPose, Pose& headPose) {
+	CriticalBlock block(poseMutex);
+	bodyPose = pose.body;
+	headPose = pose.head;
+};
+
+
 void Dancer::imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition, const Pose& newBodyPose, const Pose& newHeadPose ) {
+	CriticalBlock block(poseMutex);
+
 	currentMove = newCurrentMove;
 	ambition = newAmbition;
 	pose.body = newBodyPose;

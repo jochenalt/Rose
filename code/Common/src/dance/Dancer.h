@@ -44,6 +44,9 @@ public:
 	// current head pose within the move
 	Pose& getHeadPose() { return pose.head; };
 
+	// get current pose from a different thread than the one running danceLoop()
+	void getThreadSafePose(Pose& bodyPose, Pose& headPose);
+
 	// set the number of moves after that the next move happens
 	void switchMovePeriodically(int afterHowManyMoves);
 
@@ -78,6 +81,8 @@ private:
 	vector<Move> moveLibrary;
 	int startAfterNBeats;
 	double ambition = 1.0;
+
+	ExclusiveMutex poseMutex;
 };
 
 #endif /* MOVEMAKER_H_ */

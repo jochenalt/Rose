@@ -89,6 +89,9 @@ void AudioProcessor::setMicrophoneInput() {
 	// playback is set to standard sample rate
 	playback.setup(MicrophoneSampleRate);
 
+	// initialize the
+	microphone.setup(MicrophoneSampleRate);
+
 	// current input is microphone
 	currentInputType = MICROPHONE_INPUT;
 }
@@ -128,8 +131,12 @@ void AudioProcessor::processInput() {
 	stopCurrProcessing = false;
 	currProcessingStopped = false;
 
-	int hopSize = 128;
-	int frameSize = hopSize*8; // cpu load goes up linear with the framesize
+	// hop size is the number of samples that will be fed into beat detection
+	int hopSize = 128; // approx. 3ms at 44100Hz
+
+	// framesize is the number of samples that will be considered in this loop
+	// cpu load goes up linear with the framesize
+	int frameSize = hopSize*32;
 	BTrack b(hopSize, frameSize);
 
 	double elapsedTime = 0;
@@ -206,4 +213,11 @@ void AudioProcessor::processInput() {
 		delay_ms((processedTime - elapsedTime)*1000.0);
 	}
 	currProcessingStopped = true;
+}
+
+float AudioProcessor::getLatency() {
+	if (currentInputType == MICROPHONE_INPUT)
+		return MicrophoneLatency;
+	else
+		return 0.3;
 }

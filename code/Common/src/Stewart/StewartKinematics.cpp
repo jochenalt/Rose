@@ -136,14 +136,17 @@ void StewartKinematics::computeServoAngles(const Pose& plate_world, double servo
 		Pose servoArm_rotation(Pose(Point(0,0,0), Rotation(angle_rad,0,0)));
 		if (mirrorFrame(i))
 			servoArm_rotation.orientation.x = -servoArm_rotation.orientation.x;
-		HomogeneousMatrix servoArmRotationTrans = createTransformationMatrix(servoArm_rotation);
+		HomogeneousMatrix servoArmRotationTrans;
+		createTransformationMatrix(servoArm_rotation, servoArmRotationTrans);
 
 		Pose servoArm_translation(Pose(Point(0,config.servoArmLength_mm,0), Rotation(0,0,0)));
 		if (mirrorFrame(i))
 			servoArm_translation.position.y = -servoArm_translation.position.y;
 
 		// translation of servo lever
-		HomogeneousMatrix servoArmTranslationTrans = createTransformationMatrix(servoArm_translation);
+
+		HomogeneousMatrix servoArmTranslationTrans;
+		createTransformationMatrix(servoArm_translation, servoArmTranslationTrans);
 
 		// compute end point of servo ball joints by concatenating servo centre
 		// position -> rotation by servo angle -> translation by servo length

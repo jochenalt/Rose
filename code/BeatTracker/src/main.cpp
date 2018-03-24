@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <thread>
 #include <stdlib.h>
 #include <signal.h>
 #include <chrono>
@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iterator>
+#include <queue>
 
 #include <basics/stringhelper.h>
 #include <dance/Dancer.h>
@@ -72,25 +73,60 @@ void signalHandler(int s){
 	exit(1);
 }
 
+void compensateLatency(bool& beat, double& bpm) {
+
+	static TimeSamplerStatic latencyTimer;
+	static queue<uint32_t> pendingBeatTime;
+	uint32_t now = millis();
+	static uint32_t lastBeat= millis();
+
+	// add beats to the queue
+	if (beat && (RhythmDetector::getInstance().getRhythmInQuarters() != 0)) {
+		// compute the necessary delay to compensate microphone latency
+		// assume 2/4 beat
+		float myBpm = 60000.0/(float)(now - lastBeat);
+		// cout << "   t=" << now - lastBeat << "ms -> BPM=" << myBpm << " riq=" << RhythmDetector::getInstance().getRhythmInQuarters() << endl;
+		lastBeat = now;
+		float secondsPerBeat = 1.0*60.0/(bpm/RhythmDetector::getInstance().getRhythmInQuarters());
+		int numOfDelayedBeats = AudioProcessor::getInstance().getLatency() / secondsPerBeat + 1;
+		float currentBeatDelay = fmod(numOfDelayedBeats*secondsPerBeat-AudioProcessor::getInstance().getLatency(),secondsPerBeat); // [s]
+
+		// queue up the time when this beat is to be fired
+		pendingBeatTime.push(now + currentBeatDelay*1000.0);
+		// cout << "now=" << millis() << " takt=" << RhythmDetector::getInstance().getRhythmInQuarters() << " spb=" << secondsPerBeat << "delay =" << currentBeatDelay * 1000 << "ms " << endl;
+
+		// for now, we suppress the incoming beat
+		beat = false;
+	}
+
+	// check if the queued up a beat, i.e. the first entry is at its due time
+	if (!pendingBeatTime.empty() && pendingBeatTime.front() <= now) {
+		pendingBeatTime.pop();
+		beat = true;
+		cout << "   BEAT! now=" << now << endl;
+	}
+}
 
 
 void sendBeatToRythmDetector(bool beat, double bpm) {
 	RhythmDetector & rd = RhythmDetector::getInstance();
 	Dancer & mm = Dancer::getInstance();
 
+	// detect the beat
 	rd.loop(beat, bpm);
+
+	// compensate the microphones latency and delay the beat accordingly to hit the beat next time
+	compensateLatency(beat, bpm);
+
+	// create the move according to the beat
 	mm.danceLoop(beat, bpm);
+
 }
 
 typedef void (*MoveCallbackFct)(bool beat, double Bpm);
 
 
-extern int microphone(int argc, char *argv[]);
-extern int processMicroponeInputsetup();
-
 int main(int argc, char *argv[]) {
-	// microphone(argc, argv);
-	// return 0;
 	// exit correctly when exception arises
 	std::set_terminate([](){
 		std::cout << "Unhandled exception\n"; std::abort();
@@ -191,13 +227,14 @@ int main(int argc, char *argv[]) {
 
     }
 
-   	Webserver::getInstance().setup(webserverPort, webrootPath);
-	BodyKinematics::getInstance().setup();
-    Dancer::getInstance().setup();
+   	Dancer& dancer = Dancer::getInstance();
+   	Webserver& webserver = Webserver::getInstance();
+
+   	webserver.setup(webserverPort, webrootPath);
+    dancer.setup();
+    dancer.setStartAfterNBeats(startAfterNBeats);
     RhythmDetector::getInstance().setup();
 
-    Dancer::getInstance().setStartAfterNBeats(startAfterNBeats);
-   	ServoController::getInstance().setup();
    	AudioProcessor::getInstance().setup(sendBeatToRythmDetector);
    	AudioProcessor::getInstance().setVolume((float)volumeArg/100.0);
 
@@ -209,6 +246,42 @@ int main(int argc, char *argv[]) {
 		AudioProcessor::getInstance().setWavContent(wavContent);
 	}
 
+	// start thread that computes the kinematics and sends angles to the servos
+	bool executeServoThread = true;
+	/* std::thread* servoThread = */ new std::thread([=](){
+		cout << "starting execution of kinematics and servo control" << endl;
+
+		TimeSamplerStatic servoTimer;
+	   	Dancer& dancer = Dancer::getInstance();
+	   	ServoController& servoController = ServoController::getInstance();
+	   	BodyKinematics& bodyKinematics = BodyKinematics::getInstance();
+
+	   	servoController.setup();
+	   	bodyKinematics.setup();
+		while (executeServoThread) {
+			if (servoTimer.isDue(20)) {
+				Point bodyBallJoint_world[6], headBallJoint_world[6];
+				double bodyServoAngles_rad[6], headServoAngles_rad[6];
+				Point bodyServoBallJoints_world[6], headServoBallJoints_world[6];
+				Point bodyServoArmCentre_world[6], headServoArmCentre_world[6];
+
+				Pose headPose, bodyPose;
+				dancer.getThreadSafePose(bodyPose, headPose);
+				bodyKinematics.
+						computeServoAngles(bodyPose, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
+										headPose, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
+				for (int i = 0;i<6;i++) {
+					servoController.setAngle(i,bodyServoAngles_rad[i]);
+					servoController.setAngle(i+6,headServoAngles_rad[i]);
+				}
+			}
+			delay_ms(1);
+		}
+		cout << "stopping execution of kinematics and servo control" << endl;
+	});
+
+	// run main loop that processes the audio input and does beat detection
+	cout << "starting audio processing" << endl;
    	while (true) {
    		// if content is available from whatever source, process it (i.e. perform beat detection via sendBeatToRythmDetector)
    		if (AudioProcessor::getInstance().isWavContentPending() ||

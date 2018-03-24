@@ -92,9 +92,12 @@ Pose BodyKinematics::computeHeadStewartPose(const Pose& bodyPose, const Pose &re
 	poseAboveBellyButton.position += bodyPose.position;
 
 	// compute head pose in relative to the body platform
-	HomogeneousMatrix bodyBaseTransformation = createTransformationMatrix(bodyPose);
+	HomogeneousMatrix bodyBaseTransformation;
+	createTransformationMatrix(bodyPose, bodyBaseTransformation);
 	HomogeneousMatrix inverseBodyTransformation = computeInverseTransformationMatrix(bodyBaseTransformation);
-	HomogeneousMatrix poseAboveBellyTransformation = createTransformationMatrix(poseAboveBellyButton);
+
+	HomogeneousMatrix poseAboveBellyTransformation;
+	createTransformationMatrix(poseAboveBellyButton, poseAboveBellyTransformation);
 	HomogeneousMatrix headTransformation = inverseBodyTransformation*poseAboveBellyTransformation;
 	Pose headPose = getPoseByTransformationMatrix(headTransformation);
 

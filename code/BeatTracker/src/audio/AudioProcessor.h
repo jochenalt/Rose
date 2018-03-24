@@ -49,6 +49,11 @@ public:
 	// switch playback on or off
 	void setPlayback(bool ok);
 	bool getPlayback();
+
+	// get current latency of input source
+	float getLatency();
+
+
 private:
 	enum InputType { WAV_INPUT, MICROPHONE_INPUT };
 	int readMicrophoneInput(float buffer[], unsigned BufferSize);
