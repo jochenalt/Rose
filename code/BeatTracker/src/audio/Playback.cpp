@@ -38,8 +38,7 @@ void Playback::setup(int sampleRate) {
    	audioOutputFormat.rate = sampleRate;
    	audioOutputFormat.byte_format = AO_FMT_LITTLE; // small indian
    	audioOutputFormat.matrix = (char*)"M";
-   	int defaultDriverHandle = ao_default_driver_id();
-   	defaultDriverHandle = 1; // USB sound card
+   	int defaultDriverHandle = 1; // USB sound card
    	ao_option* p_ao_option = new ao_option();
    	p_ao_option->key = (char*)"dev";
    	p_ao_option->value = (char*)"plughw:CARD=Device";
@@ -47,7 +46,9 @@ void Playback::setup(int sampleRate) {
    	outputDevice = ao_open_live(defaultDriverHandle, &audioOutputFormat, p_ao_option );
    	if (outputDevice == NULL) {
    		cerr << "Could not open sound device " << defaultDriverHandle << " with "<< sampleRate << "Hz, " << audioOutputFormat.channels << " channels "  << " err=" << errno << endl;
-   		exit(1);
+   	   	outputDevice = ao_open_live(ao_default_driver_id(), &audioOutputFormat, NULL );
+   	   	if (outputDevice == NULL)
+   	   		exit(1);
    	}
    	cout << "using device " << defaultDriverHandle << " with " << sampleRate << "Hz for audio output " << endl;
 }

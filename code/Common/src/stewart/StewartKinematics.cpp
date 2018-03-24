@@ -108,7 +108,8 @@ void StewartKinematics::resetSpeedMeasurement() {
 
 void StewartKinematics::computeServoAngles(const Pose& plate_world, double servoAngle_rad[6], Point ballJoint_world[6],  Point servoBallJoint_world[6]) {
 	// compute the plate's ball joint coordinates in world coordinate
-	HomogeneousMatrix plateTransformation = createTransformationMatrix(plate_world);
+	HomogeneousMatrix plateTransformation(4,4);
+	createTransformationMatrix(plate_world,plateTransformation);
 
 	Point plateBallJoints_world[6];
 	double dT = timer.dT();
@@ -117,7 +118,8 @@ void StewartKinematics::computeServoAngles(const Pose& plate_world, double servo
 		Point currPlateBallJoint = plateBallJoint[i];
 		HomogeneousVector ballJoint_plate_hom = getHomogeneousVector(currPlateBallJoint);
 
-		Point currBallJoint_world = plateTransformation * ballJoint_plate_hom;
+		HomogeneousVector currBallJoint_world_vec = plateTransformation * ballJoint_plate_hom;
+		Point currBallJoint_world(currBallJoint_world_vec);
 
 		ballJoint_world[i] = currBallJoint_world;
 
