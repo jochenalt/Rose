@@ -37,7 +37,7 @@ AudioProcessor::~AudioProcessor() {
 
 void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
     beatCallback = newBeatCallback;
-	playback.setup(MicrophoneSampleRate);
+	//playback.setup(MicrophoneSampleRate);
 	microphone.setup(MicrophoneSampleRate);
 }
 
@@ -105,6 +105,7 @@ int AudioProcessor::readWavInput(float buffer[], unsigned BufferSize) {
 	for (int i = 0; i < numInputSamples; i++)
 	{
 		double inputSampleValue = 0;
+		inputSampleValue= audioFile.samples[0][wavInputPosition + i];
 		assert(wavInputPosition+1 < numSamples);
 		switch (numInputChannels) {
 		case 1:
