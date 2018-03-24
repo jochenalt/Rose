@@ -116,6 +116,7 @@ void Webserver::setup(int port, string webRootPath) {
 }
 
 void Webserver::runningThread() {
+	cout << "starting webserver thread" << endl;
 	while (!terminateThread) {
 		// check and dispatch incoming http requests (dispatched by CommandDispatcher) and wait for timeout ms max.
 		mg_mgr_poll(&mgr, 10);

@@ -83,6 +83,12 @@ void ServoController::setNullAngle(int servoNo, double newValue) {
 double ServoController::getAngle(int servoNo) {
 	return servo[servoNo].getAngle();
 }
+
+
+void ServoController::setAngle_rad(int servoNo, double newAngle_rad) {
+	servo[servoNo].setAngle(degrees(newAngle_rad));
+}
+
 void ServoController::setAngle(int servoNo, double angle) {
 	servo[servoNo].setAngle(angle);
 }

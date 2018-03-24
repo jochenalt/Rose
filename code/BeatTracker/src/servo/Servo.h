@@ -19,7 +19,7 @@ public:
 	void setup(PCA9685* pca9685, int channel /* 0..15 */, double newFrequency = 100, bool reverse = false, double minAngle = -85, double maxAngle = 60, double nullAngle = 0);
 	void calibrate(double minAngle = -85, double maxAngle = 60, double nullAngle = 0);
 
-	void setAngle(double angle);
+	void setAngle(double angle_deg);
 	double getAngle() { return angle; };
 
 private:

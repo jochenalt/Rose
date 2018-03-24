@@ -29,6 +29,8 @@ public:
 
 	double  getAngle(int servoNo);
 	void setAngle(int servoNo, double angle);
+	void setAngle_rad(int servoNo, double newAngle_rad);
+
 
 	double getMinAngle(int servoNo);
 	double getMaxAngle(int servoNo);
