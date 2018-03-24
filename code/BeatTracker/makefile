@@ -38,6 +38,9 @@ $(LIB)/%.o:$(SRC)/fft/%.cpp $(SRC)/fft/%.h
 $(LIB)/%.o:$(SRC)/webserver/%.cpp $(SRC)/webserver/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
+$(LIB)/%.o:$(SRC)/webserver/%.c $(SRC)/webserver/%.h
+	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
+
 $(LIB)/%.o:$(SRC)/servo/%.cpp $(SRC)/servo/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
@@ -50,11 +53,10 @@ $(LIB)/%.o:$(CSRC)/basics/%.cpp $(CSRC)/basics/%.h
 $(LIB)/%.o:$(CSRC)/dance/%.cpp $(CSRC)/dance/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
-$(LIB)/%.o:$(CSRC)/stewart/%.cpp $(CSRC)/stewart/dance/%.h
+$(LIB)/%.o:$(CSRC)/stewart/%.cpp $(CSRC)/stewart/%.h
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
-
-$(LIB)/%.o:$(SRC)/BTrack/%.cpp $(SRC)/BTrack/%.h
+$(LIB)/%.o:$(SRC)/%.cpp $
 	$(CXX) -o $@ -g -c $(INCLUDES) $(CXX_FLAGS) $<
 
 

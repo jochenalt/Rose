@@ -19,7 +19,7 @@
 
 #include <basics/util.h>
 #include "dance/RhythmDetector.h"
-#include <Stewart/BodyKinematics.h>
+#include <stewart/BodyKinematics.h>
 #include <servo/PCA9685Servo.h>
 #include <servo/ServoController.h>
 #include <webserver/Webserver.h>
