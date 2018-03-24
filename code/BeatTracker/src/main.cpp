@@ -267,11 +267,9 @@ int main(int argc, char *argv[]) {
 
 				Pose headPose, bodyPose;
 				dancer.getThreadSafePose(bodyPose, headPose);
-				/*
 				bodyKinematics.
 						computeServoAngles(bodyPose, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
 										headPose, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
-										*/
 				for (int i = 0;i<6;i++) {
 					servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
 					servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
