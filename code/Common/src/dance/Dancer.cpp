@@ -9,7 +9,7 @@
 
 #include <dance/Dancer.h>
 #include <dance/RhythmDetector.h>
-#include <Stewart/BodyKinematics.h>
+#include <stewart/BodyKinematics.h>
 
 
 Dancer ::Dancer () {

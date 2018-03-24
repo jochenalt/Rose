@@ -32,19 +32,19 @@ void ServoController::setup() {
 	// KST Servos can work with 100 Hz
 	pca9685.setPWMFreq(servoFrequency);
 
-	servo[0].setup(&pca9685, 0, servoFrequency, false, -85, 60, 0);
-	servo[1].setup(&pca9685, 1, servoFrequency, true, -85, 60, 0);
-	servo[2].setup(&pca9685, 2, servoFrequency, false, -85, 60, 0);
-	servo[3].setup(&pca9685, 3, servoFrequency, true, -85, 60, 0);
-	servo[4].setup(&pca9685, 4, servoFrequency, false, -85, 60, 0);
-	servo[5].setup(&pca9685, 5, servoFrequency, true, -85, 60, 0);
+	servo[ 0].setup(&pca9685,  0, servoFrequency, false, -60, 85, 0);
+	servo[ 1].setup(&pca9685,  1, servoFrequency, true, -60, 85, 0);
+	servo[ 2].setup(&pca9685,  2, servoFrequency, false, -60, 85, 0);
+	servo[ 3].setup(&pca9685,  3, servoFrequency, true, -60, 85, 0);
+	servo[ 4].setup(&pca9685,  4, servoFrequency, false, -60, 85, 0);
+	servo[ 5].setup(&pca9685,  5, servoFrequency, true, -60, 85, 0);
 
-	servo[6].setup(&pca9685, 6, servoFrequency, false, -85, 60, 0);
-	servo[7].setup(&pca9685, 7, servoFrequency, true, -85, 60, 0);
-	servo[8].setup(&pca9685, 8, servoFrequency, false, -85, 60, 0);
-	servo[9].setup(&pca9685, 9, servoFrequency, true, -85, 60, 0);
-	servo[10].setup(&pca9685, 10, servoFrequency, false, -85, 60, 0);
-	servo[11].setup(&pca9685, 11, servoFrequency, true, -85, 60, 0);
+	servo[ 6].setup(&pca9685,  6, servoFrequency, false, -60, 85, 0);
+	servo[ 7].setup(&pca9685,  7, servoFrequency, true, -60, 85, 0);
+	servo[ 8].setup(&pca9685,  8, servoFrequency, false, -60, 85, 0);
+	servo[ 9].setup(&pca9685,  9, servoFrequency, true, -60, 85, 0);
+	servo[10].setup(&pca9685, 10, servoFrequency, false, -60, 85, 0);
+	servo[11].setup(&pca9685, 11, servoFrequency, true, -60, 85, 0);
 }
 
 double ServoController::getMinAngle(int servoNo) {

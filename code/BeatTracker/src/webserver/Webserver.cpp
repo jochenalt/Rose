@@ -103,7 +103,7 @@ void Webserver::setup(int port, string webRootPath) {
 	s_http_server_opts.document_root = (new string(webRootPath))->c_str();
 	cs_stat_t st;
 	if (mg_stat(s_http_server_opts.document_root, &st) != 0) {
-		cerr << "Cannot find web_root directory " << webRootPath;
+		cerr << "Cannot find webroot directory " << webRootPath;
 		exit(1);
 	}
 

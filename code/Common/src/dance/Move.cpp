@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <dance/Dancer.h>
 #include <dance/Move.h>
-#include "Stewart/BodyKinematics.h"
+#include "stewart/BodyKinematics.h"
 
 
 

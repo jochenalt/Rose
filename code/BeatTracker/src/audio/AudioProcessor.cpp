@@ -136,7 +136,7 @@ void AudioProcessor::processInput() {
 
 	// framesize is the number of samples that will be considered in this loop
 	// cpu load goes up linear with the framesize
-	int frameSize = hopSize*32;
+	int frameSize = hopSize*16;
 	BTrack b(hopSize, frameSize);
 
 	double elapsedTime = 0;
