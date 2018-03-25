@@ -56,6 +56,7 @@ void Playback::setup(int sampleRate) {
 void Playback::play(double volume /* 0..1 */ ,float outputBuffer[], int outputBufferSize) {
 	if (!playback)
 		return;
+
 	char playBuffer[outputBufferSize*2];
 	int outputBufferCount = 0;
 	for (int i = 0;i<outputBufferSize;i++) {
