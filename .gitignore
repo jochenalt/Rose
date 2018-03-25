@@ -18,3 +18,9 @@ code/Common/\.settings/
 
 code/Common/Debug/
 code/Common/.cproject
+
+*.d
+
+*.o
+
+code/Server/Debug/
