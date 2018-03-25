@@ -108,10 +108,6 @@ https://www.sfml-dev.org
 # beat and BPM detection
 https://github.com/adamstark/BTrack
 
-# get microphone input 
-portaudio
-example: https://github.com/mauritslamers/node-portaudio/blob/master/portaudio/test/patest_record.c
-
 or
 openal
 https://www.openal.org/documentation/OpenAL_Programmers_Guide.pdf
@@ -125,6 +121,10 @@ sudo apt-get curl
 >sudo apt-get install libao-dev (required for playing sound)
 # install freeglut (required for openGL)
 >sudo apt-get install freeglut3-dev
+# install development for pulseaudio
+>sudo apt-get install libpulse-dev
 
-
+# play a wav file via logilink USB sound card
+# list cards with aplay -L
+>aplay SlimShady.wav  --device plughw:CARD=Device,DEV=0
 
