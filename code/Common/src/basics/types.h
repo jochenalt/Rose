@@ -5,29 +5,28 @@
 #include <math.h>
 #include <limits>
 
-typedef double realnum;
 typedef double angle_rad;
 typedef double angle_deg;
 
-const realnum qnan = std::numeric_limits<double>::quiet_NaN();
-const realnum inf  = std::numeric_limits<double>::infinity();
-const realnum ninf = -std::numeric_limits<double>::infinity();
+const double qnan = std::numeric_limits<double>::quiet_NaN();
+const double inf  = std::numeric_limits<double>::infinity();
+const double ninf = -std::numeric_limits<double>::infinity();
 
-typedef realnum seconds;					    // time
+typedef double seconds;					    // time
 typedef uint32_t milliseconds;					// time
-typedef realnum mmPerMillisecond;				// speed
-typedef realnum mmPerSecond;					// speed
-typedef realnum radPerSecond;					// angualar speed
+typedef double mmPerMillisecond;				// speed
+typedef double mmPerSecond;					// speed
+typedef double radPerSecond;					// angualar speed
 
 typedef int millimeter_int;				     	// distance
-typedef realnum millimeter;						// distance
-typedef realnum mmPerMillisecondPerMillisecond;	// acceleration
+typedef double millimeter;						// distance
+typedef double mmPerMillisecondPerMillisecond;	// acceleration
 typedef int int_millimeter;						// distance
 
 // allowed difference when checking floats for equality
 const int floatPrecisionDigits=8;
-const realnum floatPrecision=pow(10.0,-floatPrecisionDigits);
-const realnum floatPrecisionSqrt=sqrt(floatPrecision);
+const double floatPrecision=pow(10.0,-floatPrecisionDigits);
+const double floatPrecisionSqrt=sqrt(floatPrecision);
 
 // include matrix library
 #pragma GCC diagnostic push
@@ -38,8 +37,8 @@ const realnum floatPrecisionSqrt=sqrt(floatPrecision);
 
 using techsoft::mslice;
 
-typedef techsoft::matrix<realnum>  Matrix;
-typedef techsoft::matrix<realnum>  HomogeneousMatrix;
-typedef std::valarray<realnum> HomogeneousVector;
-typedef std::valarray<realnum> Vector;
+typedef techsoft::matrix<double>  Matrix;
+typedef techsoft::matrix<double>  HomogeneousMatrix;
+typedef std::valarray<double> HomogeneousVector;
+typedef std::valarray<double> Vector;
 #endif

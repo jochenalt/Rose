@@ -30,13 +30,13 @@ void Point::null() {
 	z = 0.0;
 };
 
-Point::Point(realnum xP,realnum yP, realnum zP) {
+Point::Point(double xP,double yP, double zP) {
 	x = xP;
 	y = yP;
 	z = zP;
 }
 
-void Point::set(realnum pX, realnum pY,realnum pZ) {
+void Point::set(double pX, double pY,double pZ) {
 	x = pX;
 	y = pY;
 	z = pZ;
@@ -61,7 +61,7 @@ Point  Point::getTranslated(const Point& pPoint) {
 	return result;
 }
 
-void Point::mirrorAt(const Point& pMirror,realnum scale) {
+void Point::mirrorAt(const Point& pMirror,double scale) {
 	x = pMirror.x + (pMirror.x-x)*scale;
 	y = pMirror.y + (pMirror.y-y)*scale;
 	z = pMirror.z + (pMirror.z-z)*scale;
@@ -73,24 +73,24 @@ void Point::mirrorAt(const Point& pMirror) {
 	z = pMirror.z + (pMirror.z-z);
 }
 
-realnum Point::distance(const Point& pPoint) const {
+double Point::distance(const Point& pPoint) const {
 	return sqrt(distanceSqr(pPoint));
 }
 
-realnum Point::distanceSqr(const Point& pPoint) const {
+double Point::distanceSqr(const Point& pPoint) const {
 	return (pPoint.x-x)*(pPoint.x-x) + (pPoint.y-y)*(pPoint.y-y) +  (pPoint.z-z)*(pPoint.z-z);
 }
 
 
-realnum Point::length() const {
+double Point::length() const {
 	return sqrt(x*x + y*y+ z*z);
 }
 
-realnum Point::lengthSqr() const {
+double Point::lengthSqr() const {
 	return x*x + y*y+ z*z;
 }
 
-realnum Point::scalarProduct(const Point& pPoint) const {
+double Point::scalarProduct(const Point& pPoint) const {
 	return x*pPoint.x + y*pPoint.y + z*pPoint.z;
 }
 
@@ -111,7 +111,7 @@ Point Point::orthogonalProjection(const Point& pLineA, const Point& pLineB) cons
 	return result;
 }
 
-Point Point::getPointOfLine(realnum ratio, const Point& target) {
+Point Point::getPointOfLine(double ratio, const Point& target) {
 	if (ratio > 1.0)
 		ratio = 1.0;
 	if (ratio < 0.0)
@@ -139,9 +139,9 @@ Point::Point(int args, const valarray<float>& vec) {
 }
 
 
-Point Point::getRotatedAroundZ(realnum alpha) const {
-	realnum sa = sin(alpha);
-	realnum ca = cos(alpha);
+Point Point::getRotatedAroundZ(double alpha) const {
+	double sa = sin(alpha);
+	double ca = cos(alpha);
 
 	Point rotated((ca*x - sa*y),
 			      (sa*x + ca*y),
@@ -149,9 +149,9 @@ Point Point::getRotatedAroundZ(realnum alpha) const {
 	return rotated;
 }
 
-Point Point::getRotatedAroundX(realnum alpha) const {
-	realnum sa = sin(alpha);
-	realnum ca = cos(alpha);
+Point Point::getRotatedAroundX(double alpha) const {
+	double sa = sin(alpha);
+	double ca = cos(alpha);
 
 	Point rotated(x,
 			      ( ca*y - sa*z),
@@ -160,9 +160,9 @@ Point Point::getRotatedAroundX(realnum alpha) const {
 	return rotated;
 }
 
-Point Point::getRotatedAroundY(realnum alpha) const {
-	realnum sa = sin(alpha);
-	realnum ca = cos(alpha);
+Point Point::getRotatedAroundY(double alpha) const {
+	double sa = sin(alpha);
+	double ca = cos(alpha);
 
 	Point rotated(( ca*x + sa*z),
 			      y,
@@ -204,13 +204,13 @@ void Point::operator-= (const Point& p) {
 	z -= p.z;
 }
 
-void Point::operator*= (const realnum f) {
+void Point::operator*= (const double f) {
 	x *= f;
 	y *= f;
 	z *= f;
 }
 
-void Point::operator/= (const realnum f) {
+void Point::operator/= (const double f) {
 	float xrf= 1.0/f;
 	x *= xrf;
 	y *= xrf;
@@ -229,13 +229,13 @@ Point Point::operator+ (const Point& p) const{
 	return result;
 }
 
-Point Point::operator/ (const realnum f) const{
+Point Point::operator/ (const double f) const{
 	Point result= (*this);
 	result*= (1./f);
 	return result;
 }
 
-Point Point::operator* (const realnum f) const{
+Point Point::operator* (const double f) const{
 	Point result= (*this);
 	result*=f;
 	return result;
@@ -251,7 +251,7 @@ bool Point::operator!=(const Point& pos) {
 };
 
 
-realnum& Point::operator[] (int idx)  {
+double& Point::operator[] (int idx)  {
 	switch (idx) {
 		case X:	return x;break;
 		case Y:	return y;break;
@@ -262,7 +262,7 @@ realnum& Point::operator[] (int idx)  {
 	return x;
 };
 
-realnum Point::operator[] (int idx)  const {
+double Point::operator[] (int idx)  const {
 	switch (idx) {
 		case X:	return x;break;
 		case Y:	return y;break;
@@ -273,9 +273,9 @@ realnum Point::operator[] (int idx)  const {
 	return x;
 };
 
-void Point::moveTo(const Point& b, seconds dT, realnum maxSpeed) {
-	realnum d = distance(b);
-	realnum maxDistance = maxSpeed*dT;
+void Point::moveTo(const Point& b, seconds dT, double maxSpeed) {
+	double d = distance(b);
+	double maxDistance = maxSpeed*dT;
 	if (d  > maxDistance) {
 		(*this) += (b -(*this))*maxDistance/d ;
 	}

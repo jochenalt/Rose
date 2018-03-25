@@ -67,9 +67,9 @@ ostream& operator<<(ostream& os, const Rotation& p)
 }
 
 
-void Rotation::moveTo(const Rotation& b, realnum dT, realnum maxAngulaRspeed) {
-	realnum d = distance(b);
-	realnum maxDistance = maxAngulaRspeed*dT;
+void Rotation::moveTo(const Rotation& b, double dT, double maxAngulaRspeed) {
+	double d = distance(b);
+	double maxDistance = maxAngulaRspeed*dT;
 	if (d  > maxDistance) {
 		(*this) += (b -(*this))*maxDistance/d ;
 	}

@@ -24,7 +24,7 @@ class Quaternion {
 public:
 	Quaternion() { x = 0; y = 0; z = 0;w = 0; };
 	Quaternion(const Quaternion &q) { x = q.x; y = q.y; z = q.z; w = q.w; };
-	Quaternion(realnum px, realnum py, realnum pz, realnum pw) { x = px; y = py; z = pz; w = pw; };
+	Quaternion(double px, double py, double pz, double pw) { x = px; y = py; z = pz; w = pw; };
 
 	Quaternion(const EulerAngles &e);
 	Quaternion(const Rotation &r);
@@ -36,10 +36,10 @@ public:
 		return *this;
 	}
 
-	realnum x;
-	realnum y;
-	realnum z;
-	realnum w;
+	double x;
+	double y;
+	double z;
+	double w;
 };
 
 class EulerAngles {
@@ -47,7 +47,7 @@ class EulerAngles {
 	friend class Rotation;
 public:
 	EulerAngles() { roll = 0; nick = 0; yaw = 0; };
-	EulerAngles(realnum proll, realnum pnick, realnum pyaw) { roll = proll; nick = pnick; yaw = pyaw; };
+	EulerAngles(double proll, double pnick, double pyaw) { roll = proll; nick = pnick; yaw = pyaw; };
 	EulerAngles(const EulerAngles &q);
 	EulerAngles(const Quaternion &q);
 	EulerAngles(const Rotation &q);
@@ -59,9 +59,9 @@ public:
 		return *this;
 	}
 
-	realnum roll;
-	realnum nick;
-	realnum yaw;
+	double roll;
+	double nick;
+	double yaw;
 };
 
 
@@ -109,15 +109,15 @@ class Rotation {
 			z= p.z;
 		};
 
-		Rotation getRotatedAroundZ(realnum alpha) const {
-			realnum sa = sin(alpha);
-			realnum ca = cos(alpha);
+		Rotation getRotatedAroundZ(double alpha) const {
+			double sa = sin(alpha);
+			double ca = cos(alpha);
 
 			Rotation rotated((ca*x - sa*y),(sa*x + ca*y),z );
 			return rotated;
 		}
 
-		void rotateAroundZ(realnum alpha) {
+		void rotateAroundZ(double alpha) {
 
 			Rotation tmp= getRotatedAroundZ(alpha);
 			Rotation result;
@@ -126,7 +126,7 @@ class Rotation {
 			result.z = tmp.z;
 		}
 
-		void moveTo(const Rotation& b, realnum dT, realnum maxAngularSpeed);
+		void moveTo(const Rotation& b, double dT, double maxAngularSpeed);
 
 		Rotation& operator=(const Rotation& rot) {
 			x = rot.x;
@@ -191,7 +191,7 @@ class Rotation {
 			return !((*this) == pos);
 		};
 
-		realnum distance(const Rotation& p) const {
+		double distance(const Rotation& p) const {
 				return sqrt((p.x-x)*(p.x-x) + (p.y-y)*(p.y-y)+  (p.z-z)*(p.z-z));
 		}
 

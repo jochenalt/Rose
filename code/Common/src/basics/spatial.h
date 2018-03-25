@@ -68,7 +68,7 @@ class Pose : public Serializable  {
 			return position.isNull();
 		}
 
-		void moveTo(const Pose& b, realnum dT, realnum maxSpeed, realnum maxRotateSpeed) {
+		void moveTo(const Pose& b, double dT, double maxSpeed, double maxRotateSpeed) {
 			position.moveTo(b.position, dT, maxSpeed);
 			orientation.moveTo(b.orientation, dT, maxRotateSpeed);
 		};
@@ -209,7 +209,7 @@ public:
 
 	// reset all historical values such that it will start with 0
 	void reset();
-	Rotation getPID(Rotation error, realnum p, realnum i, realnum d, const Rotation &outMax);
+	Rotation getPID(Rotation error, double p, double i, double d, const Rotation &outMax);
 
 	// for debugging purposes, returns the integrated I value
 	Rotation getErrorIntegral() { return errorIntegral; };
@@ -221,18 +221,18 @@ private:
 
 
 // some basic vector operations
-bool 	almostEqual(const Point& a, const Point& b, realnum precision);
-realnum triangleHypothenusisLength(realnum a, realnum b); 		// pythagoras
-realnum triangleHeightToC(realnum a, realnum b, realnum c);		// herons law
-Vector 	orthogonalVector(const Vector& a, realnum l);			// return orthogonal vector with length and z = 0
+bool 	almostEqual(const Point& a, const Point& b, double precision);
+double triangleHypothenusisLength(double a, double b); 		// pythagoras
+double triangleHeightToC(double a, double b, double c);		// herons law
+Vector 	orthogonalVector(const Vector& a, double l);			// return orthogonal vector with length and z = 0
 Vector 	crossProduct(const Vector& a, const Vector& b);
-void 	setVectorLength(Vector &a, realnum length);					// multiply vector with a factor that results in the given length
+void 	setVectorLength(Vector &a, double length);					// multiply vector with a factor that results in the given length
 
 // solves equation
 //      a*sin(alpha) + b*cos(alpha) = c
 // by alpha
 // returns two solutions, if only one solution is available, alpha2 is qnan
-void solveTrgLinearCombinationWithEqualPhase(realnum a, realnum b, realnum c, realnum &alpha1, realnum &alpha2, bool& infiniteSolutions);
+void solveTrgLinearCombinationWithEqualPhase(double a, double b, double c, double &alpha1, double &alpha2, bool& infiniteSolutions);
 
 // create a rotation matrix from a given rotation around all axes
 void createRotationMatrix(const Rotation &r, HomogeneousMatrix& m);

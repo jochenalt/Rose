@@ -56,7 +56,7 @@ float roundValue(float x) {
 	return roundedValue;
 }
 
-realnum arctanApprox(realnum x) {
+double arctanApprox(double x) {
 	return 3.0*x/(3.0 + x*x);
 }
 
@@ -76,7 +76,7 @@ int randomInt(int min,int max) {
 	return r;
 }
 
-realnum randomFloat (realnum a, realnum b) {
+double randomFloat (double a, double b) {
 	return randomInt(a*1000, b*1000)/1000.;
 }
 
@@ -108,26 +108,26 @@ seconds secondsSinceEpoch() {
     return mseconds/1000.0;
 }
 
-realnum lowpass (realnum oldvalue, realnum newvalue, realnum tau, realnum dT) {
-	realnum alpha = tau/(tau+dT);
-	realnum result = newvalue*(1.0-alpha) + oldvalue * alpha;
+double lowpass (double oldvalue, double newvalue, double tau, double dT) {
+	double alpha = tau/(tau+dT);
+	double result = newvalue*(1.0-alpha) + oldvalue * alpha;
 	return result;
 }
 
 // use polynom 3rd grade with (f(0) = 0, f(1) = 01 f'(0) = grade, f'(1) = 0)
 // input is number between 0..1, output is number between 0..1 but moving to 1 quicker in the beginning
 // grade has to be <=3
-realnum moderate(realnum input, realnum grade) {
+double moderate(double input, double grade) {
 	return (grade-2.0)*input*input*input + (-2.0*grade+3.0)*input*input + grade*input;
 }
 
 // function with f(0) = 0, f(1) = 0, f'(0) = 0, in between the function goes down and accelerates
-realnum speedUpAndDown(realnum input) {
+double speedUpAndDown(double input) {
 	return 3*input*input*input - 2*input*input;
 }
 
-realnum ellipseCircumference(realnum a, realnum b) {
-	realnum lambda = (a-b)/(a+b);
+double ellipseCircumference(double a, double b) {
+	double lambda = (a-b)/(a+b);
 	return (a+b)*M_PI*(1.0 + 3.0*lambda*lambda/(10.0 + sqrt(4.0-3.0*lambda*lambda)));
 }
 
@@ -144,30 +144,30 @@ void delay_us(long us) {
 
 
 double radians(double degrees) {
-	const realnum fac = (M_PI / 180.0);
+	const double fac = (M_PI / 180.0);
 	return degrees * fac;
 }
 
 double degrees(double radians) {
-	const realnum fac = (180.0 / M_PI);
+	const double fac = (180.0 / M_PI);
 	return radians * fac;
 }
 
 // cosine sentence
-realnum triangleAlpha(realnum a, realnum b, realnum c) {
-	realnum x = acos((a*a-b*b-c*c)/(-2.0*b*c));
+double triangleAlpha(double a, double b, double c) {
+	double x = acos((a*a-b*b-c*c)/(-2.0*b*c));
     return x;
 }
 
 // cosine sentence
-realnum triangleGamma(realnum a, realnum b, realnum c) {
+double triangleGamma(double a, double b, double c) {
 	return triangleAlpha(c,b,a);
 }
 
 // abc formula, root of 0 = a*x*x + b*x + c;
-bool polynomRoot2ndOrder(realnum a, realnum b, realnum c, realnum& root0, realnum& root1)
+bool polynomRoot2ndOrder(double a, double b, double c, double& root0, double& root1)
 {
-	realnum disc = b*b-4.0*a*c;
+	double disc = b*b-4.0*a*c;
 	if (disc>=0) {
 		root0 = (-b + sqrt(disc)) / (2.0*a);
 		root1 = (-b - sqrt(disc)) / (2.0*a);
@@ -177,7 +177,7 @@ bool polynomRoot2ndOrder(realnum a, realnum b, realnum c, realnum& root0, realnu
 }
 
 
-bool almostEqual(realnum a, realnum b, realnum precision) {
+bool almostEqual(double a, double b, double precision) {
 	if (a==b)
 		return true;
 	if (a == 0)

@@ -84,7 +84,7 @@ T pow3(const T& x) {
 
 // random helper functions
 int randomInt(int min,int max);
-realnum randomFloat (realnum a, realnum b);
+double randomFloat (double a, double b);
 bool randomBool();
 int randomPosNeg();
 
@@ -97,17 +97,17 @@ void delay_us(long);
 string currentTimeToString();
 
 
-bool almostEqual(realnum a, realnum b, realnum precision);		// true, if both values differ by  given percentage only
+bool almostEqual(double a, double b, double precision);		// true, if both values differ by  given percentage only
 float roundValue(float x);											// round passed value to next floatPrecision number
 
-realnum arctanApprox(realnum x);
+double arctanApprox(double x);
 double radians(double degrees);
 double degrees(double radians);
-realnum triangleAlpha(realnum a, realnum b, realnum c);			// cosine law
-realnum triangleGamma(realnum a, realnum b, realnum c);			// cosine law
-bool polynomRoot2ndOrder(realnum a, realnum b, realnum c, realnum& root0, realnum& root1);
+double triangleAlpha(double a, double b, double c);			// cosine law
+double triangleGamma(double a, double b, double c);			// cosine law
+bool polynomRoot2ndOrder(double a, double b, double c, double& root0, double& root1);
 
-realnum lowpass (realnum oldvalue, realnum newvalue, realnum tau, realnum dT);
+double lowpass (double oldvalue, double newvalue, double tau, double dT);
 
 // get character from keyboard
 char getch();
@@ -118,13 +118,13 @@ void changemode(int dir);
 // Usecase: break at the end of the movement such that speed goes down to zero.
 // use polynom 3rd grade with (f(0) = 0, f(1) = 0, f'(0) = grade, f'(1) = 0)
 // input is number between 0..1, output is number between 0..1 but moving to 1 quicker in the beginning
-realnum moderate(realnum input, realnum grade);
+double moderate(double input, double grade);
 
 // function with f(0) = 0, f(1) = 0, f'(0) = 0, in between the function goes up and accelerates and goes down and breakes
-realnum speedUpAndDown(realnum input);
+double speedUpAndDown(double input);
 
 // approximate circumference of an ellipse given with two axis
-realnum ellipseCircumference(realnum a, realnum b);
+double ellipseCircumference(double a, double b);
 
 
 
@@ -141,7 +141,7 @@ public:
 	};
 	seconds dT() {
 		milliseconds now = millis();
-		realnum duration = (now - lastCall)/1000.0;
+		double duration = (now - lastCall)/1000.0;
 		lastCall = now;
 		if (firstCalldT) {
 			firstCalldT = false;
@@ -229,30 +229,30 @@ public:
 	LowPassFilter () {};
 	virtual ~LowPassFilter() {};
 
-	LowPassFilter (realnum frequency) {
+	LowPassFilter (double frequency) {
 		init(frequency);
 	}
 
-	void init(realnum frequency) {
+	void init(double frequency) {
 		responseTime = 1.0/frequency;
 		currentValue = 0;
 		sampler.dT();
 	}
 
-	void operator=(realnum  value) {
-		realnum complementaryFilter = responseTime/(responseTime + sampler.dT());
+	void operator=(double  value) {
+		double complementaryFilter = responseTime/(responseTime + sampler.dT());
 		currentValue = complementaryFilter*currentValue + (1.0-complementaryFilter)*value;
 	}
 
-	void set(realnum  value) {
-		realnum  complementaryFilter = responseTime/(responseTime + sampler.dT());
+	void set(double  value) {
+		double  complementaryFilter = responseTime/(responseTime + sampler.dT());
 		currentValue = complementaryFilter*currentValue + (1.0-complementaryFilter)*value;
 	}
 
-	operator realnum() const { return currentValue; };
+	operator double() const { return currentValue; };
 
-	realnum  responseTime = 0;
-	realnum  currentValue = 0;
+	double  responseTime = 0;
+	double  currentValue = 0;
 	TimeSamplerStatic sampler;
 };
 

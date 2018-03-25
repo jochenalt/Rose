@@ -100,16 +100,16 @@ std::istream& TotalBodyPose::deserialize(std::istream &in, bool &ok) {
 }
 
 // return length of hyopthenusis of orthogonal triangle
-realnum triangleHypothenusisLength(realnum a, realnum b) {
+double triangleHypothenusisLength(double a, double b) {
     return sqrt(a*a+b*b);
 }
 
 // return height of general triangle (no assumptions about shape)
-realnum triangleHeightToC(realnum a, realnum b, realnum c) {
+double triangleHeightToC(double a, double b, double c) {
 	// herons law
-	realnum semiperimeter = 0.5*(a + b + c);
+	double semiperimeter = 0.5*(a + b + c);
 	// take care that squareroot does not get negative, this can happen if semiperimeter gets close to c
-	realnum height = 0;
+	double height = 0;
 	if ((semiperimeter - b > 0) && (semiperimeter - a > 0) && (semiperimeter - c > 0))
 		height = 2.0 / c * sqrt(semiperimeter* (semiperimeter-a) * (semiperimeter-b) * (semiperimeter-c));
 
@@ -117,8 +117,8 @@ realnum triangleHeightToC(realnum a, realnum b, realnum c) {
 }
 
 // return a vector that is orthogonal to a, has length l and z=0
-Vector orthogonalVector(const Vector& a, realnum l) {
-	realnum x = l/(sqrt( sqr(a[X]/a[Y]) + 1.0));
+Vector orthogonalVector(const Vector& a, double l) {
+	double x = l/(sqrt( sqr(a[X]/a[Y]) + 1.0));
 	Vector S = { x, sqrt(l*l - x*x) , 0 };
 	return S;
 }
@@ -128,16 +128,16 @@ Vector crossProduct(const Vector& a, const Vector& b) {
 	return c;
 }
 
-void setVectorLength(Vector &a, realnum l) {
-	realnum factor = l/sqrt(a[X]*a[X] + a[Y]*a[Y] + a[Z]*a[Z]);
+void setVectorLength(Vector &a, double l) {
+	double factor = l/sqrt(a[X]*a[X] + a[Y]*a[Y] + a[Z]*a[Z]);
 	a[X] *= factor;
 	a[Y] *= factor;
 	a[Z] *= factor;
 }
 
 // solve equation a*sin(alpha) + b*cos(alpha) = c
-void solveTrgLinearCombinationWithEqualPhase(realnum a, realnum b, realnum c,
-		realnum &alpha1, realnum &alpha2, bool& infiniteSolutions) {
+void solveTrgLinearCombinationWithEqualPhase(double a, double b, double c,
+		double &alpha1, double &alpha2, bool& infiniteSolutions) {
 	infiniteSolutions = false;
 
 	// take care that either a or b is negative, makes cases easier.
@@ -162,13 +162,13 @@ void solveTrgLinearCombinationWithEqualPhase(realnum a, realnum b, realnum c,
 			alpha1 = asin(c/a);
 			alpha2 = qnan;
 		} else {
-			realnum amplitude = sqrt (a*a + b*b);
+			double amplitude = sqrt (a*a + b*b);
 
-			realnum t1 = asin(c/amplitude);
-			realnum phase1 = atan(b/a);
+			double t1 = asin(c/amplitude);
+			double phase1 = atan(b/a);
 
-			realnum t2 = acos(c/amplitude);
-			realnum phase2 = atan(a/b);
+			double t2 = acos(c/amplitude);
+			double phase2 = atan(a/b);
 			// in first and forth quadrant, phase is ok, in
 			// second and third quadrant we need to add PI (check ./theory/linear combination of sin and cos.pdf)
 			if (a<0) {// = cos(phase)
@@ -182,8 +182,8 @@ void solveTrgLinearCombinationWithEqualPhase(realnum a, realnum b, realnum c,
 			alpha2 = t2 + phase2;
 // #define DOUBLECHECK
 #ifdef DOUBLECHECK
-			realnum probe1 = a*sin(alpha1) + b*cos(alpha1);
-			realnum probe2 = a*sin(alpha2) + b*cos(alpha2);
+			double probe1 = a*sin(alpha1) + b*cos(alpha1);
+			double probe2 = a*sin(alpha2) + b*cos(alpha2);
 
 			if ((abs(probe1-c) > floatPrecision) || (abs(probe2-c) > floatPrecision)) {
 				throw "error in solveTrgLinearCombinationWithEqualPhase";
@@ -201,7 +201,7 @@ void solveTrgLinearCombinationWithEqualPhase(realnum a, realnum b, realnum c,
 }
 
 // return the distance of two 3D points
-realnum distance(const Vector& a, const Vector& b) {
+double distance(const Vector& a, const Vector& b) {
     return sqrt((b[0]-a[0])*(b[0]-a[0]) + (b[1]-a[1])*(b[1]-a[1]) + (b[2]-a[2])*(b[2]-a[2]));
 }
 
@@ -226,12 +226,12 @@ HomogeneousMatrix computeInverseTransformationMatrix(HomogeneousMatrix m) {
 }
 
 void createRotationMatrix(const Rotation &r, HomogeneousMatrix& m) {
-	realnum sinX = sin(r.x);
-	realnum cosX = cos(r.x);
-	realnum sinY = sin(r.y);
-	realnum cosY = cos(r.y);
-	realnum sinZ = sin(r.z);
-	realnum cosZ = cos(r.z);
+	double sinX = sin(r.x);
+	double cosX = cos(r.x);
+	double sinY = sin(r.y);
+	double cosY = cos(r.y);
+	double sinZ = sin(r.z);
+	double cosZ = cos(r.z);
 
 	m = HomogeneousMatrix(4,4,
 			{ 	cosZ*cosY, 	-sinZ*cosX+cosZ*sinY*sinX,  	sinZ*sinX+cosZ*sinY*cosX, 	0,
@@ -315,7 +315,7 @@ HomogeneousVector getHomogeneousVector(const Point& p) {
 	return result;
 }
 
-bool almostEqual(const Point& a, const Point& b, realnum precision) {
+bool almostEqual(const Point& a, const Point& b, double precision) {
 	return ((abs(a.x-b.x) < precision) &&
 			(abs(a.y-b.y) < precision) &&
 			(abs(a.z-b.z) < precision));
@@ -329,7 +329,7 @@ void SpatialPID::reset() {
 	pidSampler.reset();
 }
 
-Rotation SpatialPID::getPID(Rotation error, realnum propFactor, realnum IntegFactor, realnum derivativeFactor, const Rotation &outMax) {
+Rotation SpatialPID::getPID(Rotation error, double propFactor, double IntegFactor, double derivativeFactor, const Rotation &outMax) {
 		Rotation outMin = outMax * -1.0;
 		seconds dT = pidSampler.dT();
 		Rotation imuCompensation ;

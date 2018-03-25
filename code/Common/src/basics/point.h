@@ -20,7 +20,7 @@ class Point  : public Serializable {
 		void translate(const Point& pPoint);
 		Point  getTranslated(const Point& pPoint);
 
-		void mirrorAt(const Point& pPoint, realnum scale);
+		void mirrorAt(const Point& pPoint, double scale);
 		void mirrorAt(const Point& pPoint);
 		void set(millimeter pX, millimeter pY,millimeter pZ);
 
@@ -35,31 +35,31 @@ class Point  : public Serializable {
 		void operator= (const HomogeneousVector& p);
 		void operator+= (const Point& p);
 		void operator-= (const Point& p);
-		void operator*= (const realnum f);
+		void operator*= (const double f);
 
-		void operator/= (const realnum f);
+		void operator/= (const double f);
 		Point operator- (const Point& p) const;
 		Point operator+ (const Point& p) const;
-		Point operator/ (const realnum f) const;
-		Point operator* (const realnum f) const;
+		Point operator/ (const double f) const;
+		Point operator* (const double f) const;
 
 		bool operator==(const Point& pos);
 		bool operator!=(const Point& pos);
-		realnum& operator[] (int idx);
-		realnum operator[] (int idx)  const;
+		double& operator[] (int idx);
+		double operator[] (int idx)  const;
 
-		realnum distance(const Point& p) const;
-		realnum distanceSqr(const Point& p) const;
+		double distance(const Point& p) const;
+		double distanceSqr(const Point& p) const;
 
-		void moveTo(const Point& b, realnum dT, realnum maxSpeed);
-		realnum length() const;
-		realnum lengthSqr() const;
+		void moveTo(const Point& b, double dT, double maxSpeed);
+		double length() const;
+		double lengthSqr() const;
 
-		realnum angleToDegree(const Point& pPoint) const;
-		realnum scalarProduct(const Point& pPoint) const;
+		double angleToDegree(const Point& pPoint) const;
+		double scalarProduct(const Point& pPoint) const;
 		Point orthogonalProjection(const Point& pLine) const;
 		Point orthogonalProjection(const Point& pLineA, const Point &pLineB) const;
-		Point getPointOfLine(realnum ratio, const Point& target);
+		Point getPointOfLine(double ratio, const Point& target);
 
 		// returns as homogenous vector, i.e. a 4-dimensional vector with 1.0 as last dimension
 		HomogeneousVector getHomVector() const;

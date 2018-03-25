@@ -125,6 +125,8 @@ void StewartKinematics::computeServoAngles(const Pose& plate_world, double servo
 
 		double angle_rad = computeServoAngle(i,currBallJoint_world);
 		servoAngle_rad[i] = angle_rad;
+
+		// compute max speed with weak low pass
 		if (dT > floatPrecision) {
 			double speed = abs(angle_rad-lastAngle[i])/dT;
 			if (speed > currentMaxSpeed) {
@@ -146,7 +148,6 @@ void StewartKinematics::computeServoAngles(const Pose& plate_world, double servo
 			servoArm_translation.position.y = -servoArm_translation.position.y;
 
 		// translation of servo lever
-
 		HomogeneousMatrix servoArmTranslationTrans;
 		createTransformationMatrix(servoArm_translation, servoArmTranslationTrans);
 
