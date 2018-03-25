@@ -54,7 +54,7 @@ void BaseView::postRedisplay() {
 void BaseView::setEyePosition( float pCurrEyeDistance, float angleAroundZ, float pHeightAngle) {
 
 	baseAngle = angleAroundZ;
-	heightAngle = constrain((realnum)pHeightAngle,radians(-90.0f),radians(45.0f));
+	heightAngle = constrain((double)pHeightAngle,radians(-90.0f),radians(45.0f));
 	currEyeDistance = pCurrEyeDistance;
 
 	eyePosition.x = currEyeDistance*(cosf(baseAngle) * cosf(heightAngle));
