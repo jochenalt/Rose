@@ -15,7 +15,6 @@
 using namespace std;
 
 Playback::Playback() {
-    ao_initialize();
 	outputDevice = NULL;
 }
 
@@ -28,6 +27,8 @@ void Playback::setup(int sampleRate) {
 	if (outputDevice != NULL) {
 		ao_close(outputDevice);
 		outputDevice = NULL;
+	} else {
+	    ao_initialize();
 	}
     // initialize output device
    	ao_sample_format audioOutputFormat;
@@ -36,7 +37,7 @@ void Playback::setup(int sampleRate) {
    	audioOutputFormat.channels = 1;
    	audioOutputFormat.rate = sampleRate;
    	audioOutputFormat.byte_format = AO_FMT_LITTLE; // small indian
-   	audioOutputFormat.matrix = NULL;
+   	audioOutputFormat.matrix = (char*)"M";
    	int defaultDriverHandle = 1; // USB sound card
    	ao_option* p_ao_option = new ao_option();
    	p_ao_option->key = (char*)"dev";
@@ -53,6 +54,8 @@ void Playback::setup(int sampleRate) {
 }
 
 void Playback::play(double volume /* 0..1 */ ,float outputBuffer[], int outputBufferSize) {
+	if (!playback)
+		return;
 	char playBuffer[outputBufferSize*2];
 	int outputBufferCount = 0;
 	for (int i = 0;i<outputBufferSize;i++) {

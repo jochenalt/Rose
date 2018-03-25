@@ -229,21 +229,21 @@ int main(int argc, char *argv[]) {
 
    	Dancer& dancer = Dancer::getInstance();
    	Webserver& webserver = Webserver::getInstance();
-
+   	AudioProcessor& audioProcessor = AudioProcessor::getInstance();
    	webserver.setup(webserverPort, webrootPath);
     dancer.setup();
     dancer.setStartAfterNBeats(startAfterNBeats);
     RhythmDetector::getInstance().setup();
 
-   	AudioProcessor::getInstance().setup(sendBeatToRythmDetector);
-   	AudioProcessor::getInstance().setVolume((float)volumeArg/100.0);
-
+    audioProcessor.setup(sendBeatToRythmDetector);
+    audioProcessor.setVolume((float)volumeArg/100.0);
+    audioProcessor.setPlayback(mplayback);
 	if (trackFilename != "") {
 		std::ifstream file (trackFilename, std::ios::binary);
 		file.unsetf (std::ios::skipws);
 		std::istream_iterator<uint8_t> begin (file), end;
 		std::vector<uint8_t> wavContent (begin, end);
-		AudioProcessor::getInstance().setWavContent(wavContent);
+		audioProcessor.setWavContent(wavContent);
 	}
 
 	// start thread that computes the kinematics and sends angles to the servos

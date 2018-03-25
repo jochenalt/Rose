@@ -49,11 +49,11 @@ double AudioProcessor::getVolume() {
 }
 
 void AudioProcessor::setPlayback(bool ok) {
-	withPlayback = ok;
+	playback.setPlayback(ok);
 }
 
 bool AudioProcessor::getPlayback() {
-	return withPlayback;
+	return playback.getPlayback();
 }
 
 void AudioProcessor::setWavContent(std::vector<uint8_t>& newWavData) {
@@ -192,8 +192,7 @@ void AudioProcessor::processInput() {
 		}
 
 		// play the buffer of hopSize asynchronously
-		if (withPlayback)
-			playback.play(volume, playbackBuffer,playbackBufferCount);
+		playback.play(volume, playbackBuffer,playbackBufferCount);
 
 		// detect beat and bpm of that hop size
 		b.processAudioFrame(beatDetectionBuffer);

@@ -119,8 +119,8 @@ void StewartKinematics::computeServoAngles(const Pose& plate_world, double servo
 		HomogeneousVector ballJoint_plate_hom = getHomogeneousVector(currPlateBallJoint);
 
 		HomogeneousVector currBallJoint_world_vec = plateTransformation * ballJoint_plate_hom;
-		Point currBallJoint_world(currBallJoint_world_vec);
 
+		Point currBallJoint_world(currBallJoint_world_vec);
 		ballJoint_world[i] = currBallJoint_world;
 
 		double angle_rad = computeServoAngle(i,currBallJoint_world);
@@ -134,6 +134,7 @@ void StewartKinematics::computeServoAngles(const Pose& plate_world, double servo
 			}
 
 		}
+
 
 		lastAngle[i] = angle_rad;
 
