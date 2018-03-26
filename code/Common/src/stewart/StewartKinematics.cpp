@@ -93,8 +93,8 @@ double StewartKinematics::computeServoAngle(int cornerNo, const Point& ballJoint
 	// check the limizs
 	if ((angle_rad > 0) && (abs(angle_rad) > config.topServoLimit_rad))
 		cout << std::fixed << std::setprecision(2) << config.name << " servo " << cornerNo << " above limit of " << degrees(config.topServoLimit_rad) << "° (" << abs(degrees(angle_rad)) << ")" << endl;
-	if ((angle_rad < 0) && (abs(angle_rad) > config.bottomServoLimit_rad))
-		cout << std::fixed << std::setprecision(2) << config.name << " servo " << cornerNo << " below limit of " << degrees(config.bottomServoLimit_rad) << "° (" << abs(degrees(angle_rad)) << ")" << endl;
+	if ((angle_rad < 0) && (angle_rad < config.bottomServoLimit_rad))
+		cout << std::fixed << std::setprecision(2) << config.name << " servo " << cornerNo << " below limit of " << degrees(config.bottomServoLimit_rad) << "° (" << degrees(angle_rad) << ")" << endl;
 	return angle_rad;
 }
 

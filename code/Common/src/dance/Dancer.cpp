@@ -43,6 +43,9 @@ void Dancer ::setup() {
 
 void Dancer ::createMove(double movePercentage) {
 	TotalBodyPose newPose = Move::getMove(currentMove).move(movePercentage);
+
+	// moves are created in a different thread than the one fetching the result
+	// encapsulate with a critical block
 	CriticalBlock block(poseMutex);
 	pose = newPose;
 }
@@ -63,7 +66,7 @@ void Dancer::imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition
 	pose.head = newHeadPose;
 }
 
-void Dancer ::danceLoop(bool beat, double BPM) {
+void Dancer::danceLoop(bool beat, double BPM) {
 	if (beat) {
 
 		// first move is the classical head nicker
@@ -88,10 +91,10 @@ void Dancer ::danceLoop(bool beat, double BPM) {
 	}
 }
 
-void Dancer ::doNewMove() {
+void Dancer::doNewMove() {
 	// when all moves are shown, omit plain headnicker
 	if ((int)currentMove >= Move::numMoves()-1)
-		currentMove = (Move::MoveType)1; // don't restart with physicists move
+		currentMove = (Move::MoveType)1; // skip physicists move
 	else
 		currentMove = (Move::MoveType) (((int)currentMove + 1));
 
@@ -99,7 +102,7 @@ void Dancer ::doNewMove() {
 	cout << "new move: " << Move::getMove(currentMove).getName() << "(" << (int)currentMove << ")" << endl;
 }
 
-void Dancer ::setCurrentMove(Move::MoveType m) {
+void Dancer::setCurrentMove(Move::MoveType m) {
 	currentMove = m;
 	passedBeatsInCurrentMove = 0;
 }

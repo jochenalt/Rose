@@ -65,11 +65,11 @@ void AudioProcessor::setWavContent(std::vector<uint8_t>& newWavData) {
 		delay_ms(1);
 
 	// read in the wav data and set index pointer to first position
-	audioFile.decodeWaveFile(newWavData);
+	wavContent.decodeWaveFile(newWavData);
 	wavInputPosition = 0;
 
 	// playback is done with same sample rate like the input wav data
-	playback.setup(audioFile.getSampleRate());
+	playback.setup(wavContent.getSampleRate());
 
 	// current input is wav data
 	currentInputType = WAV_INPUT;
@@ -97,27 +97,27 @@ void AudioProcessor::setMicrophoneInput() {
 }
 
 int AudioProcessor::readWavInput(float buffer[], unsigned BufferSize) {
-	int numSamples = audioFile.getNumSamplesPerChannel();
+	int numSamples = wavContent.getNumSamplesPerChannel();
 	int numInputSamples = min((int)BufferSize, (int)numSamples-wavInputPosition);
-	int numInputChannels = audioFile.getNumChannels();
+	int numInputChannels = wavContent.getNumChannels();
 
 	int bufferCount = 0;
 	for (int i = 0; i < numInputSamples; i++)
 	{
 		double inputSampleValue = 0;
-		inputSampleValue= audioFile.samples[0][wavInputPosition + i];
+		inputSampleValue= wavContent.samples[0][wavInputPosition + i];
 		assert(wavInputPosition+1 < numSamples);
 		switch (numInputChannels) {
 		case 1:
-			inputSampleValue= audioFile.samples[0][wavInputPosition + i];
+			inputSampleValue= wavContent.samples[0][wavInputPosition + i];
 			break;
 		case 2:
-			inputSampleValue = (audioFile.samples[0][wavInputPosition + i]+audioFile.samples[1][wavInputPosition + i])/2;
+			inputSampleValue = (wavContent.samples[0][wavInputPosition + i]+wavContent.samples[1][wavInputPosition + i])/2;
 			break;
 		default:
 			inputSampleValue = 0;
 			for (int j = 0;j<numInputChannels;j++)
-				inputSampleValue += audioFile.samples[j][wavInputPosition + i];
+				inputSampleValue += wavContent.samples[j][wavInputPosition + i];
 			inputSampleValue = inputSampleValue / numInputChannels;
 		}
 		buffer[bufferCount++] = inputSampleValue;
@@ -125,8 +125,6 @@ int AudioProcessor::readWavInput(float buffer[], unsigned BufferSize) {
 	wavInputPosition += bufferCount;
 	return bufferCount;
 }
-
-
 
 void AudioProcessor::processInput() {
 	stopCurrProcessing = false;
@@ -140,22 +138,25 @@ void AudioProcessor::processInput() {
 	int frameSize = hopSize*16;
 	BTrack b(hopSize, frameSize);
 
-	double elapsedTime = 0;
 	uint32_t startTime_ms = millis();
 
 	int sampleRate = 0;
 	while (!stopCurrProcessing) {
+
 		int numInputSamples = hopSize;
 		float inputBuffer[numInputSamples];
-
 		int readSamples  = 0;
+
 		if (currentInputType == MICROPHONE_INPUT) {
 			readSamples = microphone.readMicrophoneInput(inputBuffer, numInputSamples);
 			sampleRate = MicrophoneSampleRate;
+
 		}
 		if (currentInputType == WAV_INPUT) {
 			readSamples = readWavInput(inputBuffer, numInputSamples);
-			sampleRate = audioFile.getSampleRate();
+			// cout << std::fixed << std::setprecision(4) << millis() << " " << readSamples << endl;
+
+			sampleRate = wavContent.getSampleRate();
 			if (readSamples < numInputSamples) {
 				cout << "end of song. Switching to microphone." << endl;
 
@@ -200,17 +201,26 @@ void AudioProcessor::processInput() {
 		bool beat = b.beatDueInCurrentFrame();
 		double bpm = b.getCurrentTempoEstimate();
 
-		// insert a delay to synchronize played audio and beat detection
-		elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;   			// [s]
-		double processedTime = (double)wavInputPosition / (double)sampleRate;	// [s]
-
-		beatCallback(beat, bpm);
-
 		if (beat){
 			cout << std::fixed << std::setprecision(2) << "Beat (" << b.getCurrentTempoEstimate() << ")" << std::setprecision(2) << endl;
 		};
-		// wait such that elapsed time and processed time is synchronized
-		delay_ms((processedTime - elapsedTime)*1000.0);
+
+		// call callback to rythm identifier and dance move generator
+		// but do this with a lower frequency (50fps)
+		if (callbackTimer.isDue(1000/50)  || (beat)) {
+			callbackTimer.setDueNow();
+			processedTime = millis()/1000.0;
+			beatCallback(beat, bpm);
+		}
+
+		if (currentInputType == WAV_INPUT) {
+			// insert a delay to synchronize played audio and beat detection before entering the next cycle
+			double elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;  	// [s]
+			double processedTime = (double)wavInputPosition / (double)sampleRate;	// [s]
+			// wait such that elapsed time and processed time is synchronized
+			if (processedTime - elapsedTime >= 0.001)
+				delay_ms((processedTime - elapsedTime)*1000.0);
+		}
 	}
 	currProcessingStopped = true;
 }

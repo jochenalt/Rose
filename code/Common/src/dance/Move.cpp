@@ -139,13 +139,16 @@ TotalBodyPose Move::absHead (const Pose& bodyPose, const Pose& relHeadPose) {
 	static Pose restrictedRelHeadPose ;
 	static TimeSamplerStatic moveTimer;
 	double dT = moveTimer.dT();
+
+	// dont reduce acceleration in first call
 	if (firstCall) {
 		restrictedBodyPose = bodyPose;
 		restrictedRelHeadPose = relHeadPose;
+		firstCall = false;
 	} else {
 		// limit acceleration between two moves
-		restrictedBodyPose.moveTo(bodyPose, dT, 100.0, 10.0);
-		restrictedRelHeadPose.moveTo(relHeadPose, dT, 100.0, 10.0);
+		restrictedBodyPose.moveTo(bodyPose, dT, 100.0, 100.0);
+		restrictedRelHeadPose.moveTo(relHeadPose, dT, 100.0, 100.0);
 	}
 	return TotalBodyPose(restrictedBodyPose,BodyKinematics::getInstance().computeHeadStewartPose(restrictedBodyPose, restrictedRelHeadPose));
 }
@@ -160,7 +163,7 @@ TotalBodyPose Move::physicistsHeadNicker(double movePercentage) {
 }
 
 TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
-	double startPhase =  latencyShift;
+	double startPhase = latencyShift;
 
 	double mBase = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, startPhase));
 	double mUpDown = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase));
@@ -169,11 +172,10 @@ TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
 	return absHead (
 			Pose(Point(mDip*20,0,bodyHeight  +10.0*mUpDown),Rotation (0,-radians(15)*mDip,-radians(15)*mBase)),
 			Pose(Point(-mDip*40,0,headHeight),Rotation (0,-radians(20)*mDip,-radians(20)*mBase)));
-
 }
 
 TotalBodyPose Move::weaselsMove(double movePercentage) {
-	double startPhase =  latencyShift;
+	double startPhase = latencyShift;
 
 	double mLeftRight = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, startPhase));
 	double mNick = baseCurveCos(scaleMove(movePercentage, 4.0, startPhase));
@@ -445,8 +447,8 @@ TotalBodyPose Move::turnBack(double movePercentage) {
 			getDefaultHeadPose());
 }
 
-
 TotalBodyPose Move::move(double movePercentage) {
+
 	switch (id) {
 		case PHYSICISTS_HEAD_NICKER:return physicistsHeadNicker(movePercentage);break;
 		case TENNIS_HEAD_NICKER:return tennisHeadNicker(movePercentage);break;

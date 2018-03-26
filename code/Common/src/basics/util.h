@@ -159,6 +159,9 @@ public:
 
 		return false;
 	};
+	void setDueNow() {
+		lastDueCall = millis();
+	}
 
 	void dontBeDueFor(milliseconds noDueTime) {
 		if (noDueTime < 0)

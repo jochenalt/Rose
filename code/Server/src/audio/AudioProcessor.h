@@ -53,7 +53,8 @@ public:
 	// get current latency of input source
 	float getLatency();
 
-
+	// get processed time relative to input source (wav or microphone)
+	double getProcessedTime() { return processedTime; };
 private:
 	enum InputType { WAV_INPUT, MICROPHONE_INPUT };
 	int readMicrophoneInput(float buffer[], unsigned BufferSize);
@@ -64,11 +65,14 @@ private:
 
 	double volume = 1.0;
 	BeatCallbackFct beatCallback;
-	Playback playback;
-	MicrophoneInput microphone;
-	AudioFile<double> audioFile;
-	int wavInputPosition = -1;
+	Playback playback;					// used to send the input source to the loudspeaker
+	MicrophoneInput microphone;			// used to get input from microphone
+	AudioFile<double> wavContent;		// used to get input from wav (actually no file, but an array of samples)
+	int wavInputPosition = -1;			// current position within wav source
+	double processedTime = 0; 			// [s] processing time of input source. Is determined by position within wav file or realtime in case of micropone input
+	TimeSamplerStatic callbackTimer; 	// timer for callback as passed via setup()
 	InputType currentInputType = MICROPHONE_INPUT;
+
 };
 
 #endif /* SRC_AUDIOPROCESSOR_H_ */

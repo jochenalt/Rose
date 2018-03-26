@@ -21,8 +21,8 @@ StewartConfiguration bodyStewartConfig = {"body",
 										  4.0,					// plateBallJointHeight_mm
 										  65.0, 				// bottomPlatformRadius_mm
 										  65.0, 				// topPlatformRadius_mm
-										  radians(60.0),		// topServoLimit_rad
-									      radians(90.0)			// bottomServoLimit_rad
+										  -radians(56.0),		// topServoLimit_rad
+									      radians(86.0)			// bottomServoLimit_rad
 };
 
 
@@ -39,10 +39,17 @@ StewartConfiguration headStewartConfig = {"head",
 										  4.0,					// plateBallJointHeight_mm
 										  65.0, 				// bottomPlatformRadius_mm
 										  45.0, 				// topPlatformRadius_mm
-										  radians(60.0),		// topServoLimit_rad
-										  radians(90.0)			// bottomServoLimit_rad
+										  -radians(56.0),		// topServoLimit_rad
+										  radians(86.0)			// bottomServoLimit_rad
 
 };
+
+StewartConfiguration& BodyKinematics::getBodyConfig() {
+	return bodyStewartConfig;
+}
+StewartConfiguration& BodyKinematics::getHeadConfig() {
+	return headStewartConfig;
+}
 
 
 BodyKinematics::BodyKinematics() {

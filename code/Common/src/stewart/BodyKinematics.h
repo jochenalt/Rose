@@ -35,6 +35,11 @@ public:
 	// get static metrics of the platform
 	void getPlatformMetrics(double& basePlatformRadius, double &intermediatePlatformRadius, double& topPlatformRadius,
 							double& bottomRodLength, double & topRodLength);
+
+	// get configuration data of both stewart platforms
+	StewartConfiguration& getBodyConfig();
+	StewartConfiguration& getHeadConfig();
+
 private:
 	StewartKinematics bodyKin;
 	StewartKinematics headKin;
