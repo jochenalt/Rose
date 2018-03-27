@@ -147,8 +147,8 @@ TotalBodyPose Move::absHead (const Pose& bodyPose, const Pose& relHeadPose) {
 		firstCall = false;
 	} else {
 		// limit acceleration between two moves
-		restrictedBodyPose.moveTo(bodyPose, dT, 100.0, 100.0);
-		restrictedRelHeadPose.moveTo(relHeadPose, dT, 100.0, 100.0);
+		restrictedBodyPose.moveTo(bodyPose, dT, 10.0, 3.0);
+		restrictedRelHeadPose.moveTo(relHeadPose, dT, 10.0, 3.0);
 	}
 	return TotalBodyPose(restrictedBodyPose,BodyKinematics::getInstance().computeHeadStewartPose(restrictedBodyPose, restrictedRelHeadPose));
 }
