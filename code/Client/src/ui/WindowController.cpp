@@ -275,20 +275,14 @@ void WindowController::tearDown() {
 // Idle callback is called by GLUI when nothing is to be done
 void idleCallback( void )
 {
-	const int refreshRate = 20; // [Hz]
+	const int refreshRate = 60; // [Hz]
 	const milliseconds refreshRate_ms = 1000/refreshRate/2;
 	milliseconds now = millis();
 	static milliseconds lastDisplayRefreshCall = millis();
 
 	// update all screens with 25Hz once a second in if new data is there
 	if ((now - lastDisplayRefreshCall > refreshRate_ms)) {
-		// use a second chance loop in order to limit fps to a maximum
-		// ( there are other sources as well that can post a redisplay)
-		if (WindowController::getInstance().mainBotView.isJustDisplayed()) // if it has been just display, reset display flag
-			WindowController::getInstance().mainBotView.resetDisplayFlag();
-		else {
-			WindowController::getInstance().mainBotView.postRedisplay(); // post if we reset the flag in a previous run
-		}
+		WindowController::getInstance().mainBotView.postRedisplay(); // post if we reset the flag in a previous run
 		lastDisplayRefreshCall = now;
 
 		setDancingMoveWidget();

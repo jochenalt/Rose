@@ -30,9 +30,6 @@ public:
 
 	void setBodyPose(const Pose& bodyPose, const Pose& headPose, const Point& eyeDeviation);
 
-	void resetDisplayFlag() { justDisplayed = false; };
-	bool isJustDisplayed() { return justDisplayed; };
-
 	BotRenderer& getBotRenderer() { return botDrawer; }
 
 private:
@@ -51,7 +48,6 @@ private:
 	mousePaneType mousePane = NO_PANE;
 
 	BotRenderer botDrawer;
-	bool justDisplayed = false;
 };
 
 #endif /* UI_BOTVIEW_H_ */

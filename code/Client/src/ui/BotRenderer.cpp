@@ -47,8 +47,14 @@ void BotRenderer::displayBot(const Pose & bodyPose, const Pose& headPose) {
 	glRotatef(degrees(bodyPose.orientation.y), 0.0,1.0,0.0);
 	glRotatef(degrees(bodyPose.orientation.x), 1.0,0.0,0.0);
 	stewartPlate.display(glStewartPlateColor,glStewartPlateColor);
+	glPopMatrix();
 
+	glPushMatrix();
 	// draw head plate (headPose is relative to the bodyPose)
+	glTranslatef(bodyPose.position.x, bodyPose.position.y,bodyPose.position.z);
+	glRotatef(degrees(bodyPose.orientation.z), 0.0,0.0,1.0);
+	glRotatef(degrees(bodyPose.orientation.y), 0.0,1.0,0.0);
+	glRotatef(degrees(bodyPose.orientation.x), 1.0,0.0,0.0);
 	glTranslatef(headPose.position.x, headPose.position.y,headPose.position.z);
 	glRotatef(degrees(headPose.orientation.z), 0.0,0.0,1.0);
 	glRotatef(degrees(headPose.orientation.y), 0.0,1.0,0.0);

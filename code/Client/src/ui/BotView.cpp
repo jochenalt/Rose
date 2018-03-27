@@ -218,7 +218,6 @@ void BotView::display() {
 	drawCoordSystem(true);
 
 	glutSetWindow(savedWindowHandle);
-	justDisplayed = true;
 }
 
 
