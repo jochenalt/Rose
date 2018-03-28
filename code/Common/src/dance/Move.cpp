@@ -147,10 +147,11 @@ TotalBodyPose Move::absHead (const Pose& bodyPose, const Pose& relHeadPose) {
 		firstCall = false;
 	} else {
 		// limit acceleration between two moves
-		restrictedBodyPose.moveTo(bodyPose, dT, 10.0, 3.0);
-		restrictedRelHeadPose.moveTo(relHeadPose, dT, 10.0, 3.0);
+		restrictedBodyPose.moveTo(bodyPose, dT, 100.0, 3.0);
+		restrictedRelHeadPose.moveTo(relHeadPose, dT, 100.0, 3.0);
 	}
-	return TotalBodyPose(restrictedBodyPose,BodyKinematics::getInstance().computeHeadStewartPose(restrictedBodyPose, restrictedRelHeadPose));
+	TotalBodyPose result = TotalBodyPose(restrictedBodyPose,BodyKinematics::getInstance().computeHeadStewartPose(restrictedBodyPose, restrictedRelHeadPose));
+	return result;
 }
 
 
@@ -221,7 +222,7 @@ TotalBodyPose Move::diagonalSwing(double movePercentage) {
 	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0,  startPhase)));
 
 	return absHead (
-				Pose(Point(-20.0*mBase,20.0*mBase,bodyHeight - 10.0 +20.0*mDip),Rotation (radians(15)*mBase,-radians(15)*mBase,0)),
+				Pose(Point(-10.0*mBase,20.0*mBase,bodyHeight +20.0*mDip),Rotation (radians(15)*mBase,-radians(15)*mBase,0)),
 				Pose(Point(0,0,headHeight),Rotation (0,0,0)));
 
 }
