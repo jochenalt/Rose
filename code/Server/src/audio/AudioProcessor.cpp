@@ -30,6 +30,7 @@
 using namespace std;
 
 AudioProcessor::AudioProcessor() {
+	beatCallback = NULL;
 }
 
 AudioProcessor::~AudioProcessor() {
@@ -37,8 +38,12 @@ AudioProcessor::~AudioProcessor() {
 
 void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
     beatCallback = newBeatCallback;
-	//playback.setup(MicrophoneSampleRate);
 	microphone.setup(MicrophoneSampleRate);
+	inputAudioDetected = false;
+	// playback is setup when started
+
+	// music detection requires 1s of music before flagging it as music
+	beatScoreFilter.init(5);
 }
 
 void AudioProcessor::setVolume(double newVolume) {
@@ -136,7 +141,7 @@ void AudioProcessor::processInput() {
 	// framesize is the number of samples that will be considered in this loop
 	// cpu load goes up linear with the framesize
 	int frameSize = hopSize*16;
-	BTrack b(hopSize, frameSize);
+	BTrack beatDetector(hopSize, frameSize);
 
 	uint32_t startTime_ms = millis();
 
@@ -154,11 +159,11 @@ void AudioProcessor::processInput() {
 		}
 		if (currentInputType == WAV_INPUT) {
 			readSamples = readWavInput(inputBuffer, numInputSamples);
-			// cout << std::fixed << std::setprecision(4) << millis() << " " << readSamples << endl;
 
 			sampleRate = wavContent.getSampleRate();
 			if (readSamples < numInputSamples) {
 				cout << "end of song. Switching to microphone." << endl;
+				beatDetector.initialise(hopSize, frameSize);
 
 				// indicate that current processing stopped (setMicrophoneInput waits for this)
 				currProcessingStopped = true;
@@ -196,14 +201,20 @@ void AudioProcessor::processInput() {
 		playback.play(volume, playbackBuffer,playbackBufferCount);
 
 		// detect beat and bpm of that hop size
-		b.processAudioFrame(beatDetectionBuffer);
-
-		bool beat = b.beatDueInCurrentFrame();
-		double bpm = b.getCurrentTempoEstimate();
+		beatDetector.processAudioFrame(beatDetectionBuffer);
+		bool beat = beatDetector.beatDueInCurrentFrame();
+		double bpm = beatDetector.getCurrentTempoEstimate();
 
 		if (beat){
-			cout << std::fixed << std::setprecision(2) << "Beat (" << b.getCurrentTempoEstimate() << ")" << std::setprecision(2) << endl;
-		};
+			cout << std::fixed << std::setprecision(2) << "Beat (" << beatDetector.getCurrentTempoEstimate() << ")"  << endl;
+	    };
+
+		// check if the signal is really music. low pass scoring to ensure that small pauses are not
+		// misinterpreted as end of music
+		double score = beatDetector.getLatestCumulativeScoreValue();
+		beatScoreFilter.set(score);
+		const double scoreThreshold = 10.;
+		inputAudioDetected = (beatScoreFilter >= scoreThreshold);
 
 		// call callback to rythm identifier and dance move generator
 		// but do this with a lower frequency (50fps)
@@ -218,8 +229,9 @@ void AudioProcessor::processInput() {
 			double elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;  	// [s]
 			double processedTime = (double)wavInputPosition / (double)sampleRate;	// [s]
 			// wait such that elapsed time and processed time is synchronized
-			if (processedTime - elapsedTime >= 0.001)
-				delay_ms((processedTime - elapsedTime)*1000.0);
+			double timeAhead_ms = (processedTime - elapsedTime)*1000.0;
+			if (timeAhead_ms > 1.0)
+				delay_ms(timeAhead_ms);
 		}
 	}
 	currProcessingStopped = true;
@@ -231,3 +243,4 @@ float AudioProcessor::getLatency() {
 	else
 		return 0.5;
 }
+

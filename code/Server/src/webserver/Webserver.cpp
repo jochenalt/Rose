@@ -104,7 +104,6 @@ void Webserver::setup(int port, string webRootPath) {
 	cs_stat_t st;
 	if (mg_stat(s_http_server_opts.document_root, &st) != 0) {
 		cerr << "Cannot find webroot directory " << webRootPath;
-		exit(1);
 	}
 
 	cout << "webserver is running at port " << port << endl;
@@ -116,7 +115,6 @@ void Webserver::setup(int port, string webRootPath) {
 }
 
 void Webserver::runningThread() {
-	cout << "starting webserver thread" << endl;
 	while (!terminateThread) {
 		// check and dispatch incoming http requests (dispatched by CommandDispatcher) and wait for timeout ms max.
 		mg_mgr_poll(&mgr, 10);
@@ -204,17 +202,12 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 			bool ok = true;
 			string name = getURLParamValue(urlParamNames,urlParamValues, "name",ok);
 			std::vector<uint8_t> wavContent;
-			cout << "songl=" << body.length() << " start=" << std::hex << body.substr(0,32) << endl;
-			wavContent.resize(body.length());
-			for (unsigned i = 0;i<body.length();i++) {
+			cout << "playing song " << name << endl;
+			unsigned bodyLen = body.length();
+			wavContent.resize(bodyLen);
+			for (unsigned i = 0;i<bodyLen;i++) {
 				wavContent[i] = body[i];
 			}
-			/*
-			std::istringstream strStream (body, std::ios::binary);
-			strStream.unsetf (std::ios::skipws);
-			std::istream_iterator<uint8_t> begin (strStream), end;
-			std::vector<uint8_t> wavContent (begin, end);
-			*/
 			AudioProcessor::getInstance().setWavContent(wavContent);
 			okOrNOk = true;
 			response = getResponse(okOrNOk);
@@ -296,22 +289,22 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 	if (hasPrefix(uri, "/status")) {
 		string engineCommand = uri.substr(string("/status").length());
 
-		Dancer  mm = Dancer ::getInstance();
+		Dancer& dancer = Dancer::getInstance();
+		AudioProcessor& audio = AudioProcessor::getInstance();
+
 		std::ostringstream out;
 		out << "{ \"response\": "
-		    <<     "{ \"body\":"<<  mm.getBodyPose().toString()
-		    <<     ", \"head\":" << mm.getHeadPose().toString()
-		    <<     ", \"ambition\":" << mm.getAmbition()
-		    <<     ", \"move\":" << (int)mm.getCurrentMove()
+		    <<     "{ \"body\":"<<  dancer.getBodyPose().toString()
+		    <<     ", \"head\":" << dancer.getHeadPose().toString()
+		    <<     ", \"ambition\":" << dancer.getAmbition()
+		    <<     ", \"move\":" << (int)dancer.getCurrentMove()
+		    <<     ", \"music\":" << boolToJSonString(audio.isAudioDetected())
 			<<     "} , " << getResponse(true)
 		    << "}";
 		response = out.str();
 		okOrNOk = true;
 		return okOrNOk;
 	}
-
-
-
 
 	okOrNOk = false;
 	return false;

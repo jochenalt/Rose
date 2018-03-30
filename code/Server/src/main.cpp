@@ -110,7 +110,7 @@ void compensateLatency(bool& beat, double& bpm) {
 
 void sendBeatToRythmDetector(bool beat, double bpm) {
 	RhythmDetector & rd = RhythmDetector::getInstance();
-	Dancer & mm = Dancer::getInstance();
+	Dancer& dancer = Dancer::getInstance();
 
 	// detect the beat
 	rd.loop(beat, bpm);
@@ -119,7 +119,7 @@ void sendBeatToRythmDetector(bool beat, double bpm) {
 	compensateLatency(beat, bpm);
 
 	// create the move according to the beat
-	mm.danceLoop(beat, bpm);
+	dancer.danceLoop(beat, bpm);
 
 }
 

@@ -2,7 +2,7 @@
  * AudioProcessor.h
  *
  *  Created on: Mar 18, 2018
- *      Author: jochenalt
+ *      Author: Jochen Alt
  */
 
 #ifndef SRC_AUDIOPROCESSOR_H_
@@ -14,11 +14,11 @@
 #include <pulse/error.h>
 #include "audio/MicrophoneInput.h"
 
-typedef void (*BeatCallbackFct)(bool beat, double Bpm);
-
-
 class AudioProcessor {
 public:
+	// call back type for invoking the dance processor after each sample
+	typedef void (*BeatCallbackFct)(bool beat, double Bpm);
+
 	AudioProcessor();
 	virtual ~AudioProcessor();
 
@@ -46,15 +46,20 @@ public:
 	void setVolume(double newVolume);
 	double getVolume();
 
-	// switch playback on or off
+	// pipe the audio input to the output
 	void setPlayback(bool ok);
 	bool getPlayback();
 
-	// get current latency of input source
+	// get static current latency of input source
+	// used in latency compensation that adapts the prediction time frame accordingly
 	float getLatency();
 
 	// get processed time relative to input source (wav or microphone)
+	// this is set whenever the audio input is analyzed and has a precision of around 3ms
 	double getProcessedTime() { return processedTime; };
+
+	// checks if the input signal is above a certain threshold
+	bool isAudioDetected() { return inputAudioDetected; };
 private:
 	enum InputType { WAV_INPUT, MICROPHONE_INPUT };
 	int readMicrophoneInput(float buffer[], unsigned BufferSize);
@@ -72,7 +77,8 @@ private:
 	double processedTime = 0; 			// [s] processing time of input source. Is determined by position within wav file or realtime in case of micropone input
 	TimeSamplerStatic callbackTimer; 	// timer for callback as passed via setup()
 	InputType currentInputType = MICROPHONE_INPUT;
-
+	bool inputAudioDetected = false;
+	LowPassFilter beatScoreFilter;
 };
 
 #endif /* SRC_AUDIOPROCESSOR_H_ */
