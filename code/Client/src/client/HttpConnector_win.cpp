@@ -149,6 +149,7 @@ void HttpConnection::call(HttpAction op, const string& param, const string& quer
 		headerStream << "\r\n";
 	}
 	if (op == POST) {
+
 		string bodyBase64 = base64_encode(query);
 		headerStream << "POST " << param << " HTTP/1.0" << "\r\n";
 		headerStream << "Content-Type: text/plain\r\n";

@@ -183,7 +183,7 @@ void ambitionCallback(int widgetNo) {
 }
 
 void fileCallback(int widgetNo) {
-	std::ostringstream errStr;
+	std::ostringstream statusStr;
 	string filename = fileBrowser->get_file();
 	 if (fileExists(filename)) {
 		 if (endsWith(filename, ".wav")) {
@@ -193,15 +193,16 @@ void fileCallback(int widgetNo) {
 			 name = name.substr(0,name.length()-4);
 
 			 BotClient::getInstance().setWavFile(name, fileContent);
+			 statusStr << "file " << filename << " sent." << endl;
 		 }
 		 else {
-			 errStr << "file " << filename << " is no wav file" << endl;
+			 statusStr << "file " << filename << " is no wav file" << endl;
 		 }
 	 }
 	 else {
-		 errStr << "file " << filename << " not found" << endl;
+		 statusStr << "file " << filename << " not found" << endl;
 	 }
-	 string err = errStr.str();
+	 string err = statusStr.str();
 	 WindowController::getInstance().setStatus(err);
 }
 
@@ -245,7 +246,9 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	}
 	windowHandle->add_column_to_panel(interactivePanel, false);
 
-	GLUI_Panel* interactiveModePanel = new GLUI_Panel(interactivePanel,"mode panel", GLUI_PANEL_RAISED);
+	GLUI_Panel* subInteractivePanel = new GLUI_Panel(interactivePanel,"mode panel", GLUI_PANEL_RAISED);
+	GLUI_Panel* interactiveModePanel = new GLUI_Panel(subInteractivePanel,"mode panel", GLUI_PANEL_NONE);
+
 	interactiveModePanel->set_alignment(GLUI_ALIGN_LEFT);
 	text = new GLUI_StaticText(interactiveModePanel, "MODE CONSOLE");
 	text->set_alignment(GLUI_ALIGN_LEFT);

@@ -7,6 +7,7 @@
 
 #include <client/BotClient.h>
 #include <client/HttpConnection.h>
+#include <ui/WindowController.h>
 
 
 BotClient::BotClient() {
@@ -50,7 +51,9 @@ string BotClient::get(string requestUrl, bool& ok) {
 	string httpResponse;
 	conn.get(requestUrl, httpResponse, httpStatus);
 	if (httpStatus != 200) {
-		cerr << "request " << requestUrl << " returned http code " << httpResponse << endl;
+		std::ostringstream statusStr;
+		statusStr << "request " << requestUrl << " returned http code " << httpResponse;
+		WindowController::getInstance().setStatus(statusStr.str());
 		ok = false;
 	} else {
 		ok = true;
@@ -64,7 +67,10 @@ string BotClient::post(string requestUrl, const string& httpBody, bool& ok) {
 	string httpResponse;
 	conn.post(requestUrl, httpBody, httpResponse, httpStatus);
 	if (httpStatus != 200) {
-		cerr << "request " << requestUrl << " returned http code " << httpResponse << endl;
+		std::ostringstream statusStr;
+		statusStr << "request " << requestUrl << " returned http code " << httpResponse ;
+		WindowController::getInstance().setStatus(statusStr.str());
+
 		ok = false;
 	} else {
 		ok = true;
@@ -168,6 +174,7 @@ void BotClient::setWavFile(string name, string wavContent) {
 	bool ok;
 	std::ostringstream request;
 	request << "/console/song?name=" <<name;
+
 	string httpResponse = post(request.str(), wavContent, ok);
 	if (ok) {
 		std::istringstream in(httpResponse);
