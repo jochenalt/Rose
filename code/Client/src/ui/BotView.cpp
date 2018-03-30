@@ -170,9 +170,11 @@ void displayBotView() {
 
 void BotViewMotionCallback(int x, int y) {
 	WindowController::getInstance().mainBotView.MotionCallback(x,y);
+	WindowController::getInstance().mainBotView.modify();
 }
 void BotViewMouseCallback(int button, int button_state, int x, int y ) {
 	WindowController::getInstance().mainBotView.MouseCallback(button, button_state,  x,  y);
+	WindowController::getInstance().mainBotView.modify();
 }
 
 int BotView::create(int mainWindow, string pTitle) {
@@ -222,9 +224,12 @@ void BotView::display() {
 
 
 void BotView::setBodyPose(const Pose& newBodyPose, const Pose& newHeadPose, const Point& newEyeDeviation) {
-	bodyPose = newBodyPose;
-	headPose = newHeadPose;
-	eyeDeviation = newEyeDeviation;
+	if ((newBodyPose.distance(bodyPose)>1.0) || (headPose.distance(newHeadPose)>1.0) || (newEyeDeviation.distance(eyeDeviation) > 1.0)) {
+		bodyPose = newBodyPose;
+		headPose = newHeadPose;
+		eyeDeviation = newEyeDeviation;
+		modify();
+	}
 }
 
 void BotView::reshape(int x,int y, int w, int h) {
@@ -258,12 +263,14 @@ void BotView::MotionCallback(int x, int y) {
 	case VIEW_PANE:
 		WindowController::getInstance().mainBotView.changeEyePosition(0, -diffX, -diffY);
 		postRedisplay();
+		isModifiedFlag = true;
 		break;
 	default:
 		if (lastMouseScroll != 0) {
 			WindowController::getInstance().mainBotView.changeEyePosition(-getCurrentEyeDistance()*2*lastMouseScroll/100, 0,0);
 			postRedisplay();
 			lastMouseScroll = 0;
+			isModifiedFlag = true;
 		}
 	}
 

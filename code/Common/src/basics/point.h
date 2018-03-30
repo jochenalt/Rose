@@ -45,6 +45,9 @@ class Point  : public Serializable {
 
 		bool operator==(const Point& pos);
 		bool operator!=(const Point& pos);
+		bool operator==(const Point& pos) const ;
+		bool operator!=(const Point& pos) const;
+
 		double& operator[] (int idx);
 		double operator[] (int idx)  const;
 

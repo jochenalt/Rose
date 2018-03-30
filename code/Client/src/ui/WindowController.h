@@ -19,6 +19,7 @@
 #include "basics/spatial.h"
 #include "BotView.h"
 
+using namespace std;
 class WindowController {
 public:
 	WindowController() {
@@ -35,6 +36,7 @@ public:
 	void setBodyPose(const Pose& bodyPose, const Pose& headPose);
 	void setMusicDetected (bool musicDetected);
 	void postRedisplay();
+	void setStatus(string status);
 
 	BotView mainBotView;
 private:

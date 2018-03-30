@@ -44,7 +44,29 @@ GLUI_FileBrowser* fileBrowser = NULL;
 
 GLUI_Checkbox* musicDetectedBox  = NULL;
 int musicDetectedLiveVar  = 0;
+bool isMusicDetected = false;
+
+GLUI_StaticText* statusTextWidget = NULL;
+string currentStatus;
+uint32_t timeOfStatus = 0;
+
 WindowController instance;
+
+
+void WindowController::setStatus(string status) {
+	if (status != "") {
+		currentStatus = status;
+		timeOfStatus = millis();
+	}
+}
+
+string getStatus() {
+	if ((timeOfStatus > 0) && (millis() > timeOfStatus + 5000)) {
+		currentStatus = "";
+		timeOfStatus = 0;
+	}
+	return currentStatus;
+}
 
 WindowController& WindowController::getInstance() {
 	return instance;
@@ -104,12 +126,12 @@ void WindowController::setBodyPose(const Pose& bodyPose, const Pose& headPose) {
 }
 
 void WindowController::setMusicDetected (bool musicDetected) {
-	if (musicDetected)
-		musicDetectedBox->enable();
-	else
-		musicDetectedBox->disable();
+	isMusicDetected = musicDetected;
 }
 
+void setMusicDetectedWidget() {
+	musicDetectedBox->set_int_val(isMusicDetected?1:0);
+}
 
 void setDancingMoveWidget() {
 	int movesPerRow = (Dancer ::getInstance().getNumMoves()+1)/DanceMoveRows  ;
@@ -140,6 +162,12 @@ void setSequenceModeWidget() {
 	currentSequenceModeWidget->set_int_val((int)Dancer ::getInstance().getSequenceMode());
 }
 
+void setStatusWidget() {
+	static string s;
+	s = getStatus();
+	statusTextWidget->set_text(s.c_str());
+}
+
 void currentSequenceModeCallback(int widgetNo) {
 	Dancer::getInstance().setSequenceMode((Dancer::SequenceModeType)currentSequenceModeLiveVar);
 	BotClient::getInstance().setMoveMode((Dancer::SequenceModeType)currentSequenceModeLiveVar);
@@ -155,6 +183,7 @@ void ambitionCallback(int widgetNo) {
 }
 
 void fileCallback(int widgetNo) {
+	std::ostringstream errStr;
 	string filename = fileBrowser->get_file();
 	 if (fileExists(filename)) {
 		 if (endsWith(filename, ".wav")) {
@@ -165,12 +194,15 @@ void fileCallback(int widgetNo) {
 
 			 BotClient::getInstance().setWavFile(name, fileContent);
 		 }
-		 else
-			 cerr << "file " << filename << " is no wav file" << endl;
+		 else {
+			 errStr << "file " << filename << " is no wav file" << endl;
+		 }
 	 }
 	 else {
-		 cerr << "file " << filename << " not found" << endl;
+		 errStr << "file " << filename << " not found" << endl;
 	 }
+	 string err = errStr.str();
+	 WindowController::getInstance().setStatus(err);
 }
 
 void noCallback (int widgetNo) {};
@@ -243,7 +275,13 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	ambitionSpinner->set_int_val(100);
 
 	musicDetectedBox = new GLUI_Checkbox(interactiveModePanel, "music detected", &musicDetectedLiveVar, 1, noCallback);
-	musicDetectedBox->activate(false);
+	musicDetectedBox->enable();
+	musicDetectedBox->deactivate();
+
+	text = new GLUI_StaticText(interactiveModePanel, "");
+
+	statusTextWidget = new GLUI_StaticText(interactiveModePanel, "");
+
 	windowHandle->add_column_to_panel(interactivePanel, false);
 	GLUI_Panel* songPanel = new GLUI_Panel(interactivePanel,"song panel", GLUI_PANEL_RAISED);
 	songPanel->set_alignment(GLUI_ALIGN_LEFT);
@@ -287,16 +325,24 @@ void WindowController::tearDown() {
 void idleCallback( void )
 {
 	const int refreshRate = 60; // [Hz]
+	const int idleRefreshRate = 1; // [Hz]
+
 	const milliseconds refreshRate_ms = 1000/refreshRate/2;
+	const milliseconds idleRefreshRate_ms = 1000/idleRefreshRate/2;
+
 	milliseconds now = millis();
 	static milliseconds lastDisplayRefreshCall = millis();
 
 	// update all screens with 25Hz once a second in if new data is there
-	if ((now - lastDisplayRefreshCall > refreshRate_ms)) {
+	bool refresh = ((WindowController::getInstance().mainBotView.isModified() && (now - lastDisplayRefreshCall > refreshRate_ms)) ||
+					(now - lastDisplayRefreshCall > idleRefreshRate_ms));
+	if (refresh) {
 		WindowController::getInstance().mainBotView.postRedisplay(); // post if we reset the flag in a previous run
 		lastDisplayRefreshCall = now;
 
 		setDancingMoveWidget();
+		setMusicDetectedWidget();
+		setStatusWidget();
 	}
 
 	// be cpu friendly

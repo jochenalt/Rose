@@ -83,14 +83,24 @@ class Pose : public Serializable  {
 			return sqrt(sqr(position[0]) + sqr(position[1]) + sqr(position[2]));
 		}
 
-		bool operator==(const Pose& pPose) {
+		bool operator==(const Pose& pPose){
+			return ((*this) == (Pose)pPose);
+		};
+
+		bool operator!=(const Pose& pos)  {
+			return ((*this) != (Pose)pos);
+		};
+
+		bool operator==(const Pose& pPose) const {
 			return 	(position == pPose.position &&
 					orientation == pPose.orientation);
 		};
 
-		bool operator!=(const Pose& pos) {
+		bool operator!=(const Pose& pos) const  {
 			return !((*this) == pos);
 		};
+
+
 
 		void operator+=(const Pose& pos) {
 			position += pos.position;

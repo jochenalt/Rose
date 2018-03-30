@@ -32,6 +32,10 @@ public:
 
 	BotRenderer& getBotRenderer() { return botDrawer; }
 
+	// maintain a modify flag to reduce update rate when possible
+	bool isModified() { bool saveModifiedFlag = isModifiedFlag; isModifiedFlag = false; return saveModifiedFlag; };
+	void modify() { isModifiedFlag = true; };
+
 private:
 	void drawCoordSystem(bool withRaster );
 
@@ -48,6 +52,7 @@ private:
 	mousePaneType mousePane = NO_PANE;
 
 	BotRenderer botDrawer;
+	bool isModifiedFlag = false;
 };
 
 #endif /* UI_BOTVIEW_H_ */
