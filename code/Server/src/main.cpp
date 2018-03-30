@@ -118,6 +118,10 @@ void sendBeatToRythmDetector(bool beat, double bpm) {
 	// compensate the microphones latency and delay the beat accordingly to hit the beat next time
 	compensateLatency(beat, bpm);
 
+	// if no music is detected, do not dance
+	dancer.setMusicDetected(AudioProcessor::getInstance().isAudioDetected());
+
+
 	// create the move according to the beat
 	dancer.danceLoop(beat, bpm);
 
@@ -244,6 +248,7 @@ int main(int argc, char *argv[]) {
 		std::istream_iterator<uint8_t> begin (file), end;
 		std::vector<uint8_t> wavContent (begin, end);
 		audioProcessor.setWavContent(wavContent);
+		audioProcessor.setAudioSource();
 	}
 
 	// start thread that computes the kinematics and sends angles to the servos
@@ -284,14 +289,14 @@ int main(int argc, char *argv[]) {
 	cout << "starting audio processing" << endl;
    	while (true) {
    		// if content is available from whatever source, process it (i.e. perform beat detection via sendBeatToRythmDetector)
-   		if (AudioProcessor::getInstance().isWavContentPending() ||
-   			AudioProcessor::getInstance().isMicrophoneInputPending()) {
+   		if (audioProcessor.isWavContentUsed() ||
+			audioProcessor.isMicrophoneInputUsed()) {
 
    			// do it. Returns when current content type is empty
-   			AudioProcessor::getInstance().processInput();
-
+   			audioProcessor.processInput();
    		}
-   		// be cpu friendly
+
+   		// be cpu friendly when no input is available
 		delay_ms(1);
    	}
 }

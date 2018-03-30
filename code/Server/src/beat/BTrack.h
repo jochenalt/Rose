@@ -123,14 +123,13 @@ public:
      */
     static double getBeatTimeInSeconds (int frameNumber, int hopSize, int fs);
     
-		
-private:
-    
     /** Initialises the algorithm, setting internal parameters and creating weighting vectors 
      * @param hopSize_ the hop size in audio samples
      * @param frameSize_ the frame size in audio samples
      */
     void initialise (int hopSize_, int frameSize_);
+
+private:
     
     /** Initialise with hop size and set all array sizes accordingly
      * @param hopSize_ the hop size in audio samples

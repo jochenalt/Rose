@@ -202,7 +202,7 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 			bool ok = true;
 			string name = getURLParamValue(urlParamNames,urlParamValues, "name",ok);
 			std::vector<uint8_t> wavContent;
-			cout << "playing song " << name << endl;
+			cout << "receiving song " << name << endl;
 			unsigned bodyLen = body.length();
 			wavContent.resize(bodyLen);
 			for (unsigned i = 0;i<bodyLen;i++) {

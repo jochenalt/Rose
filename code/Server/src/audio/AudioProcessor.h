@@ -34,8 +34,8 @@ public:
 	void setWavContent(std::vector<uint8_t>& wavData);
 	void setMicrophoneInput();
 
-	bool isWavContentPending() { return currentInputType == WAV_INPUT; };
-	bool isMicrophoneInputPending() { return currentInputType == MICROPHONE_INPUT; };
+	bool isWavContentUsed() { return currentInputType == WAV_INPUT; };
+	bool isMicrophoneInputUsed() { return currentInputType == MICROPHONE_INPUT; };
 
 	// process content of passed wav content or content coming from microphone.
 	// returns whenever the current content is empty (valid of wav content only)
@@ -60,23 +60,30 @@ public:
 
 	// checks if the input signal is above a certain threshold
 	bool isAudioDetected() { return inputAudioDetected; };
+
+	// set the audio source right after microphone or wav has been set. Used only when main loop is not yet running
+	void setAudioSource();
+
 private:
-	enum InputType { WAV_INPUT, MICROPHONE_INPUT };
+	enum InputType { WAV_INPUT, MICROPHONE_INPUT, NO_CHANGE };
 	int readMicrophoneInput(float buffer[], unsigned BufferSize);
 	int readWavInput(float buffer[], unsigned BufferSize);
 
+
 	volatile bool stopCurrProcessing = false;
-	volatile bool currProcessingStopped = true;
 
 	double volume = 1.0;
 	BeatCallbackFct beatCallback;
 	Playback playback;					// used to send the input source to the loudspeaker
 	MicrophoneInput microphone;			// used to get input from microphone
-	AudioFile<double> wavContent;		// used to get input from wav (actually no file, but an array of samples)
+	AudioFile<double> currentWavContent;		// used to get input from wav (actually no file, but an array of samples)
+	std::vector<uint8_t> nextWavContent;		// used to get input from wav (actually no file, but an array of samples)
 	int wavInputPosition = -1;			// current position within wav source
 	double processedTime = 0; 			// [s] processing time of input source. Is determined by position within wav file or realtime in case of micropone input
 	TimeSamplerStatic callbackTimer; 	// timer for callback as passed via setup()
 	InputType currentInputType = MICROPHONE_INPUT;
+	InputType nextInputType = MICROPHONE_INPUT;
+
 	bool inputAudioDetected = false;
 	LowPassFilter beatScoreFilter;
 };

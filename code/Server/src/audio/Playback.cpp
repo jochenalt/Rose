@@ -45,10 +45,11 @@ void Playback::setup(int sampleRate) {
 
    	outputDevice = ao_open_live(defaultDriverHandle, &audioOutputFormat, p_ao_option );
    	if (outputDevice == NULL) {
-   		cerr << "Could not open sound device " << defaultDriverHandle << " with "<< sampleRate << "Hz, " << audioOutputFormat.channels << " channels "  << " err=" << errno << endl;
    	   	outputDevice = ao_open_live(ao_default_driver_id(), &audioOutputFormat, NULL );
-   	   	if (outputDevice == NULL)
+   	   	if (outputDevice == NULL) {
+   	   		cerr << "Could not open sound device " << defaultDriverHandle << " with "<< sampleRate << "Hz, " << audioOutputFormat.channels << " channels "  << " err=" << errno << endl;
    	   		exit(1);
+   	   	}
    	}
    	cout << "using device " << defaultDriverHandle << " with " << sampleRate << "Hz for audio output " << endl;
 }

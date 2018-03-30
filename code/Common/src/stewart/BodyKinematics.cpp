@@ -88,6 +88,7 @@ void BodyKinematics::getServoArmCentre(Point servoArmCentre_world[6]) {
 }
 
 Pose BodyKinematics::computeHeadStewartPose(const Pose& bodyPose, const Pose &relPoseAboveBellyButton) {
+
 	// regular headPose is right above the bodys origin with its own orientation.
 
 	// This function computes this relative

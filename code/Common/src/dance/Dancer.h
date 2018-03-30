@@ -70,10 +70,14 @@ public:
 	// scale the amplitude of all moves by ambition
 	void setAmbition(double newAmbition) { ambition = newAmbition; };
 	double getAmbition() { return ambition; };
+
+	void setMusicDetected(bool isMusicMetected) {
+		musicDetected = isMusicMetected;
+	}
+
 private:
 	void doNewMove();
 	void createMove(double movePercentage);
-
 
 	TotalBodyPose pose;
 	Move::MoveType currentMove;
@@ -84,6 +88,7 @@ private:
 	double ambition = 1.0;
 
 	ExclusiveMutex poseMutex;
+	bool musicDetected = false;
 };
 
 #endif /* MOVEMAKER_H_ */

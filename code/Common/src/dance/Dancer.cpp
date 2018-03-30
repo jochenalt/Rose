@@ -93,6 +93,11 @@ void Dancer::danceLoop(bool beat, double BPM) {
 }
 
 void Dancer::doNewMove() {
+	if (!musicDetected) {
+		currentMove = Move::NO_MOVE;
+		return;
+	}
+
 	// when all moves are shown, omit plain headnicker
 	if ((int)currentMove >= Move::numMoves()-1)
 		currentMove = (Move::MoveType)1; // skip physicists move
