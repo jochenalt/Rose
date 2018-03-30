@@ -44,7 +44,7 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 	// playback is setup when started
 
 	// music detection requires 1s of music before flagging it as music
-	beatScoreFilter.init(10);
+	beatScoreFilter.init(20);
 }
 
 void AudioProcessor::setVolume(double newVolume) {

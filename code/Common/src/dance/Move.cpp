@@ -29,6 +29,8 @@ void Move::setup() {
 	if (moveLibrary.size() == 0) {
 		moveLibrary.resize((int)LAST_MOVE);
 
+		moveLibrary[(int)LISTENING] = Move(LISTENING, "listening", 8);
+
 		moveLibrary[(int)PHYSICISTS_HEAD_NICKER] = Move(PHYSICISTS_HEAD_NICKER, "physicist's move", 8);
 		moveLibrary[(int)TENNIS_HEAD_NICKER] = Move(TENNIS_HEAD_NICKER, "tennis spectators's move",8);
 		moveLibrary[(int)WEASELS_MOVE] = Move(WEASELS_MOVE, "weasel's move",8);
@@ -152,6 +154,14 @@ TotalBodyPose Move::absHead (const Pose& bodyPose, const Pose& relHeadPose) {
 	}
 	TotalBodyPose result = TotalBodyPose(restrictedBodyPose,BodyKinematics::getInstance().computeHeadStewartPose(restrictedBodyPose, restrictedRelHeadPose));
 	return result;
+}
+
+TotalBodyPose Move::listeningMove(double movePercentage) {
+	double startPhase = latencyShift;
+	double mBase = baseCurveFatCos(scaleMove(movePercentage, 0.5, startPhase));
+
+	return absHead(Pose(Point(0,0,0), Rotation (0,0,0)),
+			       Pose(Point(0,fabs(mBase)*10.0,headHeight), Rotation(0,0,mBase*radians(10.0))));
 }
 
 
@@ -451,6 +461,7 @@ TotalBodyPose Move::turnBack(double movePercentage) {
 TotalBodyPose Move::move(double movePercentage) {
 
 	switch (id) {
+		case LISTENING:return listeningMove(movePercentage);break;
 		case PHYSICISTS_HEAD_NICKER:return physicistsHeadNicker(movePercentage);break;
 		case TENNIS_HEAD_NICKER:return tennisHeadNicker(movePercentage);break;
 		case TRAVOLTA_HEAD_NICKER:return  travoltaHeadNicker(movePercentage);break;

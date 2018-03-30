@@ -18,7 +18,7 @@ const double headHeight = 105.0;
 
 class Move {
 public:
-	enum MoveType { NO_MOVE, PHYSICISTS_HEAD_NICKER, TENNIS_HEAD_NICKER, WEASELS_MOVE,
+	enum MoveType { NO_MOVE, LISTENING, PHYSICISTS_HEAD_NICKER, TENNIS_HEAD_NICKER, WEASELS_MOVE,
 		            TRAVOLTA_HEAD_NICKER, ENHANCED_TRAVOLTA_HEAD_NICKER,
 					DIAGONAL_HEAD_SWING, DIPPED_DIAGONAL_HEAD_SWING, ROLLED_DIPPED_DIAGONAL_HEAD_SWING, EYED_DIPPED_DIAGONAL_HEAD_SWING,
 					BELLY_MOVE, BOLLYWOOD_HEAD_MOVE, SWING_DOUBLE_BOLLYWOOD_MOVE,
@@ -77,6 +77,8 @@ public:
 
 	TotalBodyPose absHead (const Pose& bodyPose, const Pose& relHeadPose);
 	// methods implementing dance moves
+	TotalBodyPose listeningMove(double movePercentage);
+
 	TotalBodyPose physicistsHeadNicker(double movePercentage);
 	TotalBodyPose tennisHeadNicker(double movePercentage);
 
