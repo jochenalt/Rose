@@ -243,7 +243,7 @@ Point Point::operator* (const double f) const{
 
 
 bool Point::operator==(const Point& pos) {
-	return ((*this) == (Point)pos);
+	return ((abs(x-pos.x) < floatPrecision) && (abs(y - pos.y) <floatPrecision) && (abs(z -pos.z) < floatPrecision));
 };
 
 bool Point::operator!=(const Point& pos) {

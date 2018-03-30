@@ -84,11 +84,12 @@ class Pose : public Serializable  {
 		}
 
 		bool operator==(const Pose& pPose){
-			return ((*this) == (Pose)pPose);
+			return 	(position == pPose.position &&
+					orientation == pPose.orientation);
 		};
 
 		bool operator!=(const Pose& pos)  {
-			return ((*this) != (Pose)pos);
+			return !((*this) == pos);
 		};
 
 		bool operator==(const Pose& pPose) const {

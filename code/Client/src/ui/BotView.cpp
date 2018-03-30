@@ -224,7 +224,7 @@ void BotView::display() {
 
 
 void BotView::setBodyPose(const Pose& newBodyPose, const Pose& newHeadPose, const Point& newEyeDeviation) {
-	if ((newBodyPose.distance(bodyPose)>1.0) || (headPose.distance(newHeadPose)>1.0) || (newEyeDeviation.distance(eyeDeviation) > 1.0)) {
+	if ((newBodyPose != bodyPose) || (headPose != newHeadPose) || (newEyeDeviation.distance(eyeDeviation) > 1.0)) {
 		bodyPose = newBodyPose;
 		headPose = newHeadPose;
 		eyeDeviation = newEyeDeviation;

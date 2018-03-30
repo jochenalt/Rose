@@ -184,7 +184,7 @@ class Rotation {
 			return result;
 		};
 		bool operator==(const Rotation& pos) {
-			return ((*this) == (Rotation)pos);
+			return (x == pos.x) && (y == pos.y) && (z == pos.z);
 		};
 
 		bool operator!=(const Rotation& pos) {
