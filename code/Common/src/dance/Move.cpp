@@ -347,15 +347,14 @@ TotalBodyPose Move::sidedDipBodyWaveMove(double movePercentage) {
 	double phaseShift = latencyShift;
 
 	// used move curves
-	double mBase = baseCurveTriangle(scaleMove(movePercentage, 2.0,phaseShift));
-	double mWave = baseCurveCos(scaleMove(movePercentage, 4.0, phaseShift - 0.5));
-
-	double mSideHip  = baseCurveTriangle(scaleMove(movePercentage, 1.0, phaseShift));
+	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 2.50 + phaseShift));
+	double mDip  = baseCurveCos(scaleMove(movePercentage, 1.0, 1.5 + phaseShift));
+	double mSwing = baseCurveCos(scaleMove(movePercentage, 4.0,    phaseShift - 0.75));
 	double mLeftRight= baseCurveTriangle(scaleMove(movePercentage, 1.0, 0.5 + phaseShift ));
 
 	return absHead (
-			Pose(Point(0,30.0*mSideHip,bodyHeight + 10.0*mBase),Rotation (0,-radians(15)*mWave,radians(15)*mLeftRight)),
-			Pose(Point(0,0,headHeight+5.0*mBase),Rotation (0,0,0)));
+			Pose(Point(0,30.0*mBase,bodyHeight + 10.0*fabs(mDip)),Rotation (0,-radians(15)*mSwing,radians(15)*mLeftRight)),
+			Pose(Point(0,0,headHeight+5.0*mBase),Rotation (0,-radians(20)*mDip,0)));
 }
 
 TotalBodyPose Move::shimmys(double movePercentage) {
