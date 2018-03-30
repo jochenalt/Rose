@@ -31,6 +31,8 @@
 using namespace std;
 
 bool mplayback = true;
+bool executeServoThread = true;
+std::thread* servoThread = NULL;
 
 
 string getCmdOption(char ** begin, int argc, int i ) {
@@ -70,6 +72,9 @@ void signalHandler(int s){
 	changemode(0);
 	cout << "Signal " << s << ". Exiting";
 	cout.flush();
+	executeServoThread = false;
+	if (servoThread != NULL)
+		delete servoThread;
 	exit(1);
 }
 
@@ -133,7 +138,9 @@ typedef void (*MoveCallbackFct)(bool beat, double Bpm);
 int main(int argc, char *argv[]) {
 	// exit correctly when exception arises
 	std::set_terminate([](){
-		std::cout << "Unhandled exception\n"; std::abort();
+		std::cout << "Unhandled exception" << endl;
+		std::cout.flush();
+		std::abort();
 		changemode(0);
 	});
 
@@ -252,8 +259,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// start thread that computes the kinematics and sends angles to the servos
-	bool executeServoThread = true;
-	/* std::thread* servoThread = */ new std::thread([=](){
+	servoThread = new std::thread([=](){
 		cout << "starting execution of kinematics and servo control" << endl;
 
 		TimeSamplerStatic servoTimer;
@@ -264,7 +270,7 @@ int main(int argc, char *argv[]) {
 	   	servoController.setup();
 	   	bodyKinematics.setup();
 		while (executeServoThread) {
-			if (servoTimer.isDue(20)) {
+			if (servoTimer.isDue(10)) {
 				Point bodyBallJoint_world[6], headBallJoint_world[6];
 				double bodyServoAngles_rad[6], headServoAngles_rad[6];
 				Point bodyServoBallJoints_world[6], headServoBallJoints_world[6];

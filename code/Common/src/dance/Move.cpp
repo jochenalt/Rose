@@ -15,6 +15,9 @@
 
 
 
+bool Move::firstAccelerationCall = false;
+TimeSamplerStatic Move::moveTimer;
+
 std::vector<Move> Move::moveLibrary;
 const double latencyShift = 0.1;
 
@@ -24,6 +27,11 @@ Move& Move::getMove(MoveType m) {
 	assert((int)m < moveLibrary.size());
 	return moveLibrary[(int)m];
 }
+
+void Move::resetAcceleration() {
+	moveTimer.dT();
+};
+
 
 void Move::setup() {
 	if (moveLibrary.size() == 0) {
@@ -136,17 +144,14 @@ double Move::baseCurveTrapezoid(double movePercentage) {
 
 TotalBodyPose Move::absHead (const Pose& bodyPose, const Pose& relHeadPose) {
 
-	static bool firstCall = true;
 	static Pose restrictedBodyPose;
 	static Pose restrictedRelHeadPose ;
-	static TimeSamplerStatic moveTimer;
 	double dT = moveTimer.dT();
-
 	// dont reduce acceleration in first call
-	if (firstCall) {
+	if (firstAccelerationCall) {
 		restrictedBodyPose = bodyPose;
 		restrictedRelHeadPose = relHeadPose;
-		firstCall = false;
+		firstAccelerationCall = false;
 	} else {
 		// limit acceleration between two moves
 		restrictedBodyPose.moveTo(bodyPose, dT, 50.0, 3.0);

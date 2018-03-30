@@ -75,7 +75,7 @@ public:
 
 	double scaleAmbition(double value);
 
-	TotalBodyPose absHead (const Pose& bodyPose, const Pose& relHeadPose);
+	static TotalBodyPose absHead (const Pose& bodyPose, const Pose& relHeadPose);
 	// methods implementing dance moves
 	TotalBodyPose listeningMove(double movePercentage);
 
@@ -113,10 +113,13 @@ public:
 
 	TotalBodyPose move(double movePercentage);
 
+	static void resetAcceleration();
 	MoveType id;
 	string name;
 	int lengthInBeats;
 	static std::vector<Move> moveLibrary;
+	static TimeSamplerStatic moveTimer;
+	static bool firstAccelerationCall;
 };
 
 #endif /* SRC_MOVE_H_ */

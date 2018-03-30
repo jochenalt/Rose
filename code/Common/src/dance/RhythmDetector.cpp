@@ -8,6 +8,8 @@
 #include "basics/util.h"
 
 #include <dance/RhythmDetector.h>
+#include <dance/Move.h>
+#include <dance/Dancer.h>
 
 RhythmDetector::RhythmDetector() {
 }
@@ -50,13 +52,16 @@ void RhythmDetector::loop(bool beat, double BPM) {
 			// cout << std::fixed << std::setprecision(2) << "Rhythm is 1/" << rhythmInQuarters << " tbp=" << timeSinceBeat << " s/beat=" <<  timePerBeat << "s" << "1:" << abs(timePerBeat - timeSinceBeat) << " 2:" << abs(2.0*timePerBeat - timeSinceBeat) << endl;
 			cout << std::fixed << std::setprecision(2) << "Rhythm is 1/" << rhythmInQuarters << " BPM=" << BPM << "(" << BPM/rhythmInQuarters << ") s/beat=" <<  timePerBeat << "s(" << timeSinceBeat<< ")" << endl;
 
+			// start with shy head nicker
+			Dancer::getInstance().setCurrentMove(Move::PHYSICISTS_HEAD_NICKER);
 		}
 
 		timeOfLastBeat = now;
 		timeSinceBeat = 0;
 
-		if (beatStarted == false)
+		if (beatStarted == false) {
 			firstBeat = true;
+		}
 
 		beatStarted = true;
 		beatCount++;

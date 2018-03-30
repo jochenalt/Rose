@@ -33,8 +33,9 @@ Pose Dancer ::getDefaultHeadPose() {
 }
 
 void Dancer ::setup() {
-	pose.body = getDefaultBodyPose();
-	pose.head = getDefaultHeadPose();
+	TotalBodyPose defaultPose = Move::absHead(getDefaultBodyPose(), getDefaultHeadPose());
+	pose.body = defaultPose.body;
+	pose.head = defaultPose.head;
 
 	currentMove = Move::NO_MOVE;
 	passedBeatsInCurrentMove = 0;
@@ -86,15 +87,19 @@ void Dancer::danceLoop(bool beat, double BPM) {
 	}
 
 	// wait 4 beats to detect the rhythm
-	// if ((RhythmDetector::getInstance().getAbsoluteBeatCount() > startAfterNBeats) && (RhythmDetector::getInstance().hasBeatStarted())) {
-	createMove(RhythmDetector::getInstance().getRythmPercentage());
-	// }
+	if ((RhythmDetector::getInstance().getAbsoluteBeatCount() > startAfterNBeats) && (RhythmDetector::getInstance().hasBeatStarted())) {
+		createMove(RhythmDetector::getInstance().getRythmPercentage());
+	} else {
+		// take care that initial acceleraition is smooth
+		Move::resetAcceleration();
+	}
+
 }
 
 void Dancer::doNewMove() {
 	if (!musicDetected) {
 		currentMove = Move::LISTENING;
-		cout << "listening mode" << endl;
+		cout << "no music, listening mode" << endl;
 		return;
 	}
 
@@ -104,7 +109,10 @@ void Dancer::doNewMove() {
 	else
 		currentMove = (Move::MoveType) (((int)currentMove + 1));
 
+	// spead measurements consider one move only, so reset the data
 	BodyKinematics::getInstance().resetSpeedMeasurement();
+
+	// show me
 	cout << "new move: " << Move::getMove(currentMove).getName() << "(" << (int)currentMove << ")" << endl;
 }
 
