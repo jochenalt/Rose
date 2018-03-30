@@ -25,6 +25,7 @@
 #include <audio/AudioProcessor.h>
 #include <audio/Playback.h>
 #include <dance/RhythmDetector.h>
+#include <dance/Dancer.h>
 
 #include <beat/BTrack.h>
 
@@ -44,7 +45,7 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 	// playback is setup when started
 
 	// music detection requires 1s of music before flagging it as music
-	beatScoreFilter.init(20);
+	beatScoreFilter.init(100);
 }
 
 void AudioProcessor::setVolume(double newVolume) {
@@ -75,23 +76,27 @@ void AudioProcessor::setWavContent(std::vector<uint8_t>& newWavData) {
 void AudioProcessor::setAudioSource() {
 
 	if (nextInputType == WAV_INPUT) {
-		// read in the wav data and set index pointer to first position
-		currentWavContent.decodeWaveFile(nextWavContent);
-
-		// playback is done with same sample rate like the input wav data
-		playback.setup(currentWavContent.getSampleRate());
-
 		// likely a new rythm
 		RhythmDetector::getInstance().setup();
 
 		// current input is wav data
 		currentInputType = WAV_INPUT;
 
-		// clear input, has been saved
-		nextWavContent.clear();
-
 		// reset position in wav content to start
 		wavInputPosition = 0;
+
+		beatScoreFilter.set(0);
+
+		Dancer::getInstance().setup();
+
+		// read in the wav data and set index pointer to first position
+		currentWavContent.decodeWaveFile(nextWavContent);
+
+		// playback is done with same sample rate like the input wav data
+		playback.setup(currentWavContent.getSampleRate());
+
+		// clear input, has been saved
+		nextWavContent.clear();
 
 		cout << "switching audio source to wav input" << endl;
 	}
@@ -184,7 +189,7 @@ void AudioProcessor::processInput() {
 
 				// use microphone instead of wav input
 				setMicrophoneInput();
-				return;
+				setAudioSource();
 			}
 		}
 		if (readSamples != numInputSamples)

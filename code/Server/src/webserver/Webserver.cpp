@@ -202,14 +202,17 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 			bool ok = true;
 			string name = getURLParamValue(urlParamNames,urlParamValues, "name",ok);
 			std::vector<uint8_t> wavContent;
-			cout << "receiving song " << name << endl;
 			unsigned bodyLen = body.length();
 			wavContent.resize(bodyLen);
 			for (unsigned i = 0;i<bodyLen;i++) {
 				wavContent[i] = body[i];
 			}
+
 			AudioProcessor::getInstance().setWavContent(wavContent);
+			cout << "receiving song " << name << endl;
+
 			okOrNOk = true;
+
 			response = getResponse(okOrNOk);
 			return true;
 		}
@@ -293,9 +296,11 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 		AudioProcessor& audio = AudioProcessor::getInstance();
 
 		std::ostringstream out;
+		Pose body, head;
+		dancer.getThreadSafePose(body, head);
 		out << "{ \"response\": "
-		    <<     "{ \"body\":"<<  dancer.getBodyPose().toString()
-		    <<     ", \"head\":" << dancer.getHeadPose().toString()
+		    <<     "{ \"body\":"<<  body.toString()
+		    <<     ", \"head\":" << head.toString()
 		    <<     ", \"ambition\":" << dancer.getAmbition()
 		    <<     ", \"move\":" << (int)dancer.getCurrentMove()
 		    <<     ", \"music\":" << boolToJSonString(audio.isAudioDetected())

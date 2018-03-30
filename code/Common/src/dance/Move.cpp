@@ -149,8 +149,8 @@ TotalBodyPose Move::absHead (const Pose& bodyPose, const Pose& relHeadPose) {
 		firstCall = false;
 	} else {
 		// limit acceleration between two moves
-		restrictedBodyPose.moveTo(bodyPose, dT, 100.0, 3.0);
-		restrictedRelHeadPose.moveTo(relHeadPose, dT, 100.0, 3.0);
+		restrictedBodyPose.moveTo(bodyPose, dT, 50.0, 3.0);
+		restrictedRelHeadPose.moveTo(relHeadPose, dT, 50.0, 3.0);
 	}
 	TotalBodyPose result = TotalBodyPose(restrictedBodyPose,BodyKinematics::getInstance().computeHeadStewartPose(restrictedBodyPose, restrictedRelHeadPose));
 	return result;
@@ -158,10 +158,10 @@ TotalBodyPose Move::absHead (const Pose& bodyPose, const Pose& relHeadPose) {
 
 TotalBodyPose Move::listeningMove(double movePercentage) {
 	double startPhase = latencyShift;
-	double mBase = baseCurveFatCos(scaleMove(movePercentage, 0.5, startPhase));
+	double mBase = baseCurveFatCos(scaleMove(movePercentage, 1.0, startPhase+0.6));
 
-	return absHead(Pose(Point(0,0,0), Rotation (0,0,0)),
-			       Pose(Point(0,fabs(mBase)*10.0,headHeight), Rotation(0,0,mBase*radians(10.0))));
+	return absHead(Pose(Point(0,0,bodyHeight), Rotation (0,0,0)),
+			       Pose(Point(0,0.0,headHeight), Rotation(0,-fabs(mBase)*radians(10.0), mBase*radians(10.0))));
 }
 
 

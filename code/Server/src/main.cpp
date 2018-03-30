@@ -103,7 +103,8 @@ void compensateLatency(bool& beat, double& bpm) {
 	if (!pendingBeatTime.empty() && pendingBeatTime.front() <= now) {
 		pendingBeatTime.pop();
 		beat = true;
-		cout << "   latency BEAT!" << endl;
+		if (AudioProcessor::getInstance().isMicrophoneInputUsed())
+			cout << "   latency BEAT!" << endl;
 	}
 }
 
@@ -120,7 +121,6 @@ void sendBeatToRythmDetector(bool beat, double bpm) {
 
 	// if no music is detected, do not dance
 	dancer.setMusicDetected(AudioProcessor::getInstance().isAudioDetected());
-
 
 	// create the move according to the beat
 	dancer.danceLoop(beat, bpm);

@@ -72,6 +72,8 @@ void RhythmDetector::loop(bool beat, double BPM) {
 		//	 << " tsb/(60/BPM)=" << timeSinceBeat/(60.0/BPM) <<"% rhyt=" << rhythmInQuarters << " =" << movePercentage << " "  << endl;
 
 	}
+	else
+		movePercentage = 0;
 }
 
 bool RhythmDetector::isFirstBeat() {

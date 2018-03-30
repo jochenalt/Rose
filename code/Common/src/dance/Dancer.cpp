@@ -38,12 +38,11 @@ void Dancer ::setup() {
 
 	currentMove = Move::NO_MOVE;
 	passedBeatsInCurrentMove = 0;
-	startAfterNBeats = 4;
+	startAfterNBeats = 2;
 }
 
 void Dancer ::createMove(double movePercentage) {
 	TotalBodyPose newPose = Move::getMove(currentMove).move(movePercentage);
-
 	// moves are created in a different thread than the one fetching the result
 	// encapsulate with a critical block
 	CriticalBlock block(poseMutex);
@@ -72,7 +71,7 @@ void Dancer::danceLoop(bool beat, double BPM) {
 
 		// first move is the classical head nicker
 		if (RhythmDetector::getInstance().isFirstBeat())
-			currentMove = (Move::MoveType)(0);
+			currentMove = Move::MoveType::PHYSICISTS_HEAD_NICKER;
 
 		// switch to next move after as soon as rhythm starts again
 		passedBeatsInCurrentMove++;
@@ -87,20 +86,21 @@ void Dancer::danceLoop(bool beat, double BPM) {
 	}
 
 	// wait 4 beats to detect the rhythm
-	if ((RhythmDetector::getInstance().getAbsoluteBeatCount() > startAfterNBeats) && (RhythmDetector::getInstance().hasBeatStarted())) {
-		createMove(RhythmDetector::getInstance().getRythmPercentage());
-	}
+	// if ((RhythmDetector::getInstance().getAbsoluteBeatCount() > startAfterNBeats) && (RhythmDetector::getInstance().hasBeatStarted())) {
+	createMove(RhythmDetector::getInstance().getRythmPercentage());
+	// }
 }
 
 void Dancer::doNewMove() {
 	if (!musicDetected) {
-		currentMove = Move::NO_MOVE;
+		currentMove = Move::LISTENING;
+		cout << "listening mode" << endl;
 		return;
 	}
 
 	// when all moves are shown, omit plain headnicker
 	if ((int)currentMove >= Move::numMoves()-1)
-		currentMove = (Move::MoveType)1; // skip physicists move
+		currentMove = (Move::MoveType)(Move::PHYSICISTS_HEAD_NICKER+1); // skip physicists and listening mode move
 	else
 		currentMove = (Move::MoveType) (((int)currentMove + 1));
 
