@@ -47,6 +47,7 @@ public:
 	Pose getBodyPose() { return bodyPose; };
 	double getAmbition() { return ambition; };
 	Move::MoveType getMove() { return move; };
+	bool isMusicDetected() { return musicDetected; };
 
 private:
 	string get(string requestUrl, bool& ok);
@@ -55,6 +56,7 @@ private:
 	Pose bodyPose;
 	Pose headPose;
 	float ambition = 0;
+	bool musicDetected = false;
 	Move::MoveType move = Move::MoveType::NO_MOVE;
 	bool isWebClientActive = false;
 

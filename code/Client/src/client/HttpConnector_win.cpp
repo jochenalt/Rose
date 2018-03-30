@@ -160,7 +160,7 @@ void HttpConnection::call(HttpAction op, const string& param, const string& quer
 	}
 	string header = headerStream.str();
     int sendResult = send(conn, header.c_str(), header.length(), 0);
-    if (sendResult != header.length())
+    if (sendResult != (int)header.length())
     	cout << "send returns other than " << header.length() << " bytes:" << sendResult << endl;
 
     int contentLength = -1;
@@ -186,13 +186,19 @@ void HttpConnection::call(HttpAction op, const string& param, const string& quer
 	if (httpStatus == -1)
 		httpStatus = getHttpStatus(response);
 
+	if (httpStatus == -1) {
+		cerr << "no response. Trying to reset." << endl;
+		// try to reset
+		setup(host, port);
+		return;
+	}
 
 	if ((int)response.length() ==  headerLen + contentLength) {
 		httpResponse = response.substr(headerLen);
 	}
 	else {
 		httpResponse = "";
-		cerr << "incomplete response in " << param << endl;
+		cerr << "incomplete response in " << param << " http Status = " << httpStatus << endl;
 	}
 
 }

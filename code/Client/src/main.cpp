@@ -190,6 +190,7 @@ int main(int argc, char *argv[]) {
 
 	Dancer & mm = Dancer::getInstance();
 	BotClient& client = BotClient::getInstance();
+	UI& ui = UI::getInstance();
 	TimeSamplerStatic clientLoopTimer;
    	while (true) {
    		if (clientLoopTimer.isDue(20)) {
@@ -199,7 +200,8 @@ int main(int argc, char *argv[]) {
 			mm.imposeDanceParams(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
 
 			// send data to ui
-			UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
+			ui.setBodyPose(mm.getBodyPose(), mm.getHeadPose());
+			ui.setMusicDetected(client.isMusicDetected());
    		}
    		else
    			delay_ms(1);

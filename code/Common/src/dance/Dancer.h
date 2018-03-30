@@ -36,7 +36,8 @@ public:
 	void danceLoop(bool beat, double BPM);
 
 	// call this with data coming from the webserver to define the current dancing parameters withou generating them
-	void imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition, const Pose& newBodyPose, const Pose& newHeadPose );
+	void imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition,
+			               const Pose& newBodyPose, const Pose& newHeadPose);
 
 	// current body pose within the move
 	Pose& getBodyPose() { return pose.body; };

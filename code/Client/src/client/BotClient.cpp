@@ -10,7 +10,6 @@
 
 
 BotClient::BotClient() {
-
 }
 
 BotClient::~BotClient() {
@@ -27,7 +26,21 @@ void BotClient::setup(string host, int port) {
 
 	// webclient is ready
 	isWebClientActive = true;
+
+	// establish TCP/IP connect (takes a couple of seconds)
 	conn.setup(host, port);
+
+	// msuic is detected on the server side
+	musicDetected = false;
+
+	bodyPose.null();
+	headPose.null();
+
+	// ambition is defined on the server side
+	ambition = 0;
+
+	// we do not move during startup
+	move = Move::MoveType::NO_MOVE;
 }
 
 
@@ -87,11 +100,16 @@ void BotClient::getStatus() {
 		parseCharacter(in, ':', ok);
 		int moveTmp = parseInt(in, ok); // "move"
 		move = (Move::MoveType)moveTmp;
+		parseCharacter(in, ',', ok);
+		parseString(in, ok); // "music"
+		parseCharacter(in, ':', ok);
+		musicDetected = parseBool(in, ok);
 		parseCharacter(in, '}', ok);
 		parseCharacter(in, ',', ok);
 		parseString(in, ok); // "status"
 		parseCharacter(in, ':', ok);
 		parseBool(in, ok);
+
 		parseCharacter(in, '}', ok);
 	}
 }

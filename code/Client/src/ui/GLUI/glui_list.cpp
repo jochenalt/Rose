@@ -244,7 +244,7 @@ void    GLUI_List::draw( int x, int y )
   }
 
   /* Figure out how wide the box is */
-  int box_width = get_box_width();
+  // int box_width = get_box_width();
 
   /* Figure out which lines are visible*/
 
