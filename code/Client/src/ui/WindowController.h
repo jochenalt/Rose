@@ -33,6 +33,7 @@ public:
 	void tearDown();
 
 	void setBodyPose(const Pose& bodyPose, const Pose& headPose);
+	void setMusicDetected (bool musicDetected);
 	void postRedisplay();
 
 	BotView mainBotView;

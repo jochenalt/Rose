@@ -19,6 +19,7 @@ public:
 	void tearDown();
 
 	void setBodyPose(const Pose& bodyPose, const Pose& headPose);
+	void setMusicDetected(bool musicDetectd);
 };
 
 

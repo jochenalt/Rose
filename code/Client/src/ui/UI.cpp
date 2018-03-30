@@ -40,3 +40,7 @@ void UI::tearDown() {
 void UI::setBodyPose(const Pose& bodyPose, const Pose& headPose) {
 	WindowController::getInstance().setBodyPose(bodyPose, headPose);
 }
+
+void UI::setMusicDetected(bool musicDetected) {
+	WindowController::getInstance().setMusicDetected(musicDetected);
+}

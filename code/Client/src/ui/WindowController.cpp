@@ -37,11 +37,13 @@ int clothesOnLiveVar = 0;
 GLUI_Checkbox* transparentCheckbox = NULL;
 int transparentLiveVar = 0;
 
-GLUI_Spinner* ambitionSpinner = NULL;
+GLUI_Scrollbar* ambitionSpinner = NULL;
 int ambitionLiveVar = 0;
 
 GLUI_FileBrowser* fileBrowser = NULL;
 
+GLUI_Checkbox* musicDetectedBox  = NULL;
+int musicDetectedLiveVar  = 0;
 WindowController instance;
 
 WindowController& WindowController::getInstance() {
@@ -101,6 +103,14 @@ void WindowController::setBodyPose(const Pose& bodyPose, const Pose& headPose) {
 	mainBotView.setBodyPose(bodyPose, headPose, lookAtCoordFromBodysPerspective);
 }
 
+void WindowController::setMusicDetected (bool musicDetected) {
+	if (musicDetected)
+		musicDetectedBox->enable();
+	else
+		musicDetectedBox->disable();
+}
+
+
 void setDancingMoveWidget() {
 	int movesPerRow = (Dancer ::getInstance().getNumMoves()+1)/DanceMoveRows  ;
 	Move::MoveType move = Dancer ::getInstance().getCurrentMove();
@@ -116,7 +126,6 @@ void setDancingMoveWidget() {
 			currentDancingModeWidget[i]->set_int_val(-1);
 	}
 }
-
 
 void currentDancingMoveCallback(int widgetNo) {
 	int movesPerRow = (Dancer ::getInstance().getNumMoves()+1)/DanceMoveRows ;
@@ -163,8 +172,8 @@ void fileCallback(int widgetNo) {
 		 cerr << "file " << filename << " not found" << endl;
 	 }
 }
-void buttonCallback(int widgetNo) {
-}
+
+void noCallback (int widgetNo) {};
 
 GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	GLUI *windowHandle= GLUI_Master.create_glui_subwindow( wMain,  GLUI_SUBWINDOW_BOTTOM);
@@ -220,7 +229,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	clothesPanel->set_alignment(GLUI_ALIGN_LEFT);
 	stripperRadioButtons =  new GLUI_RadioGroup(clothesPanel, &clothesOnLiveVar, 0, clothesOnCallback);
 	new GLUI_RadioButton(stripperRadioButtons, "proper");
-	new GLUI_RadioButton(stripperRadioButtons, "a bit slutty");
+	new GLUI_RadioButton(stripperRadioButtons, "slutty");
 	new GLUI_RadioButton(stripperRadioButtons, "terminator style");
 
 	GLUI_Panel* ambitionPanel= new GLUI_Panel(interactiveModePanel,"Ambition", GLUI_PANEL_NONE);
@@ -228,11 +237,13 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	text = new GLUI_StaticText(ambitionPanel, "bored            ambitious");
 	text->set_alignment(GLUI_ALIGN_LEFT);
 
-	GLUI_Scrollbar* ambitionSpinner = new GLUI_Scrollbar(ambitionPanel, "ambition",1, &ambitionLiveVar, 1, ambitionCallback);
+	ambitionSpinner = new GLUI_Scrollbar(ambitionPanel, "ambition",1, &ambitionLiveVar, 1, ambitionCallback);
 	ambitionSpinner->set_alignment(GLUI_ALIGN_LEFT);
 	ambitionSpinner->set_int_limits(0,100);
 	ambitionSpinner->set_int_val(100);
 
+	musicDetectedBox = new GLUI_Checkbox(interactiveModePanel, "music detected", &musicDetectedLiveVar, 1, noCallback);
+	musicDetectedBox->activate(false);
 	windowHandle->add_column_to_panel(interactivePanel, false);
 	GLUI_Panel* songPanel = new GLUI_Panel(interactivePanel,"song panel", GLUI_PANEL_RAISED);
 	songPanel->set_alignment(GLUI_ALIGN_LEFT);

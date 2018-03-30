@@ -57,7 +57,8 @@ void Dancer::getThreadSafePose(Pose& bodyPose, Pose& headPose) {
 };
 
 
-void Dancer::imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition, const Pose& newBodyPose, const Pose& newHeadPose ) {
+void Dancer::imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition,
+		                       const Pose& newBodyPose, const Pose& newHeadPose) {
 	CriticalBlock block(poseMutex);
 
 	currentMove = newCurrentMove;
