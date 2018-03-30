@@ -48,7 +48,6 @@ void Servo::setAngle(double newAngle) {
     if (reverse)
     	normalizedAngle = -normalizedAngle;
 
-
     double target_impulse_len_us = (middlePositionImpulseLen_us + impulseLenDiffPerDegree_us * normalizedAngle);
     target_impulse_len_us = constrain(target_impulse_len_us,minImpulseLen_us, maxImpulseLen_us );
 
