@@ -20,7 +20,7 @@
 #include <basics/util.h>
 #include "dance/RhythmDetector.h"
 #include <stewart/BodyKinematics.h>
-#include <servo/PCA9685Servo.h>
+#include <servo/PCA9685.h>
 #include <servo/ServoController.h>
 #include <webserver/Webserver.h>
 #include <ao/ao.h>
@@ -33,6 +33,10 @@ using namespace std;
 bool mplayback = true;
 bool executeServoThread = true;
 std::thread* servoThread = NULL;
+
+// mutex to indicate that a new dance zupdate has been generated.
+// will be picked up by servo controller thread
+volatile bool danceMoveUpdate = false;
 
 
 string getCmdOption(char ** begin, int argc, int i ) {
@@ -70,11 +74,16 @@ void printUsage() {
 
 void signalHandler(int s){
 	changemode(0);
-	cout << "Signal " << s << ". Exiting";
+	cout << "Signal " << s << endl;
 	cout.flush();
 	executeServoThread = false;
 	if (servoThread != NULL)
 		delete servoThread;
+	Webserver::getInstance().teardown();
+	cout << "Exiting" << endl;
+
+	delay_ms(100);
+
 	exit(1);
 }
 
@@ -113,7 +122,6 @@ void compensateLatency(bool& beat, double& bpm) {
 	}
 }
 
-
 void sendBeatToRythmDetector(bool beat, double bpm) {
 	RhythmDetector & rd = RhythmDetector::getInstance();
 	Dancer& dancer = Dancer::getInstance();
@@ -130,19 +138,28 @@ void sendBeatToRythmDetector(bool beat, double bpm) {
 	// create the move according to the beat
 	dancer.danceLoop(beat, bpm);
 
+	if (danceMoveUpdate) {
+		cerr << "ERR:dance move update has not been fetched in time" << endl;
+	}
+
+	danceMoveUpdate = true;
+
 }
 
 typedef void (*MoveCallbackFct)(bool beat, double Bpm);
 
 
 int main(int argc, char *argv[]) {
+	try {
 	// exit correctly when exception arises
+	/*
 	std::set_terminate([](){
 		std::cout << "Unhandled exception" << endl;
 		std::cout.flush();
 		std::abort();
 		changemode(0);
-	});
+	})
+	*/;
 
 	// catch SIGINT (ctrl-C)
     signal (SIGINT,signalHandler);
@@ -258,6 +275,7 @@ int main(int argc, char *argv[]) {
 		audioProcessor.setAudioSource();
 	}
 
+
 	// start thread that computes the kinematics and sends angles to the servos
 	servoThread = new std::thread([=](){
 		cout << "starting execution of kinematics and servo control" << endl;
@@ -270,7 +288,7 @@ int main(int argc, char *argv[]) {
 	   	servoController.setup();
 	   	bodyKinematics.setup();
 		while (executeServoThread) {
-			if (servoTimer.isDue(10)) {
+			if (danceMoveUpdate) {
 				Point bodyBallJoint_world[6], headBallJoint_world[6];
 				double bodyServoAngles_rad[6], headServoAngles_rad[6];
 				Point bodyServoBallJoints_world[6], headServoBallJoints_world[6];
@@ -285,6 +303,7 @@ int main(int argc, char *argv[]) {
 					servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
 					servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
 				}
+				danceMoveUpdate = false;
 			}
 			delay_ms(1);
 		}
@@ -305,4 +324,14 @@ int main(int argc, char *argv[]) {
    		// be cpu friendly when no input is available
 		delay_ms(1);
    	}
+	}
+    catch(std::exception const& e)
+    {
+    	cerr << "exception " << e.what() << endl;
+    }
+    catch(...)
+    {
+    	cerr << "unknown exception" << endl;
+    }
+    return 0;
 }

@@ -249,8 +249,9 @@ void AudioProcessor::processInput() {
 			double processedTime = (double)wavInputPosition / (double)sampleRate;	// [s]
 			// wait such that elapsed time and processed time is synchronized
 			double timeAhead_ms = (processedTime - elapsedTime)*1000.0;
-			if (timeAhead_ms > 1.0)
+			if (timeAhead_ms > 1.0) {
 				delay_ms(timeAhead_ms);
+			}
 		}
 	}
 	// check if the source needs to be changed
