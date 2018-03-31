@@ -47,24 +47,26 @@ void MicrophoneInput::setup(int samplerate) {
 
 
 int MicrophoneInput::readMicrophoneInput(double buffer[], unsigned BufferSize) {
-    	const unsigned InputBufferSize = BufferSize*2;
-        uint8_t inputBuffer[InputBufferSize];
+    const unsigned InputBufferSize = BufferSize*2;
+    uint8_t inputBuffer[InputBufferSize];
 
-        // record data from microphone connection
-        int error;
-        if (pa_simple_read(pulseAudioConnection, inputBuffer, InputBufferSize, &error) < 0) {
-            cerr << "reading microphone input: pa_simple_read failed: %i\n" << error << endl;
-            exit(1);
-        }
+    // record data from microphone connection
+    int error = 0;
+    int result = pa_simple_read(pulseAudioConnection, inputBuffer, InputBufferSize, &error);
+    if (result< 0) {
+        cerr << "reading microphone input: pa_simple_read failed:" << pa_strerror(error) << endl;
+        exit(1);
+    }
 
-        int bits = 16;
-        int outBufferSize = 0;
-        // decode buffer in PA_SAMPLE_S16LE format
-        for (unsigned i = 0;i<InputBufferSize;i+=2) {
-        	int inputSample = (inputBuffer[i+1] << 8) + (inputBuffer[i]);
-        	if (inputSample > (1<<(bits-1)))
-        	 	inputSample -= (1<<bits);
-        	buffer[outBufferSize++] = ((float)inputSample) / (float)(1<<bits);
-        }
-        return outBufferSize;
+    int bits = 16;
+    int outBufferSize = 0;
+    // decode buffer in PA_SAMPLE_S16LE format
+    for (unsigned i = 0;i<InputBufferSize;i+=2) {
+    	// read 16bit signed little endian format
+     	int inputSample = (inputBuffer[i+1] << 8) + (inputBuffer[i]);
+       	if (inputSample > (1<<(bits-1)))
+       	 	inputSample -= (1<<bits);
+       	buffer[outBufferSize++] = ((float)inputSample) / (float)(1<<bits);
+    }
+    return outBufferSize;
 }

@@ -56,7 +56,7 @@ void Playback::play(double volume /* 0..1 */ ,double outputBuffer[], int outputB
     int bits = 16;
 	for (int i = 0;i<outputBufferSize;i++) {
 		double sample = outputBuffer[i];
-		int sampleValue = sample*volume*(float)(1<<bits);
+		int sampleValue = sample*volume*(float)(1<<(bits-1));
 		if (sampleValue < 0)
 			sampleValue = (1<<bits) + sampleValue;
 
@@ -75,3 +75,4 @@ void Playback::play(double volume /* 0..1 */ ,double outputBuffer[], int outputB
         exit(1);
     }
 }
+

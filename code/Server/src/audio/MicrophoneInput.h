@@ -14,7 +14,7 @@
 using namespace std;
 
 // with microphone we use a standard sample rate
-const int MicrophoneSampleRate = 22050;
+const int MicrophoneSampleRate = 44100;
 
 class MicrophoneInput {
 public:

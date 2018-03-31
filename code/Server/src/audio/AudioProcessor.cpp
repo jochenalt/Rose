@@ -157,35 +157,40 @@ int AudioProcessor::readWavInput(double buffer[], unsigned BufferSize) {
 }
 
 void AudioProcessor::processInput() {
+	// reset flag that would stop the loop (is set from the outside)
 	stopCurrProcessing = false;
 
 	// hop size is the number of samples that will be fed into beat detection
-	int hopSize = 128; // approx. 3ms at 44100Hz
+	const int hopSize = 256; // approx. 3ms at 44100Hz
+
+	// number of samples to be read
+	const int numInputSamples = hopSize;
 
 	// framesize is the number of samples that will be considered in this loop
 	// cpu load goes up linear with the framesize
-	int frameSize = hopSize*16;
+	int frameSize = hopSize*8;
+
+	// initialize beat detector
 	BTrack beatDetector(hopSize, frameSize);
 
+	// start time used for delays and output
 	uint32_t startTime_ms = millis();
+
+	// buffer for audio coming from wav or microphone
+	double inputBuffer[numInputSamples];
+	int inputBufferSamples  = 0;
 
 	int sampleRate = 0;
 	while (!stopCurrProcessing) {
-
-		int numInputSamples = hopSize;
-		double inputBuffer[numInputSamples];
-		int readSamples  = 0;
-
 		if (currentInputType == MICROPHONE_INPUT) {
-			readSamples = microphone.readMicrophoneInput(inputBuffer, numInputSamples);
+			inputBufferSamples = microphone.readMicrophoneInput(inputBuffer, numInputSamples);
 			sampleRate = MicrophoneSampleRate;
-			// cout << "M" << readSamples << endl;
 		}
 		if (currentInputType == WAV_INPUT) {
-			readSamples = readWavInput(inputBuffer, numInputSamples);
+			inputBufferSamples = readWavInput(inputBuffer, numInputSamples);
 
 			sampleRate = currentWavContent.getSampleRate();
-			if (readSamples < numInputSamples) {
+			if (inputBufferSamples < numInputSamples) {
 				cout << "end of song. Switching to microphone." << endl;
 				beatDetector.initialise(hopSize, frameSize);
 
@@ -194,14 +199,12 @@ void AudioProcessor::processInput() {
 				setAudioSource();
 			}
 		}
-		if (readSamples != numInputSamples)
-			cerr << "not enough samples " << readSamples << "vs " << numInputSamples << " type=" << currentInputType << endl;
 
 		// play the buffer of hopSize asynchronously
 		playback.play(volume, inputBuffer,numInputSamples);
 
 		// detect beat and bpm of that hop size
-		beatDetector.processAudioFrame(inputBuffer);
+		// beatDetector.processAudioFrame(inputBuffer);
 		bool beat = beatDetector.beatDueInCurrentFrame();
 		double bpm = beatDetector.getCurrentTempoEstimate();
 
