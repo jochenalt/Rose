@@ -29,7 +29,7 @@ void MicrophoneInput::setup(int samplerate) {
     ss = {
         .format = PA_SAMPLE_S16LE,
         .rate = MicrophoneSampleRate,
-        .channels = 2
+        .channels = 1
     };
 
     // "alsa_output.usb-C-Media_Electronics_Inc._USB_PnP_Sound_Device-00.analog-stereo.monitor";
@@ -46,9 +46,8 @@ void MicrophoneInput::setup(int samplerate) {
 }
 
 
-
 int MicrophoneInput::readMicrophoneInput(float buffer[], unsigned BufferSize) {
-    	const unsigned InputBufferSize = BufferSize*4;
+    	const unsigned InputBufferSize = BufferSize*2;
         uint8_t inputBuffer[InputBufferSize];
 
         // record data from microphone connection
@@ -61,17 +60,12 @@ int MicrophoneInput::readMicrophoneInput(float buffer[], unsigned BufferSize) {
         int bits = 16;
         int outBufferSize = 0;
         // decode buffer in PA_SAMPLE_S16LE format
-        for (unsigned i = 0;i<InputBufferSize;i+=4) {
-        	float inputSample1 = (inputBuffer[i+1] << 8) + (inputBuffer[i]);
-        	if (inputSample1 > (1<<(bits-1)))
-        		inputSample1 -= (1<<bits);
-        	inputSample1 /= (float)(1<<bits);
-        	float inputSample2 = (inputBuffer[i+3] << 8) + (inputBuffer[i+2]);
-        	if (inputSample2 > (1<<(bits-1)))
-        		inputSample2 -= (1<<bits);
-        	inputSample2 /= (float)(1<<bits);
-
-        	buffer[outBufferSize++] = (inputSample2 + inputSample1)/2.0;
+        for (unsigned i = 0;i<InputBufferSize;i+=2) {
+        	float inputSample = (inputBuffer[i+1] << 8) + (inputBuffer[i]);
+        	if (inputSample > (1<<(bits-1)))
+        	 	inputSample -= (1<<bits);
+        	inputSample /= (float)(1<<bits);
+        	buffer[outBufferSize++] = inputSample;
         }
         return outBufferSize;
 }

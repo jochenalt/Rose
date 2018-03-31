@@ -179,7 +179,7 @@ void AudioProcessor::processInput() {
 		if (currentInputType == MICROPHONE_INPUT) {
 			readSamples = microphone.readMicrophoneInput(inputBuffer, numInputSamples);
 			sampleRate = MicrophoneSampleRate;
-
+			cout << "M" << readSamples << endl;
 		}
 		if (currentInputType == WAV_INPUT) {
 			readSamples = readWavInput(inputBuffer, numInputSamples);
