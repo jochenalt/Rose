@@ -8,7 +8,11 @@
 #ifndef SRC_PLAYBACK_H_
 #define SRC_PLAYBACK_H_
 
-#include <ao/ao.h>
+#include <string.h>
+#include <pulse/simple.h>
+#include <pulse/error.h>
+
+using namespace std;
 
 class Playback {
 public:
@@ -24,8 +28,10 @@ public:
 	void setPlayback (bool ok) { playback = ok; };
 	bool getPlayback() { return playback; };
 private:
-	ao_device* outputDevice = NULL;
 	bool playback = true;
+	pa_simple* pulseAudioConnection = NULL;
+	pa_sample_spec ss;
+    string deviceName;
 };
 
 #endif /* SRC_PLAYBACK_H_ */

@@ -26,7 +26,8 @@ public:
 private:
 	pa_simple *pulseAudioConnection = NULL;
 	double microphoneLatency = 0;
-
+	pa_sample_spec ss;
+    string deviceName;
 };
 
 #endif /* SRC_AUDIO_MICROPHONEINPUT_H_ */

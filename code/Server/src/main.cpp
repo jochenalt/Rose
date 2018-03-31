@@ -23,9 +23,10 @@
 #include <servo/PCA9685.h>
 #include <servo/ServoController.h>
 #include <webserver/Webserver.h>
-#include <ao/ao.h>
 #include <audio/AudioFile.h>
 #include <audio/AudioProcessor.h>
+#include <audio/SoundCardUtils.h>
+
 #include <beat/BTrack.h>
 
 using namespace std;
@@ -63,7 +64,8 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
 void printUsage() {
 	cout << "BeatTracker -f <wav.file>        # define the track to be played" << endl
 	     << "            [-h]                 # print this" << endl
-	     << "            [-port <port>]       # set port of webserver if different from 8080" << endl
+		 << "            [-a]                 # print available sound cards" << endl
+		 << "            [-port <port>]       # set port of webserver if different from 8080" << endl
 	     << "            [-host <host>]       # define this process as client accessing this webserver" << endl
 		 << "            [-webroot <path>]    # set path of ./webroot" << endl
 		 << "            [-v <volume 0..100>] # set volume between 0 and 100" << endl
@@ -173,6 +175,10 @@ int main(int argc, char *argv[]) {
     // default latency of the moves
     int startAfterNBeats = 4;
 
+    // sound cards need to be initialized upfront, args might need that
+   	SoundCardUtils& audioUtils= SoundCardUtils::getInstance();
+   	audioUtils.setup();
+
     // if we run a webserver, this is the path where static content is stored
     string webrootPath = string(argv[0]);
 	int idx = webrootPath.find_last_of("/");
@@ -192,6 +198,8 @@ int main(int argc, char *argv[]) {
     		i++;
     	} else if (arg == "-h") {
     	    	printUsage();
+       	} else if (arg == "-a") {
+       			audioUtils.printSoundCards();
     	} else if (arg == "-t") {
 	    	ServoController::getInstance().calibrateViaKeyBoard();
 	    } else if (arg == "-s") {

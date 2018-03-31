@@ -9,49 +9,43 @@
 #include <assert.h>
 #include <iostream>
 #include <string.h>
-#include <ao/ao.h>
 #include <audio/Playback.h>
+#include <audio/SoundCardUtils.h>
 
 using namespace std;
 
 Playback::Playback() {
-	outputDevice = NULL;
+	pulseAudioConnection = NULL;
 }
 
 Playback::~Playback() {
-	ao_shutdown();
+	if (pulseAudioConnection != NULL) {
+		 pa_simple_free(pulseAudioConnection);
+		 pulseAudioConnection = NULL;
+	}
 }
 
 
 void Playback::setup(int sampleRate) {
-	if (outputDevice != NULL) {
-		ao_close(outputDevice);
-		outputDevice = NULL;
-	} else {
-	    ao_initialize();
-	}
-    // initialize output device
-   	ao_sample_format audioOutputFormat;
-   	memset(&audioOutputFormat, 0, sizeof(audioOutputFormat));
-   	audioOutputFormat.bits = 16;
-   	audioOutputFormat.channels = 1;
-   	audioOutputFormat.rate = sampleRate;
-   	audioOutputFormat.byte_format = AO_FMT_LITTLE; // small indian
-   	audioOutputFormat.matrix = (char*)"M";
-   	int defaultDriverHandle = 1; // USB sound card
-   	ao_option* p_ao_option = new ao_option();
-   	p_ao_option->key = (char*)"dev";
-   	p_ao_option->value = (char*)"plughw:CARD=Device";
 
-   	outputDevice = ao_open_live(defaultDriverHandle, &audioOutputFormat, p_ao_option );
-   	if (outputDevice == NULL) {
-   	   	outputDevice = ao_open_live(ao_default_driver_id(), &audioOutputFormat, NULL );
-   	   	if (outputDevice == NULL) {
-   	   		cerr << "Could not open sound device " << defaultDriverHandle << " with "<< sampleRate << "Hz, " << audioOutputFormat.channels << " channels "  << " err=" << errno << endl;
-   	   		exit(1);
-   	   	}
-   	}
-   	cout << "using device " << defaultDriverHandle << " with " << sampleRate << "Hz for audio output " << endl;
+    /* The Sample format to use */
+    ss = {
+        .format = PA_SAMPLE_S16LE,
+        .rate = (uint32_t)sampleRate,
+        .channels = 1
+    };
+
+    int error = 0;
+
+    static string deviceName;
+    deviceName = SoundCardUtils::getInstance().getDefaultOutputDevice().name;
+    pulseAudioConnection = pa_simple_new(NULL, "Donna", PA_STREAM_PLAYBACK, deviceName.c_str(), "playback", &ss, NULL, NULL, &error);
+    if (pulseAudioConnection == NULL) {
+        cerr << "ERR: pa_simple_new on " << deviceName << " failed: " <<  pa_strerror(error);
+        exit(1);
+    }
+
+   	cout << "using device " << deviceName << " for audio playback " << sampleRate << "Hz for audio output " << endl;
 }
 
 void Playback::play(double volume /* 0..1 */ ,float outputBuffer[], int outputBufferSize) {
@@ -61,16 +55,20 @@ void Playback::play(double volume /* 0..1 */ ,float outputBuffer[], int outputBu
 	char playBuffer[outputBufferSize*2];
 	int outputBufferCount = 0;
 	for (int i = 0;i<outputBufferSize;i++) {
-		int aoBufferValue = outputBuffer[i]*volume*(float)(1<<16);
+		int sampleValue = outputBuffer[i]*volume*(float)(1<<16);
 
 		// set frame value into output buffer to be played later on
 		// use unsigned 16bits, little endian (U16LE)
 		assert (outputBufferCount  < outputBufferSize*2);
-		playBuffer[outputBufferCount++] = (uint8_t)(aoBufferValue & 0xFF);
+		playBuffer[outputBufferCount++] = (uint8_t)(sampleValue & 0xFF);
 		assert (outputBufferCount < outputBufferSize*2);
-		playBuffer[outputBufferCount++] = (uint8_t)(aoBufferValue >> 8);
+		playBuffer[outputBufferCount++] = (uint8_t)(sampleValue >> 8);
 	}
 
-	// play the buffer of hopSize asynchronously
-	ao_play(outputDevice, playBuffer, outputBufferSize*2);
+	int error = 0;
+    int bytesWritten = pa_simple_write(pulseAudioConnection, playBuffer, (size_t) outputBufferCount, &error);
+    if (bytesWritten < 0) {
+        cerr << "ERR: pa_simple_write failed: " << pa_strerror(error);
+        exit(1);
+    }
 }

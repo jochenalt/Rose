@@ -8,36 +8,41 @@
 #include <iostream>
 #include <string.h>
 #include <audio/MicrophoneInput.h>
+#include <audio/SoundCardUtils.h>
+
 #include <pulse/simple.h>
 
 MicrophoneInput::MicrophoneInput() {
 }
 
 MicrophoneInput::~MicrophoneInput() {
-    if (pulseAudioConnection)
+    if (pulseAudioConnection) {
         pa_simple_free(pulseAudioConnection);
+        pulseAudioConnection = NULL;
+    }
 }
 
 
 void MicrophoneInput::setup(int samplerate) {
 
     // define microphone input connection format
-    static const pa_sample_spec ss = {
+    ss = {
         .format = PA_SAMPLE_S16LE,
         .rate = MicrophoneSampleRate,
         .channels = 2
     };
 
-     const char* device = "alsa_output.usb-C-Media_Electronics_Inc._USB_PnP_Sound_Device-00.analog-stereo.monitor";
+    // "alsa_output.usb-C-Media_Electronics_Inc._USB_PnP_Sound_Device-00.analog-stereo.monitor";
+    deviceName = SoundCardUtils::getInstance().getDefaultInputDevice().name;
     int error = 0;
     // Create the recording stream
-    if (!(pulseAudioConnection = pa_simple_new(NULL, "Donna", PA_STREAM_RECORD, device, "record", &ss, NULL, NULL, &error))) {
-        cout << "could not open microphone via pa_simple_new err=" << error;
+    if (!(pulseAudioConnection = pa_simple_new(NULL, "Donna", PA_STREAM_RECORD, deviceName.c_str(), "record", &ss, NULL, NULL, &error))) {
+        cout << "could not open microphone in " << deviceName << " via pa_simple_new err=" << error;
         exit(1);
     }
 
     microphoneLatency = pa_simple_get_latency(pulseAudioConnection, &error)/1000.0;
-    cout << microphoneLatency << endl;
+    cout << "using device " << deviceName << " for audio microphone input with " << MicrophoneSampleRate << "Hz and latency of " << microphoneLatency << "ms" << endl;
 }
 
 

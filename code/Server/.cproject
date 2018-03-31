@@ -53,11 +53,11 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1103633231" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.545269177" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
 								<option id="gnu.cpp.link.option.libs.575609597" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="pulse"/>
 									<listOptionValue builtIn="false" value="samplerate"/>
 									<listOptionValue builtIn="false" value="pulse-simple"/>
 									<listOptionValue builtIn="false" value="Common"/>
 									<listOptionValue builtIn="false" value="pthread"/>
-									<listOptionValue builtIn="false" value="ao"/>
 									<listOptionValue builtIn="false" value="m"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.459320778" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
