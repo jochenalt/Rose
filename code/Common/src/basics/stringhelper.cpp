@@ -97,6 +97,9 @@ double stringToFloat (const string& str, bool&ok) {
 	}
 }
 
+bool contains(const string& a, const string& b ) {
+	return (a.find(b) != std::string::npos);
+}
 
 bool jsonStringToBool (const string& str, bool&ok) {
 	if (str.compare("true") == 0)

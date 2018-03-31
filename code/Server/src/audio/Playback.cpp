@@ -37,7 +37,6 @@ void Playback::setup(int sampleRate) {
 
     int error = 0;
 
-    static string deviceName;
     deviceName = SoundCardUtils::getInstance().getDefaultOutputDevice().name;
     pulseAudioConnection = pa_simple_new(NULL, "Donna", PA_STREAM_PLAYBACK, deviceName.c_str(), "playback", &ss, NULL, NULL, &error);
     if (pulseAudioConnection == NULL) {

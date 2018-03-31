@@ -38,18 +38,18 @@ public:
 	SoundCard getInputDevice(int index);
 	SoundCard getOutputDevice(int index);
 
-	void setOutputDevice(const SoundCard& output) { outputDeviceIndex = output.index; };
-	void setInputDevice(const SoundCard& input) { outputDeviceIndex = input.index; };
+	void setOutputDevice(const SoundCard& output);
+	void setInputDevice(const SoundCard& input);
 
-	SoundCard getDefaultInputDevice() { return inputDevices[intputDeviceIndex]; };
-	SoundCard getDefaultOutputDevice() { return outputDevices[outputDeviceIndex]; };
+	SoundCard getDefaultInputDevice();
+	SoundCard getDefaultOutputDevice();
 
 private:
 	vector<SoundCard> outputDevices;
 	vector<SoundCard> inputDevices;
 
-	int outputDeviceIndex = 0;
-	int intputDeviceIndex = 0;
+	int outputDeviceIndex = -1;
+	int inputDeviceIndex = -1;
 
 };
 

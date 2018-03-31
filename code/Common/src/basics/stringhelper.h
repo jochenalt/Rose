@@ -21,6 +21,8 @@ bool fileExists(const std::string& filename);
 // read complete content of a file
 std::string readFileContent(const std::string& filename);
 
+// true, if b is somewhere in a
+bool contains(const std::string& a, const std::string& b );
 
 // converts a string to an integer, ok is set if successful
 int stringToInt (const std::string &str, bool& ok);

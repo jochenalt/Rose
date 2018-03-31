@@ -42,9 +42,8 @@ AudioProcessor::~AudioProcessor() {
 
 void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
     beatCallback = newBeatCallback;
-	microphone.setup(MicrophoneSampleRate);
 	inputAudioDetected = false;
-	// playback is setup when started
+	// playback and microphone are setup when started
 
 	// music detection requires 1s of music before flagging it as music
 	beatScoreFilter.init(100);

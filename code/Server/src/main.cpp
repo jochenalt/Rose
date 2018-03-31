@@ -280,8 +280,10 @@ int main(int argc, char *argv[]) {
 		std::istream_iterator<uint8_t> begin (file), end;
 		std::vector<uint8_t> wavContent (begin, end);
 		audioProcessor.setWavContent(wavContent);
-		audioProcessor.setAudioSource();
+	} else {
+		audioProcessor.setMicrophoneInput();
 	}
+	audioProcessor.setAudioSource();
 
 
 	// start thread that computes the kinematics and sends angles to the servos

@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <basics/stringhelper.h>
+
 #include <audio/SoundCardUtils.h>
 #include <pulse/pulseaudio.h>
 
@@ -228,6 +230,7 @@ void SoundCardUtils::setup() {
 		exit(1);
     }
 
+    outputDeviceIndex = -1;
     for (ctr = 0; ctr< 16; ctr++) {
 		if (! pa_output_devicelist[ctr].initialized) {
 			break;
@@ -236,8 +239,15 @@ void SoundCardUtils::setup() {
 							   .descr = pa_output_devicelist[ctr].description,
 							   .index = (int)pa_output_devicelist[ctr].index };
 		outputDevices.push_back(device);
+		if ((outputDeviceIndex < 0) && (contains(device.name, "output")))
+			outputDeviceIndex = device.index;
     }
 
+    if (outputDeviceIndex == -1) {
+    	cerr << "no output sound card found";
+    	exit(1);
+    }
+    inputDeviceIndex = -1;
     for (ctr = 0; ctr < 16; ctr++) {
 		if (! pa_input_devicelist[ctr].initialized) {
 			break;
@@ -246,7 +256,15 @@ void SoundCardUtils::setup() {
 							   .descr = pa_input_devicelist[ctr].description,
 							   .index = (int)pa_input_devicelist[ctr].index };
 		inputDevices.push_back(device);
+		if ((inputDeviceIndex < 0) && (contains(device.name, "input")))
+			inputDeviceIndex = device.index;
+
     }
+    if (inputDeviceIndex == -1) {
+    	cerr << "no input sound card found";
+    	exit(1);
+    }
+
 }
 
 void SoundCardUtils::printSoundCards() {
@@ -279,5 +297,19 @@ SoundCard SoundCardUtils::getOutputDevice(int idx) {
 	}
 	return SoundCard();
 }
+
+void SoundCardUtils::setOutputDevice(const SoundCard& output) {
+	outputDeviceIndex = output.index;
+};
+void SoundCardUtils::setInputDevice(const SoundCard& input) {
+	inputDeviceIndex = input.index;
+};
+
+SoundCard SoundCardUtils::getDefaultInputDevice() {
+	return inputDevices[inputDeviceIndex];
+};
+SoundCard SoundCardUtils::getDefaultOutputDevice() {
+	return outputDevices[outputDeviceIndex];
+};
 
 
