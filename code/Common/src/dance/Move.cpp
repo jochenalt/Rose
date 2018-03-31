@@ -15,7 +15,7 @@
 
 
 
-bool Move::firstAccelerationCall = false;
+bool Move::firstAccelerationCall = true;
 TimeSamplerStatic Move::moveTimer;
 
 std::vector<Move> Move::moveLibrary;

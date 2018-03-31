@@ -101,8 +101,6 @@ class Pose : public Serializable  {
 			return !((*this) == pos);
 		};
 
-
-
 		void operator+=(const Pose& pos) {
 			position += pos.position;
 			orientation += pos.orientation;

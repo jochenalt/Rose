@@ -87,6 +87,7 @@ void AudioProcessor::setAudioSource() {
 
 		beatScoreFilter.set(0);
 
+		// re-initialize dancing when new input source is detected
 		Dancer::getInstance().setup();
 
 		// read in the wav data and set index pointer to first position
