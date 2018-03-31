@@ -66,8 +66,8 @@ public:
 
 private:
 	enum InputType { WAV_INPUT, MICROPHONE_INPUT, NO_CHANGE };
-	int readMicrophoneInput(float buffer[], unsigned BufferSize);
-	int readWavInput(float buffer[], unsigned BufferSize);
+	int readMicrophoneInput(double buffer[], unsigned BufferSize);
+	int readWavInput(double buffer[], unsigned BufferSize);
 
 
 	volatile bool stopCurrProcessing = false;

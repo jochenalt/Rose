@@ -47,14 +47,18 @@ void Playback::setup(int sampleRate) {
    	cout << "using device " << deviceName << " for audio playback " << sampleRate << "Hz for audio output " << endl;
 }
 
-void Playback::play(double volume /* 0..1 */ ,float outputBuffer[], int outputBufferSize) {
+void Playback::play(double volume /* 0..1 */ ,double outputBuffer[], int outputBufferSize) {
 	if (!playback)
 		return;
 
 	char playBuffer[outputBufferSize*2];
 	int outputBufferCount = 0;
+    int bits = 16;
 	for (int i = 0;i<outputBufferSize;i++) {
-		int sampleValue = outputBuffer[i]*volume*(float)(1<<16);
+		double sample = outputBuffer[i];
+		int sampleValue = sample*volume*(float)(1<<bits);
+		if (sampleValue < 0)
+			sampleValue = (1<<bits) + sampleValue;
 
 		// set frame value into output buffer to be played later on
 		// use unsigned 16bits, little endian (U16LE)

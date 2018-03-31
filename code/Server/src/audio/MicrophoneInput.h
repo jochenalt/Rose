@@ -21,7 +21,7 @@ public:
 	MicrophoneInput();
 	virtual ~MicrophoneInput();
 	void setup(int sampleRate);
-	int readMicrophoneInput(float buffer[], unsigned BufferSize);
+	int readMicrophoneInput(double buffer[], unsigned BufferSize);
 	double getMicrophoneLatency() { return microphoneLatency; };
 private:
 	pa_simple *pulseAudioConnection = NULL;

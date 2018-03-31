@@ -42,11 +42,11 @@ void MicrophoneInput::setup(int samplerate) {
     }
 
     microphoneLatency = pa_simple_get_latency(pulseAudioConnection, &error)/1000.0;
-    cout << "using device " << deviceName << " for audio microphone input with " << MicrophoneSampleRate << "Hz and latency of " << microphoneLatency << "ms" << endl;
+    cout << "using device " << deviceName << " for audio microphone input with " << MicrophoneSampleRate << "Hz and latency of " << (int)microphoneLatency << "ms" << endl;
 }
 
 
-int MicrophoneInput::readMicrophoneInput(float buffer[], unsigned BufferSize) {
+int MicrophoneInput::readMicrophoneInput(double buffer[], unsigned BufferSize) {
     	const unsigned InputBufferSize = BufferSize*2;
         uint8_t inputBuffer[InputBufferSize];
 
@@ -61,11 +61,10 @@ int MicrophoneInput::readMicrophoneInput(float buffer[], unsigned BufferSize) {
         int outBufferSize = 0;
         // decode buffer in PA_SAMPLE_S16LE format
         for (unsigned i = 0;i<InputBufferSize;i+=2) {
-        	float inputSample = (inputBuffer[i+1] << 8) + (inputBuffer[i]);
+        	int inputSample = (inputBuffer[i+1] << 8) + (inputBuffer[i]);
         	if (inputSample > (1<<(bits-1)))
         	 	inputSample -= (1<<bits);
-        	inputSample /= (float)(1<<bits);
-        	buffer[outBufferSize++] = inputSample;
+        	buffer[outBufferSize++] = ((float)inputSample) / (float)(1<<bits);
         }
         return outBufferSize;
 }

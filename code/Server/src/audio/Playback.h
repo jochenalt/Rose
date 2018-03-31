@@ -23,7 +23,7 @@ public:
 	void setup(int sampleRate);
 
 	// play a sample with the sample rate as defined in setup. Samples should between 0..1
-	void play(double volume /* 0..1 */, float outputBuffer[], int outputBufferSize);
+	void play(double volume /* 0..1 */, double outputBuffer[], int outputBufferSize);
 
 	void setPlayback (bool ok) { playback = ok; };
 	bool getPlayback() { return playback; };
