@@ -23,7 +23,9 @@
 #include <basics/stringhelper.h>
 #include <basics/util.h>
 #include <audio/AudioProcessor.h>
+#include <audio/MicrophoneInput.h>
 #include <audio/Playback.h>
+
 #include <dance/RhythmDetector.h>
 #include <dance/Dancer.h>
 
@@ -261,7 +263,7 @@ void AudioProcessor::processInput() {
 
 float AudioProcessor::getLatency() {
 	if (currentInputType == MICROPHONE_INPUT)
-		return MicrophoneLatency;
+		return microphone.getMicrophoneLatency();
 	else
 		return 0.5;
 }

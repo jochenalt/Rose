@@ -14,8 +14,7 @@
 using namespace std;
 
 // with microphone we use a standard sample rate
-const int MicrophoneSampleRate = 44100;
-const float MicrophoneLatency = 0.7; // [s]
+const int MicrophoneSampleRate = 22050;
 
 class MicrophoneInput {
 public:
@@ -23,9 +22,10 @@ public:
 	virtual ~MicrophoneInput();
 	void setup(int sampleRate);
 	int readMicrophoneInput(float buffer[], unsigned BufferSize);
-
+	double getMicrophoneLatency() { return microphoneLatency; };
 private:
 	pa_simple *pulseAudioConnection = NULL;
+	double microphoneLatency = 0;
 
 };
 

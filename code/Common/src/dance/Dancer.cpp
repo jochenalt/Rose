@@ -39,7 +39,7 @@ void Dancer ::setup() {
 
 	currentMove = Move::NO_MOVE;
 	passedBeatsInCurrentMove = 0;
-	startAfterNBeats = 2;
+	startAfterNBeats = 4;
 }
 
 void Dancer ::createMove(double movePercentage) {

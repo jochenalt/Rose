@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string.h>
 #include <audio/MicrophoneInput.h>
+#include <pulse/simple.h>
 
 MicrophoneInput::MicrophoneInput() {
 }
@@ -27,12 +28,16 @@ void MicrophoneInput::setup(int samplerate) {
         .channels = 2
     };
 
+     const char* device = "alsa_output.usb-C-Media_Electronics_Inc._USB_PnP_Sound_Device-00.analog-stereo.monitor";
     int error = 0;
     // Create the recording stream
-    if (!(pulseAudioConnection = pa_simple_new(NULL, "Donna", PA_STREAM_RECORD, NULL, "record", &ss, NULL, NULL, &error))) {
+    if (!(pulseAudioConnection = pa_simple_new(NULL, "Donna", PA_STREAM_RECORD, device, "record", &ss, NULL, NULL, &error))) {
         cout << "could not open microphone via pa_simple_new err=" << error;
         exit(1);
     }
+
+    microphoneLatency = pa_simple_get_latency(pulseAudioConnection, &error)/1000.0;
+    cout << microphoneLatency << endl;
 }
 
 
