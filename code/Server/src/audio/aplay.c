@@ -422,7 +422,7 @@ enum {
 	OPT_DUMP_HWPARAMS
 };
 
-int main(int argc, char *argv[])
+int aplay(int argc, char *argv[])
 {
 	int option_index;
 	static const char short_options[] = "hnlLD:qt:c:f:r:d:MNF:A:R:T:B:vV:IPCi";

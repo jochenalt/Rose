@@ -29,6 +29,10 @@
 #include <endian.h>
 #include <byteswap.h>
 
+#include <iostream>
+#include <string.h>
+using namespace std;
+
 /* Definitions for Microsoft WAVE format */
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -193,7 +197,7 @@ static void signal_handler(int sig)
 			fmt_rec_table[file_type].end(fd);
 			fd = -1;
 		}
-		stream = -1;
+		stream = (snd_pcm_stream_t)-1;
 	}
 	if (fd > 1) {
 		close(fd);
@@ -217,7 +221,9 @@ enum {
 	OPT_TEST_POSITION
 };
 
-int main()
+int run(char *filename);
+
+int arecord()
 {
     run("b.wav");
     return 0;
@@ -257,7 +263,7 @@ int run(char *filename)
     // rhwparams.format = SND_PCM_FORMAT_S16_BE;
     rhwparams.format = file_type == FORMAT_AU ? SND_PCM_FORMAT_S16_BE : SND_PCM_FORMAT_S16_LE;
     rhwparams.rate = 44100;
-    rhwparams.channels = 2;
+    rhwparams.channels = 1;
 
 	err = snd_pcm_open(&handle, pcm_name, stream, open_mode);
 	if (err < 0) {
@@ -278,7 +284,7 @@ int run(char *filename)
 		}
 	}
 
-	chunk_size = 1024;
+	chunk_size = 512;
 	hwparams = rhwparams;
 
 	audiobuf = (u_char *)malloc(1024);
@@ -302,7 +308,7 @@ int run(char *filename)
         fmt_rec_table[file_type].end(fd);
         fd = -1;
     }
-	stream = -1;
+	stream = (snd_pcm_stream_t)-1;
 	if (fd > 1) {
 		close(fd);
 		fd = -1;
@@ -317,8 +323,120 @@ int run(char *filename)
 	//snd_config_update_free_global();
 	return EXIT_SUCCESS;
 }
+void set_params();
 
-static void set_params(void)
+int setupMicrophone() {
+	 capture_stop = 0;
+		char *pcm_name = "default";
+		int tmp, err;
+		snd_pcm_info_t *info;
+
+		snd_pcm_info_alloca(&info);
+
+		err = snd_output_stdio_attach(&log, stderr, 0);
+		assert(err >= 0);
+
+		file_type = FORMAT_DEFAULT;
+	    stream = SND_PCM_STREAM_CAPTURE;
+	    file_type = FORMAT_WAVE;
+	    command = "arecord";
+	    start_delay = 1;
+
+		chunk_size = -1;
+		rhwparams.format = DEFAULT_FORMAT;
+		rhwparams.rate = DEFAULT_SPEED;
+		rhwparams.channels = 1;
+
+	    file_type = FORMAT_WAVE;
+
+	    // cdr:
+	    // rhwparams.format = SND_PCM_FORMAT_S16_BE;
+	    rhwparams.format = SND_PCM_FORMAT_S16_LE;
+	    rhwparams.rate = 44100;
+	    rhwparams.channels = 1;
+
+		err = snd_pcm_open(&handle, pcm_name, stream, open_mode);
+		if (err < 0) {
+			error(_("audio open error: %s"), snd_strerror(err));
+			return 1;
+		}
+
+		if ((err = snd_pcm_info(handle, info)) < 0) {
+			error(_("info error: %s"), snd_strerror(err));
+			return 1;
+		}
+
+		if (nonblock) {
+			err = snd_pcm_nonblock(handle, 1);
+			if (err < 0) {
+				error(_("nonblock setting error: %s"), snd_strerror(err));
+				return 1;
+			}
+		}
+
+		chunk_size = 512;
+		hwparams = rhwparams;
+
+		audiobuf = (u_char *)malloc(1024);
+		if (audiobuf == NULL) {
+			error(_("not enough memory"));
+			return 1;
+		}
+
+	    writei_func = snd_pcm_writei;
+		readi_func = snd_pcm_readi;
+		writen_func = snd_pcm_writen;
+		readn_func = snd_pcm_readn;
+
+		/* setup sound hardware */
+		set_params();
+
+		//signal(SIGINT, signal_handler);
+		//signal(SIGTERM, signal_handler);
+		//signal(SIGABRT, signal_handler);
+}
+
+void closeMicrophone() {
+
+    if (fmt_rec_table[file_type].end) {
+        fmt_rec_table[file_type].end(fd);
+        fd = -1;
+    }
+	stream = (snd_pcm_stream_t)-1;
+	if (fd > 1) {
+		close(fd);
+		fd = -1;
+	}
+	if (handle) {
+		snd_pcm_close(handle);
+		handle = NULL;
+	}
+	//snd_pcm_close(handle);
+	//free(audiobuf);
+	//snd_output_close(log);
+	//snd_config_update_free_global();
+}
+
+ssize_t pcm_read(u_char *data, size_t rcount);
+
+bool readAlsaMicrophoneInput(double frameBuffer[], int frameBufferSize) {
+
+			/* capture */
+		int byteBufferSize = frameBufferSize*2;
+		uint8_t pcmBuffer[byteBufferSize*2];
+				if (pcm_read(pcmBuffer, byteBufferSize) != byteBufferSize)
+					return false;
+				int bits = bits_per_frame;
+				for (int i = 0;i<frameBufferSize;i++) {
+			     	int inputSample = (pcmBuffer[i*2+1] << 8) + (pcmBuffer[i*2]);
+			        if (inputSample > (1<<(bits-1)))
+			       	  	inputSample -= (1<<bits);
+			       	frameBuffer[i] = (float)inputSample/(float)(1<<15);
+				}
+				return true;
+}
+
+void set_params(void)
 {
 	snd_pcm_hw_params_t *params;
 	snd_pcm_sw_params_t *swparams;
@@ -411,7 +529,7 @@ static void set_params(void)
 		snd_pcm_hw_params_dump(params, log);
 		exit(EXIT_FAILURE);
 	}
-	snd_pcm_hw_params_get_period_size(params, &chunk_size, 0);
+	// snd_pcm_hw_params_get_period_size(params, &chunk_size, 0);
 	snd_pcm_hw_params_get_buffer_size(params, &buffer_size);
 	if (chunk_size == buffer_size) {
 		error(_("Can't use period equal to buffer size (%lu == %lu)"),
@@ -456,7 +574,7 @@ static void set_params(void)
 	bits_per_sample = snd_pcm_format_physical_width(hwparams.format);
 	bits_per_frame = bits_per_sample * hwparams.channels;
 	chunk_bytes = chunk_size * bits_per_frame / 8;
-	audiobuf = realloc(audiobuf, chunk_bytes);
+	audiobuf = (u_char*)realloc(audiobuf, chunk_bytes);
 	if (audiobuf == NULL) {
 		error(_("not enough memory"));
 		exit(EXIT_FAILURE);
@@ -770,7 +888,7 @@ static void compute_max_peak(u_char *data, size_t count)
  *  read function
  */
 
-static ssize_t pcm_read(u_char *data, size_t rcount)
+ssize_t pcm_read(u_char *data, size_t rcount)
 {
 	ssize_t r;
 	size_t result = 0;
@@ -1023,6 +1141,8 @@ static void capture(char *orig_name)
 			size_t f = c * 8 / bits_per_frame;
 			if (pcm_read(audiobuf, f) != f)
 				break;
+
+			cout << "c" << c << " " << chunk_bytes << " " << rest << " " << chunk_size << endl;
 			if (write(fd, audiobuf, c) != c) {
 				perror(name);
 				exit(EXIT_FAILURE);

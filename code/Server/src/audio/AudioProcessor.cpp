@@ -161,14 +161,14 @@ void AudioProcessor::processInput() {
 	stopCurrProcessing = false;
 
 	// hop size is the number of samples that will be fed into beat detection
-	const int hopSize = 256; // approx. 3ms at 44100Hz
+	const int hopSize = 512; // approx. 3ms at 44100Hz
 
 	// number of samples to be read
 	const int numInputSamples = hopSize;
 
 	// framesize is the number of samples that will be considered in this loop
 	// cpu load goes up linear with the framesize
-	int frameSize = hopSize*8;
+	int frameSize = hopSize*4;
 
 	// initialize beat detector
 	BTrack beatDetector(hopSize, frameSize);
@@ -204,7 +204,7 @@ void AudioProcessor::processInput() {
 		playback.play(volume, inputBuffer,numInputSamples);
 
 		// detect beat and bpm of that hop size
-		// beatDetector.processAudioFrame(inputBuffer);
+		beatDetector.processAudioFrame(inputBuffer);
 		bool beat = beatDetector.beatDueInCurrentFrame();
 		double bpm = beatDetector.getCurrentTempoEstimate();
 

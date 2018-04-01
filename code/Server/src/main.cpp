@@ -150,9 +150,11 @@ void sendBeatToRythmDetector(bool beat, double bpm) {
 
 typedef void (*MoveCallbackFct)(bool beat, double Bpm);
 
+extern int arecord();
 
 int main(int argc, char *argv[]) {
 	try {
+		// arecord();
 	// exit correctly when exception arises
 	/*
 	std::set_terminate([](){

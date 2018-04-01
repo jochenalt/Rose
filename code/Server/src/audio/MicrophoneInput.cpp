@@ -8,6 +8,9 @@
 #include <iostream>
 #include <string.h>
 #include <audio/MicrophoneInput.h>
+#include <audio/Playback.h>
+#include <basics/util.h>
+
 #include <audio/SoundCardUtils.h>
 
 #include <pulse/simple.h>
@@ -23,8 +26,12 @@ MicrophoneInput::~MicrophoneInput() {
 }
 
 
+extern int setupMicrophone();
+extern bool readAlsaMicrophoneInput(double buffer[], int bufferSize);
+
 void MicrophoneInput::setup(int samplerate) {
 
+	/*
     // define microphone input connection format
     ss = {
         .format = PA_SAMPLE_S16LE,
@@ -42,11 +49,16 @@ void MicrophoneInput::setup(int samplerate) {
     }
 
     microphoneLatency = pa_simple_get_latency(pulseAudioConnection, &error)/1000.0;
+    */
+	setupMicrophone();
     cout << "using device " << deviceName << " for audio microphone input with " << MicrophoneSampleRate << "Hz and latency of " << (int)microphoneLatency << "ms" << endl;
 }
 
 
 int MicrophoneInput::readMicrophoneInput(double buffer[], unsigned BufferSize) {
+	readAlsaMicrophoneInput(buffer, 512);
+	return 0;
+
     const unsigned InputBufferSize = BufferSize*2;
     uint8_t inputBuffer[InputBufferSize];
 
