@@ -10,32 +10,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <alsa/asoundlib.h>
 #include <assert.h>
-#include <sys/time.h>
-#include <sys/signal.h>
-#include <libintl.h>
-#include <endian.h>
-#include <iostream>
-#include <string.h>
 
-#include <audio/MicrophoneInput.h>
-#include <audio/Playback.h>
+#include <alsa/asoundlib.h>
+
 #include <basics/util.h>
+#include <audio/MicrophoneInput.h>
 
 
 #define _(msgid) gettext (msgid)
 static snd_pcm_sframes_t (*readi_func)(snd_pcm_t *handle, void *buffer, snd_pcm_uframes_t size);
 
-static snd_pcm_t *handle;
-static struct {
-	snd_pcm_format_t format;
-	unsigned int channels;
-	unsigned int rate;
-} hwparams, rhwparams;
-
-static snd_pcm_stream_t stream = SND_PCM_STREAM_PLAYBACK;
-static size_t bits_per_sample, bits_per_frame;
+static snd_pcm_t *handle = NULL;
+static snd_pcm_format_t format;
+static unsigned int channels;
+static unsigned int rate;
+size_t bits_per_sample = 0;
+size_t bits_per_frame = 0;
 
 #define error(...) do {\
 	fprintf(stderr, "%s: %d: ", __FUNCTION__, __LINE__); \
@@ -60,7 +51,7 @@ static void xrun(void)
 		snd_pcm_status_get_trigger_tstamp(status, &tstamp);
 		timersub(&now, &tstamp, &diff);
 		fprintf(stderr, _("%s!!! (at least %.3f ms long)\n"),
-			stream == SND_PCM_STREAM_PLAYBACK ? _("underrun") : _("overrun"),
+			"overrun",
 			diff.tv_sec * 1000 + diff.tv_usec / 1000.0);
 
 		if ((res = snd_pcm_prepare(handle))<0) {
@@ -69,14 +60,12 @@ static void xrun(void)
 		}
 		return;		/* ok, data should be accepted again */
 	} if (snd_pcm_status_get_state(status) == SND_PCM_STATE_DRAINING) {
-		if (stream == SND_PCM_STREAM_CAPTURE) {
 			fprintf(stderr, _("capture stream format change? attempting recover...\n"));
 			if ((res = snd_pcm_prepare(handle))<0) {
 				error(_("xrun(DRAINING): prepare error: %s"), snd_strerror(res));
 				exit(EXIT_FAILURE);
 			}
 			return;
-		}
 	}
 	error(_("read/write error, state = %s"), snd_pcm_state_name(snd_pcm_status_get_state(status)));
 	exit(EXIT_FAILURE);
@@ -101,14 +90,11 @@ static void suspend(void)
 }
 
 
-
-
 ssize_t pcm_read(u_char *data, size_t rcount)
 {
 	ssize_t r;
 	size_t result = 0;
 	size_t count = rcount;
-
 
 	while (count > 0) {
 		r = readi_func(handle, data, count);
@@ -143,17 +129,15 @@ MicrophoneInput::~MicrophoneInput() {
 }
 
 void MicrophoneInput::setup(int samplerate) {
-
-    stream = SND_PCM_STREAM_CAPTURE;
-    rhwparams.format = SND_PCM_FORMAT_S16_LE;
-    rhwparams.rate = samplerate;
-    rhwparams.channels = 1;
+    format = SND_PCM_FORMAT_S16_LE;
+    rate = samplerate;
+    channels = 1;
 
 	const char *pcm_name = "default";
 	snd_output_t *log;
 	int err = snd_output_stdio_attach(&log, stderr, 0);
 	assert(err >= 0);
-	err = snd_pcm_open(&handle, pcm_name, stream, 0);
+	err = snd_pcm_open(&handle, pcm_name, SND_PCM_STREAM_CAPTURE, 0);
 	assert(err >= 0);
 
 	const bool nonblock = true;
@@ -162,7 +146,6 @@ void MicrophoneInput::setup(int samplerate) {
 		assert(err >= 0);
 	}
 
-	hwparams = rhwparams;
 	readi_func = snd_pcm_readi;
 
 	snd_pcm_hw_params_t *params;
@@ -173,20 +156,22 @@ void MicrophoneInput::setup(int samplerate) {
 	assert(err >= 0);
 	err = snd_pcm_hw_params_set_access(handle, params,SND_PCM_ACCESS_RW_INTERLEAVED);
 	assert(err >= 0);
-	err = snd_pcm_hw_params_set_format(handle, params, hwparams.format);
+	err = snd_pcm_hw_params_set_format(handle, params, format);
 	assert(err >= 0);
-	err = snd_pcm_hw_params_set_channels(handle, params, hwparams.channels);
+	err = snd_pcm_hw_params_set_channels(handle, params, channels);
 	assert(err >= 0);
-	err = snd_pcm_hw_params_set_rate_near(handle, params, &hwparams.rate, 0);
+	err = snd_pcm_hw_params_set_rate_near(handle, params, &rate, 0);
 	assert(err >= 0);
 	err = snd_pcm_hw_params(handle, params);
 	assert(err >= 0);
 	snd_pcm_sw_params_current(handle, swparams);
 	assert(err >= 0);
-	bits_per_sample = snd_pcm_format_physical_width(hwparams.format);
-	bits_per_frame = bits_per_sample * hwparams.channels;
+	bits_per_sample = snd_pcm_format_physical_width(format);
+	bits_per_frame = bits_per_sample * channels;
 
-	cout << "using alsa default device for audio microphone input with " << MicrophoneSampleRate << "Hz and latency of " << (int)(getMicrophoneLatency()*1000.0) << "ms" << endl;
+	cout << "using alsa default device for audio microphone input with "
+		 << MicrophoneSampleRate << "Hz and latency of "
+		 << (int)(getMicrophoneLatency()*1000.0) << "ms" << endl;
 }
 
 int MicrophoneInput::readMicrophoneInput(double frameBuffer[], unsigned frameBufferSize) {
