@@ -5,7 +5,7 @@ RM=rm -f
 SRC=./src
 CSRC=../Common/src
 LIB=./lib
-LDLIBS=-lpthread -lm -lsamplerate -lpulse-simple -lpulse
+LDLIBS=-lpthread -lm -lsamplerate -lpulse-simple -lpulse -lasound
 OBJS=\
 $(LIB)/AudioFile.o $(LIB)/AudioProcessor.o $(LIB)/MicrophoneInput.o $(LIB)/Playback.o $(LIB)/SoundCardUtils.o \
 $(LIB)/BTrack.o $(LIB)/OnsetDetectionFunction.o $(LIB)/kiss_fft.o\

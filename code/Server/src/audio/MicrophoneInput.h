@@ -22,7 +22,7 @@ public:
 	virtual ~MicrophoneInput();
 	void setup(int sampleRate);
 	int readMicrophoneInput(double buffer[], unsigned BufferSize);
-	double getMicrophoneLatency() { return 0.6; };
+	double getMicrophoneLatency();
 private:
 };
 

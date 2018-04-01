@@ -203,3 +203,7 @@ int MicrophoneInput::readMicrophoneInput(double frameBuffer[], unsigned frameBuf
 	}
 	return true;
 }
+
+double MicrophoneInput::getMicrophoneLatency() {
+	return 0.25;
+};
