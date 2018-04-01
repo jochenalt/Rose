@@ -1,99 +1,25 @@
-/*
-   This file was taken from alsa-utils aplay.c and stripped down, see README
-   for more details. This file is GPL, see the license information in
-   alsa-utils for more info.
-*/
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <malloc.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
-#include <fcntl.h>
-#include <ctype.h>
 #include <errno.h>
 #include <limits.h>
-#include <time.h>
-#include <locale.h>
 #include <alsa/asoundlib.h>
 #include <assert.h>
-#include <sys/poll.h>
-#include <sys/uio.h>
 #include <sys/time.h>
 #include <sys/signal.h>
-#include <asm/byteorder.h>
-
 #include <libintl.h>
-
 #include <endian.h>
-#include <byteswap.h>
 
 #include <iostream>
 #include <string.h>
+
 using namespace std;
 
-/* Definitions for Microsoft WAVE format */
-
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-#define COMPOSE_ID(a,b,c,d)	((a) | ((b)<<8) | ((c)<<16) | ((d)<<24))
-#define LE_SHORT(v)		(v)
-#define LE_INT(v)		(v)
-#define BE_SHORT(v)		bswap_16(v)
-#define BE_INT(v)		bswap_32(v)
-#elif __BYTE_ORDER == __BIG_ENDIAN
-#define COMPOSE_ID(a,b,c,d)	((d) | ((c)<<8) | ((b)<<16) | ((a)<<24))
-#define LE_SHORT(v)		bswap_16(v)
-#define LE_INT(v)		bswap_32(v)
-#define BE_SHORT(v)		(v)
-#define BE_INT(v)		(v)
-#else
-#error "Wrong endian"
-#endif
-
-#define WAV_RIFF		COMPOSE_ID('R','I','F','F')
-#define WAV_WAVE		COMPOSE_ID('W','A','V','E')
-#define WAV_FMT			COMPOSE_ID('f','m','t',' ')
-#define WAV_DATA		COMPOSE_ID('d','a','t','a')
-
-/* WAVE fmt block constants from Microsoft mmreg.h header */
-#define WAV_FMT_PCM             0x0001
-#define WAV_FMT_IEEE_FLOAT      0x0003
-
-/* it's in chunks like .voc and AMIGA iff, but my source say there
-   are in only in this combination, so I combined them in one header;
-   it works on all WAVE-file I have
- */
-typedef struct {
-	u_int magic;		/* 'RIFF' */
-	u_int length;		/* filelen */
-	u_int type;		/* 'WAVE' */
-} WaveHeader;
-
-typedef struct {
-	u_short format;		/* see WAV_FMT_* */
-	u_short channels;
-	u_int sample_fq;	/* frequence of sample */
-	u_int byte_p_sec;
-	u_short byte_p_spl;	/* samplesize; 1 or 2 bytes */
-	u_short bit_p_spl;	/* 8, 12 or 16 bit */
-} WaveFmtBody;
-
-typedef struct {
-	u_int type;		/* 'data' */
-	u_int length;		/* samplecount */
-} WaveChunkHeader;
 
 #define _(msgid) gettext (msgid)
-#define gettext_noop(msgid) msgid
-#define N_(msgid) gettext_noop (msgid)
 
-#ifndef LLONG_MAX
-#define LLONG_MAX    9223372036854775807LL
-#endif
-
-#define DEFAULT_FORMAT		SND_PCM_FORMAT_U8
-#define DEFAULT_SPEED 		8000
 
 #define FORMAT_DEFAULT		-1
 #define FORMAT_RAW		0
@@ -151,23 +77,6 @@ static int vocmajor, vocminor;
 
 /* needed prototypes */
 
-static void capture(char *filename);
-
-static void begin_wave(int fd, size_t count);
-static void end_wave(int fd);
-
-struct fmt_capture {
-	void (*start) (int fd, size_t count);
-	void (*end) (int fd);
-	char *what;
-	long long max_filesize;
-} fmt_rec_table[] = {
-	{	NULL,		NULL,		N_("raw data"),		LLONG_MAX },
-	{	NULL,	NULL,	N_("VOC"),		16000000LL },
-	{	begin_wave,	end_wave,	N_("WAVE"),		2147483648LL },
-	{	NULL,	NULL,		N_("Sparc Audio"),	LLONG_MAX }
-};
-
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 95)
 #define error(...) do {\
 	fprintf(stderr, "%s: %s:%d: ", command, __FUNCTION__, __LINE__); \
@@ -182,23 +91,12 @@ struct fmt_capture {
 } while (0)
 #endif
 
-static void version(void)
-{
-}
-
 static void signal_handler(int sig)
 {
 	if (verbose==2)
 		putchar('\n');
 	if (!quiet_mode)
 		fprintf(stderr, _("Aborted by signal %s...\n"), strsignal(sig));
-	if (stream == SND_PCM_STREAM_CAPTURE) {
-		if (fmt_rec_table[file_type].end) {
-			fmt_rec_table[file_type].end(fd);
-			fd = -1;
-		}
-		stream = (snd_pcm_stream_t)-1;
-	}
 	if (fd > 1) {
 		close(fd);
 		fd = -1;
@@ -223,106 +121,6 @@ enum {
 
 int run(char *filename);
 
-int arecord()
-{
-    run("b.wav");
-    return 0;
-}
-
-void stop()
-{
-    capture_stop = 1;
-}
-
-int run(char *filename)
-{
-    capture_stop = 0;
-	char *pcm_name = "default";
-	int tmp, err;
-	snd_pcm_info_t *info;
-
-	snd_pcm_info_alloca(&info);
-
-	err = snd_output_stdio_attach(&log, stderr, 0);
-	assert(err >= 0);
-
-	file_type = FORMAT_DEFAULT;
-    stream = SND_PCM_STREAM_CAPTURE;
-    file_type = FORMAT_WAVE;
-    command = "arecord";
-    start_delay = 1;
-
-	chunk_size = -1;
-	rhwparams.format = DEFAULT_FORMAT;
-	rhwparams.rate = DEFAULT_SPEED;
-	rhwparams.channels = 1;
-
-    file_type = FORMAT_WAVE;
-
-    // cdr:
-    // rhwparams.format = SND_PCM_FORMAT_S16_BE;
-    rhwparams.format = file_type == FORMAT_AU ? SND_PCM_FORMAT_S16_BE : SND_PCM_FORMAT_S16_LE;
-    rhwparams.rate = 44100;
-    rhwparams.channels = 1;
-
-	err = snd_pcm_open(&handle, pcm_name, stream, open_mode);
-	if (err < 0) {
-		error(_("audio open error: %s"), snd_strerror(err));
-		return 1;
-	}
-
-	if ((err = snd_pcm_info(handle, info)) < 0) {
-		error(_("info error: %s"), snd_strerror(err));
-		return 1;
-	}
-
-	if (nonblock) {
-		err = snd_pcm_nonblock(handle, 1);
-		if (err < 0) {
-			error(_("nonblock setting error: %s"), snd_strerror(err));
-			return 1;
-		}
-	}
-
-	chunk_size = 512;
-	hwparams = rhwparams;
-
-	audiobuf = (u_char *)malloc(1024);
-	if (audiobuf == NULL) {
-		error(_("not enough memory"));
-		return 1;
-	}
-
-    writei_func = snd_pcm_writei;
-	readi_func = snd_pcm_readi;
-	writen_func = snd_pcm_writen;
-	readn_func = snd_pcm_readn;
-
-
-	//signal(SIGINT, signal_handler);
-	//signal(SIGTERM, signal_handler);
-	//signal(SIGABRT, signal_handler);
-    capture(filename);
-
-    if (fmt_rec_table[file_type].end) {
-        fmt_rec_table[file_type].end(fd);
-        fd = -1;
-    }
-	stream = (snd_pcm_stream_t)-1;
-	if (fd > 1) {
-		close(fd);
-		fd = -1;
-	}
-	if (handle) {
-		snd_pcm_close(handle);
-		handle = NULL;
-	}
-	//snd_pcm_close(handle);
-	//free(audiobuf);
-	//snd_output_close(log);
-	//snd_config_update_free_global();
-	return EXIT_SUCCESS;
-}
 void set_params();
 
 int setupMicrophone() {
@@ -343,10 +141,6 @@ int setupMicrophone() {
 	    start_delay = 1;
 
 		chunk_size = -1;
-		rhwparams.format = DEFAULT_FORMAT;
-		rhwparams.rate = DEFAULT_SPEED;
-		rhwparams.channels = 1;
-
 	    file_type = FORMAT_WAVE;
 
 	    // cdr:
@@ -391,30 +185,13 @@ int setupMicrophone() {
 		/* setup sound hardware */
 		set_params();
 
-		//signal(SIGINT, signal_handler);
-		//signal(SIGTERM, signal_handler);
-		//signal(SIGABRT, signal_handler);
 }
 
 void closeMicrophone() {
-
-    if (fmt_rec_table[file_type].end) {
-        fmt_rec_table[file_type].end(fd);
-        fd = -1;
-    }
-	stream = (snd_pcm_stream_t)-1;
-	if (fd > 1) {
-		close(fd);
-		fd = -1;
-	}
 	if (handle) {
 		snd_pcm_close(handle);
 		handle = NULL;
 	}
-	//snd_pcm_close(handle);
-	//free(audiobuf);
-	//snd_output_close(log);
-	//snd_config_update_free_global();
 }
 
 ssize_t pcm_read(u_char *data, size_t rcount);
@@ -581,12 +358,6 @@ void set_params(void)
 	}
 	// fprintf(stderr, "real chunk_size = %i, frags = %i, total = %i\n", chunk_size, setup.buf.block.frags, setup.buf.block.frags * chunk_size);
 
-	/* stereo VU-meter isn't always available... */
-	if (vumeter == VUMETER_STEREO) {
-		if (hwparams.channels != 2 || !interleaved || verbose > 2)
-			vumeter = VUMETER_MONO;
-	}
-
 	buffer_frames = buffer_size;	/* for position test */
 }
 
@@ -673,216 +444,6 @@ static void suspend(void)
 		fprintf(stderr, _("Done.\n"));
 }
 
-static void print_vu_meter_mono(int perc, int maxperc)
-{
-	const int bar_length = 50;
-	char line[80];
-	int val;
-
-	for (val = 0; val <= perc * bar_length / 100 && val < bar_length; val++)
-		line[val] = '#';
-	for (; val <= maxperc * bar_length / 100 && val < bar_length; val++)
-		line[val] = ' ';
-	line[val] = '+';
-	for (++val; val <= bar_length; val++)
-		line[val] = ' ';
-	if (maxperc > 99)
-		sprintf(line + val, "| MAX");
-	else
-		sprintf(line + val, "| %02i%%", maxperc);
-	fputs(line, stdout);
-	if (perc > 100)
-		printf(_(" !clip  "));
-}
-
-static void print_vu_meter_stereo(int *perc, int *maxperc)
-{
-	const int bar_length = 35;
-	char line[80];
-	int c;
-
-	memset(line, ' ', sizeof(line) - 1);
-	line[bar_length + 3] = '|';
-
-	for (c = 0; c < 2; c++) {
-		int p = perc[c] * bar_length / 100;
-		char tmp[4];
-		if (p > bar_length)
-			p = bar_length;
-		if (c)
-			memset(line + bar_length + 6 + 1, '#', p);
-		else
-			memset(line + bar_length - p - 1, '#', p);
-		p = maxperc[c] * bar_length / 100;
-		if (p > bar_length)
-			p = bar_length;
-		if (c)
-			line[bar_length + 6 + 1 + p] = '+';
-		else
-			line[bar_length - p - 1] = '+';
-		if (maxperc[c] > 99)
-			sprintf(tmp, "MAX");
-		else
-			sprintf(tmp, "%02d%%", maxperc[c]);
-		if (c)
-			memcpy(line + bar_length + 3 + 1, tmp, 3);
-		else
-			memcpy(line + bar_length, tmp, 3);
-	}
-	line[bar_length * 2 + 6 + 2] = 0;
-	fputs(line, stdout);
-}
-
-static void print_vu_meter(signed int *perc, signed int *maxperc)
-{
-	if (vumeter == VUMETER_STEREO)
-		print_vu_meter_stereo(perc, maxperc);
-	else
-		print_vu_meter_mono(*perc, *maxperc);
-}
-
-/* peak handler */
-static void compute_max_peak(u_char *data, size_t count)
-{
-	signed int val, max, perc[2], max_peak[2];
-	static	int	run = 0;
-	size_t ocount = count;
-	int	format_little_endian = snd_pcm_format_little_endian(hwparams.format);	
-	int ichans, c;
-
-	if (vumeter == VUMETER_STEREO)
-		ichans = 2;
-	else
-		ichans = 1;
-
-	memset(max_peak, 0, sizeof(max_peak));
-	switch (bits_per_sample) {
-	case 8: {
-		signed char *valp = (signed char *)data;
-		signed char mask = snd_pcm_format_silence(hwparams.format);
-		c = 0;
-		while (count-- > 0) {
-			val = *valp++ ^ mask;
-			val = abs(val);
-			if (max_peak[c] < val)
-				max_peak[c] = val;
-			if (vumeter == VUMETER_STEREO)
-				c = !c;
-		}
-		break;
-	}
-	case 16: {
-		signed short *valp = (signed short *)data;
-		signed short mask = snd_pcm_format_silence_16(hwparams.format);
-		signed short sval;
-
-		count /= 2;
-		c = 0;
-		while (count-- > 0) {
-			if (format_little_endian)
-				sval = __le16_to_cpu(*valp);
-			else
-				sval = __be16_to_cpu(*valp);
-			sval = abs(sval) ^ mask;
-			if (max_peak[c] < sval)
-				max_peak[c] = sval;
-			valp++;
-			if (vumeter == VUMETER_STEREO)
-				c = !c;
-		}
-		break;
-	}
-	case 24: {
-		unsigned char *valp = data;
-		signed int mask = snd_pcm_format_silence_32(hwparams.format);
-
-		count /= 3;
-		c = 0;
-		while (count-- > 0) {
-			if (format_little_endian) {
-				val = valp[0] | (valp[1]<<8) | (valp[2]<<16);
-			} else {
-				val = (valp[0]<<16) | (valp[1]<<8) | valp[2];
-			}
-			/* Correct signed bit in 32-bit value */
-			if (val & (1<<(bits_per_sample-1))) {
-				val |= 0xff<<24;	/* Negate upper bits too */
-			}
-			val = abs(val) ^ mask;
-			if (max_peak[c] < val)
-				max_peak[c] = val;
-			valp += 3;
-			if (vumeter == VUMETER_STEREO)
-				c = !c;
-		}
-		break;
-	}
-	case 32: {
-		signed int *valp = (signed int *)data;
-		signed int mask = snd_pcm_format_silence_32(hwparams.format);
-
-		count /= 4;
-		c = 0;
-		while (count-- > 0) {
-			if (format_little_endian)
-				val = __le32_to_cpu(*valp);
-			else
-				val = __be32_to_cpu(*valp);
-			val = abs(val) ^ mask;
-			if (max_peak[c] < val)
-				max_peak[c] = val;
-			valp++;
-			if (vumeter == VUMETER_STEREO)
-				c = !c;
-		}
-		break;
-	}
-	default:
-		if (run == 0) {
-			fprintf(stderr, _("Unsupported bit size %d.\n"), (int)bits_per_sample);
-			run = 1;
-		}
-		return;
-	}
-	max = 1 << (bits_per_sample-1);
-	if (max <= 0)
-		max = 0x7fffffff;
-
-	for (c = 0; c < ichans; c++) {
-		if (bits_per_sample > 16)
-			perc[c] = max_peak[c] / (max / 100);
-		else
-			perc[c] = max_peak[c] * 100 / max;
-	}
-
-	if (interleaved && verbose <= 2) {
-		static int maxperc[2];
-		static time_t t=0;
-		const time_t tt=time(NULL);
-		if(tt>t) {
-			t=tt;
-			maxperc[0] = 0;
-			maxperc[1] = 0;
-		}
-		for (c = 0; c < ichans; c++)
-			if (perc[c] > maxperc[c])
-				maxperc[c] = perc[c];
-
-		putchar('\r');
-		print_vu_meter(perc, maxperc);
-		fflush(stdout);
-	}
-	else if(verbose==3) {
-		printf(_("Max peak (%li samples): 0x%08x "), (long)ocount, max_peak[0]);
-		for (val = 0; val < 20; val++)
-			if (val <= perc[0] / 5)
-				putchar('#');
-			else
-				putchar(' ');
-		printf(" %i%%\n", perc[0]);
-		fflush(stdout);
-	}
-}
 
 /*
  *  read function
@@ -911,8 +472,6 @@ ssize_t pcm_read(u_char *data, size_t rcount)
 			exit(EXIT_FAILURE);
 		}
 		if (r > 0) {
-			if (vumeter)
-				compute_max_peak(data, r * hwparams.channels);
 			result += r;
 			count -= r;
 			data += r * bits_per_frame / 8;
@@ -921,247 +480,4 @@ ssize_t pcm_read(u_char *data, size_t rcount)
 	return rcount;
 }
 
-/* setting the globals for playing raw data */
-static void init_raw_data(void)
-{
-	hwparams = rhwparams;
-}
 
-/* calculate the data count to read from/to dsp */
-static off64_t calc_count(void)
-{
-	off64_t count;
-
-	if (timelimit == 0) {
-		count = pbrec_count;
-	} else {
-		count = snd_pcm_format_size(hwparams.format, hwparams.rate * hwparams.channels);
-		count *= (off64_t)timelimit;
-	}
-	return count < pbrec_count ? count : pbrec_count;
-}
-
-/* write a WAVE-header */
-static void begin_wave(int fd, size_t cnt)
-{
-	WaveHeader h;
-	WaveFmtBody f;
-	WaveChunkHeader cf, cd;
-	int bits;
-	u_int tmp;
-	u_short tmp2;
-
-	/* WAVE cannot handle greater than 32bit (signed?) int */
-	if (cnt == (size_t)-2)
-		cnt = 0x7fffff00;
-
-	bits = 8;
-	switch ((unsigned long) hwparams.format) {
-	case SND_PCM_FORMAT_U8:
-		bits = 8;
-		break;
-	case SND_PCM_FORMAT_S16_LE:
-		bits = 16;
-		break;
-	case SND_PCM_FORMAT_S32_LE:
-        case SND_PCM_FORMAT_FLOAT_LE:
-		bits = 32;
-		break;
-	case SND_PCM_FORMAT_S24_LE:
-	case SND_PCM_FORMAT_S24_3LE:
-		bits = 24;
-		break;
-	default:
-		error(_("Wave doesn't support %s format..."), snd_pcm_format_name(hwparams.format));
-		exit(EXIT_FAILURE);
-	}
-	h.magic = WAV_RIFF;
-	tmp = cnt + sizeof(WaveHeader) + sizeof(WaveChunkHeader) + sizeof(WaveFmtBody) + sizeof(WaveChunkHeader) - 8;
-	h.length = LE_INT(tmp);
-	h.type = WAV_WAVE;
-
-	cf.type = WAV_FMT;
-	cf.length = LE_INT(16);
-
-        if (hwparams.format == SND_PCM_FORMAT_FLOAT_LE)
-                f.format = LE_SHORT(WAV_FMT_IEEE_FLOAT);
-        else
-                f.format = LE_SHORT(WAV_FMT_PCM);
-	f.channels = LE_SHORT(hwparams.channels);
-	f.sample_fq = LE_INT(hwparams.rate);
-#if 0
-	tmp2 = (samplesize == 8) ? 1 : 2;
-	f.byte_p_spl = LE_SHORT(tmp2);
-	tmp = dsp_speed * hwparams.channels * (u_int) tmp2;
-#else
-	tmp2 = hwparams.channels * snd_pcm_format_physical_width(hwparams.format) / 8;
-	f.byte_p_spl = LE_SHORT(tmp2);
-	tmp = (u_int) tmp2 * hwparams.rate;
-#endif
-	f.byte_p_sec = LE_INT(tmp);
-	f.bit_p_spl = LE_SHORT(bits);
-
-	cd.type = WAV_DATA;
-	cd.length = LE_INT(cnt);
-
-	if (write(fd, &h, sizeof(WaveHeader)) != sizeof(WaveHeader) ||
-	    write(fd, &cf, sizeof(WaveChunkHeader)) != sizeof(WaveChunkHeader) ||
-	    write(fd, &f, sizeof(WaveFmtBody)) != sizeof(WaveFmtBody) ||
-	    write(fd, &cd, sizeof(WaveChunkHeader)) != sizeof(WaveChunkHeader)) {
-		error(_("write error"));
-		exit(EXIT_FAILURE);
-	}
-}
-
-static void end_wave(int fd)
-{				/* only close output */
-	WaveChunkHeader cd;
-	off64_t length_seek;
-	off64_t filelen;
-	u_int rifflen;
-
-	length_seek = sizeof(WaveHeader) +
-		      sizeof(WaveChunkHeader) +
-		      sizeof(WaveFmtBody);
-	cd.type = WAV_DATA;
-	cd.length = fdcount > 0x7fffffff ? LE_INT(0x7fffffff) : LE_INT(fdcount);
-	filelen = fdcount + 2*sizeof(WaveChunkHeader) + sizeof(WaveFmtBody) + 4;
-	rifflen = filelen > 0x7fffffff ? LE_INT(0x7fffffff) : LE_INT(filelen);
-	if (lseek64(fd, 4, SEEK_SET) == 4)
-		write(fd, &rifflen, 4);
-	if (lseek64(fd, length_seek, SEEK_SET) == length_seek)
-		write(fd, &cd, sizeof(WaveChunkHeader));
-	if (fd != 1)
-		close(fd);
-}
-
-static int new_capture_file(char *name, char *namebuf, size_t namelen,
-			    int filecount)
-{
-	/* get a copy of the original filename */
-	char *s;
-	char buf[PATH_MAX+1];
-
-	strncpy(buf, name, sizeof(buf));
-
-	/* separate extension from filename */
-	s = buf + strlen(buf);
-	while (s > buf && *s != '.' && *s != '/')
-		--s;
-	if (*s == '.')
-		*s++ = 0;
-	else if (*s == '/')
-		s = buf + strlen(buf);
-
-	/* upon first jump to this if block rename the first file */
-	if (filecount == 1) {
-		if (*s)
-			snprintf(namebuf, namelen, "%s-01.%s", buf, s);
-		else
-			snprintf(namebuf, namelen, "%s-01", buf);
-		remove(namebuf);
-		rename(name, namebuf);
-		filecount = 2;
-	}
-
-	/* name of the current file */
-	if (*s)
-		snprintf(namebuf, namelen, "%s-%02i.%s", buf, filecount, s);
-	else
-		snprintf(namebuf, namelen, "%s-%02i", buf, filecount);
-
-	return filecount;
-}
-
-static void capture(char *orig_name)
-{
-	int tostdout=0;		/* boolean which describes output stream */
-	int filecount=0;	/* number of files written */
-	char *name = orig_name;	/* current filename */
-	char namebuf[PATH_MAX+1];
-	off64_t count, rest;		/* number of bytes to capture */
-
-	/* get number of bytes to capture */
-	count = calc_count();
-	if (count == 0)
-		count = LLONG_MAX;
-	/* WAVE-file should be even (I'm not sure), but wasting one byte
-	   isn't a problem (this can only be in 8 bit mono) */
-	if (count < LLONG_MAX)
-		count += count % 2;
-	else
-		count -= count % 2;
-
-    printf("arecord: Recording audio to: %s\n", name);
-	/* setup sound hardware */
-	set_params();
-
-	/* write to stdout? */
-	if (!name || !strcmp(name, "-")) {
-		fd = fileno(stdout);
-		name = "stdout";
-		tostdout=1;
-		if (count > fmt_rec_table[file_type].max_filesize)
-			count = fmt_rec_table[file_type].max_filesize;
-	}
-
-	do {
-		/* open a file to write */
-		if(!tostdout) {
-			/* upon the second file we start the numbering scheme */
-			if (filecount) {
-				filecount = new_capture_file(orig_name, namebuf,
-							     sizeof(namebuf),
-							     filecount);
-				name = namebuf;
-			}
-
-			/* open a new file */
-			remove(name);
-			if ((fd = open64(name, O_WRONLY | O_CREAT, 0644)) == -1) {
-				perror(name);
-				exit(EXIT_FAILURE);
-			}
-			filecount++;
-		}
-
-		rest = count;
-		if (rest > fmt_rec_table[file_type].max_filesize)
-			rest = fmt_rec_table[file_type].max_filesize;
-
-		/* setup sample header */
-		if (fmt_rec_table[file_type].start)
-			fmt_rec_table[file_type].start(fd, rest);
-
-		/* capture */
-		fdcount = 0;
-		while (rest > 0 && capture_stop == 0) {
-			size_t c = (rest <= (off64_t)chunk_bytes) ?
-				(size_t)rest : chunk_bytes;
-			size_t f = c * 8 / bits_per_frame;
-			if (pcm_read(audiobuf, f) != f)
-				break;
-
-			cout << "c" << c << " " << chunk_bytes << " " << rest << " " << chunk_size << endl;
-			if (write(fd, audiobuf, c) != c) {
-				perror(name);
-				exit(EXIT_FAILURE);
-			}
-			count -= c;
-			rest -= c;
-			fdcount += c;
-		}
-
-		/* finish sample container */
-		if (fmt_rec_table[file_type].end && !tostdout) {
-			fmt_rec_table[file_type].end(fd);
-			fd = -1;
-		}
-
-		/* repeat the loop when format is raw without timelimit or
-		 * requested counts of data are recorded
-		 */
-	} while ( ((file_type == FORMAT_RAW && !timelimit) || count > 0) &&
-        capture_stop == 0);
-    printf("arecord: Stopping capturing audio.\n");
-}
