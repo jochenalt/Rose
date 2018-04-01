@@ -21,24 +21,9 @@ using namespace std;
 #define _(msgid) gettext (msgid)
 
 
-#define FORMAT_DEFAULT		-1
-#define FORMAT_RAW		0
-#define FORMAT_VOC		1
-#define FORMAT_WAVE		2
-#define FORMAT_AU		3
-
 /* global data */
 
 static snd_pcm_sframes_t (*readi_func)(snd_pcm_t *handle, void *buffer, snd_pcm_uframes_t size);
-static snd_pcm_sframes_t (*writei_func)(snd_pcm_t *handle, const void *buffer, snd_pcm_uframes_t size);
-static snd_pcm_sframes_t (*readn_func)(snd_pcm_t *handle, void **bufs, snd_pcm_uframes_t size);
-static snd_pcm_sframes_t (*writen_func)(snd_pcm_t *handle, void **bufs, snd_pcm_uframes_t size);
-
-enum {
-	VUMETER_NONE,
-	VUMETER_MONO,
-	VUMETER_STEREO
-};
 
 static char *command;
 static snd_pcm_t *handle;
@@ -47,9 +32,7 @@ static struct {
 	unsigned int channels;
 	unsigned int rate;
 } hwparams, rhwparams;
-static int timelimit = 0;
 static int quiet_mode = 0;
-static int file_type = FORMAT_DEFAULT;
 static int open_mode = 0;
 static int capture_stop = 0;
 static snd_pcm_stream_t stream = SND_PCM_STREAM_PLAYBACK;
@@ -65,86 +48,35 @@ static int avail_min = -1;
 static int start_delay = 0;
 static int stop_delay = 0;
 static int verbose = 0;
-static int vumeter = VUMETER_NONE;
-static int buffer_pos = 0;
 static size_t bits_per_sample, bits_per_frame;
 static size_t chunk_bytes;
 static snd_output_t *log;
 
-static int fd = -1;
-static off64_t pbrec_count = LLONG_MAX, fdcount;
-static int vocmajor, vocminor;
 
-/* needed prototypes */
 
-#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 95)
 #define error(...) do {\
 	fprintf(stderr, "%s: %s:%d: ", command, __FUNCTION__, __LINE__); \
 	fprintf(stderr, __VA_ARGS__); \
 	putc('\n', stderr); \
 } while (0)
-#else
-#define error(args...) do {\
-	fprintf(stderr, "%s: %s:%d: ", command, __FUNCTION__, __LINE__); \
-	fprintf(stderr, ##args); \
-	putc('\n', stderr); \
-} while (0)
-#endif
 
-static void signal_handler(int sig)
-{
-	if (verbose==2)
-		putchar('\n');
-	if (!quiet_mode)
-		fprintf(stderr, _("Aborted by signal %s...\n"), strsignal(sig));
-	if (fd > 1) {
-		close(fd);
-		fd = -1;
-	}
-	if (handle && sig != SIGABRT) {
-		snd_pcm_close(handle);
-		handle = NULL;
-	}
-	exit(EXIT_FAILURE);
-}
-
-enum {
-	OPT_VERSION = 1,
-	OPT_PERIOD_SIZE,
-	OPT_BUFFER_SIZE,
-	OPT_DISABLE_RESAMPLE,
-	OPT_DISABLE_CHANNELS,
-	OPT_DISABLE_FORMAT,
-	OPT_DISABLE_SOFTVOL,
-	OPT_TEST_POSITION
-};
-
-int run(char *filename);
 
 void set_params();
 
 int setupMicrophone() {
 	 capture_stop = 0;
-		char *pcm_name = "default";
-		int tmp, err;
+		const char *pcm_name = "default";
 		snd_pcm_info_t *info;
 
 		snd_pcm_info_alloca(&info);
 
-		err = snd_output_stdio_attach(&log, stderr, 0);
+		int err = snd_output_stdio_attach(&log, stderr, 0);
 		assert(err >= 0);
 
-		file_type = FORMAT_DEFAULT;
 	    stream = SND_PCM_STREAM_CAPTURE;
-	    file_type = FORMAT_WAVE;
-	    command = "arecord";
 	    start_delay = 1;
-
 		chunk_size = -1;
-	    file_type = FORMAT_WAVE;
 
-	    // cdr:
-	    // rhwparams.format = SND_PCM_FORMAT_S16_BE;
 	    rhwparams.format = SND_PCM_FORMAT_S16_LE;
 	    rhwparams.rate = 44100;
 	    rhwparams.channels = 1;
@@ -177,11 +109,7 @@ int setupMicrophone() {
 			return 1;
 		}
 
-	    writei_func = snd_pcm_writei;
 		readi_func = snd_pcm_readi;
-		writen_func = snd_pcm_writen;
-		readn_func = snd_pcm_readn;
-
 		/* setup sound hardware */
 		set_params();
 
