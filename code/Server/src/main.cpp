@@ -35,10 +35,6 @@ bool mplayback = true;
 bool executeServoThread = true;
 std::thread* servoThread = NULL;
 
-// mutex to indicate that a new dance zupdate has been generated.
-// will be picked up by servo controller thread
-volatile bool danceMoveUpdate = false;
-
 
 string getCmdOption(char ** begin, int argc, int i ) {
 	assert ((i>=0) && (i<argc));
@@ -124,24 +120,47 @@ void compensateLatency(bool& beat, double& bpm) {
 	}
 }
 
+
+// there are two main threads, the audio thread that works with a frequency optimised for
+// best results in detecting beats (ca. 170Hz), and the servo thread that tries to get most of the
+// digital servos (60 Hz).
+// The synchronisation between these two threads happens with the following flag,
+// that indicates that the servo loop has fetched servoHeadPoseBuffer
+// Then, the audio loop is generating new data and sets the flag to true;
+volatile bool waitingForServoUpdate = false;
+
+// buffer to pass body and head from audio thread to the servo thread
+static Pose servoHeadPoseBuffer;
+static Pose servoBodyPoseBuffer;
+
 void sendBeatToRythmDetector(bool beat, double bpm) {
-	RhythmDetector & rd = RhythmDetector::getInstance();
+	RhythmDetector & rhythmDetector = RhythmDetector::getInstance();
 	Dancer& dancer = Dancer::getInstance();
 
 	// detect the beat
-	rd.loop(beat, bpm);
+	rhythmDetector.loop(beat, bpm);
 
 	// compensate the microphones latency and delay the beat accordingly to hit the beat next time
 	compensateLatency(beat, bpm);
 
-	// if no music is detected, do not dance
-	dancer.setMusicDetected(AudioProcessor::getInstance().isAudioDetected());
 
 	// create the move according to the beat
-	dancer.danceLoop(beat, bpm);
+	// but this is done in a loop with a frequency the servos can take
+	// it is determined by the frquency, the servo loop is setting danceMoveUpdate to false
+	if (waitingForServoUpdate == false) {
 
-	// new data is there
-	danceMoveUpdate = true;
+		// The danceloop is computed
+		dancer.danceLoop(beat, bpm);
+
+		// if no music is detected, do not dance
+		dancer.setMusicDetected(AudioProcessor::getInstance().isAudioDetected());
+
+
+		servoHeadPoseBuffer = dancer.getHeadPose();
+		servoBodyPoseBuffer = dancer.getBodyPose();
+		waitingForServoUpdate = true;
+	}
+
 }
 
 typedef void (*MoveCallbackFct)(bool beat, double Bpm);
@@ -279,37 +298,40 @@ int main(int argc, char *argv[]) {
 		cout << "starting execution of kinematics and servo control" << endl;
 
 		TimeSamplerStatic servoTimer;
-	   	Dancer& dancer = Dancer::getInstance();
 	   	ServoController& servoController = ServoController::getInstance();
 	   	BodyKinematics& bodyKinematics = BodyKinematics::getInstance();
 
 	   	servoController.setup();
 	   	bodyKinematics.setup();
 	   	TimeSamplerStatic timer;
-		while (executeServoThread) {
-			if (danceMoveUpdate) {
-				if (timer.isDue(20)) {
-					Point bodyBallJoint_world[6], headBallJoint_world[6];
-					double bodyServoAngles_rad[6], headServoAngles_rad[6];
-					Point bodyServoBallJoints_world[6], headServoBallJoints_world[6];
-					Point bodyServoArmCentre_world[6], headServoArmCentre_world[6];
+		Point bodyBallJoint_world[6], headBallJoint_world[6];
+		double bodyServoAngles_rad[6], headServoAngles_rad[6];
+		Point bodyServoBallJoints_world[6], headServoBallJoints_world[6];
+		Point bodyServoArmCentre_world[6], headServoArmCentre_world[6];
 
-					Pose headPose, bodyPose;
-					dancer.getThreadSafePose(bodyPose, headPose);
+	   	while (executeServoThread) {
+			if (waitingForServoUpdate) {
+				if (timer.isDue(11)) {
 					bodyKinematics.
-							computeServoAngles(bodyPose, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
-											headPose, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
+						computeServoAngles(	servoBodyPoseBuffer, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
+											servoHeadPoseBuffer, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
+
+					// current pose is used up, indicate that we need a new one
+					waitingForServoUpdate = false;
+
+					// sending all data to the PCA9685 takes 2x4ms,
+					// so maximum loop is
 					for (int i = 0;i<6;i++) {
 						servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
 					}
 					for (int i = 0;i<6;i++) {
 						servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
 					}
-
-					danceMoveUpdate = false;
+				} else {
+					delay_ms(1);
 				}
-			}
-			usleep (500);
+			} else
+				delay_us(100);
 		}
 		cout << "stopping execution of kinematics and servo control" << endl;
 	});
