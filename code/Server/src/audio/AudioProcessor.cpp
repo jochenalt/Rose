@@ -161,14 +161,14 @@ void AudioProcessor::processInput() {
 	stopCurrProcessing = false;
 
 	// hop size is the number of samples that will be fed into beat detection
-	const int hopSize = 512; // approx. 3ms at 44100Hz
+	const int hopSize = 256; // approx. 3ms at 44100Hz
 
 	// number of samples to be read
 	const int numInputSamples = hopSize;
 
 	// framesize is the number of samples that will be considered in this loop
 	// cpu load goes up linear with the framesize
-	int frameSize = hopSize*4;
+	int frameSize = hopSize*16;
 
 	// initialize beat detector
 	BTrack beatDetector(hopSize, frameSize);
@@ -219,13 +219,8 @@ void AudioProcessor::processInput() {
 		const double scoreThreshold = 10.;
 		inputAudioDetected = (beatScoreFilter >= scoreThreshold);
 
-		// call callback to rythm identifier and dance move generator
-		// but do this with a lower frequency (50fps)
-		if (callbackTimer.isDue(1000/50)  || (beat)) {
-			callbackTimer.setDueNow();
-			processedTime = millis()/1000.0;
-			beatCallback(beat, bpm);
-		}
+		processedTime = millis()/1000.0;
+		beatCallback(beat, bpm);
 
 		if (currentInputType == WAV_INPUT) {
 			// insert a delay to synchronize played audio and beat detection before entering the next cycle

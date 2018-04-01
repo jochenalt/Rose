@@ -140,12 +140,8 @@ void sendBeatToRythmDetector(bool beat, double bpm) {
 	// create the move according to the beat
 	dancer.danceLoop(beat, bpm);
 
-	if (danceMoveUpdate) {
-		cerr << "ERR:dance move update has not been fetched in time" << endl;
-	}
-
+	// new data is there
 	danceMoveUpdate = true;
-
 }
 
 typedef void (*MoveCallbackFct)(bool beat, double Bpm);
@@ -154,16 +150,6 @@ extern int arecord();
 
 int main(int argc, char *argv[]) {
 	try {
-		// arecord();
-	// exit correctly when exception arises
-	/*
-	std::set_terminate([](){
-		std::cout << "Unhandled exception" << endl;
-		std::cout.flush();
-		std::abort();
-		changemode(0);
-	})
-	*/;
 
 	// catch SIGINT (ctrl-C)
     signal (SIGINT,signalHandler);
@@ -299,25 +285,31 @@ int main(int argc, char *argv[]) {
 
 	   	servoController.setup();
 	   	bodyKinematics.setup();
+	   	TimeSamplerStatic timer;
 		while (executeServoThread) {
 			if (danceMoveUpdate) {
-				Point bodyBallJoint_world[6], headBallJoint_world[6];
-				double bodyServoAngles_rad[6], headServoAngles_rad[6];
-				Point bodyServoBallJoints_world[6], headServoBallJoints_world[6];
-				Point bodyServoArmCentre_world[6], headServoArmCentre_world[6];
+				if (timer.isDue(20)) {
+					Point bodyBallJoint_world[6], headBallJoint_world[6];
+					double bodyServoAngles_rad[6], headServoAngles_rad[6];
+					Point bodyServoBallJoints_world[6], headServoBallJoints_world[6];
+					Point bodyServoArmCentre_world[6], headServoArmCentre_world[6];
 
-				Pose headPose, bodyPose;
-				dancer.getThreadSafePose(bodyPose, headPose);
-				bodyKinematics.
-						computeServoAngles(bodyPose, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
-										headPose, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
-				for (int i = 0;i<6;i++) {
-					servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
-					servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
+					Pose headPose, bodyPose;
+					dancer.getThreadSafePose(bodyPose, headPose);
+					bodyKinematics.
+							computeServoAngles(bodyPose, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
+											headPose, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
+					for (int i = 0;i<6;i++) {
+						servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
+					}
+					for (int i = 0;i<6;i++) {
+						servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
+					}
+
+					danceMoveUpdate = false;
 				}
-				danceMoveUpdate = false;
 			}
-			delay_ms(1);
+			usleep (500);
 		}
 		cout << "stopping execution of kinematics and servo control" << endl;
 	});

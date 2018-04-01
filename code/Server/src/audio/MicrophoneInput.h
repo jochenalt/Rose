@@ -8,12 +8,9 @@
 #ifndef SRC_AUDIO_MICROPHONEINPUT_H_
 #define SRC_AUDIO_MICROPHONEINPUT_H_
 
-#include <pulse/simple.h>
-#include <pulse/error.h>
-
 using namespace std;
 
-// with microphone we use a standard sample rate
+// microphone uses a sample rate
 const int MicrophoneSampleRate = 22050;
 
 class MicrophoneInput {

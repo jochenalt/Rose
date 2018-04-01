@@ -19,7 +19,7 @@ bool Move::firstAccelerationCall = true;
 TimeSamplerStatic Move::moveTimer;
 
 std::vector<Move> Move::moveLibrary;
-const double latencyShift = 0.1;
+const double latencyShift = 0.0;
 
 
 Move& Move::getMove(MoveType m) {
@@ -114,11 +114,11 @@ double Move::baseCurveTriangle(double movePercentage) {
 //      |      \/
 //
 double Move::baseCurveDip(double movePercentage) {
-	return scaleAmbition(pow(baseCurveCos(movePercentage),21.0));
+	return scaleAmbition(pow(cos(movePercentage/4.0*2.0*M_PI),21.0));
 }
 
 double Move::baseCurveFatDip(double movePercentage) {
-	return scaleAmbition(pow(baseCurveCos(movePercentage),3.0));
+	return scaleAmbition(pow(cos(movePercentage/4.0*2.0*M_PI),3.0));
 }
 
 //       __
@@ -154,8 +154,8 @@ TotalBodyPose Move::absHead (const Pose& bodyPose, const Pose& relHeadPose) {
 		firstAccelerationCall = false;
 	} else {
 		// limit acceleration between two moves
-		restrictedBodyPose.moveTo(bodyPose, dT, 50.0, 3.0);
-		restrictedRelHeadPose.moveTo(relHeadPose, dT, 50.0, 3.0);
+		restrictedBodyPose.moveTo(bodyPose, dT, 100.0, 3.0);
+		restrictedRelHeadPose.moveTo(relHeadPose, dT, 100.0, 3.0);
 	}
 	TotalBodyPose result = TotalBodyPose(restrictedBodyPose,BodyKinematics::getInstance().computeHeadStewartPose(restrictedBodyPose, restrictedRelHeadPose));
 	return result;
@@ -186,8 +186,8 @@ TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
 	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.75)));
 
 	return absHead (
-			Pose(Point(mDip*20,0,bodyHeight  +10.0*mUpDown),Rotation (0,-radians(15)*mDip,-radians(15)*mBase)),
-			Pose(Point(-mDip*40,0,headHeight),Rotation (0,-radians(20)*mDip,-radians(20)*mBase)));
+			Pose(Point(mDip*10,0,bodyHeight  +10.0*mUpDown),Rotation (0,-radians(10)*mDip,-radians(15)*mBase)),
+			Pose(Point(-mDip*20,0,headHeight),Rotation (0,-radians(20)*mDip,-radians(20)*mBase)));
 }
 
 TotalBodyPose Move::weaselsMove(double movePercentage) {
