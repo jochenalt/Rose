@@ -128,3 +128,20 @@ sudo apt-get curl
 # list cards with aplay -L
 >aplay SlimShady.wav  --device plughw:CARD=Device,DEV=0
 
+# set default source to cm108
+# find out alsa name of soundcard
+>pacmd list-sources | grep -e device.string -e 'name:'
+#set default sink
+>pacmd "set-default-source alsa_input.usb-C-Media_Electronics_Inc._USB_PnP_Sound_Device-00.analog-mono"
+# list output sources
+>pacmd list-sinks | grep -e 'name:' -e 'index'
+# set default output source
+>pacmd "set-default-sink alsa_output.usb-C-Media_Electronics_Inc._USB_PnP_Sound_Device-00.analog-stereo>"
+# set volume
+# find controls
+>amixer scontrols
+# set volume of microphone
+>amixer set Mic 100%
+# set volume of loudspeaker
+>amixer set PCM 100%
+

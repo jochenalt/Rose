@@ -327,7 +327,7 @@ void WindowController::tearDown() {
 // Idle callback is called by GLUI when nothing is to be done
 void idleCallback( void )
 {
-	const int refreshRate = 60; // [Hz]
+	const int refreshRate = 50; // [Hz]
 	const int idleRefreshRate = 1; // [Hz]
 
 	const milliseconds refreshRate_ms = 1000/refreshRate/2;
