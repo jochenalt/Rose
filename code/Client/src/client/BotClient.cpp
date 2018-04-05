@@ -29,7 +29,8 @@ void BotClient::setup(string host, int port) {
 	isWebClientActive = true;
 
 	// establish TCP/IP connect (takes a couple of seconds)
-	conn.setup(host, port);
+	cmdConn.setup(host, port);
+	statusConn.setup(host, port);
 
 	// msuic is detected on the server side
 	musicDetected = false;
@@ -45,8 +46,7 @@ void BotClient::setup(string host, int port) {
 }
 
 
-string BotClient::get(string requestUrl, bool& ok) {
-	CriticalBlock criticalBlock(mutex) ;
+string BotClient::get(HttpConnection& conn, string requestUrl, bool& ok) {
 	int httpStatus = -1;
 	string httpResponse;
 	conn.get(requestUrl, httpResponse, httpStatus);
@@ -61,8 +61,7 @@ string BotClient::get(string requestUrl, bool& ok) {
 	return httpResponse;
 }
 
-string BotClient::post(string requestUrl, const string& httpBody, bool& ok) {
-	CriticalBlock criticalBlock(mutex) ;
+string BotClient::post(HttpConnection& conn, string requestUrl, const string& httpBody, bool& ok) {
 	int httpStatus = -1;
 	string httpResponse;
 	conn.post(requestUrl, httpBody, httpResponse, httpStatus);
@@ -81,7 +80,7 @@ string BotClient::post(string requestUrl, const string& httpBody, bool& ok) {
 
 void BotClient::getStatus() {
 	bool ok;
-	string httpResponse = get("/status", ok);
+	string httpResponse = get(statusConn, "/status", ok);
 	if (ok) {
 		std::istringstream in(httpResponse);
 		parseCharacter(in, '{', ok);
@@ -126,7 +125,7 @@ void BotClient::setMoveMode(Dancer::SequenceModeType moveMode) {
 	request << "/console/movemode?value=" << (int) moveMode;
 
 	bool ok;
-	string httpResponse = get(request.str(), ok);
+	string httpResponse = get(cmdConn, request.str(), ok);
 	if (ok) {
 		std::istringstream in(httpResponse);
 		parseCharacter(in, '{', ok);
@@ -142,7 +141,7 @@ void BotClient::setMove(Move::MoveType move) {
 	std::ostringstream request;
 	request << "/console/move?value=" << (int) move;
 	bool ok;
-	string httpResponse = get(request.str(), ok);
+	string httpResponse = get(cmdConn, request.str(), ok);
 	if (ok) {
 		std::istringstream in(httpResponse);
 		parseCharacter(in, '{', ok);
@@ -158,7 +157,7 @@ void BotClient::setAmbition(float ambition) {
 	std::ostringstream request;
 	request << "/console/ambition?value=" << std::fixed << std::setprecision(3) << ambition;
 	bool ok;
-	string httpResponse = get(request.str(), ok);
+	string httpResponse = get(cmdConn, request.str(), ok);
 	if (ok) {
 		std::istringstream in(httpResponse);
 		parseCharacter(in, '{', ok);
@@ -175,7 +174,7 @@ void BotClient::setWavFile(string name, string wavContent) {
 	std::ostringstream request;
 	request << "/console/song?name=" <<name;
 
-	string httpResponse = post(request.str(), wavContent, ok);
+	string httpResponse = post(cmdConn, request.str(), wavContent, ok);
 	if (ok) {
 		std::istringstream in(httpResponse);
 		parseCharacter(in, '{', ok);

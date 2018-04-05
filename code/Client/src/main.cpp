@@ -196,6 +196,7 @@ int main(int argc, char *argv[]) {
    		if (clientLoopTimer.isDue(20)) {
    			client.getStatus();
 
+   			// cout << client.getBodyPose() << " " << client.getHeadPose() << endl;
 			// fetch cached data from webserver  and set into Dance machine
 			mm.imposeDanceParams(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
 

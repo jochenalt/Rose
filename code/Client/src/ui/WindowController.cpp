@@ -192,18 +192,22 @@ void fileCallback(int widgetNo) {
 			 // std::replace( name.begin(), name.end(), ' ', '_');
 			 name = name.substr(0,name.length()-4);
 
-			 BotClient::getInstance().setWavFile(name, fileContent);
-			 statusStr << "file " << filename << " sent." << endl;
+			new std::thread([=](){
+				 WindowController::getInstance().setStatus("file being uploaded");
+
+				 BotClient::getInstance().setWavFile(name, fileContent);
+				 WindowController::getInstance().setStatus("file sent.");
+			});
 		 }
 		 else {
 			 statusStr << "file " << filename << " is no wav file" << endl;
+			 WindowController::getInstance().setStatus(statusStr.str());
 		 }
 	 }
 	 else {
 		 statusStr << "file " << filename << " not found" << endl;
+		 WindowController::getInstance().setStatus(statusStr.str());
 	 }
-	 string err = statusStr.str();
-	 WindowController::getInstance().setStatus(err);
 }
 
 void noCallback (int widgetNo) {};
@@ -340,6 +344,7 @@ void idleCallback( void )
 	bool refresh = ((WindowController::getInstance().mainBotView.isModified() && (now - lastDisplayRefreshCall > refreshRate_ms)) ||
 					(now - lastDisplayRefreshCall > idleRefreshRate_ms));
 	if (refresh) {
+		cout << "refresh" << endl;
 		WindowController::getInstance().mainBotView.postRedisplay(); // post if we reset the flag in a previous run
 		lastDisplayRefreshCall = now;
 

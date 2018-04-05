@@ -50,8 +50,8 @@ public:
 	bool isMusicDetected() { return musicDetected; };
 
 private:
-	string get(string requestUrl, bool& ok);
-	string post(string requestUrl, const string& httpBody, bool& ok);
+	string get(HttpConnection& conn, string requestUrl, bool& ok);
+	string post(HttpConnection& conn, string requestUrl, const string& httpBody, bool& ok);
 
 	Pose bodyPose;
 	Pose headPose;
@@ -60,7 +60,8 @@ private:
 	Move::MoveType move = Move::MoveType::NO_MOVE;
 	bool isWebClientActive = false;
 
-	HttpConnection conn;
+	HttpConnection cmdConn;
+	HttpConnection statusConn;
 	ExclusiveMutex mutex;
 
 };
