@@ -80,6 +80,7 @@ void signalHandler(int s){
 	Webserver::getInstance().teardown();
 	cout << "Exiting" << endl;
 
+	// give the threads a chance to quit without given a memory error
 	delay_ms(100);
 
 	exit(1);
@@ -90,15 +91,11 @@ void compensateLatency(bool& beat, double& bpm) {
 	static TimeSamplerStatic latencyTimer;
 	static queue<uint32_t> pendingBeatTime;
 	uint32_t now = millis();
-	// static uint32_t lastBeat= millis();
 
 	// add beats to the queue
 	if (beat && (RhythmDetector::getInstance().getRhythmInQuarters() != 0)) {
 		// compute the necessary delay to compensate microphone latency
 		// assume 2/4 beat
-		// float myBpm = 60000.0/(float)(now - lastBeat);
-		// cout << "   t=" << now - lastBeat << "ms -> BPM=" << myBpm << " riq=" << RhythmDetector::getInstance().getRhythmInQuarters() << endl;
-		// lastBeat = now;
 		float secondsPerBeat = 1.0*60.0/(bpm/RhythmDetector::getInstance().getRhythmInQuarters());
 		int numOfDelayedBeats = AudioProcessor::getInstance().getLatency() / secondsPerBeat + 1;
 		float currentBeatDelay = fmod(numOfDelayedBeats*secondsPerBeat-AudioProcessor::getInstance().getLatency(),secondsPerBeat); // [s]
@@ -107,13 +104,15 @@ void compensateLatency(bool& beat, double& bpm) {
 		pendingBeatTime.push(now + currentBeatDelay*1000.0);
 		// cout << "now=" << millis() << " takt=" << RhythmDetector::getInstance().getRhythmInQuarters() << " spb=" << secondsPerBeat << "delay =" << currentBeatDelay * 1000 << "ms " << endl;
 
-		// for now, we suppress the incoming beat
+		// for now,  suppress the incoming beat, but re-fire it with incorporated latency computation
 		beat = false;
 	}
 
 	// check if the queued up a beat, i.e. the first entry is at its due time
 	if (!pendingBeatTime.empty() && pendingBeatTime.front() <= now) {
 		pendingBeatTime.pop();
+
+		// now it s
 		beat = true;
 		if (AudioProcessor::getInstance().isMicrophoneInputUsed())
 			cout << "   latency BEAT!" << endl;
@@ -122,12 +121,12 @@ void compensateLatency(bool& beat, double& bpm) {
 
 
 // there are two main threads, the audio thread that works with a frequency optimised for
-// best results in detecting beats (ca. 170Hz), and the servo thread that tries to get most of the
-// digital servos (60 Hz).
+// best results in detecting beats (a 512 sample probe, which is approx. 170Hz at 44100Hz sample rate),
+// and the servo thread that tries to get most of the digital servos.
 // The synchronisation between these two threads happens with the following flag,
 // that indicates that the servo loop has fetched servoHeadPoseBuffer
 // Then, the audio loop is generating new data and sets the flag to true;
-volatile bool waitingForServoUpdate = false;
+volatile bool newPoseAvailable = false;
 
 // buffer to pass body and head from audio thread to the servo thread
 static Pose servoHeadPoseBuffer;
@@ -141,219 +140,225 @@ void sendBeatToRythmDetector(bool beat, double bpm) {
 	rhythmDetector.loop(beat, bpm);
 
 	// compensate the microphones latency and delay the beat accordingly to hit the beat next time
+	// after this call, beat-flag is modified such that it incorporated the latency
 	compensateLatency(beat, bpm);
-
 
 	// create the move according to the beat
 	// but this is done in a loop with a frequency the servos can take
-	// it is determined by the frquency, the servo loop is setting danceMoveUpdate to false
-	if (waitingForServoUpdate == false) {
+	if (newPoseAvailable == false) {
 
-		// The danceloop is computed
+		// the dance move is computed
 		dancer.danceLoop(beat, bpm);
 
 		// if no music is detected, do not dance
 		dancer.setMusicDetected(AudioProcessor::getInstance().isAudioDetected());
 
-
 		servoHeadPoseBuffer = dancer.getHeadPose();
 		servoBodyPoseBuffer = dancer.getBodyPose();
-		waitingForServoUpdate = true;
+		newPoseAvailable = true;
 	}
 
 }
 
+// Function pointer used as call back that allows to attach dancing to
+// the audio thread it is called by the audio thread after every sample probe
 typedef void (*MoveCallbackFct)(bool beat, double Bpm);
 
-extern int arecord();
 
 int main(int argc, char *argv[]) {
 	try {
 
-	// catch SIGINT (ctrl-C)
-    signal (SIGINT,signalHandler);
+		// catch SIGINT (ctrl-C)
+		signal (SIGINT,signalHandler);
 
-    // currently played filename
-    string trackFilename;
+		// currently played filename
+		string trackFilename;
 
-    // default volume
-    int volumeArg = 20;
+		// default volume
+		int volumeArg = 20;
 
-    // default latency of the moves
-    int startAfterNBeats = 4;
+		// default latency of the moves
+		int startAfterNBeats = 4;
 
-    // sound cards need to be initialized upfront, args might need that
-   	SoundCardUtils& audioUtils= SoundCardUtils::getInstance();
-   	audioUtils.setup();
+		// sound cards need to be initialized upfront, args might need that
+		SoundCardUtils& audioUtils= SoundCardUtils::getInstance();
+		audioUtils.setup();
 
-    // if we run a webserver, this is the path where static content is stored
-    string webrootPath = string(argv[0]);
-	int idx = webrootPath.find_last_of("/");
-	webrootPath = webrootPath.substr(0,idx) + "/webroot";
-	// if client, this is the host of the webserver
-	string webclientHost = "127.0.0.1";
+		// if we run a webserver, this is the path where static content is stored
+		string webrootPath = string(argv[0]);
+		int idx = webrootPath.find_last_of("/");
+		webrootPath = webrootPath.substr(0,idx) + "/webroot";
+		// if client, this is the host of the webserver
+		string webclientHost = "127.0.0.1";
 
-    int webserverPort = 8080;
-    for (int i = 1;i<argc;i++) {
-    	string arg = getCmdOption(argv, argc,i);
-    	if (arg == "-f") {
-    		if (i+1 >= argc) {
-    			cerr << "-f requires a filename" << endl;
-    			exit(1);
-    		}
-    		trackFilename = getCmdOption(argv, argc, i+1);
-    		i++;
-    	} else if (arg == "-h") {
-    	    	printUsage();
-       	} else if (arg == "-a") {
-       			audioUtils.printSoundCards();
-    	} else if (arg == "-t") {
-	    	ServoController::getInstance().calibrateViaKeyBoard();
-	    } else if (arg == "-s") {
-	    	mplayback = false;
-	    } else if (arg == "-port") {
-    		if (i+1 >= argc) {
-    			cerr << "-port requires a number 0..100" << endl;
-    			exit(1);
-    		}
-	    	i++;
-	    	bool ok = true;
-	    	webserverPort = -1;
-	    	webserverPort = stringToInt(getCmdOption(argv, argc, i), ok);
-	    	if ((webserverPort < 1000) || (webserverPort > 9999)) {
-	    		cerr << "port should be between 1000..9999" << endl;
-	    		exit(1);
-	    	}
-	    } else if (arg == "-host") {
-    		if (i+1 >= argc) {
-    			cerr << "-host requires a string like 127.0.0.1" << endl;
-    			exit(1);
-    		}
-	    	i++;
-	    	webclientHost = getCmdOption(argv, argc, i);
-	    } else if (arg == "-webroot") {
-    		if (i+1 >= argc) {
-    			cerr << "-webroot required a path, e.g. " << argv[0] << "/webroot" << endl;
-    			exit(1);
-    		}
-    		i++;
-	    	webrootPath = getCmdOption(argv, argc, i);
-	    } else if (arg == "-v") {
-    		if (i+1 >= argc) {
-    			cerr << "-v requires a number 0..100" << endl;
-    			exit(1);
-    		}
-    		arg = getCmdOption(argv, argc, i+1);
-    		i++;
-        	volumeArg  = atoi(arg.c_str());
-        	if ((volumeArg < 0) || (volumeArg > 100))
-        	{
-        		cerr << "volume (" << volumeArg << ") has to be within [0..100]" << endl;
-        		exit(1);
-        	}
-    	} else if (arg == "-i") {
-    		if (i+1 >= argc) {
-    			cerr << "-i requires a number" << endl;
-    			exit(1);
-    		}
-    		arg = getCmdOption(argv, argc, i+1);
-    		i++;
-    		startAfterNBeats  = atoi(arg.c_str());
-    		if (startAfterNBeats <2) {
-    			cerr << "-i requires a number >=2" << endl;
-    			exit(1);
-    		}
-    	} else {
-    		cerr << "unknown option " << arg << endl;
-    		exit(1);
-    	}
-
-    }
-
-   	Dancer& dancer = Dancer::getInstance();
-   	Webserver& webserver = Webserver::getInstance();
-   	AudioProcessor& audioProcessor = AudioProcessor::getInstance();
-   	webserver.setup(webserverPort, webrootPath);
-    dancer.setup();
-    dancer.setStartAfterNBeats(startAfterNBeats);
-    RhythmDetector::getInstance().setup();
-
-    audioProcessor.setup(sendBeatToRythmDetector);
-    audioProcessor.setVolume((float)volumeArg/100.0);
-    audioProcessor.setPlayback(mplayback);
-	if (trackFilename != "") {
-		std::ifstream file (trackFilename, std::ios::binary);
-		file.unsetf (std::ios::skipws);
-		std::istream_iterator<uint8_t> begin (file), end;
-		std::vector<uint8_t> wavContent (begin, end);
-		audioProcessor.setWavContent(wavContent);
-	} else {
-		audioProcessor.setMicrophoneInput();
-	}
-	audioProcessor.setAudioSource();
-
-
-	// start thread that computes the kinematics and sends angles to the servos
-	servoThread = new std::thread([=](){
-		cout << "starting execution of kinematics and servo control" << endl;
-
-		TimeSamplerStatic servoTimer;
-	   	ServoController& servoController = ServoController::getInstance();
-	   	BodyKinematics& bodyKinematics = BodyKinematics::getInstance();
-
-	   	servoController.setup();
-	   	bodyKinematics.setup();
-	   	TimeSamplerStatic timer;
-		Point bodyBallJoint_world[6], headBallJoint_world[6];
-		double bodyServoAngles_rad[6], headServoAngles_rad[6];
-		Point bodyServoBallJoints_world[6], headServoBallJoints_world[6];
-		Point bodyServoArmCentre_world[6], headServoArmCentre_world[6];
-
-	   	while (executeServoThread) {
-			if (waitingForServoUpdate) {
-				if (timer.isDue(11)) {
-					bodyKinematics.
-						computeServoAngles(	servoBodyPoseBuffer, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
-											servoHeadPoseBuffer, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
-
-					// current pose is used up, indicate that we need a new one
-					waitingForServoUpdate = false;
-
-					// sending all data to the PCA9685 takes 2x4ms,
-					// so maximum loop is
-					for (int i = 0;i<6;i++) {
-						servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
-					}
-					for (int i = 0;i<6;i++) {
-						servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
-					}
-				} else {
-					delay_ms(1);
+		int webserverPort = 8080;
+		for (int i = 1;i<argc;i++) {
+			string arg = getCmdOption(argv, argc,i);
+			if (arg == "-f") {
+				if (i+1 >= argc) {
+					cerr << "-f requires a filename" << endl;
+					exit(1);
 				}
-			} else
-				delay_us(100);
+				trackFilename = getCmdOption(argv, argc, i+1);
+				i++;
+			} else if (arg == "-h") {
+					printUsage();
+			} else if (arg == "-a") {
+					audioUtils.printSoundCards();
+			} else if (arg == "-t") {
+				ServoController::getInstance().calibrateViaKeyBoard();
+			} else if (arg == "-s") {
+				mplayback = false;
+			} else if (arg == "-port") {
+				if (i+1 >= argc) {
+					cerr << "-port requires a number 0..100" << endl;
+					exit(1);
+				}
+				i++;
+				bool ok = true;
+				webserverPort = -1;
+				webserverPort = stringToInt(getCmdOption(argv, argc, i), ok);
+				if ((webserverPort < 1000) || (webserverPort > 9999)) {
+					cerr << "port should be between 1000..9999" << endl;
+					exit(1);
+				}
+			} else if (arg == "-host") {
+				if (i+1 >= argc) {
+					cerr << "-host requires a string like 127.0.0.1" << endl;
+					exit(1);
+				}
+				i++;
+				webclientHost = getCmdOption(argv, argc, i);
+			} else if (arg == "-webroot") {
+				if (i+1 >= argc) {
+					cerr << "-webroot required a path, e.g. " << argv[0] << "/webroot" << endl;
+					exit(1);
+				}
+				i++;
+				webrootPath = getCmdOption(argv, argc, i);
+			} else if (arg == "-v") {
+				if (i+1 >= argc) {
+					cerr << "-v requires a number 0..100" << endl;
+					exit(1);
+				}
+				arg = getCmdOption(argv, argc, i+1);
+				i++;
+				volumeArg  = atoi(arg.c_str());
+				if ((volumeArg < 0) || (volumeArg > 100))
+				{
+					cerr << "volume (" << volumeArg << ") has to be within [0..100]" << endl;
+					exit(1);
+				}
+			} else if (arg == "-i") {
+				if (i+1 >= argc) {
+					cerr << "-i requires a number" << endl;
+					exit(1);
+				}
+				arg = getCmdOption(argv, argc, i+1);
+				i++;
+				startAfterNBeats  = atoi(arg.c_str());
+				if (startAfterNBeats <2) {
+					cerr << "-i requires a number >=2" << endl;
+					exit(1);
+				}
+			} else {
+				cerr << "unknown option " << arg << endl;
+				exit(1);
+			}
+
 		}
-		cout << "stopping execution of kinematics and servo control" << endl;
-	});
 
-	// run main loop that processes the audio input and does beat detection
-	cout << "starting audio processing" << endl;
-   	while (true) {
-   		// if content is available from whatever source, process it (i.e. perform beat detection via sendBeatToRythmDetector)
-   		if (audioProcessor.isWavContentUsed() ||
-			audioProcessor.isMicrophoneInputUsed()) {
+		// initilize all software processors
+		Dancer& dancer = Dancer::getInstance();
+		Webserver& webserver = Webserver::getInstance();
+		AudioProcessor& audioProcessor = AudioProcessor::getInstance();
+		RhythmDetector & rhhymDetector = RhythmDetector::getInstance();
 
-   			// do it. Returns when current content type is empty
-   			audioProcessor.processInput();
-   		}
+		webserver.setup(webserverPort, webrootPath);
+		dancer.setup();
+		dancer.setStartAfterNBeats(startAfterNBeats);
+		rhhymDetector.setup();
 
-   		// be cpu friendly when no input is available
-		delay_ms(1);
-   	}
+		audioProcessor.setup(sendBeatToRythmDetector);
+		audioProcessor.setVolume((float)volumeArg/100.0);
+		audioProcessor.setPlayback(mplayback);
+		if (trackFilename != "") {
+			std::ifstream file (trackFilename, std::ios::binary);
+			file.unsetf (std::ios::skipws);
+			std::istream_iterator<uint8_t> begin (file), end;
+			std::vector<uint8_t> wavContent (begin, end);
+			audioProcessor.setWavContent(wavContent);
+		} else {
+			audioProcessor.setMicrophoneInput();
+		}
+		audioProcessor.setAudioSource();
+
+		// start thread that computes the kinematics and sends angles to the servos
+		servoThread = new std::thread([=](){
+			cout << "starting execution of kinematics and servo control" << endl;
+			ServoController& servoController = ServoController::getInstance();
+			BodyKinematics& bodyKinematics = BodyKinematics::getInstance();
+
+			servoController.setup();
+			bodyKinematics.setup();
+
+			TimeSamplerStatic timer;
+			Point bodyBallJoint_world[6], headBallJoint_world[6];
+			double bodyServoAngles_rad[6], headServoAngles_rad[6];
+			Point bodyServoBallJoints_world[6], headServoBallJoints_world[6];
+			Point bodyServoArmCentre_world[6], headServoArmCentre_world[6];
+
+			// run the servo thread the indication to stop it is set outside
+			while (executeServoThread) {
+				if (newPoseAvailable) {
+					// limit the frequency a new pose is sent to the servos
+					const int servoFrequency = 90; // [Hz]
+					if (timer.isDue(1000.0/servoFrequency /* [ms] */)) {
+
+						// compute the servo angles out of the pose
+						bodyKinematics.
+							computeServoAngles(	servoBodyPoseBuffer, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
+												servoHeadPoseBuffer, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
+
+						// current pose is used up, indicate that we need a new one, such that the audio thread will set it
+						newPoseAvailable = false;
+
+						// sending all data to the PCA9685. This
+						// takes 2x4ms via I2C, so maximum loop frequency is 125Hz
+						for (int i = 0;i<6;i++) {
+							servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
+						}
+						for (int i = 0;i<6;i++) {
+							servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
+						}
+					} else {
+						delay_ms(1);
+					}
+				} else
+					delay_us(100); // typically never happens, since the audio thread runs faster than
+				                   // 125Hz, at this point in time newPoseAvailable should be set already
+			}
+			cout << "stopping execution of kinematics and servo control" << endl;
+		});
+
+		// run main loop that processes the audio input and does beat detection
+		cout << "starting audio processing" << endl;
+		while (true) {
+			// if content is available from whatever source, process it (i.e. perform beat detection via sendBeatToRythmDetector)
+			if (audioProcessor.isWavContentUsed() ||
+				audioProcessor.isMicrophoneInputUsed()) {
+
+				// do it. Returns when current content type is empty
+				audioProcessor.processInput();
+			}
+
+			// be cpu friendly when no audio input is available
+			delay_ms(10);
+		}
 	}
     catch(std::exception const& e)
     {
-    	cerr << "exception " << e.what() << endl;
+    	cerr << "unexpected exception " << e.what() << endl;
     }
     catch(...)
     {

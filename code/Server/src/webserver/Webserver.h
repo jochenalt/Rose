@@ -11,7 +11,7 @@
 #include <thread>
 
 #include "basics/spatial.h"
-#include "mongoose.h"
+#include "webserver/mongoose.h"
 
 using namespace std;
 
@@ -35,9 +35,12 @@ public:
 		terminateThread = true; // let the thread run
 	}
 
+	bool getTerminateThread() { return terminateThread; };
+
 	void setStatus(const Pose& newBodyPose, const Pose& newHeadPose, const string newMoveName, float newAmbition);
 private:
 	friend void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
+	friend void multithreaded_ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 
 	// function the webserver thread runs. Is terminated when activeThread is set to false
 	void runningThread();
@@ -47,6 +50,9 @@ private:
 
 	// mongoose manager
 	struct mg_mgr mgr;
+
+	// mongoose server
+	struct mg_server *mongoose_server = NULL;
 
 	// store the thread
 	std::thread* webserverThread  = NULL;

@@ -30,20 +30,48 @@ Webserver::Webserver() {
 }
 
 Webserver::~Webserver() {
-	mg_mgr_free(&mgr);
+
 }
 
 
 using namespace std;
 
 static struct mg_serve_http_opts s_http_server_opts;
+static sock_t sock[2];
+static const int s_num_worker_threads = 5;
+static unsigned long s_next_id = 0;
+
+
+// This info is passed to the worker thread
+struct work_request {
+  unsigned long conn_id;  // needed to identify the connection where to send the reply
+  // optionally, more data that could be required by worker
+};
+
+// This info is passed by the worker thread to mg_broadcast
+struct work_result {
+  unsigned long conn_id;
+  int sleep_time;
+};
 
 // define an mongoose event handler function that is called whenever a request comes in
+
 void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
+// void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
 {
     switch (ev)
     {
+    	case MG_EV_ACCEPT:
+    		nc->user_data = (void *)++s_next_id;
+   			break;
     	case MG_EV_HTTP_REQUEST: {
+    			static int counter  = 0;
+    			counter ++;
+    			work_request req;
+    			req.conn_id = (unsigned long)nc->user_data;
+    			if (write(sock[0], &req, sizeof(req)) < 0)
+    		   	  perror("Writing worker sock");
+
     			struct http_message *hm = (struct http_message *) ev_data;
     			string uri(hm->uri.p, hm->uri.len);
     			string query(hm->query_string.p, hm->query_string.len);
@@ -81,33 +109,82 @@ void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
     				mg_serve_http(
     						nc, (http_message*) ev_data, s_http_server_opts);
     			}
-    		break;
+    			counter--;
+
+   			break;
     	}
+        case MG_EV_CLOSE: {
+        	if (nc->user_data)
+        		nc->user_data = NULL;
+        }
     default:
         break;
     }
 }
 
 
+static void on_work_complete(struct mg_connection *nc, int ev, void *ev_data) {
+  char s[32];
+  struct mg_connection *c;
+  for (c = mg_next(nc->mgr, NULL); c != NULL; c = mg_next(nc->mgr, c)) {
+    if (c->user_data != NULL) {
+      struct work_result *res = (struct work_result *)ev_data;
+      if ((unsigned long)c->user_data == res->conn_id) {
+        sprintf(s, "conn_id:%lu sleep:%d", res->conn_id, res->sleep_time);
+        mg_send_head(c, 200, strlen(s), "Content-Type: text/plain");
+        mg_printf(c, "%s", s);
+      }
+    }
+  }
+}
+
+void* worker_thread_proc(void *param) {
+  struct mg_mgr *mgr = (struct mg_mgr *) param;
+  struct work_request req = {0};
+
+  while (!Webserver::getInstance().getTerminateThread()) {
+    if (read(sock[1], &req, sizeof(req)) < 0)
+      perror("Reading worker sock");
+    int r = rand() % 10;
+    sleep(r);
+    struct work_result res = {req.conn_id, r};
+    mg_broadcast(mgr, on_work_complete, (void *)&res, sizeof(res));
+  }
+  return NULL;
+}
+
+
 void Webserver::setup(int port, string webRootPath) {
+
+
 	mg_mgr_init(&mgr, NULL);
 	string portStr (intToString(port));
 	struct mg_connection *nc = mg_bind(&mgr, portStr.c_str(), ev_handler);
 	if (nc == NULL) {
-		cerr << "Cannot bind webserver to %i" << port << ". Maybe the server is already running?";
+		cerr << "Cannot bind webserver to %i" << port << ". Maybe the server is already running?" << endl;
+		exit(1);
+	}
+	cout << "webserver is running at port " << port << endl;
+
+	if (mg_socketpair(sock, SOCK_STREAM) == 0) {
+		cerr << "Cannot open socket pair" << endl;
 		exit(1);
 	}
 
 	// Set up HTTP server parameters
 	mg_set_protocol_http_websocket(nc);
+	mg_enable_multithreading(nc);
 	s_http_server_opts.document_root = (new string(webRootPath))->c_str();
 	cs_stat_t st;
 	if (mg_stat(s_http_server_opts.document_root, &st) != 0) {
 		cerr << "Cannot find webroot directory " << webRootPath;
 	}
 
-	cout << "webserver is running at port " << port << endl;
-	terminateThread = false;
+	for (int i = 0; i < s_num_worker_threads; i++) {
+		 mg_start_thread(worker_thread_proc, &mgr);
+	}
+
+	// start a thread to run all webserver threads, to that this call returns immediately
 	webserverThread = new std::thread(&Webserver::runningThread, this);
 
 	// webserver is running
@@ -115,10 +192,14 @@ void Webserver::setup(int port, string webRootPath) {
 }
 
 void Webserver::runningThread() {
-	while (!terminateThread) {
-		// check and dispatch incoming http requests (dispatched by CommandDispatcher) and wait for timeout ms max.
-		mg_mgr_poll(&mgr, 10);
+	terminateThread = false;
+
+	while (!terminateThread ) {
+		  mg_mgr_poll(&mgr, 200);
 	}
+
+	mg_mgr_free(&mgr);
+
 	std::terminate(); // terminate that thread
 }
 
@@ -199,8 +280,11 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 			return true;
 		}
 		else if (hasPrefix(engineCommand, "/song")) {
+
 			bool ok = true;
 			string name = getURLParamValue(urlParamNames,urlParamValues, "name",ok);
+			cout << "receiving song " << name << endl;
+
 			std::vector<uint8_t> wavContent;
 			unsigned bodyLen = body.length();
 			wavContent.resize(bodyLen);
@@ -209,11 +293,12 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 			}
 
 			AudioProcessor::getInstance().setWavContent(wavContent);
-			cout << "receiving song " << name << endl;
+			cout << "song " << name << " started." << endl;
 
 			okOrNOk = true;
 
 			response = getResponse(okOrNOk);
+
 			return true;
 		}
 		else if (hasPrefix(engineCommand, "/ambition")) {
@@ -308,6 +393,7 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 		    << "}";
 		response = out.str();
 		okOrNOk = true;
+
 		return okOrNOk;
 	}
 

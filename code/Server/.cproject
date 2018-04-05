@@ -25,6 +25,7 @@
 								<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.1333949172" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.575560144" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_KISS_FFT"/>
+									<listOptionValue builtIn="false" value="MG_ENABLE_THREADS"/>
 									<listOptionValue builtIn="false" value="USE_OPENGL_UI"/>
 									<listOptionValue builtIn="false" value="FREEGLUT_STATIC"/>
 								</option>
@@ -41,6 +42,7 @@
 								<option id="gnu.c.compiler.exe.debug.option.debugging.level.1784291367" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.2002526322" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="FREEGLUT_STATIC"/>
+									<listOptionValue builtIn="false" value="MG_ENABLE_THREADS"/>
 								</option>
 								<option id="gnu.c.compiler.option.debugging.prof.1695538783" name="Generate prof information (-p)" superClass="gnu.c.compiler.option.debugging.prof" value="false" valueType="boolean"/>
 								<option id="gnu.c.compiler.option.dialect.std.1289681033" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>

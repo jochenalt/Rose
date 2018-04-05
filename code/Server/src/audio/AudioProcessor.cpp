@@ -168,7 +168,7 @@ void AudioProcessor::processInput() {
 
 	// framesize is the number of samples that will be considered in this loop
 	// cpu load goes up linear with the framesize
-	int frameSize = hopSize*16;
+	int frameSize = hopSize*8;
 
 	// initialize beat detector
 	BTrack beatDetector(hopSize, frameSize);

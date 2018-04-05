@@ -187,7 +187,7 @@ TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
 
 	return absHead (
 			Pose(Point(mDip*10,0,bodyHeight  +10.0*mUpDown),Rotation (0,-radians(10)*mDip,-radians(15)*mBase)),
-			Pose(Point(-mDip*20,0,headHeight),Rotation (0,-radians(20)*mDip,-radians(20)*mBase)));
+			Pose(Point(-mDip*10,0,headHeight),Rotation (0,-radians(20)*mDip,-radians(20)*mBase)));
 }
 
 TotalBodyPose Move::weaselsMove(double movePercentage) {

@@ -46,12 +46,22 @@ void Dancer ::createMove(double movePercentage) {
 	TotalBodyPose newPose = Move::getMove(currentMove).move(movePercentage);
 	// moves are created in a different thread than the one fetching the result
 	// encapsulate with a critical block
+	uint32_t start = millis();
 	CriticalBlock block(poseMutex);
+	uint32_t duration = millis()-start;
+	if (duration> 10)
+		cerr << "createMove waiting on mutex for " << duration << "ms" << endl;
+
 	pose = newPose;
 }
 
 void Dancer::getThreadSafePose(Pose& bodyPose, Pose& headPose) {
+	uint32_t start = millis();
 	CriticalBlock block(poseMutex);
+	uint32_t duration = millis()-start;
+	if (duration> 10)
+		cerr << "createMove waiting on mutex for " << duration << "ms" << endl;
+
 	bodyPose = pose.body;
 	headPose = pose.head;
 };

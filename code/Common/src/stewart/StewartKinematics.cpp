@@ -135,7 +135,6 @@ void StewartKinematics::computeServoAngles(const Pose& plate_world, double servo
 
 		}
 
-
 		lastAngle[i] = angle_rad;
 
 		Pose servoArm_rotation(Pose(Point(0,0,0), Rotation(angle_rad,0,0)));

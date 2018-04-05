@@ -19,7 +19,7 @@ $(LIB)/main.o
 
 
 INCLUDES=-I$(SRC)  -I$(CSRC)
-CXX_FLAGS=-DUSE_KISS_FFT -g0 -O3 -Wall -c -fmessage-length=0 -std=c++11 
+CXX_FLAGS=-DUSE_KISS_FFT -DMG_ENABLE_THREADS -g0 -O3 -Wall -c -fmessage-length=0 -std=c++11 
 
 all: Donna
 
