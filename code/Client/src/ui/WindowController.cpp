@@ -187,12 +187,16 @@ void fileCallback(int widgetNo) {
 	string filename = fileBrowser->get_file();
 	 if (fileExists(filename)) {
 		 if (endsWith(filename, ".wav")) {
-			 string fileContent = readFileContent(filename);
-			 string name = filename;
-			 // std::replace( name.begin(), name.end(), ' ', '_');
-			 name = name.substr(0,name.length()-4);
+			 // reading the file and sending it takes 10s, so do that in a background thread do
+			 // continue the current movement.
+			 // (that's a mem leak, I know)
+			 new std::thread([=](){
+				 string fileContent = readFileContent(filename);
+				 string name = filename;
+				 // std::replace( name.begin(), name.end(), ' ', '_');
+				 name = name.substr(0,name.length()-4);
 
-			new std::thread([=](){
+
 				 WindowController::getInstance().setStatus("file being uploaded");
 
 				 BotClient::getInstance().setWavFile(name, fileContent);
@@ -200,13 +204,11 @@ void fileCallback(int widgetNo) {
 			});
 		 }
 		 else {
-			 statusStr << "file " << filename << " is no wav file" << endl;
-			 WindowController::getInstance().setStatus(statusStr.str());
+			 WindowController::getInstance().setStatus("no wav file");
 		 }
 	 }
 	 else {
-		 statusStr << "file " << filename << " not found" << endl;
-		 WindowController::getInstance().setStatus(statusStr.str());
+		 WindowController::getInstance().setStatus("file not found");
 	 }
 }
 
@@ -344,7 +346,6 @@ void idleCallback( void )
 	bool refresh = ((WindowController::getInstance().mainBotView.isModified() && (now - lastDisplayRefreshCall > refreshRate_ms)) ||
 					(now - lastDisplayRefreshCall > idleRefreshRate_ms));
 	if (refresh) {
-		cout << "refresh" << endl;
 		WindowController::getInstance().mainBotView.postRedisplay(); // post if we reset the flag in a previous run
 		lastDisplayRefreshCall = now;
 
