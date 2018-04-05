@@ -40,7 +40,6 @@ public:
 	void setStatus(const Pose& newBodyPose, const Pose& newHeadPose, const string newMoveName, float newAmbition);
 private:
 	friend void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
-	friend void multithreaded_ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 
 	// function the webserver thread runs. Is terminated when activeThread is set to false
 	void runningThread();

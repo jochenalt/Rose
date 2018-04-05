@@ -2,7 +2,7 @@
  * Webserver.cpp
  *
  *  Created on: Mar 13, 2018
- *      Author: jochenalt
+ *      Author: Jochen Alt
  */
 
 #include <stdlib.h>
@@ -55,9 +55,7 @@ struct work_result {
 };
 
 // define an mongoose event handler function that is called whenever a request comes in
-
 void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
-// void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
 {
     switch (ev)
     {
@@ -70,7 +68,7 @@ void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
     			work_request req;
     			req.conn_id = (unsigned long)nc->user_data;
     			if (write(sock[0], &req, sizeof(req)) < 0)
-    		   	  perror("Writing worker sock");
+    				cerr << "Writing worker sock" << endl;
 
     			struct http_message *hm = (struct http_message *) ev_data;
     			string uri(hm->uri.p, hm->uri.len);
@@ -116,6 +114,7 @@ void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
         case MG_EV_CLOSE: {
         	if (nc->user_data)
         		nc->user_data = NULL;
+        	break;
         }
     default:
         break;
@@ -144,7 +143,7 @@ void* worker_thread_proc(void *param) {
 
   while (!Webserver::getInstance().getTerminateThread()) {
     if (read(sock[1], &req, sizeof(req)) < 0)
-      perror("Reading worker sock");
+    	cerr << "Reading worker sock" << endl;
     int r = rand() % 10;
     sleep(r);
     struct work_result res = {req.conn_id, r};
@@ -155,8 +154,6 @@ void* worker_thread_proc(void *param) {
 
 
 void Webserver::setup(int port, string webRootPath) {
-
-
 	mg_mgr_init(&mgr, NULL);
 	string portStr (intToString(port));
 	struct mg_connection *nc = mg_bind(&mgr, portStr.c_str(), ev_handler);
