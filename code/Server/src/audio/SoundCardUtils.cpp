@@ -268,7 +268,8 @@ void SoundCardUtils::setup() {
 }
 
 void SoundCardUtils::printSoundCards() {
-	cout << "audio output devices:" << endl;
+	cout << endl
+	     << "audio output devices:" << endl;
 	for (unsigned i = 0;i<outputDevices.size();i++) {
 		SoundCard device = outputDevices[i];
 		cout << "   " << device.index  << ":" << device.name << "," << device.descr << endl;

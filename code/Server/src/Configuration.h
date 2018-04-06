@@ -23,6 +23,7 @@ public:
 
 	double microphoneLatency = 0.0;
 	int microphoneSampleRate = 22050;
+	int webserverPort = 8080;
 
 private:
 	void readDouble(map<string,string>& configItems, string name, double &value);

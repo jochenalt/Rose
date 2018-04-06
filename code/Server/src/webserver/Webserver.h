@@ -28,16 +28,18 @@ public:
 	bool isActive() { return isWebserverActive; };
 
 	// initialize and start webserver
-	void setup(int port, string webRootPath);
+	void setup(string webRootPath);
 
 	// stop webserver
 	void teardown() {
 		terminateThread = true; // let the thread run
 	}
 
+	// flag, indicating that the webserver should stop
 	bool getTerminateThread() { return terminateThread; };
 
-	void setStatus(const Pose& newBodyPose, const Pose& newHeadPose, const string newMoveName, float newAmbition);
+	// print configuration information on webserver
+	void print();
 private:
 	friend void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 

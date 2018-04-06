@@ -21,6 +21,7 @@
 #include <webserver/mongoose.h>
 #include <webserver/Webserver.h>
 #include <audio/AudioProcessor.h>
+#include <Configuration.h>
 
 
 using namespace std;
@@ -129,13 +130,13 @@ static void on_work_complete(struct mg_connection *nc, int ev, void *ev_data) {
   struct mg_connection *c = NULL;
   for (c = mg_next(nc->mgr, NULL); c != NULL; c = mg_next(nc->mgr, c)) {
 	  if (c->user_data != NULL) {
-      struct work_result *res = (struct work_result *)ev_data;
-      if ((unsigned long)c->user_data == res->conn_id) {
-        sprintf(s, "conn_id:%lu sleep:%d", res->conn_id, res->sleep_time);
-        mg_send_head(c, 200, strlen(s), "Content-Type: text/plain");
-        mg_printf(c, "%s", s);
-      }
-    }
+		struct work_result *res = (struct work_result *)ev_data;
+		if ((unsigned long)c->user_data == res->conn_id) {
+			sprintf(s, "conn_id:%lu sleep:%d", res->conn_id, res->sleep_time);
+			mg_send_head(c, 200, strlen(s), "Content-Type: text/plain");
+			mg_printf(c, "%s", s);
+		}
+	  }
   }
 }
 
@@ -155,15 +156,15 @@ void* worker_thread_proc(void *param) {
 }
 
 
-void Webserver::setup(int port, string webRootPath) {
+void Webserver::setup(string webRootPath) {
 	mg_mgr_init(&mgr, NULL);
+	int port = Configuration::getInstance().webserverPort;
 	string portStr (intToString(port));
 	struct mg_connection *nc = mg_bind(&mgr, portStr.c_str(), ev_handler);
 	if (nc == NULL) {
 		cerr << "Cannot bind webserver to %i" << port << ". Maybe the server is already running?" << endl;
 		exit(1);
 	}
-	cout << "webserver is running at port " << port << endl;
 
 	// ok, I have no idea what these socket pairs are good for, its coming from the multithreaded example from mongoose
 	if (mg_socketpair(sock, SOCK_STREAM) == 0) {
@@ -203,6 +204,10 @@ void Webserver::runningThread() {
 	std::terminate(); // terminate that thread
 }
 
+void Webserver::print() {
+	cout << endl
+		<< "Webserver runs with " << s_num_worker_threads << " worker threads on port " << Configuration::getInstance().webserverPort << "." << endl;
+}
 
 
 bool getURLParameter(vector<string> names, vector<string> values, string key, string &value) {

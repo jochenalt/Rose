@@ -59,12 +59,11 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
 }
 
 void printUsage() {
-	cout << "BeatTracker -f <wav.file>        # define the track to be played" << endl
-	     << "            [-h]                 # print this" << endl
-		 << "            [-a]                 # print available sound cards" << endl
+	cout << endl
+		 << "BeatTracker -f <wav.file>        # define the track to be played" << endl
+	     << "            [-h]                 # print help and configuration" << endl
 	     << "            [-l]                 # measure latency" << endl
 		 << "            [-port <port>]       # set port of webserver if different from 8080" << endl
-	     << "            [-host <host>]       # define this process as client accessing this webserver" << endl
 		 << "            [-webroot <path>]    # set path of ./webroot" << endl
 		 << "            [-v <volume 0..100>] # set volume between 0 and 100" << endl
 		 << "            [-s]                 # silent, do not play audio" << endl
@@ -201,7 +200,7 @@ int main(int argc, char *argv[]) {
 		int idx = webrootPath.find_last_of("/");
 		webrootPath = webrootPath.substr(0,idx) + "/webroot";
 
-		int webserverPort = 8080;
+		Webserver& webserver = Webserver::getInstance();
 		for (int i = 1;i<argc;i++) {
 			string arg = getCmdOption(argv, argc,i);
 			if (arg == "-f") {
@@ -212,9 +211,11 @@ int main(int argc, char *argv[]) {
 				trackFilename = getCmdOption(argv, argc, i+1);
 				i++;
 			} else if (arg == "-h") {
-					printUsage();
-			} else if (arg == "-a") {
+					configuration.print();
 					audioUtils.printSoundCards();
+					webserver.print();
+					printUsage();
+					exit(0);
 			} else if (arg == "-l") {
 					double latency = AudioProcessor::getInstance().calibrateLatency();
 					if (latency > 0.1)
@@ -230,12 +231,13 @@ int main(int argc, char *argv[]) {
 				}
 				i++;
 				bool ok = true;
-				webserverPort = -1;
+				int webserverPort = -1;
 				webserverPort = stringToInt(getCmdOption(argv, argc, i), ok);
 				if ((webserverPort < 1000) || (webserverPort > 9999)) {
 					cerr << "port should be between 1000..9999" << endl;
 					exit(1);
 				}
+				configuration.webserverPort = webserverPort;
 			} else if (arg == "-webroot") {
 				if (i+1 >= argc) {
 					cerr << "-webroot required a path, e.g. " << argv[0] << "/webroot" << endl;
@@ -275,16 +277,16 @@ int main(int argc, char *argv[]) {
 
 		}
 
-		// write new configuration data to config file
+		// write configuration data which might have changed by parameters to config file
+		// i.e. every parameter passed is persistent
 		configuration.save();
 
 		// initialize all software processors
 		Dancer& dancer = Dancer::getInstance();
-		Webserver& webserver = Webserver::getInstance();
 		AudioProcessor& audioProcessor = AudioProcessor::getInstance();
 		RhythmDetector & rhhymDetector = RhythmDetector::getInstance();
 
-		webserver.setup(webserverPort, webrootPath);
+		webserver.setup(webrootPath);
 		dancer.setup();
 		dancer.setStartAfterNBeats(startAfterNBeats);
 		rhhymDetector.setup();
@@ -292,6 +294,8 @@ int main(int argc, char *argv[]) {
 		audioProcessor.setup(sendBeatToRythmDetector);
 		audioProcessor.setVolume((float)volumeArg/100.0);
 		audioProcessor.setPlayback(mplayback);
+
+		// if a track is passed, start with that one
 		if (trackFilename != "") {
 			std::ifstream file (trackFilename, std::ios::binary);
 			file.unsetf (std::ios::skipws);
@@ -301,11 +305,12 @@ int main(int argc, char *argv[]) {
 		} else {
 			audioProcessor.setMicrophoneInput();
 		}
+
+		// read in the audio source
 		audioProcessor.setAudioSource();
 
-		// start thread that computes the kinematics and sends angles to the servos
+		// start own thread for kinematics and servo control
 		servoThread = new std::thread([=](){
-			cout << "starting execution of kinematics and servo control" << endl;
 			ServoController& servoController = ServoController::getInstance();
 			BodyKinematics& bodyKinematics = BodyKinematics::getInstance();
 
@@ -333,7 +338,7 @@ int main(int argc, char *argv[]) {
 						// current pose is used up, indicate that we need a new one, such that the audio thread will set it
 						newPoseAvailable = false;
 
-						// sending all data to the PCA9685. This
+						// sending all angles to the PCA9685. This
 						// takes 2x4ms via I2C, so maximum loop frequency is 125Hz
 						for (int i = 0;i<6;i++) {
 							servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
@@ -352,7 +357,6 @@ int main(int argc, char *argv[]) {
 		});
 
 		// run main loop that processes the audio input and does beat detection
-		cout << "starting audio processing" << endl;
 		while (true) {
 			// if content is available from whatever source, process it (i.e. perform beat detection via sendBeatToRythmDetector)
 			if (audioProcessor.isWavContentUsed() ||

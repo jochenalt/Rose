@@ -229,7 +229,7 @@ void AudioProcessor::setAudioSource() {
 		// clear input, has been saved
 		nextWavContent.clear();
 
-		cout << "switching audio source to wav input" << endl;
+		cout << "using wav input as audio source " << endl;
 	}
 	if (nextInputType == MICROPHONE_INPUT) {
 		currentInputType = MICROPHONE_INPUT;
@@ -240,7 +240,7 @@ void AudioProcessor::setAudioSource() {
 		// initialize the
 		microphone.setup(Configuration::getInstance().microphoneSampleRate);
 
-		cout << "switching to microphone input" << endl;
+		cout << "using microphone as audio source" << endl;
 	}
 
 	// do not switch source again until explicitely set

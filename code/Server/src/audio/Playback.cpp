@@ -44,7 +44,7 @@ void Playback::setup(int sampleRate) {
         exit(1);
     }
 
-   	cout << "using device " << deviceName << " for audio playback " << sampleRate << "Hz for audio output " << endl;
+   	// cout << "using device " << deviceName << " for audio playback " << sampleRate << "Hz for audio output " << endl;
 }
 
 void Playback::play(double volume /* 0..1 */ ,double outputBuffer[], int outputBufferSize) {

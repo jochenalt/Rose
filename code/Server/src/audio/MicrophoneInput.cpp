@@ -171,9 +171,9 @@ void MicrophoneInput::setup(int samplerate) {
 	bits_per_sample = snd_pcm_format_physical_width(format);
 	bits_per_frame = bits_per_sample * channels;
 
-	cout << "using alsa default device for audio microphone input with "
-		 << Configuration::getInstance().microphoneSampleRate << "Hz and latency of "
-		 << (int)(Configuration::getInstance().microphoneLatency*1000.0) << "ms" << endl;
+	// cout << "using alsa default device for audio microphone input with "
+	// 	 << Configuration::getInstance().microphoneSampleRate << "Hz and latency of "
+	//	 << (int)(Configuration::getInstance().microphoneLatency*1000.0) << "ms" << endl;
 }
 
 bool MicrophoneInput::readMicrophoneInput(double frameBuffer[], unsigned frameBufferSize) {

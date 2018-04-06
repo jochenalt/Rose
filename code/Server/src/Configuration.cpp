@@ -13,9 +13,11 @@ Configuration& Configuration::getInstance() {
 }
 
 void Configuration::print() {
-	cout << "configuration:" << endl
-		 << "microphoneLatency=" << microphoneLatency << endl
-	     << "microphoneSampleRate=" << microphoneSampleRate << endl;
+	cout << "configuration values:" << endl
+		 << "   microphoneLatency=" << microphoneLatency << "s" << endl
+	     << "   microphoneSampleRate=" << microphoneSampleRate << " Hz" << endl
+         << "   webserverPort=" << webserverPort << endl;
+
 }
 
 bool Configuration::load() {
@@ -24,7 +26,8 @@ bool Configuration::load() {
 		map<string,string> configItems = readConfigFile(filePath);
 		readDouble(configItems, "microphoneLatency", microphoneLatency);
 		readInt(configItems, "microphoneSampleRate", microphoneSampleRate);
-		print();
+		readInt(configItems, "webserverPort", webserverPort);
+
 	}
 	return ok;
 }
@@ -33,6 +36,7 @@ void Configuration::save() {
 	map<string,string> configItems;
 	writeDouble(configItems, "microphoneLatency", microphoneLatency, 3);
 	writeInt(configItems, "microphoneSampleRate", microphoneSampleRate);
+	writeInt(configItems, "webserverPort", webserverPort);
 	writeConfigFile(filePath,configItems);
 };
 
