@@ -18,7 +18,7 @@
 #include <dance/Dancer.h>
 
 #include <basics/util.h>
-#include "dance/RhythmDetector.h"
+#include <dance/RhythmDetector.h>
 #include <stewart/BodyKinematics.h>
 #include <servo/PCA9685.h>
 #include <servo/ServoController.h>
@@ -26,8 +26,9 @@
 #include <audio/AudioFile.h>
 #include <audio/AudioProcessor.h>
 #include <audio/SoundCardUtils.h>
-
 #include <beat/BTrack.h>
+
+#include <Configuration.h>
 
 using namespace std;
 
@@ -98,8 +99,8 @@ void compensateLatency(bool& beat, double& bpm) {
 		// compute the necessary delay to compensate microphone latency
 		// assume 2/4 beat
 		float secondsPerBeat = 1.0*60.0/(bpm/RhythmDetector::getInstance().getRhythmInQuarters());
-		int numOfDelayedBeats = AudioProcessor::getInstance().getLatency() / secondsPerBeat + 1;
-		float currentBeatDelay = fmod(numOfDelayedBeats*secondsPerBeat-AudioProcessor::getInstance().getLatency(),secondsPerBeat); // [s]
+		int numOfDelayedBeats = AudioProcessor::getInstance().getCurrentLatency() / secondsPerBeat + 1;
+		float currentBeatDelay = fmod(numOfDelayedBeats*secondsPerBeat-AudioProcessor::getInstance().getCurrentLatency(),secondsPerBeat); // [s]
 
 		// queue up the time when this beat is to be fired
 		pendingBeatTime.push(now + currentBeatDelay*1000.0);
@@ -165,7 +166,6 @@ void sendBeatToRythmDetector(bool beat, double bpm) {
 // the audio thread it is called by the audio thread after every sample probe
 typedef void (*MoveCallbackFct)(bool beat, double Bpm);
 
-
 int main(int argc, char *argv[]) {
 	try {
 
@@ -185,12 +185,21 @@ int main(int argc, char *argv[]) {
 		SoundCardUtils& audioUtils= SoundCardUtils::getInstance();
 		audioUtils.setup();
 
+		// write a new config file with any new option
+		Configuration& configuration = Configuration::getInstance();
+		bool configIsThere = configuration.load();
+
+		// if no config file is there, call latency measurement
+		if (!configIsThere) {
+			double latency = AudioProcessor::getInstance().calibrateLatency();
+			if (latency > 0.1)
+				configuration.microphoneLatency = latency;
+		}
+
 		// if we run a webserver, this is the path where static content is stored
 		string webrootPath = string(argv[0]);
 		int idx = webrootPath.find_last_of("/");
 		webrootPath = webrootPath.substr(0,idx) + "/webroot";
-		// if client, this is the host of the webserver
-		string webclientHost = "127.0.0.1";
 
 		int webserverPort = 8080;
 		for (int i = 1;i<argc;i++) {
@@ -207,8 +216,9 @@ int main(int argc, char *argv[]) {
 			} else if (arg == "-a") {
 					audioUtils.printSoundCards();
 			} else if (arg == "-l") {
-					AudioProcessor::getInstance().calibrateLatency();
-					exit(0);
+					double latency = AudioProcessor::getInstance().calibrateLatency();
+					if (latency > 0.1)
+						configuration.microphoneLatency = latency;
 			} else if (arg == "-t") {
 				ServoController::getInstance().calibrateViaKeyBoard();
 			} else if (arg == "-s") {
@@ -226,13 +236,6 @@ int main(int argc, char *argv[]) {
 					cerr << "port should be between 1000..9999" << endl;
 					exit(1);
 				}
-			} else if (arg == "-host") {
-				if (i+1 >= argc) {
-					cerr << "-host requires a string like 127.0.0.1" << endl;
-					exit(1);
-				}
-				i++;
-				webclientHost = getCmdOption(argv, argc, i);
 			} else if (arg == "-webroot") {
 				if (i+1 >= argc) {
 					cerr << "-webroot required a path, e.g. " << argv[0] << "/webroot" << endl;
@@ -272,7 +275,10 @@ int main(int argc, char *argv[]) {
 
 		}
 
-		// initilize all software processors
+		// write new configuration data to config file
+		configuration.save();
+
+		// initialize all software processors
 		Dancer& dancer = Dancer::getInstance();
 		Webserver& webserver = Webserver::getInstance();
 		AudioProcessor& audioProcessor = AudioProcessor::getInstance();

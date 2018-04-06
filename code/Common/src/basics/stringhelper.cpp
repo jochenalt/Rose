@@ -50,8 +50,6 @@ void trim(std::string &s) {
     rtrim(s);
 }
 
-
-
 string upcase(string str) {
 	string result(str);
 	std::transform(result.begin(), result.end(),result.begin(), ::toupper);

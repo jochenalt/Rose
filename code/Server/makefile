@@ -15,7 +15,7 @@ $(LIB)/base64.o $(LIB)/orientation.o $(LIB)/point.o $(LIB)/serializer.o \
 $(LIB)/spatial.o $(LIB)/stringhelper.o $(LIB)/util.o $(LIB)/zip.o  \
 $(LIB)/BodyKinematics.o $(LIB)/StewartKinematics.o \
 $(LIB)/Move.o $(LIB)/Dancer.o $(LIB)/RhythmDetector.o\
-$(LIB)/main.o 
+$(LIB)/Configuration.o $(LIB)/main.o 
 
 
 INCLUDES=-I$(SRC)  -I$(CSRC)

@@ -30,6 +30,7 @@
 #include <dance/Dancer.h>
 
 #include <beat/BTrack.h>
+#include <Configuration.h>
 
 using namespace std;
 
@@ -46,8 +47,6 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 
 	// music detection requires 1s of music before flagging it as music
 	beatScoreFilter.init(100);
-
-	calibrateLatency();
 }
 
 void generateSinusoidTone(double buffer[], int bufferSize, float sampleRate, int numOfFrequencies, float tonefrequency[]) {
@@ -58,20 +57,21 @@ void generateSinusoidTone(double buffer[], int bufferSize, float sampleRate, int
     }
 }
 
-void AudioProcessor::calibrateLatency() {
+double AudioProcessor::calibrateLatency() {
 	// calibration is done by sending a sinusoid tone via the loudspeaker and
 	// receiving it via microphone. The latency in between is measured.
 	float measuredLatency = 0;
 
-	playback.setup(MicrophoneSampleRate);
-	microphone.setup(MicrophoneSampleRate);
+	float microphoneSampleRate = Configuration::getInstance().microphoneSampleRate;
+	playback.setup(microphoneSampleRate);
+	microphone.setup(microphoneSampleRate);
 
 
 	// measurement is repeated if not successful
 	int tries = 0;
 
 	const float length_s = 0.150; 					// [s], length of test tone
-	int bufferSize = length_s*MicrophoneSampleRate; // length of test tone buffer
+	int bufferSize = length_s*microphoneSampleRate; // length of test tone buffer
 	double buffer[bufferSize];						// buffer containing the test tone
 	const int numOfTestFrequencies = 4;				// test tone consists of several frequencies in case the microphone is really poor
 
@@ -88,19 +88,19 @@ void AudioProcessor::calibrateLatency() {
 			testFrequency[i] = 440;	// [Hz]
 		else
 			testFrequency[i] =2.0*sqrt(2)*testFrequency[i-1];
-		assert (testFrequency[i]  <  MicrophoneSampleRate/2);
+		assert (testFrequency[i]  <  microphoneSampleRate/2);
 
-		fftBin[i] = testFrequency[i]/ (MicrophoneSampleRate / fftLength);
+		fftBin[i] = testFrequency[i]/ (microphoneSampleRate/ fftLength);
 
 		// adapt test frequency to hit the middle of an fft bin
-		testFrequency[i]= ((float)fftBin[i]) * (MicrophoneSampleRate / fftLength);
+		testFrequency[i]= ((float)fftBin[i]) * (microphoneSampleRate / fftLength);
 		cout << testFrequency[i] << "Hz" << string((i<numOfTestFrequencies-1)?string(", "):string(""));
 	}
 	cout << ". Be quiet." << endl;
 
 	do {
 		// sum up all test frequencies
-		generateSinusoidTone(buffer, bufferSize , MicrophoneSampleRate, numOfTestFrequencies, testFrequency);
+		generateSinusoidTone(buffer, bufferSize , microphoneSampleRate, numOfTestFrequencies, testFrequency);
 
 		// empty the alsa microphone buffer by reading
 		microphone.readMicrophoneInput(inputBuffer, inputBufferSize);
@@ -114,7 +114,7 @@ void AudioProcessor::calibrateLatency() {
 		double testThreshold = 0.0;
 
 		// dont wait longer than two seconds for the test tone
-		while ((millis() - start_ms < 1000) && (measuredLatency < floatPrecision)){
+		while ((millis() - start_ms < 1000)){
 			kiss_fft_cpx fftIn [fftLength];
 			kiss_fft_cpx fftOut[fftLength];
 			kiss_fft_cfg cfgForwards = kiss_fft_alloc (fftLength, 0, 0, 0);
@@ -123,7 +123,7 @@ void AudioProcessor::calibrateLatency() {
 			// get input from microphone
 			bool ok = microphone.readMicrophoneInput(inputBuffer, inputBufferSize);
 			if (ok) {
-				elapsedTime += 1000.0*inputBufferSize/MicrophoneSampleRate;
+				elapsedTime += 1000.0*inputBufferSize/microphoneSampleRate;
 
 				// copy microphone buffer into complex array and zero padding as input for fft
 				for (int i = 0;i < inputBufferSize;i++)
@@ -174,6 +174,8 @@ void AudioProcessor::calibrateLatency() {
 	} while ((measuredLatency == 0) && (tries++ < 3));
     if (measuredLatency > 0)
     	cout << "measured latency = " << measuredLatency << "s" << endl;
+
+    return measuredLatency;
 }
 
 void AudioProcessor::setVolume(double newVolume) {
@@ -233,10 +235,10 @@ void AudioProcessor::setAudioSource() {
 		currentInputType = MICROPHONE_INPUT;
 
 		// playback is set to standard sample rate
-		playback.setup(MicrophoneSampleRate);
+		playback.setup(Configuration::getInstance().microphoneSampleRate);
 
 		// initialize the
-		microphone.setup(MicrophoneSampleRate);
+		microphone.setup(Configuration::getInstance().microphoneSampleRate);
 
 		cout << "switching to microphone input" << endl;
 	}
@@ -311,7 +313,7 @@ void AudioProcessor::processInput() {
 	while (!stopCurrProcessing) {
 		if (currentInputType == MICROPHONE_INPUT) {
 			inputBufferSamples = microphone.readMicrophoneInput(inputBuffer, numInputSamples);
-			sampleRate = MicrophoneSampleRate;
+			sampleRate = Configuration::getInstance().microphoneSampleRate;
 		}
 		if (currentInputType == WAV_INPUT) {
 			inputBufferSamples = readWavInput(inputBuffer, numInputSamples);
@@ -364,10 +366,10 @@ void AudioProcessor::processInput() {
 	setAudioSource();
 }
 
-float AudioProcessor::getLatency() {
+float AudioProcessor::getCurrentLatency() {
 	if (currentInputType == MICROPHONE_INPUT)
-		return microphone.getMicrophoneLatency();
+		return Configuration::getInstance().microphoneLatency;
 	else
-		return 0.5;
+		return 0.0;
 }
 

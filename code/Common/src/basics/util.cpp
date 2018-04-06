@@ -5,6 +5,7 @@
 #include <chrono>
 #include <unistd.h>
 #include <iomanip>
+#include <map>
 
 #include "basics/stringhelper.h"
 #include "basics/util.h"
@@ -295,4 +296,46 @@ std::string getErrorMessage(ErrorCodeType err) {
 	msg << " (" << (int)err << ")";
 
 	return msg.str();
+}
+
+std::map<string, string> readConfigFile(string filepath) {
+	std::istringstream is_file(filepath);
+	std::map<string, string> result;
+	std::string line;
+	while( std::getline(is_file, line) )
+	{
+	  std::istringstream is_line(line);
+	  std::string key;
+	  if( std::getline(is_line, key, '=') )
+	  {
+	    std::string value;
+	    if( std::getline(is_line, value) )
+	    	result[key] = value;
+	  }
+	}
+	return result;
+}
+
+void writeConfigFile(string filepath, std::map<string,string>& config) {
+	std::ofstream file(filepath);
+	map<string, string>::iterator it;
+
+	for ( it = config.begin(); it != config.end(); it++ )
+	{
+		file << it->first  << "=" << it->second << endl;
+	}
+	file.close();
+}
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+
+string getHomeDirectory() {
+	const char *homedir;
+
+	if ((homedir = getenv("HOME")) == NULL) {
+		homedir = getpwuid(getuid())->pw_dir;
+	}
+	return string(homedir);
 }

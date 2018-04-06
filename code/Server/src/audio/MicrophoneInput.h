@@ -10,16 +10,12 @@
 
 using namespace std;
 
-// microphone uses a sample rate
-const int MicrophoneSampleRate = 22050;
-
 class MicrophoneInput {
 public:
 	MicrophoneInput();
 	virtual ~MicrophoneInput();
 	void setup(int sampleRate);
 	bool readMicrophoneInput(double buffer[], unsigned BufferSize);
-	double getMicrophoneLatency();
 private:
 };
 

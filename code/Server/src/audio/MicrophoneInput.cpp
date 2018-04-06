@@ -17,6 +17,7 @@
 
 #include <basics/util.h>
 #include <audio/MicrophoneInput.h>
+#include <Configuration.h>
 
 
 #define _(msgid) gettext (msgid)
@@ -171,8 +172,8 @@ void MicrophoneInput::setup(int samplerate) {
 	bits_per_frame = bits_per_sample * channels;
 
 	cout << "using alsa default device for audio microphone input with "
-		 << MicrophoneSampleRate << "Hz and latency of "
-		 << (int)(getMicrophoneLatency()*1000.0) << "ms" << endl;
+		 << Configuration::getInstance().microphoneSampleRate << "Hz and latency of "
+		 << (int)(Configuration::getInstance().microphoneLatency*1000.0) << "ms" << endl;
 }
 
 bool MicrophoneInput::readMicrophoneInput(double frameBuffer[], unsigned frameBufferSize) {
@@ -189,7 +190,3 @@ bool MicrophoneInput::readMicrophoneInput(double frameBuffer[], unsigned frameBu
 	}
 	return true;
 }
-
-double MicrophoneInput::getMicrophoneLatency() {
-	return 0.25;
-};

@@ -10,6 +10,7 @@
 #define UTIL_H_
 
 #include <vector>
+#include <map>
 #include <stdio.h>
 #include "math.h"
 #include <stdint.h>
@@ -285,5 +286,11 @@ string getLastErrorMessage();
 // true, if error has been set. When called again after an error, false is returned.
 bool isError();
 
+// write all entries to a configuration file
+void writeConfigFile(string filepath, std::map<string,string>& config);
 
+// read all entries of a config file
+std::map<string, string> readConfigFile(string filepath);
+
+string getHomeDirectory();
 #endif

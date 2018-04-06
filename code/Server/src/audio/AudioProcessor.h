@@ -52,7 +52,7 @@ public:
 
 	// get static current latency of input source
 	// used in latency compensation that adapts the prediction time frame accordingly
-	float getLatency();
+	float getCurrentLatency();
 
 	// get processed time relative to input source (wav or microphone)
 	// this is set whenever the audio input is analyzed and has a precision of around 3ms
@@ -65,7 +65,7 @@ public:
 	void setAudioSource();
 
 	// measure the latency of the microphone accoustically
-	void calibrateLatency();
+	double calibrateLatency();
 private:
 	enum InputType { WAV_INPUT, MICROPHONE_INPUT, NO_CHANGE };
 	int readMicrophoneInput(double buffer[], unsigned BufferSize);
