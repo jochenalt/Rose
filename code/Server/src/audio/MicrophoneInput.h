@@ -18,7 +18,7 @@ public:
 	MicrophoneInput();
 	virtual ~MicrophoneInput();
 	void setup(int sampleRate);
-	int readMicrophoneInput(double buffer[], unsigned BufferSize);
+	bool readMicrophoneInput(double buffer[], unsigned BufferSize);
 	double getMicrophoneLatency();
 private:
 };

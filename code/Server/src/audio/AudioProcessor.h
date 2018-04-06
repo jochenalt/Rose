@@ -64,11 +64,12 @@ public:
 	// set the audio source right after microphone or wav has been set. Used only when main loop is not yet running
 	void setAudioSource();
 
+	// measure the latency of the microphone accoustically
+	void calibrateLatency();
 private:
 	enum InputType { WAV_INPUT, MICROPHONE_INPUT, NO_CHANGE };
 	int readMicrophoneInput(double buffer[], unsigned BufferSize);
 	int readWavInput(double buffer[], unsigned BufferSize);
-
 
 	volatile bool stopCurrProcessing = false;
 

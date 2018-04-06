@@ -61,6 +61,7 @@ void printUsage() {
 	cout << "BeatTracker -f <wav.file>        # define the track to be played" << endl
 	     << "            [-h]                 # print this" << endl
 		 << "            [-a]                 # print available sound cards" << endl
+	     << "            [-l]                 # measure latency" << endl
 		 << "            [-port <port>]       # set port of webserver if different from 8080" << endl
 	     << "            [-host <host>]       # define this process as client accessing this webserver" << endl
 		 << "            [-webroot <path>]    # set path of ./webroot" << endl
@@ -205,6 +206,9 @@ int main(int argc, char *argv[]) {
 					printUsage();
 			} else if (arg == "-a") {
 					audioUtils.printSoundCards();
+			} else if (arg == "-l") {
+					AudioProcessor::getInstance().calibrateLatency();
+					exit(0);
 			} else if (arg == "-t") {
 				ServoController::getInstance().calibrateViaKeyBoard();
 			} else if (arg == "-s") {

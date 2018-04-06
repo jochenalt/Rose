@@ -33,14 +33,16 @@ Webserver::~Webserver() {
 
 }
 
-
 using namespace std;
 
 static struct mg_serve_http_opts s_http_server_opts;
 static sock_t sock[2];
-static const int s_num_worker_threads = 5;
-static unsigned long s_next_id = 0;
 
+// we need only two threads, one for the requesting the status every 20ms and one for all interactions like file upload
+static const int s_num_worker_threads = 2;
+
+// session id used per connection
+static unsigned long s_next_id = 0;
 
 // This info is passed to the worker thread
 struct work_request {
@@ -84,7 +86,7 @@ void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
 								body = base64_decode(body);
 						}
     	        	} else
-    	        		break; // first
+    	        		break; // stop with first null-header
     	        }
     	        bool ok;
     			string response;
@@ -124,9 +126,9 @@ void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
 
 static void on_work_complete(struct mg_connection *nc, int ev, void *ev_data) {
   char s[32];
-  struct mg_connection *c;
+  struct mg_connection *c = NULL;
   for (c = mg_next(nc->mgr, NULL); c != NULL; c = mg_next(nc->mgr, c)) {
-    if (c->user_data != NULL) {
+	  if (c->user_data != NULL) {
       struct work_result *res = (struct work_result *)ev_data;
       if ((unsigned long)c->user_data == res->conn_id) {
         sprintf(s, "conn_id:%lu sleep:%d", res->conn_id, res->sleep_time);
@@ -163,6 +165,7 @@ void Webserver::setup(int port, string webRootPath) {
 	}
 	cout << "webserver is running at port " << port << endl;
 
+	// ok, I have no idea what these socket pairs are good for, its coming from the multithreaded example from mongoose
 	if (mg_socketpair(sock, SOCK_STREAM) == 0) {
 		cerr << "Cannot open socket pair" << endl;
 		exit(1);
@@ -181,7 +184,7 @@ void Webserver::setup(int port, string webRootPath) {
 		 mg_start_thread(worker_thread_proc, &mgr);
 	}
 
-	// start a thread to run all webserver threads, to that this call returns immediately
+	// start a thread to run all webserver threads, such that this call returns immediately
 	webserverThread = new std::thread(&Webserver::runningThread, this);
 
 	// webserver is running

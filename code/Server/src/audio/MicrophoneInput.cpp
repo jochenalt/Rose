@@ -175,7 +175,7 @@ void MicrophoneInput::setup(int samplerate) {
 		 << (int)(getMicrophoneLatency()*1000.0) << "ms" << endl;
 }
 
-int MicrophoneInput::readMicrophoneInput(double frameBuffer[], unsigned frameBufferSize) {
+bool MicrophoneInput::readMicrophoneInput(double frameBuffer[], unsigned frameBufferSize) {
 	int byteBufferSize = frameBufferSize*2;
 	uint8_t pcmBuffer[byteBufferSize*2];
 	if (pcm_read(pcmBuffer, frameBufferSize) != frameBufferSize)
