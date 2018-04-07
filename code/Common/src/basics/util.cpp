@@ -327,7 +327,7 @@ void writeConfigFile(string filepath, std::map<string,string>& config) {
 	file.close();
 }
 
-#ifdef __LINUX
+#ifdef __linux__
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
