@@ -88,7 +88,7 @@ private:
 	bool inputAudioDetected = false;
 	LowPassFilter cumulativeScoreLowPass;
 	LowPassFilter cumulativeBeatScoreLowPass;
-	LowPassFilter varianceLowPass = 0;
+	LowPassFilter squaredScoreLowPass = 0;
 
 };
 

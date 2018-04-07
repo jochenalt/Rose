@@ -158,7 +158,6 @@ void sendBeatToRythmDetector(bool beat, double bpm) {
 		servoBodyPoseBuffer = dancer.getBodyPose();
 		newPoseAvailable = true;
 	}
-
 }
 
 // Function pointer used as call back that allows to attach dancing to
@@ -274,7 +273,6 @@ int main(int argc, char *argv[]) {
 				cerr << "unknown option " << arg << endl;
 				exit(1);
 			}
-
 		}
 
 		// write configuration data which might have changed by parameters to config file

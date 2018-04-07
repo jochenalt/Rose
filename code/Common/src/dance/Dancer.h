@@ -80,11 +80,15 @@ private:
 	void createMove(double movePercentage);
 
 	TotalBodyPose pose;
-	Move::MoveType currentMove;
-	int passedBeatsInCurrentMove;
-	SequenceModeType sequenceMode;
+
+	Move::MoveType currentMove = Move::MoveType::NO_MOVE;
+	Move::MoveType prevMove = Move::MoveType::NO_MOVE;
+	uint32_t moveTransitionStartTime = 0;
+
+	int passedBeatsInCurrentMove = 0;
+	SequenceModeType sequenceMode = AUTOMATIC_SEQUENCE;
 	vector<Move> moveLibrary;
-	int startAfterNBeats;
+	int startAfterNBeats = 0;
 	double ambition = 1.0;
 
 	ExclusiveMutex poseMutex;

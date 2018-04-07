@@ -14,10 +14,6 @@
 #include "stewart/BodyKinematics.h"
 
 
-
-bool Move::firstAccelerationCall = true;
-TimeSamplerStatic Move::moveTimer;
-
 std::vector<Move> Move::moveLibrary;
 const double latencyShift = 0.0;
 
@@ -27,10 +23,6 @@ Move& Move::getMove(MoveType m) {
 	assert((int)m < moveLibrary.size());
 	return moveLibrary[(int)m];
 }
-
-void Move::resetAcceleration() {
-	moveTimer.dT();
-};
 
 
 void Move::setup() {
@@ -143,21 +135,7 @@ double Move::baseCurveTrapezoid(double movePercentage) {
 
 
 TotalBodyPose Move::absHead (const Pose& bodyPose, const Pose& relHeadPose) {
-
-	static Pose restrictedBodyPose;
-	static Pose restrictedRelHeadPose ;
-	double dT = moveTimer.dT();
-	// dont reduce acceleration in first call
-	if (firstAccelerationCall) {
-		restrictedBodyPose = bodyPose;
-		restrictedRelHeadPose = relHeadPose;
-		firstAccelerationCall = false;
-	} else {
-		// limit acceleration between two moves
-		restrictedBodyPose.moveTo(bodyPose, dT, 100.0, 3.0);
-		restrictedRelHeadPose.moveTo(relHeadPose, dT, 100.0, 3.0);
-	}
-	TotalBodyPose result = TotalBodyPose(restrictedBodyPose,BodyKinematics::getInstance().computeHeadStewartPose(restrictedBodyPose, restrictedRelHeadPose));
+	TotalBodyPose result = TotalBodyPose(bodyPose,BodyKinematics::getInstance().computeHeadStewartPose(bodyPose, relHeadPose));
 	return result;
 }
 

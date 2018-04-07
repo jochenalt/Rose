@@ -112,14 +112,10 @@ public:
 	TotalBodyPose turnBack(double movePercentage);
 
 	TotalBodyPose move(double movePercentage);
-
-	static void resetAcceleration();
-	MoveType id;
+	MoveType id = NO_MOVE;
 	string name;
 	int lengthInBeats;
 	static std::vector<Move> moveLibrary;
-	static TimeSamplerStatic moveTimer;
-	static bool firstAccelerationCall;
 };
 
 #endif /* SRC_MOVE_H_ */
