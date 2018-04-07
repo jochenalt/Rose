@@ -22,7 +22,7 @@ public:
 	void save();
 
 	double microphoneLatency = 0.0;
-	int microphoneSampleRate = 22050;
+	int microphoneSampleRate = 44100;
 	int webserverPort = 8080;
 
 private:

@@ -86,7 +86,9 @@ private:
 	InputType nextInputType = MICROPHONE_INPUT;
 
 	bool inputAudioDetected = false;
-	LowPassFilter beatScoreFilter;
+	LowPassFilter cumulativeScoreLowPass;
+	LowPassFilter cumulativeBeatScoreLowPass;
+
 };
 
 #endif /* SRC_AUDIOPROCESSOR_H_ */

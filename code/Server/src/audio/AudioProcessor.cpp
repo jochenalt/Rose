@@ -45,8 +45,9 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
     beatCallback = newBeatCallback;
 	inputAudioDetected = false;
 
-	// music detection requires 1s of music before flagging it as music
-	beatScoreFilter.init(100);
+	// low pass filter of cumulative score to get the average score
+	cumulativeScoreLowPass.init(1 /* Hz */);
+	cumulativeBeatScoreLowPass.init(1 /* Hz */);
 }
 
 void generateSinusoidTone(double buffer[], int bufferSize, float sampleRate, int numOfFrequencies, float tonefrequency[]) {
@@ -215,7 +216,11 @@ void AudioProcessor::setAudioSource() {
 		// reset position in wav content to start
 		wavInputPosition = 0;
 
-		beatScoreFilter.set(0);
+		// once we change the source, we set the low passed cumulative score to give
+		// music detection a higher chance to identify music
+		cumulativeScoreLowPass = 0;
+		cumulativeBeatScoreLowPass = 0;
+		inputAudioDetected = true;
 
 		// re-initialize dancing when new input source is detected
 		Dancer::getInstance().setup();
@@ -341,12 +346,16 @@ void AudioProcessor::processInput() {
 			cout << std::fixed << std::setprecision(2) << "Beat (" << beatDetector.getCurrentTempoEstimate() << ")"  << endl;
 	    };
 
-		// check if the signal is really music. low pass scoring to ensure that small pauses are not
-		// misinterpreted as end of music
+		// we need to check if there is music or only noise. This is done by a me
+		// cumulative score is the sum of the onset function and the likelihood of a beat. When this value reaches a maximum,
+		// we receive a beat. We identify the existence of music a least distance of a beat score to the average cumulative score
 		double score = beatDetector.getLatestCumulativeScoreValue();
-		beatScoreFilter.set(score);
-		const double scoreThreshold = 10.;
-		inputAudioDetected = (beatScoreFilter >= scoreThreshold);
+		if (beat) {
+			cumulativeBeatScoreLowPass = score;
+			inputAudioDetected = cumulativeBeatScoreLowPass > 100;
+			// cout << "score = " << score << " avr score=" << cumulativeScoreLowPass << " beat score = " << cumulativeBeatScoreLowPass << " %= " << cumulativeBeatScoreLowPass/cumulativeScoreLowPass << endl;
+		} else
+			cumulativeScoreLowPass = score;
 
 		processedTime = millis()/1000.0;
 		beatCallback(beat, bpm);
