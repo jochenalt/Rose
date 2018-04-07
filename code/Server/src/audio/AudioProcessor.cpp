@@ -46,9 +46,9 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 	inputAudioDetected = false;
 
 	// low pass filter of cumulative score to get the average score
-	cumulativeScoreLowPass.init(1 /* Hz */);
-	cumulativeBeatScoreLowPass.init(1 /* Hz */);
-	varianceLowPass.init(1);
+	cumulativeScoreLowPass.init(1.0 /* Hz */);
+	cumulativeBeatScoreLowPass.init(1.0 /* Hz */);
+	varianceLowPass.init(1.0);
 }
 
 void generateSinusoidTone(double buffer[], int bufferSize, float sampleRate, int numOfFrequencies, float tonefrequency[]) {
@@ -221,6 +221,7 @@ void AudioProcessor::setAudioSource() {
 		// music detection a higher chance to identify music
 		cumulativeScoreLowPass = 0;
 		cumulativeBeatScoreLowPass = 0;
+		varianceLowPass = 0;
 		inputAudioDetected = true;
 
 		// re-initialize dancing when new input source is detected
@@ -353,8 +354,8 @@ void AudioProcessor::processInput() {
 		double score = beatDetector.getLatestCumulativeScoreValue();
 		if (beat) {
 			cumulativeBeatScoreLowPass = score;
-			inputAudioDetected = varianceLowPass / cumulativeScoreLowPass > 10.;
-			// cout << "score = " << score << " avr score=" << cumulativeScoreLowPass << " beat score = " << cumulativeBeatScoreLowPass << "variance=" << varianceLowPass << " var/score=" << varianceLowPass / cumulativeScoreLowPass << endl;
+			inputAudioDetected = varianceLowPass / cumulativeScoreLowPass > 8.;
+			cout << "score = " << score << " avr score=" << cumulativeScoreLowPass << " beat score = " << cumulativeBeatScoreLowPass << "variance=" << varianceLowPass << " var/score=" << varianceLowPass / cumulativeScoreLowPass << endl;
 		} else {
 			cumulativeScoreLowPass = score;
 			varianceLowPass = (score - cumulativeScoreLowPass)*(score - cumulativeScoreLowPass);
