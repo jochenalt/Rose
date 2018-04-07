@@ -48,6 +48,7 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 	// low pass filter of cumulative score to get the average score
 	cumulativeScoreLowPass.init(1 /* Hz */);
 	cumulativeBeatScoreLowPass.init(1 /* Hz */);
+	varianceLowPass.init(1);
 }
 
 void generateSinusoidTone(double buffer[], int bufferSize, float sampleRate, int numOfFrequencies, float tonefrequency[]) {
@@ -348,15 +349,16 @@ void AudioProcessor::processInput() {
 
 		// we need to check if there is music or only noise. This is done by a me
 		// cumulative score is the sum of the onset function and the likelihood of a beat. When this value reaches a maximum,
-		// we receive a beat. We identify the existence of music a least distance of a beat score to the average cumulative score
+		// we receive a beat. We identify the existence of music by a least variance of this score
 		double score = beatDetector.getLatestCumulativeScoreValue();
 		if (beat) {
 			cumulativeBeatScoreLowPass = score;
-			inputAudioDetected = cumulativeBeatScoreLowPass > 100;
-			// cout << "score = " << score << " avr score=" << cumulativeScoreLowPass << " beat score = " << cumulativeBeatScoreLowPass << " %= " << cumulativeBeatScoreLowPass/cumulativeScoreLowPass << endl;
-		} else
+			inputAudioDetected = varianceLowPass / cumulativeScoreLowPass > 10.;
+			// cout << "score = " << score << " avr score=" << cumulativeScoreLowPass << " beat score = " << cumulativeBeatScoreLowPass << "variance=" << varianceLowPass << " var/score=" << varianceLowPass / cumulativeScoreLowPass << endl;
+		} else {
 			cumulativeScoreLowPass = score;
-
+			varianceLowPass = (score - cumulativeScoreLowPass)*(score - cumulativeScoreLowPass);
+		}
 		processedTime = millis()/1000.0;
 		beatCallback(beat, bpm);
 
