@@ -193,7 +193,7 @@ bool almostEqual(double a, double b, double precision) {
 
 }
 
-#ifdef __linux__
+#ifdef  __linux__
 #include <unistd.h>
 #include <termios.h>
 #include <stdio.h>
@@ -327,6 +327,7 @@ void writeConfigFile(string filepath, std::map<string,string>& config) {
 	file.close();
 }
 
+#ifdef __LINUX
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
@@ -339,3 +340,5 @@ string getHomeDirectory() {
 	}
 	return string(homedir);
 }
+
+#endif
