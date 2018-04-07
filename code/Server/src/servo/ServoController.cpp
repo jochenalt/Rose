@@ -36,20 +36,20 @@ void ServoController::setup() {
 	double topServoLimit = degrees(bodyKin.getBodyConfig().topServoLimit_rad);
 
 	servo[ 0].setup(&pca9685,  0, servoFrequency, false, bottomServoLimit, topServoLimit, 0-4);
-	servo[ 1].setup(&pca9685,  1, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-11);
-	servo[ 2].setup(&pca9685,  2, servoFrequency, false, bottomServoLimit, topServoLimit, 0+5);
-	servo[ 3].setup(&pca9685,  3, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-10);
-	servo[ 4].setup(&pca9685,  4, servoFrequency, false, bottomServoLimit, topServoLimit, 0);
-	servo[ 5].setup(&pca9685,  5, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-8);
+	servo[ 1].setup(&pca9685,  1, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-3);
+	servo[ 2].setup(&pca9685,  2, servoFrequency, false, bottomServoLimit, topServoLimit, 0-7);
+	servo[ 3].setup(&pca9685,  3, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-7);
+	servo[ 4].setup(&pca9685,  4, servoFrequency, false, bottomServoLimit, topServoLimit, -1);
+	servo[ 5].setup(&pca9685,  5, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-3);
 
 	bottomServoLimit = degrees(bodyKin.getHeadConfig().bottomServoLimit_rad);
 	topServoLimit = degrees(bodyKin.getHeadConfig().topServoLimit_rad);
 
-	servo[ 6].setup(&pca9685,  6, servoFrequency, false, bottomServoLimit, topServoLimit, 0 + 4);
-	servo[ 7].setup(&pca9685,  7, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-12);
-	servo[ 8].setup(&pca9685,  8, servoFrequency, false, bottomServoLimit, topServoLimit, 0-1);
-	servo[ 9].setup(&pca9685,  9, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-3);
-	servo[10].setup(&pca9685, 10, servoFrequency, false, bottomServoLimit, topServoLimit, 0-7);
+	servo[ 6].setup(&pca9685,  6, servoFrequency, false, bottomServoLimit, topServoLimit, 0 + -3);
+	servo[ 7].setup(&pca9685,  7, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-0);
+	servo[ 8].setup(&pca9685,  8, servoFrequency, false, bottomServoLimit, topServoLimit, 0-13);
+	servo[ 9].setup(&pca9685,  9, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-1);
+	servo[10].setup(&pca9685, 10, servoFrequency, false, bottomServoLimit, topServoLimit, 0-0);
 	servo[11].setup(&pca9685, 11, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-6);
 }
 
