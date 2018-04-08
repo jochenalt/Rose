@@ -325,7 +325,7 @@ int main(int argc, char *argv[]) {
 			while (executeServoThread) {
 				if (newPoseAvailable) {
 					// limit the frequency a new pose is sent to the servos
-					const int servoFrequency = 90; // [Hz]
+					const int servoFrequency = 70; // [Hz]
 					if (timer.isDue(1000.0/servoFrequency /* [ms] */)) {
 
 						// compute the servo angles out of the pose

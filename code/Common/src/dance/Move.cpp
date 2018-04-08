@@ -252,7 +252,7 @@ TotalBodyPose Move::eyedDippedDiagonalSwing(double movePercentage) {
 	double mRoll  = baseCurveCos(scaleMove(movePercentage, 4.0, -0.25 + startPhase));
 
 	return absHead (
-			Pose(Point(-20.0*mBase,20.0*mBase,bodyHeight + 20.0*mHipDip),Rotation (radians(15)*mRoll,-radians(15)*mBase,0)),
+			Pose(Point(-15.0*mBase,15.0*mBase,bodyHeight + 15.0*mHipDip),Rotation (radians(15)*mRoll,-radians(15)*mBase,0)),
 			Pose(Point(0,0,headHeight),Rotation (-radians(10)*mRoll,0,0)));
 }
 
@@ -282,7 +282,7 @@ TotalBodyPose Move::bollywoodHeadMove(double movePercentage) {
 
 	return  absHead (
 				Pose(Point(0,30.0*mBase,bodyHeight + 10.0*mDip),Rotation (radians(10)*mHeadTurn, 0,0)),
-				Pose(Point(0,mHeadMove*30.0,headHeight+mHeadUp*5.0),Rotation (radians(25)*mHeadTurn,0,0)));
+				Pose(Point(0,mHeadMove*30.0,headHeight+mHeadUp*5.0),Rotation (radians(20)*mHeadTurn,0,0)));
 }
 
 
@@ -321,8 +321,8 @@ TotalBodyPose Move::dipBodyWaveMove(double movePercentage) {
 	double mLeftRight= baseCurveTriangle(scaleMove(movePercentage, 1.0, 0.5 + phaseShift ));
 
 	return absHead (
-			Pose(Point(0,0,bodyHeight + 10.0*mBase),Rotation (0,-radians(15)*mWave,radians(15)*mLeftRight)),
-			Pose(Point(0,0,headHeight+5.0*mBase),Rotation (0,0,-radians(45)*mDip)));
+			Pose(Point(0,0,bodyHeight + 10.0*mBase),Rotation (0,-radians(10)*mWave,radians(10)*mLeftRight)),
+			Pose(Point(0,0,headHeight+5.0*mBase),Rotation (0,0,-radians(30)*mDip)));
 }
 
 
@@ -336,7 +336,7 @@ TotalBodyPose Move::sidedDipBodyWaveMove(double movePercentage) {
 	double mLeftRight= baseCurveTriangle(scaleMove(movePercentage, 1.0, 0.5 + phaseShift ));
 
 	return absHead (
-			Pose(Point(0,30.0*mBase,bodyHeight + 10.0*fabs(mDip)),Rotation (0,-radians(15)*mSwing,radians(15)*mLeftRight)),
+			Pose(Point(0,30.0*mBase,bodyHeight + 10.0*fabs(mDip)),Rotation (0,-radians(10)*mSwing,radians(10)*mLeftRight)),
 			Pose(Point(0,0,headHeight+5.0*mBase),Rotation (0,-radians(20)*mDip,0)));
 }
 
@@ -403,7 +403,7 @@ TotalBodyPose Move::shoulderDipMove(double movePercentage) {
 	double mDipAbs  = fabs(mDip);
 
 	return absHead (
-			Pose(Point(0,mDip*20.0,bodyHeight+10.0-mDipAbs*20.0),Rotation (radians(10)*mShoulderMove,0,0)),
+			Pose(Point(0,mDip*15.0,bodyHeight+10.0-mDipAbs*15.0),Rotation (radians(10)*mShoulderMove,0,0)),
 			Pose(Point(0,-mShoulderMove*20.0,headHeight),Rotation (0,0,0)));
 }
 
