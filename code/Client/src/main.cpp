@@ -44,11 +44,13 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
 }
 
 void printUsage() {
-	cout << "BeatTracker -f <wav.file>        # define the track to be played" << endl
+	cout << "Client " << endl
 	     << "            [-h]                 # print this" << endl
 	     << "            [-port <port>]       # set port of webserver if different from 8080" << endl
 	     << "            [-host <host:port>]  # define this process as client accessing this webserver" << endl
-		 << "            [-ui]                # start visualizer" << endl
+	     << "            [-odroid]            # use hard coded server address of my odroid 192.168.178.76:8080" << endl
+	     << "            [-vm]                # use hard coded server address of my virtualbox 192.168.178.69:3080" << endl
+	     << "            [-ui]                # start visualizer" << endl
 		 << "            [-s]                 # silent, do not play audio" << endl;
 }
 
@@ -101,12 +103,6 @@ int main(int argc, char *argv[]) {
     // currently played filename
     string trackFilename;
 
-    // default volume
-    int volumeArg = 20;
-
-    // default latency of the moves
-    int startAfterNBeats = 4;
-
     // if we run a webserver, this is the path where static content is stored
     string webrootPath = string(argv[0]);
 	int idx = webrootPath.find_last_of("/");
@@ -127,7 +123,13 @@ int main(int argc, char *argv[]) {
     		i++;
     	} else if (arg == "-h") {
     	    	printUsage();
-	    } else if (arg == "-port") {
+    	} else if (arg == "-vm") {
+    	    	webserverPort = 3080;
+    	    	webclientHost = "192.168.178.69";
+    	} else if (arg == "-odroid") {
+    	    	webserverPort = 8080;
+    	    	webclientHost = "192.168.178.76";
+    	} else if (arg == "-port") {
     		if (i+1 >= argc) {
     			cerr << "-port requires a number 0..100" << endl;
     			exit(1);
@@ -147,31 +149,6 @@ int main(int argc, char *argv[]) {
     		}
 	    	i++;
 	    	webclientHost = getCmdOption(argv, argc, i);
-	    } else if (arg == "-v") {
-    		if (i+1 >= argc) {
-    			cerr << "-v requires a number 0..100" << endl;
-    			exit(1);
-    		}
-    		arg = getCmdOption(argv, argc, i+1);
-    		i++;
-        	volumeArg  = atoi(arg.c_str());
-        	if ((volumeArg < 0) || (volumeArg > 100))
-        	{
-        		cerr << "volume (" << volumeArg << ") has to be within [0..100]" << endl;
-        		exit(1);
-        	}
-    	} else if (arg == "-i") {
-    		if (i+1 >= argc) {
-    			cerr << "-i requires a number" << endl;
-    			exit(1);
-    		}
-    		arg = getCmdOption(argv, argc, i+1);
-    		i++;
-    		startAfterNBeats  = atoi(arg.c_str());
-    		if (startAfterNBeats <2) {
-    			cerr << "-i requires a number >=2" << endl;
-    			exit(1);
-    		}
     	} else {
     		cerr << "unknown option " << arg << endl;
     		exit(1);
@@ -185,7 +162,6 @@ int main(int argc, char *argv[]) {
     Dancer::getInstance().setup();
     RhythmDetector::getInstance().setup();
 
-    Dancer::getInstance().setStartAfterNBeats(startAfterNBeats);
    	UI::getInstance().setup(argc,argv);
 
 	Dancer & mm = Dancer::getInstance();

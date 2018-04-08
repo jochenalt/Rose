@@ -156,6 +156,11 @@ void currentDancingMoveCallback(int widgetNo) {
 	Move::MoveType newMove = (Move::MoveType)(dancingModeLiveVar[row] + row*movesPerRow);
 	BotClient::getInstance().setMove(newMove);
 	Dancer::getInstance().setCurrentMove(newMove);
+
+	// stay on this selection
+	currentSequenceModeWidget->set_int_val((int)Dancer::SequenceModeType::SELECTED_MOVE);
+	Dancer::getInstance().setSequenceMode(Dancer::SequenceModeType::SELECTED_MOVE);
+	BotClient::getInstance().setMoveMode(Dancer::SequenceModeType::SELECTED_MOVE);
 }
 
 void setSequenceModeWidget() {
