@@ -215,7 +215,7 @@ TotalBodyPose Move::diagonalSwing(double movePercentage) {
 	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0,  startPhase)));
 
 	return absHead (
-				Pose(Point(-10.0*mBase,20.0*mBase,bodyHeight +20.0*mDip),Rotation (radians(15)*mBase,-radians(15)*mBase,0)),
+				Pose(Point(-15.0*mBase,15.0*mBase,bodyHeight +20.0*mDip),Rotation (radians(10)*mBase,-radians(10)*mBase,0)),
 				Pose(Point(0,0,headHeight),Rotation (0,0,0)));
 
 }
@@ -228,7 +228,7 @@ TotalBodyPose Move::dippedDiagonalSwing(double movePercentage) {
 	double mEndDip  = baseCurveDip(scaleMove(movePercentage, 1.00, 1.0 + startPhase));
 
 	return absHead (
-			Pose(Point(-20.0*mBase,20.0*mBase,bodyHeight + 20.0*mDip),Rotation (radians(15)*mBase,-radians(15)*mBase,0)),
+			Pose(Point(-15.0*mBase,15.0*mBase,bodyHeight + 20.0*mDip),Rotation (radians(10)*mBase,-radians(10)*mBase,0)),
 			Pose(Point(0,0,headHeight),Rotation (0,0,radians(30)*mEndDip)));
 }
 
@@ -282,7 +282,7 @@ TotalBodyPose Move::bollywoodHeadMove(double movePercentage) {
 
 	return  absHead (
 				Pose(Point(0,30.0*mBase,bodyHeight + 10.0*mDip),Rotation (radians(10)*mHeadTurn, 0,0)),
-				Pose(Point(0,mHeadMove*30.0,headHeight+mHeadUp*5.0),Rotation (radians(30)*mHeadTurn,0,0)));
+				Pose(Point(0,mHeadMove*30.0,headHeight+mHeadUp*5.0),Rotation (radians(25)*mHeadTurn,0,0)));
 }
 
 

@@ -24,8 +24,8 @@ ServoController::~ServoController() {
 
 void ServoController::setup() {
 	const int i2cBus = 1; 			// this is /dev/ic2-1
-	const int i2cAddress = 0x40; 	// i2c address of pca 9685 (datasheet)
-	const int servoFrequency = 330; // [Hz] working frequency of KST 215 MG V3 (datasheet)
+	const int i2cAddress = 0x40; 	// i2c address of PCA 9685 from datasheet
+	const int servoFrequency = 333; // [Hz] working frequency of KST 215 MG V3 (from datasheet)
 
 	// initialize PCA 9685 board via Adafruit library
 	pca9685.setup(i2cBus,i2cAddress);
@@ -35,6 +35,7 @@ void ServoController::setup() {
 	double bottomServoLimit = degrees(bodyKin.getBodyConfig().bottomServoLimit_rad);
 	double topServoLimit = degrees(bodyKin.getBodyConfig().topServoLimit_rad);
 
+	// set of each servo with defaiut null values
 	servo[ 0].setup(&pca9685,  0, servoFrequency, false, bottomServoLimit, topServoLimit, 0-4);
 	servo[ 1].setup(&pca9685,  1, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-3);
 	servo[ 2].setup(&pca9685,  2, servoFrequency, false, bottomServoLimit, topServoLimit, 0-7);

@@ -121,6 +121,7 @@ void Dancer::danceLoop(bool beat, double BPM) {
 }
 
 void Dancer::doNewMove() {
+
 	if (!musicDetected) {
 		setCurrentMove(Move::LISTENING);
 		cout << "no music, listening mode" << endl;
