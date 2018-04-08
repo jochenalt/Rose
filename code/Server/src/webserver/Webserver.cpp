@@ -327,7 +327,7 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 			bool ok = true;
 			string value = getURLParamValue(urlParamNames,urlParamValues, "value",ok);
 			if (ok) {
-				int moveMode = stringToFloat(value, ok);
+				int moveMode = stringToInt(value, ok);
 				Dancer::getInstance().setSequenceMode((Dancer::SequenceModeType)moveMode);
 			}
 
