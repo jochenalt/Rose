@@ -47,8 +47,8 @@ public:
 	double getVolume();
 
 	// pipe the audio input to the output
-	void setPlayback(bool ok);
-	bool getPlayback();
+	void setGlobalPlayback(bool ok);
+	bool getGlobalPlayback();
 
 	// get static current latency of input source
 	// used in latency compensation that adapts the prediction time frame accordingly
@@ -87,8 +87,8 @@ private:
 
 	bool inputAudioDetected = false;
 	LowPassFilter cumulativeScoreLowPass;
-	LowPassFilter cumulativeBeatScoreLowPass;
 	LowPassFilter squaredScoreLowPass = 0;
+	bool globalPlayback = true;
 
 };
 

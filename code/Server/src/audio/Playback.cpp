@@ -15,7 +15,6 @@
 using namespace std;
 
 Playback::Playback() {
-	pulseAudioConnection = NULL;
 }
 
 Playback::~Playback() {

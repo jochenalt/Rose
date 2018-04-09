@@ -47,7 +47,6 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 
 	// low pass filter of cumulative score to get the average score
 	cumulativeScoreLowPass.init(1 /* Hz */);
-	cumulativeBeatScoreLowPass.init(1 /* Hz */);
 	squaredScoreLowPass.init(1);
 }
 
@@ -187,12 +186,13 @@ double AudioProcessor::getVolume() {
 	return volume;
 }
 
-void AudioProcessor::setPlayback(bool ok) {
+void AudioProcessor::setGlobalPlayback(bool ok) {
+	globalPlayback = ok;
 	playback.setPlayback(ok);
 }
 
-bool AudioProcessor::getPlayback() {
-	return playback.getPlayback();
+bool AudioProcessor::getGlobalPlayback() {
+	return globalPlayback;
 }
 
 void AudioProcessor::setWavContent(std::vector<uint8_t>& newWavData) {
@@ -203,6 +203,9 @@ void AudioProcessor::setWavContent(std::vector<uint8_t>& newWavData) {
 	stopCurrProcessing = true;
 
 	nextInputType = WAV_INPUT;
+
+	// if global playback is on, play it
+	playback.setPlayback(globalPlayback);
 }
 
 void AudioProcessor::setAudioSource() {
@@ -220,7 +223,6 @@ void AudioProcessor::setAudioSource() {
 		// once we change the source, we set the low passed cumulative score to give
 		// music detection a higher chance to identify music
 		cumulativeScoreLowPass = 0;
-		cumulativeBeatScoreLowPass = 0;
 		squaredScoreLowPass = 0;
 		inputAudioDetected = true;
 
@@ -260,6 +262,9 @@ void AudioProcessor::setMicrophoneInput() {
 
 	// current input is microphone
 	nextInputType = MICROPHONE_INPUT;
+
+	// switch off playback
+	playback.setPlayback(false);
 }
 
 int AudioProcessor::readWavInput(double buffer[], unsigned BufferSize) {
@@ -353,7 +358,6 @@ void AudioProcessor::processInput() {
 		// we receive a beat. We identify the existence of music by a least variance of this score
 		double score = beatDetector.getLatestCumulativeScoreValue();
 		if (beat) {
-			cumulativeBeatScoreLowPass = score;
 			inputAudioDetected = squaredScoreLowPass / cumulativeScoreLowPass > 8.;
 			// cout << "score = " << score << " avr score=" << cumulativeScoreLowPass << " beat score = " << cumulativeBeatScoreLowPass << "variance=" << squaredScoreLowPass << " var/score=" << squaredScoreLowPass / cumulativeScoreLowPass << endl;
 		} else {

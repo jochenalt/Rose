@@ -32,7 +32,7 @@
 
 using namespace std;
 
-bool mplayback = true;
+bool globalPlayback = true;
 bool executeServoThread = true;
 std::thread* servoThread = NULL;
 
@@ -222,7 +222,7 @@ int main(int argc, char *argv[]) {
 			} else if (arg == "-t") {
 				ServoController::getInstance().calibrateViaKeyBoard();
 			} else if (arg == "-s") {
-				mplayback = false;
+				globalPlayback = false;
 			} else if (arg == "-port") {
 				if (i+1 >= argc) {
 					cerr << "-port requires a number 0..100" << endl;
@@ -291,7 +291,7 @@ int main(int argc, char *argv[]) {
 
 		audioProcessor.setup(sendBeatToRythmDetector);
 		audioProcessor.setVolume((float)volumeArg/100.0);
-		audioProcessor.setPlayback(mplayback);
+		audioProcessor.setGlobalPlayback(globalPlayback);
 
 		// if a track is passed, start with that one
 		if (trackFilename != "") {
@@ -325,7 +325,7 @@ int main(int argc, char *argv[]) {
 			while (executeServoThread) {
 				if (newPoseAvailable) {
 					// limit the frequency a new pose is sent to the servos
-					const int servoFrequency = 70; // [Hz]
+					const int servoFrequency = 100; // [Hz]
 					if (timer.isDue(1000.0/servoFrequency /* [ms] */)) {
 
 						// compute the servo angles out of the pose
@@ -351,7 +351,6 @@ int main(int argc, char *argv[]) {
 					delay_us(100); // typically never happens, since the audio thread runs faster than
 				                   // 125Hz, at this point in time newPoseAvailable should be set already
 			}
-			cout << "stopping execution of kinematics and servo control" << endl;
 		});
 
 		// run main loop that processes the audio input and does beat detection
@@ -368,12 +367,10 @@ int main(int argc, char *argv[]) {
 			delay_ms(10);
 		}
 	}
-    catch(std::exception const& e)
-    {
+    catch(std::exception const& e) {
     	cerr << "unexpected exception " << e.what() << endl;
     }
-    catch(...)
-    {
+    catch(...) {
     	cerr << "unknown exception" << endl;
     }
     return 0;
