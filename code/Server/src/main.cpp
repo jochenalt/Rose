@@ -133,12 +133,12 @@ volatile bool newPoseAvailable = false;
 static Pose servoHeadPoseBuffer;
 static Pose servoBodyPoseBuffer;
 
-void sendBeatToRythmDetector(bool beat, double bpm) {
+void sendBeatToRythmDetector(double processTime, bool beat, double bpm) {
 	RhythmDetector & rhythmDetector = RhythmDetector::getInstance();
 	Dancer& dancer = Dancer::getInstance();
 
 	// detect the beat
-	rhythmDetector.loop(beat, bpm);
+	rhythmDetector.loop(processTime, beat, bpm);
 
 	// compensate the microphones latency and delay the beat accordingly to hit the beat next time
 	// after this call, beat-flag is modified such that it incorporated the latency
@@ -348,7 +348,7 @@ int main(int argc, char *argv[]) {
 						delay_ms(1);
 					}
 				} else
-					delay_us(100); // typically never happens, since the audio thread runs faster than
+					delay_ms(1); // typically never happens, since the audio thread runs faster than
 				                   // 125Hz, at this point in time newPoseAvailable should be set already
 			}
 		});

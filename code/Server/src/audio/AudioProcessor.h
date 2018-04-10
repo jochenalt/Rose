@@ -17,7 +17,7 @@
 class AudioProcessor {
 public:
 	// call back type for invoking the dance processor after each sample
-	typedef void (*BeatCallbackFct)(bool beat, double Bpm);
+	typedef void (*BeatCallbackFct)(double processTime, bool beat, double Bpm);
 
 	AudioProcessor();
 	virtual ~AudioProcessor();
@@ -73,23 +73,23 @@ private:
 
 	volatile bool stopCurrProcessing = false;
 
-	double volume = 1.0;
 	BeatCallbackFct beatCallback;
-	Playback playback;					// used to send the input source to the loudspeaker
-	MicrophoneInput microphone;			// used to get input from microphone
-	AudioFile<double> currentWavContent;		// used to get input from wav (actually no file, but an array of samples)
-	std::vector<uint8_t> nextWavContent;		// used to get input from wav (actually no file, but an array of samples)
-	int wavInputPosition = -1;			// current position within wav source
-	double processedTime = 0; 			// [s] processing time of input source. Is determined by position within wav file or realtime in case of micropone input
-	TimeSamplerStatic callbackTimer; 	// timer for callback as passed via setup()
+	Playback playback;						// used to send the input source to the loudspeaker
+	MicrophoneInput microphone;				// used to get input from microphone
+	AudioFile<double> currentWavContent;	// used to get input from wav (actually no file, but an array of samples)
+	std::vector<uint8_t> nextWavContent;	// used for next track wav input
+	int inputSamplePosition = -1;			// current position within wav source
+	double processedTime = 0; 				// [s] processing time of input source. Is determined by position within wav file or realtime in case of micropone input
+	TimeSamplerStatic callbackTimer; 		// timer for callback as passed via setup()
 	InputType currentInputType = MICROPHONE_INPUT;
 	InputType nextInputType = MICROPHONE_INPUT;
 
-	bool inputAudioDetected = false;
+	bool inputAudioDetected = false;		// true if music has been detected
+	bool globalPlayback = true;				// true if playback is turned on in general (still turned off for microphone input)
+	double volume = 1.0;					// volume used in playback
+
 	LowPassFilter cumulativeScoreLowPass;
 	LowPassFilter squaredScoreLowPass = 0;
-	bool globalPlayback = true;
-
 };
 
 #endif /* SRC_AUDIOPROCESSOR_H_ */

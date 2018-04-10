@@ -46,8 +46,8 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 	inputAudioDetected = false;
 
 	// low pass filter of cumulative score to get the average score
-	cumulativeScoreLowPass.init(1 /* Hz */);
-	squaredScoreLowPass.init(1);
+	cumulativeScoreLowPass.init(2 /* Hz */);
+	squaredScoreLowPass.init(2);
 }
 
 void generateSinusoidTone(double buffer[], int bufferSize, float sampleRate, int numOfFrequencies, float tonefrequency[]) {
@@ -218,7 +218,7 @@ void AudioProcessor::setAudioSource() {
 		currentInputType = WAV_INPUT;
 
 		// reset position in wav content to start
-		wavInputPosition = 0;
+		inputSamplePosition = 0;
 
 		// once we change the source, we set the low passed cumulative score to give
 		// music detection a higher chance to identify music
@@ -242,6 +242,7 @@ void AudioProcessor::setAudioSource() {
 	}
 	if (nextInputType == MICROPHONE_INPUT) {
 		currentInputType = MICROPHONE_INPUT;
+		inputSamplePosition += 0;
 
 		// playback is set to standard sample rate
 		playback.setup(Configuration::getInstance().microphoneSampleRate);
@@ -269,31 +270,31 @@ void AudioProcessor::setMicrophoneInput() {
 
 int AudioProcessor::readWavInput(double buffer[], unsigned BufferSize) {
 	int numSamples = currentWavContent.getNumSamplesPerChannel();
-	int numInputSamples = min((int)BufferSize, (int)numSamples-wavInputPosition);
+	int numInputSamples = min((int)BufferSize, (int)numSamples-inputSamplePosition);
 	int numInputChannels = currentWavContent.getNumChannels();
 
 	int bufferCount = 0;
 	for (int i = 0; i < numInputSamples; i++)
 	{
 		double inputSampleValue = 0;
-		inputSampleValue= currentWavContent.samples[0][wavInputPosition + i];
-		assert(wavInputPosition+1 < numSamples);
+		inputSampleValue= currentWavContent.samples[0][inputSamplePosition + i];
+		assert(inputSamplePosition+1 < numSamples);
 		switch (numInputChannels) {
 		case 1:
-			inputSampleValue= currentWavContent.samples[0][wavInputPosition + i];
+			inputSampleValue= currentWavContent.samples[0][inputSamplePosition + i];
 			break;
 		case 2:
-			inputSampleValue = (currentWavContent.samples[0][wavInputPosition + i]+currentWavContent.samples[1][wavInputPosition + i])/2;
+			inputSampleValue = (currentWavContent.samples[0][inputSamplePosition + i]+currentWavContent.samples[1][inputSamplePosition + i])/2;
 			break;
 		default:
 			inputSampleValue = 0;
 			for (int j = 0;j<numInputChannels;j++)
-				inputSampleValue += currentWavContent.samples[j][wavInputPosition + i];
+				inputSampleValue += currentWavContent.samples[j][inputSamplePosition + i];
 			inputSampleValue = inputSampleValue / numInputChannels;
 		}
 		buffer[bufferCount++] = inputSampleValue;
 	}
-	wavInputPosition += bufferCount;
+	inputSamplePosition += bufferCount;
 	return bufferCount;
 }
 
@@ -326,6 +327,7 @@ void AudioProcessor::processInput() {
 		if (currentInputType == MICROPHONE_INPUT) {
 			inputBufferSamples = microphone.readMicrophoneInput(inputBuffer, numInputSamples);
 			sampleRate = Configuration::getInstance().microphoneSampleRate;
+			inputSamplePosition += numInputSamples;
 		}
 		if (currentInputType == WAV_INPUT) {
 			inputBufferSamples = readWavInput(inputBuffer, numInputSamples);
@@ -358,24 +360,22 @@ void AudioProcessor::processInput() {
 		// we receive a beat. We identify the existence of music by a least variance of this score
 		double score = beatDetector.getLatestCumulativeScoreValue();
 		if (beat) {
-			inputAudioDetected = squaredScoreLowPass / cumulativeScoreLowPass > 8.;
-			// cout << "score = " << score << " avr score=" << cumulativeScoreLowPass << " beat score = " << cumulativeBeatScoreLowPass << "variance=" << squaredScoreLowPass << " var/score=" << squaredScoreLowPass / cumulativeScoreLowPass << endl;
+			inputAudioDetected = squaredScoreLowPass / cumulativeScoreLowPass > 6.;
+			// cout << "score = " << score << " avr score=" << cumulativeScoreLowPass << "variance=" << squaredScoreLowPass << " var/score=" << squaredScoreLowPass / cumulativeScoreLowPass << endl;
 		} else {
 			cumulativeScoreLowPass = score;
 			squaredScoreLowPass = (score - cumulativeScoreLowPass)*(score - cumulativeScoreLowPass);
 		}
 		processedTime = millis()/1000.0;
-		beatCallback(beat, bpm);
+		beatCallback(processedTime, beat, bpm);
 
-		if (currentInputType == WAV_INPUT) {
-			// insert a delay to synchronize played audio and beat detection before entering the next cycle
-			double elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;  	// [s]
-			double processedTime = (double)wavInputPosition / (double)sampleRate;	// [s]
-			// wait such that elapsed time and processed time is synchronized
-			double timeAhead_ms = (processedTime - elapsedTime)*1000.0;
-			if (timeAhead_ms > 1.0) {
-				delay_ms(timeAhead_ms);
-			}
+		double elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;  	// [s]
+		// insert a delay to synchronize played audio and beat detection before entering the next cycle
+		processedTime = (double)inputSamplePosition / (double)sampleRate;	// [s]
+		// wait such that elapsed time and processed time is synchronized
+		double timeAhead_ms = (processedTime - elapsedTime)*1000.0;
+		if (timeAhead_ms > 1.0) {
+			delay_ms(timeAhead_ms);
 		}
 	}
 	// check if the source needs to be changed

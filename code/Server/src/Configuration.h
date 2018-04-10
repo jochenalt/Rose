@@ -21,8 +21,8 @@ public:
 	bool load();
 	void save();
 
-	double microphoneLatency = 0.0;
-	int microphoneSampleRate = 44100;
+	double microphoneLatency = 0.0;   // [s]
+	int microphoneSampleRate = 44100; // [Hz]
 	int webserverPort = 8080;
 
 private:

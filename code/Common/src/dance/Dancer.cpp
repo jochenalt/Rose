@@ -129,8 +129,8 @@ void Dancer::doNewMove() {
 	}
 
 	// when all moves are shown, omit plain headnicker
-	if ((int)currentMove >= Move::SHOULDER_DIP)
-		setCurrentMove((Move::MoveType)(Move::PHYSICISTS_HEAD_NICKER+1)); // skip physicists and listening mode move
+	if (currentMove >= Move::SHOULDER_DIP)
+		setCurrentMove((Move::MoveType)(Move::PHYSICISTS_HEAD_NICKER+1)); // skip physicists move and listening move
 	else
 		setCurrentMove((Move::MoveType)((int)currentMove + 1));
 
