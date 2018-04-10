@@ -29,7 +29,6 @@ void RhythmDetector::setup() {
 	rhythmInQuarters = 0;
 	timeOfLastBeat = 0;
 	movePercentage = 0;
-	moveSpeed.init(10);
 	firstBeat = false;
 	loopsSinceBeat = 0;
 	loopProcessSpeed.init(2);
@@ -41,7 +40,6 @@ void RhythmDetector::loop(double processTime, bool beat, double BPM) {
 	double now = processTime;
 	double timePerBeat = (60.0/BPM); 				// [s]
 	double timeSinceBeat = now - timeOfLastBeat; 	// [s]
-
 
 	if (beat) {
 		// detect 1/1 or 1/2 rhythm
@@ -65,29 +63,23 @@ void RhythmDetector::loop(double processTime, bool beat, double BPM) {
 		}
 
 
-		if (!beatStarted) {
-			loopProcessSpeed.sampler.dT();
-		}
-		else {
-			double percentageInBeat = timeSinceBeat / (timePerBeat);
-			double percentagePerLoop = percentageInBeat/ (float)loopsSinceBeat;
+		double percentageInBeat = timeSinceBeat / (timePerBeat);
+		double percentagePerLoop = percentageInBeat/ (float)loopsSinceBeat;
 
-			// compute deviation
-			double currentPercentageInRhythm = fmod(filterMovePercentage,rhythmInQuarters);
-			double hitRatio = 0;
-			if (currentPercentageInRhythm < rhythmInQuarters/2.0)
-				hitRatio = (currentPercentageInRhythm+rhythmInQuarters)/rhythmInQuarters;
-			else
-				hitRatio = currentPercentageInRhythm/rhythmInQuarters;
+		// compute deviation to decide if we compensate by moving forward quicker or slowing down.
+		double currentPercentageInRhythm = fmod(filterMovePercentage,rhythmInQuarters);
+		double hitRatio = 0;
+		if (currentPercentageInRhythm < rhythmInQuarters/2.0)
+			hitRatio = (currentPercentageInRhythm+rhythmInQuarters)/rhythmInQuarters; 	// too slow, hitRatio < 1.0, so accelerate
+		else
+			hitRatio = currentPercentageInRhythm/rhythmInQuarters;						// too fast, hit Ratio > 1.0, so slow down
 
-			// low pass the process speed with the predicted progress plus a correction hitRatio
-			loopProcessSpeed = percentagePerLoop / hitRatio;
+		// low pass the process speed with the predicted progress plus a correction hitRatio
+		loopProcessSpeed.set(processTime, percentagePerLoop / hitRatio);
 
-			// cout << " timeSinceBeat=" << timeSinceBeat << " loopsSinceBeat=" << loopsSinceBeat << " %/l=" << percentagePerLoop
-			//	 << " fmod(filteredMove)=" << fmod(filterMovePercentage,rhythmInQuarters) << " hitRatio = " << hitRatio << endl;
-		}
+		// cout << " timeSinceBeat=" << timeSinceBeat << " loopsSinceBeat=" << loopsSinceBeat << " %/l=" << percentagePerLoop
+		//	 << " fmod(filteredMove)=" << fmod(filterMovePercentage,rhythmInQuarters) << " hitRatio = " << hitRatio << endl;
 		loopsSinceBeat = 0;
-
 		timeOfLastBeat = now;
 		timeSinceBeat = 0;
 
@@ -99,7 +91,7 @@ void RhythmDetector::loop(double processTime, bool beat, double BPM) {
 		beatCount++;
 	}
 	else
-		loopsSinceBeat++;
+		loopsSinceBeat++; // do not count the loop that gives a beat
 
 	// wait 4 beats to detect the rhythm
 	if (beatCount > 3) {
@@ -107,8 +99,8 @@ void RhythmDetector::loop(double processTime, bool beat, double BPM) {
 	    filterMovePercentage += loopProcessSpeed;
 
 		// movePercentage = (beatCount % (4/rhythmInQuarters) )*rhythmInQuarters + timeSinceBeat/timePerBeat;
-		// cout << "timeInBeat=" << timeInBeat << "  move%" << movePercentage << " fmove%=" << fmod(filterMovePercentage,4.0) << "loopProcessSpeed=" << loopProcessSpeed<<  endl;
 		movePercentage = filterMovePercentage;
+		// cout << "movePercentage=" << movePercentage << endl;
 		// cout << std::fixed << std::setprecision(3) << "( tsb=" << timeSinceBeat
 		//	 << "s bt=" << (beatCount % (4/rhythmInQuarters) )
 		//	 << " tsb/(60/BPM)=" << timeSinceBeat/(60.0/BPM) <<"% rhyt=" << rhythmInQuarters << " =" << movePercentage << " "  << endl;

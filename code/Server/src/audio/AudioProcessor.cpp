@@ -242,7 +242,7 @@ void AudioProcessor::setAudioSource() {
 	}
 	if (nextInputType == MICROPHONE_INPUT) {
 		currentInputType = MICROPHONE_INPUT;
-		inputSamplePosition += 0;
+		inputSamplePosition = 0;
 
 		// playback is set to standard sample rate
 		playback.setup(Configuration::getInstance().microphoneSampleRate);
@@ -265,7 +265,7 @@ void AudioProcessor::setMicrophoneInput() {
 	nextInputType = MICROPHONE_INPUT;
 
 	// switch off playback
-	playback.setPlayback(false);
+	// playback.setPlayback(false);
 }
 
 int AudioProcessor::readWavInput(double buffer[], unsigned BufferSize) {
@@ -366,13 +366,14 @@ void AudioProcessor::processInput() {
 			cumulativeScoreLowPass = score;
 			squaredScoreLowPass = (score - cumulativeScoreLowPass)*(score - cumulativeScoreLowPass);
 		}
-		processedTime = millis()/1000.0;
+
+		processedTime = (double)inputSamplePosition / (double)sampleRate;	// [s]
 		beatCallback(processedTime, beat, bpm);
 
 		double elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;  	// [s]
 		// insert a delay to synchronize played audio and beat detection before entering the next cycle
-		processedTime = (double)inputSamplePosition / (double)sampleRate;	// [s]
 		// wait such that elapsed time and processed time is synchronized
+
 		double timeAhead_ms = (processedTime - elapsedTime)*1000.0;
 		if (timeAhead_ms > 1.0) {
 			delay_ms(timeAhead_ms);

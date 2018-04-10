@@ -27,16 +27,15 @@ public:
 	bool isFirstBeat();
 	double getRythmPercentage();
 private:
-	bool beatStarted;
-	int beatCount;
-	int rhythmInQuarters;
-	double timeOfLastBeat;
-	double movePercentage;
-	LowPassFilter moveSpeed;
-	bool firstBeat;
+	bool beatStarted = false;
+	int beatCount = 0;
+	int rhythmInQuarters = 1;
+	double timeOfLastBeat = 0;
+	double movePercentage = 0;
+	bool firstBeat = false;
 
 	int loopsSinceBeat = 0;
-	LowPassFilter loopProcessSpeed;
+	LowPassFilterImpl loopProcessSpeed;
 	double filterMovePercentage = 0;
 };
 

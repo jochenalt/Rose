@@ -95,28 +95,30 @@ void Dancer::imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition
 }
 
 void Dancer::danceLoop(bool beat, double BPM) {
+	RhythmDetector& rhythmDetector = RhythmDetector::getInstance();
+
 	if (beat) {
 
 		// first move is the classical head nicker
-		if (RhythmDetector::getInstance().isFirstBeat()) {
+		if (rhythmDetector.isFirstBeat()) {
 			setCurrentMove(Move::MoveType::PHYSICISTS_HEAD_NICKER);
 		}
 
 		// switch to next move after as soon as rhythm starts again
 		passedBeatsInCurrentMove++;
 		if ((sequenceMode == AUTOMATIC_SEQUENCE) &&
-			(RhythmDetector::getInstance().getAbsoluteBeatCount() > startAfterNBeats) &&
-			(RhythmDetector::getInstance().hasBeatStarted()) &&
-			(passedBeatsInCurrentMove*RhythmDetector::getInstance().getRhythmInQuarters() >= Move::getMove(currentMove).getLength()) &&
-			(RhythmDetector::getInstance().getBeatCount() == 0)) {
+			(rhythmDetector.getAbsoluteBeatCount() > startAfterNBeats) &&
+			(rhythmDetector.hasBeatStarted()) &&
+			(passedBeatsInCurrentMove*rhythmDetector.getRhythmInQuarters() >= Move::getMove(currentMove).getLength()) &&
+			(rhythmDetector.getBeatCount() == 0)) {
 			doNewMove();
 			passedBeatsInCurrentMove = 0;
 		}
 	}
 
 	// wait 4 beats to detect the rhythm
-	if ((RhythmDetector::getInstance().getAbsoluteBeatCount() > startAfterNBeats) && (RhythmDetector::getInstance().hasBeatStarted())) {
-		createMove(RhythmDetector::getInstance().getRythmPercentage());
+	if ((rhythmDetector.getAbsoluteBeatCount() > startAfterNBeats) && (rhythmDetector.hasBeatStarted())) {
+		createMove(rhythmDetector.getRythmPercentage());
 	}
 }
 

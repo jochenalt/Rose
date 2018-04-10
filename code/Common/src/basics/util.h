@@ -260,6 +260,43 @@ public:
 	TimeSamplerStatic sampler;
 };
 
+class LowPassFilterImpl {
+public:
+	LowPassFilterImpl () {};
+	virtual ~LowPassFilterImpl() {};
+
+	LowPassFilterImpl (double frequency) {
+		init(frequency);
+	}
+
+	void init(double frequency) {
+		responseTime = 1.0/frequency;
+		currentValue = 0;
+		lastCall = 0;
+	}
+
+	void set(double processTime, double  value) {
+		if (lastCall == 0) {
+			lastCall = processTime;
+			currentValue = value;
+		} else {
+			double  complementaryFilter = responseTime/(responseTime + dT(processTime));
+			currentValue = complementaryFilter*currentValue + (1.0-complementaryFilter)*value;
+		}
+	}
+
+	double dT(double processTime) {
+		double t = lastCall;
+		lastCall = processTime;
+		return processTime - t;
+	}
+	operator double() const { return currentValue; };
+
+	double  responseTime = 0;
+	double  currentValue = 0;
+	double lastCall;
+};
+
 
 enum ErrorCodeType { ABSOLUTELY_NO_ERROR = 0,
 	// cortex communication errors
