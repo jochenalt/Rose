@@ -58,6 +58,8 @@ public:
 	// this is set whenever the audio input is analyzed and has a precision of around 3ms
 	double getProcessedTime() { return processedTime; };
 
+	double getElapsedTime();
+
 	// checks if the input signal is above a certain threshold
 	bool isAudioDetected() { return inputAudioDetected; };
 
@@ -90,6 +92,7 @@ private:
 
 	LowPassFilter cumulativeScoreLowPass;
 	LowPassFilter squaredScoreLowPass = 0;
+	uint32_t startTime_ms;
 };
 
 #endif /* SRC_AUDIOPROCESSOR_H_ */

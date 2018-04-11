@@ -316,7 +316,7 @@ void AudioProcessor::processInput() {
 	BTrack beatDetector(hopSize, frameSize);
 
 	// start time used for delays and output
-	uint32_t startTime_ms = millis();
+	startTime_ms = millis();
 
 	// buffer for audio coming from wav or microphone
 	double inputBuffer[numInputSamples];
@@ -370,23 +370,34 @@ void AudioProcessor::processInput() {
 		processedTime = (double)inputSamplePosition / (double)sampleRate;	// [s]
 		beatCallback(processedTime, beat, bpm);
 
-		double elapsedTime = ((double)(millis() - startTime_ms)) / 1000.0f;  	// [s]
-		// insert a delay to synchronize played audio and beat detection before entering the next cycle
-		// wait such that elapsed time and processed time is synchronized
 
-		double timeAhead_ms = (processedTime - elapsedTime)*1000.0;
-		if (timeAhead_ms > 1.0) {
-			delay_ms(timeAhead_ms);
+		/*
+		if (currentInputType == WAV_INPUT) {
+			double elapsedTime = getElapsedTime();  	// [s]
+			// insert a delay to synchronize played audio and beat detection before entering the next cycle
+			// wait such that elapsed time and processed time is synchronized
+
+			double timeAhead_ms = (processedTime - elapsedTime)*1000.0;
+			// cout << "timeaead" << timeAhead_ms << endl;
+			if (timeAhead_ms > 1.0) {
+				delay_ms(timeAhead_ms);
+			}
 		}
+		*/
 	}
 	// check if the source needs to be changed
 	setAudioSource();
+}
+
+
+double AudioProcessor::getElapsedTime() {
+	return (millis() - startTime_ms)/1000.0;
 }
 
 float AudioProcessor::getCurrentLatency() {
 	if (currentInputType == MICROPHONE_INPUT)
 		return Configuration::getInstance().microphoneLatency;
 	else
-		return 0.0;
+		return 0.3;
 }
 

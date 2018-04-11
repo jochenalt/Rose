@@ -24,7 +24,7 @@ public:
 	double microphoneLatency = 0.0;   // [s]
 	int microphoneSampleRate = 44100; // [Hz]
 	int webserverPort = 8080;
-
+	double microphoneBufferLength = 0.07; // [s];
 private:
 	void readDouble(map<string,string>& configItems, string name, double &value);
 	void writeDouble(map<string,string>& configItems, string name, double value, int decimalPlaces);
