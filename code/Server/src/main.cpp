@@ -26,6 +26,8 @@
 #include <audio/AudioFile.h>
 #include <audio/AudioProcessor.h>
 #include <audio/SoundCardUtils.h>
+#include <audio/ClockGenerator.h>
+
 #include <beat/BTrack.h>
 
 #include <Configuration.h>
@@ -35,6 +37,13 @@ using namespace std;
 bool globalPlayback = true;
 bool executeServoThread = true;
 std::thread* servoThread = NULL;
+
+struct BeatInvocation {
+	double processTime;
+	bool beat;
+	double bpm;
+};
+ClockGenerator<BeatInvocation> clockGenerator;
 
 
 string getCmdOption(char ** begin, int argc, int i ) {
@@ -119,6 +128,20 @@ void compensateLatency(bool& beat, double& bpm) {
 			cout << "   latency BEAT!" << endl;
 	}
 }
+
+
+// function to make uneven callbacks coming from audio stream clock generated
+void pushToClockGenerator(double processTime, bool beat, double bpm) {
+	BeatInvocation call;
+	call.processTime = processTime;
+	call.beat = beat;
+	call.bpm = bpm;
+
+	// push that invokation to the clock generator an let them fire a small amount of time later on
+	// that's the timewise buffer of the microphone  at 44100 Hz
+	clockGenerator.push(processTime + Configuration::getInstance().microphoneBufferLength, call);
+}
+
 
 
 // there are two main threads, the audio thread that works with a frequency optimised for
@@ -289,7 +312,7 @@ int main(int argc, char *argv[]) {
 		dancer.setStartAfterNBeats(startAfterNBeats);
 		rhhymDetector.setup();
 
-		audioProcessor.setup(sendBeatToRythmDetector);
+		audioProcessor.setup(pushToClockGenerator);
 		audioProcessor.setVolume((float)volumeArg/100.0);
 		audioProcessor.setGlobalPlayback(globalPlayback);
 
@@ -323,6 +346,12 @@ int main(int argc, char *argv[]) {
 
 			// run the servo thread the indication to stop it is set outside
 			while (executeServoThread) {
+				BeatInvocation o;
+				bool beatLoopIsDue = clockGenerator.isClockDue(AudioProcessor::getInstance().getElapsedTime(),o);
+				if (beatLoopIsDue) {
+					sendBeatToRythmDetector(o.processTime, o.beat, o.bpm);
+				}
+
 				if (newPoseAvailable) {
 					// limit the frequency a new pose is sent to the servos
 					const int servoFrequency = 100; // [Hz]
