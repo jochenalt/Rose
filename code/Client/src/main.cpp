@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
     	    	printUsage();
     	} else if (arg == "-vm") {
     	    	webserverPort = 3080;
-    	    	webclientHost = "192.168.178.69";
+    	    	webclientHost = "192.168.56.1";
     	} else if (arg == "-odroid") {
     	    	webserverPort = 8080;
     	    	webclientHost = "192.168.178.76";
