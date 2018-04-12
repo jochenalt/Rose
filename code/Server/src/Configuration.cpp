@@ -44,7 +44,7 @@ void Configuration::save() {
 };
 
 void Configuration::readDouble(map<string,string>& configItems, string name, double &value) {
-	if (configItems.find(name) == configItems.end()) {
+	if (configItems.find(name) != configItems.end()) {
 		string tmp = configItems[name];
 		bool ok = true;
 		double i = stringToFloat(tmp, ok);
@@ -56,7 +56,7 @@ void Configuration::writeDouble(map<string,string>& configItems, string name, do
 	configItems[name] = floatToString(value,decimalPlaces);
 }
 void Configuration::readInt(map<string,string>& configItems, string name, int &value) {
-	if (configItems.find(name) == configItems.end()) {
+	if (configItems.find(name) != configItems.end()) {
 		string tmp = configItems[name];
 		bool ok = true;
 		double i = stringToInt(tmp, ok);

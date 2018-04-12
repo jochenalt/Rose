@@ -299,10 +299,11 @@ std::string getErrorMessage(ErrorCodeType err) {
 }
 
 std::map<string, string> readConfigFile(string filepath) {
-	std::istringstream is_file(filepath);
+	ifstream inFile;
+	inFile.open(filepath);
 	std::map<string, string> result;
 	std::string line;
-	while( std::getline(is_file, line) )
+	while( std::getline(inFile, line) )
 	{
 	  std::istringstream is_line(line);
 	  std::string key;
