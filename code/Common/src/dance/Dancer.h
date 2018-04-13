@@ -40,7 +40,7 @@ public:
 			               const Pose& newBodyPose, const Pose& newHeadPose);
 
 	// current body pose within the move
-	Pose& getBodyPose() { return pose.body; };
+	Pose& getBodyPose() { return pose.body; } ;
 
 	// current head pose within the move
 	Pose& getHeadPose() { return pose.head; };

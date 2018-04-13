@@ -133,7 +133,7 @@ class TimeSamplerStatic {
 public:
 	TimeSamplerStatic() {
 		lastCall = millis();
-		lastDueCall = 0; // first call of isDue leads to true
+		lastDueCall = millis(); // first call of isDue leads to true
 		firstCalldT = true;
 	}
 	virtual ~TimeSamplerStatic() {};
@@ -160,6 +160,14 @@ public:
 
 		return false;
 	};
+
+	milliseconds isDueIn(milliseconds sampleTime) {
+		int dueTime = (int)sampleTime - (int)(millis() - lastDueCall);
+		if (dueTime < 0)
+			dueTime = 0;
+		return dueTime;
+	}
+
 	void setDueNow() {
 		lastDueCall = millis();
 	}

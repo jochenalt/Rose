@@ -36,6 +36,7 @@ using namespace std;
 
 bool globalPlayback = true;
 bool executeServoThread = true;
+std::thread* danceThread = NULL;
 std::thread* servoThread = NULL;
 
 struct BeatInvocation {
@@ -87,6 +88,9 @@ void signalHandler(int s){
 	executeServoThread = false;
 	if (servoThread != NULL)
 		delete servoThread;
+	if (danceThread != NULL)
+		delete danceThread;
+
 	Webserver::getInstance().teardown();
 	cout << "Exiting" << endl;
 
@@ -124,8 +128,8 @@ void compensateLatency(bool& beat, double& bpm) {
 
 		// now it s
 		beat = true;
-		if (AudioProcessor::getInstance().isMicrophoneInputUsed())
-			cout << "   latency BEAT!" << endl;
+		// if (AudioProcessor::getInstance().isMicrophoneInputUsed())
+		cout << "   latency BEAT!" << endl;
 	}
 }
 
@@ -153,39 +157,9 @@ void pushToClockGenerator(double processTime, bool beat, double bpm) {
 volatile bool newPoseAvailable = false;
 
 // buffer to pass body and head from audio thread to the servo thread
-static Pose servoHeadPoseBuffer;
-static Pose servoBodyPoseBuffer;
+Pose servoHeadPoseBuffer;
+Pose servoBodyPoseBuffer;
 
-void sendBeatToRythmDetector(double processTime, bool beat, double bpm) {
-	RhythmDetector & rhythmDetector = RhythmDetector::getInstance();
-	Dancer& dancer = Dancer::getInstance();
-
-	// detect the beat
-	rhythmDetector.loop(processTime, beat, bpm);
-
-	// compensate the microphones latency and delay the beat accordingly to hit the beat next time
-	// after this call, beat-flag is modified such that it incorporated the latency
-	compensateLatency(beat, bpm);
-
-	// create the move according to the beat
-	// but this is done in a loop with a frequency the servos can take
-	if (newPoseAvailable == false) {
-
-		// the dance move is computed
-		dancer.danceLoop(beat, bpm);
-
-		// if no music is detected, do not dance
-		dancer.setMusicDetected(AudioProcessor::getInstance().isAudioDetected());
-
-		servoHeadPoseBuffer = dancer.getHeadPose();
-		servoBodyPoseBuffer = dancer.getBodyPose();
-		newPoseAvailable = true;
-	}
-}
-
-// Function pointer used as call back that allows to attach dancing to
-// the audio thread it is called by the audio thread after every sample probe
-typedef void (*MoveCallbackFct)(bool beat, double Bpm);
 
 int main(int argc, char *argv[]) {
 	try {
@@ -331,37 +305,78 @@ int main(int argc, char *argv[]) {
 		audioProcessor.setAudioSource();
 
 		// start own thread for kinematics and servo control
+		danceThread = new std::thread([=](){
+			RhythmDetector & rhythmDetector = RhythmDetector::getInstance();
+			Dancer& dancer = Dancer::getInstance();
+			newPoseAvailable = false;
+
+			// run the clock generated thread to identify the rhytm
+			while (executeServoThread) {
+				BeatInvocation o;
+				bool beatLoopIsDue = clockGenerator.isClockDue(AudioProcessor::getInstance().getElapsedTime(),o);
+				bool insertDelay = true;
+				if (beatLoopIsDue) {
+					double processTime = o.processTime;
+					bool beat = o.beat;
+					double bpm = o.bpm;
+
+					// detect the beat
+					rhythmDetector.loop(processTime, beat, bpm);
+
+					// compensate the microphones latency and delay the beat accordingly to hit the beat next time
+					// after this call, beat-flag is modified such that it incorporated the latency
+					compensateLatency(beat, bpm);
+
+					// the dance move is computed
+					dancer.danceLoop(beat, bpm);
+
+					// if no music is detected, do not dance
+					dancer.setMusicDetected(AudioProcessor::getInstance().isAudioDetected());
+
+					// we did something, continue looping
+					insertDelay = false;
+				}
+
+				// hand over pose to servo thread
+				if (newPoseAvailable == false) {
+					servoHeadPoseBuffer = dancer.getHeadPose();
+					servoBodyPoseBuffer = dancer.getBodyPose();
+
+					// a new pose is ready to be taken over by the servo thread
+					newPoseAvailable = true;
+
+					// we did something, continue looping
+					insertDelay = false;
+				}
+
+				// be cpu friend. if nothing happened, sleep a bit
+				if (insertDelay)
+					delay_us(500);
+			}
+		});
 		servoThread = new std::thread([=](){
-			ServoController& servoController = ServoController::getInstance();
+			TimeSamplerStatic timer;
 			BodyKinematics& bodyKinematics = BodyKinematics::getInstance();
+			ServoController& servoController = ServoController::getInstance();
 
 			servoController.setup();
 			bodyKinematics.setup();
 
-			TimeSamplerStatic timer;
 			Point bodyBallJoint_world[6], headBallJoint_world[6];
 			double bodyServoAngles_rad[6], headServoAngles_rad[6];
 			Point bodyServoBallJoints_world[6], headServoBallJoints_world[6];
 			Point bodyServoArmCentre_world[6], headServoArmCentre_world[6];
 
-			// run the servo thread the indication to stop it is set outside
+			// limit the frequency a new pose is sent to the servos
+			const int servoFrequency = 100; // [Hz]
+			const uint32_t servoSampleRate = 1000/servoFrequency;
 			while (executeServoThread) {
-				BeatInvocation o;
-				bool beatLoopIsDue = clockGenerator.isClockDue(AudioProcessor::getInstance().getElapsedTime(),o);
-				if (beatLoopIsDue) {
-					sendBeatToRythmDetector(o.processTime, o.beat, o.bpm);
-				}
-
 				if (newPoseAvailable) {
-					// limit the frequency a new pose is sent to the servos
-					const int servoFrequency = 100; // [Hz]
-					if (timer.isDue(1000.0/servoFrequency /* [ms] */)) {
-
+					if (timer.isDue(servoSampleRate /* [ms] */)) {
 						// compute the servo angles out of the pose
 						bodyKinematics.
 							computeServoAngles(	servoBodyPoseBuffer, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
 												servoHeadPoseBuffer, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
-
 						// current pose is used up, indicate that we need a new one, such that the audio thread will set it
 						newPoseAvailable = false;
 
@@ -373,12 +388,15 @@ int main(int argc, char *argv[]) {
 						for (int i = 0;i<6;i++) {
 							servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
 						}
-					} else {
-						delay_ms(1);
 					}
-				} else
-					delay_ms(1); // typically never happens, since the audio thread runs faster than
-				                   // 125Hz, at this point in time newPoseAvailable should be set already
+
+					milliseconds nextTime = timer.isDueIn(servoSampleRate);
+					delay_ms(nextTime);
+				}
+				else {
+					cerr << "WARN: rhythm thread too slow" << endl;
+					delay_ms(1); // this should happen very rarely, since the rthym thread is much faster than the servo thread
+				}
 			}
 		});
 
