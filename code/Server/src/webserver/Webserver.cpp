@@ -193,6 +193,8 @@ void Webserver::setup(string webRootPath) {
 }
 
 void Webserver::runningThread() {
+	pthread_setname_np(pthread_self(), "webserver");
+
 	terminateThread = false;
 
 	while (!terminateThread ) {

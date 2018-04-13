@@ -9,6 +9,7 @@
 #define SRC_RHYTHMDETECTOR_H_
 
 #include "basics/util.h"
+#include "assert.h"
 
 class RhythmDetector {
 public:
@@ -27,6 +28,10 @@ public:
 	bool isFirstBeat();
 	double getRythmPercentage();
 private:
+	RhythmDetector(const RhythmDetector& x) { assert(false); };
+	void operator=(const RhythmDetector& x) {assert (false); };
+	void operator=(const RhythmDetector& x) const {assert (false); };
+
 	bool beatStarted = false;
 	int beatCount = 0;
 	int rhythmInQuarters = 1;

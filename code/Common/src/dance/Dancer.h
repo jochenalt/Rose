@@ -9,6 +9,7 @@
 #define MOVEMAKER_H_
 
 #include <string>
+#include <assert.h>
 
 #include <dance/Move.h>
 #include "basics/spatial.h"
@@ -76,6 +77,10 @@ public:
 	}
 
 private:
+	Dancer(const Dancer& x) { assert(false); };
+	void operator=(const Dancer& x) {assert (false); };
+	void operator=(const Dancer& x) const {assert (false); };
+
 	void doNewMove();
 	void createMove(double movePercentage);
 

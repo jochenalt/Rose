@@ -54,6 +54,10 @@ public:
 	void resetSpeedMeasurement();
 
 private:
+	StewartKinematics(const StewartKinematics& x) { assert(false); };
+	void operator=(const StewartKinematics& x) {assert (false); };
+	void operator=(const StewartKinematics& x) const {assert (false); };
+
 	double computeServoAngle(int cornerNo, const Point& ballJoint);
 	bool mirrorFrame(int cornerNo) { return (cornerNo % 2 == 1); };
 

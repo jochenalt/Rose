@@ -8,6 +8,7 @@
 #ifndef SRC_STEWART_BODYKINEMATICS_H_
 #define SRC_STEWART_BODYKINEMATICS_H_
 
+#include <assert.h>
 #include "basics/point.h"
 #include "basics/spatial.h"
 #include "StewartKinematics.h"
@@ -41,6 +42,10 @@ public:
 	StewartConfiguration& getHeadConfig();
 
 private:
+	BodyKinematics(const BodyKinematics& x) { assert(false); };
+	void operator=(const BodyKinematics& x) {assert (false); };
+	void operator=(const BodyKinematics& x) const {assert (false); };
+
 	StewartKinematics bodyKin;
 	StewartKinematics headKin;
 
