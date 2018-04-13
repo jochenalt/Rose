@@ -82,7 +82,7 @@ private:
 	std::vector<uint8_t> nextWavContent;	// used for next track wav input
 	int inputSamplePosition = -1;			// current position within wav source
 	double processedTime = 0; 				// [s] processing time of input source. Is determined by position within wav file or realtime in case of micropone input
-	TimeSamplerStatic callbackTimer; 		// timer for callback as passed via setup()
+	TimeSampler callbackTimer; 		// timer for callback as passed via setup()
 	InputType currentInputType = MICROPHONE_INPUT;
 	InputType nextInputType = MICROPHONE_INPUT;
 

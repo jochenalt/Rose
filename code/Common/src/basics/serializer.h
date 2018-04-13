@@ -21,6 +21,7 @@ class Serializable {
 public:
 	virtual std::ostream& serialize(std::ostream &out) const = 0;
 	virtual std::istream& deserialize(std::istream &in, bool &ok) = 0;
+	virtual ~Serializable() {};
 	string toString();
 };
 

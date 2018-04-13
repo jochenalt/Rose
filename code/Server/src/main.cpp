@@ -214,7 +214,7 @@ void danceThreadFunction() {
 }
 
 void servoThreadFunction() {
-	TimeSamplerStatic timer;
+	TimeSampler timer;
 	BodyKinematics& bodyKinematics = BodyKinematics::getInstance();
 	ServoController& servoController = ServoController::getInstance();
 

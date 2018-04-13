@@ -68,7 +68,7 @@ private:
 	HomogeneousMatrix servoTransform[6];
 
 	StewartConfiguration config;
-	TimeSamplerStatic timer;
+	TimeSampler timer;
 	double currentMaxSpeed;
 };
 

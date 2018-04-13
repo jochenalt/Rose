@@ -90,11 +90,6 @@ int randomPosNeg() {
 }
 
 milliseconds millis() {
-	/*
-    static uint32_t clockPerMs = (CLOCKS_PER_SEC)/1000;
-    uint32_t c = clock();
-    return c/clockPerMs;
-    */
     static auto epoch = std::chrono::high_resolution_clock::from_time_t(0);
     auto now   = std::chrono::high_resolution_clock::now();
     auto mseconds = std::chrono::duration_cast<std::chrono::milliseconds>(now - epoch).count();

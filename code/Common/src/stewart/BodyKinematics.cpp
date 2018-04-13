@@ -8,7 +8,7 @@
 #include <stewart/BodyKinematics.h>
 
 
-StewartConfiguration bodyStewartConfig = {"body",
+static StewartConfiguration bodyStewartConfig = {"body",
 										  27.354, 				// servoCentreRadius_mm
 										  radians(12.83),		// servoCentreAngle_rad
 										  35.211, 				// servoArmCentreRadius_mm (for rendering only)
@@ -26,7 +26,7 @@ StewartConfiguration bodyStewartConfig = {"body",
 };
 
 
-StewartConfiguration headStewartConfig = {"head",
+static StewartConfiguration headStewartConfig = {"head",
 										  27.354, 				// servoCentreRadius_mm
 										  radians(12.83),		// servoCentreAngle_rad
 										  35.211, 				// servoArmCentreRadius_mm (for rendering only)
@@ -43,6 +43,12 @@ StewartConfiguration headStewartConfig = {"head",
 										  radians(86.0)			// bottomServoLimit_rad
 
 };
+
+
+BodyKinematics& BodyKinematics::getInstance() {
+	static BodyKinematics instance;
+	return instance;
+}
 
 StewartConfiguration& BodyKinematics::getBodyConfig() {
 	return bodyStewartConfig;

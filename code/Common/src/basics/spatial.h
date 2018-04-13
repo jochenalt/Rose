@@ -225,7 +225,7 @@ public:
 private:
 	Rotation lastError;
 	Rotation errorIntegral;
-	TimeSamplerStatic pidSampler;
+	TimeSampler pidSampler;
 };
 
 

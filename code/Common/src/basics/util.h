@@ -129,14 +129,14 @@ double ellipseCircumference(double a, double b);
 
 
 
-class TimeSamplerStatic {
+class TimeSampler {
 public:
-	TimeSamplerStatic() {
+	TimeSampler() {
 		lastCall = millis();
 		lastDueCall = millis(); // first call of isDue leads to true
 		firstCalldT = true;
 	}
-	virtual ~TimeSamplerStatic() {};
+	virtual ~TimeSampler() {};
 	void reset() {
 		firstCalldT = true;
 	};
@@ -265,7 +265,7 @@ public:
 
 	double  responseTime = 0;
 	double  currentValue = 0;
-	TimeSamplerStatic sampler;
+	TimeSampler sampler;
 };
 
 class LowPassFilterImpl {

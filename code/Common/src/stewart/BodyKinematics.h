@@ -18,10 +18,7 @@ public:
 	BodyKinematics();
 	virtual ~BodyKinematics();
 	void setup();
-	static BodyKinematics& getInstance() {
-		static BodyKinematics instance;
-		return instance;
-	}
+	static BodyKinematics& getInstance();
 
 	void computeServoAngles(const Pose& bodyPose, Point bodyServoArmCentre_world[6], double bodyServoAngle_rad[6], Point bodyBallJoint_world[6],  Point bodyServoBallJoint_world[6],
 			                const Pose& headPose, Point headServoArmCentre_world[6], double headServoAngle_rad[6], Point headBallJoint_world[6],  Point headServoBallJoint_world[6]);
