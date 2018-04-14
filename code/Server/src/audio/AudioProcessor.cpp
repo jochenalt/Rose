@@ -48,6 +48,9 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 	// low pass filter of cumulative score to get the average score
 	cumulativeScoreLowPass.init(2 /* Hz */);
 	squaredScoreLowPass.init(2);
+
+	// start time used for delays and output
+	startTime_ms = millis();
 }
 
 void generateSinusoidTone(double buffer[], int bufferSize, float sampleRate, int numOfFrequencies, float tonefrequency[]) {
@@ -315,9 +318,6 @@ void AudioProcessor::processInput() {
 	// initialize beat detector
 	BTrack beatDetector(hopSize, frameSize);
 
-	// start time used for delays and output
-	startTime_ms = millis();
-
 	// buffer for audio coming from wav or microphone
 	double inputBuffer[numInputSamples];
 	int inputBufferSamples  = 0;
@@ -363,7 +363,7 @@ void AudioProcessor::processInput() {
 			squaredScoreLowPass = (score - cumulativeScoreLowPass)*(score - cumulativeScoreLowPass);
 		}
 
-		processedTime = (double)inputSamplePosition / (double)sampleRate;	// [s]
+		processedTime += (double)inputBufferSamples / (double)sampleRate;	// [s]
 		beatCallback(processedTime, beat, bpm);
 
 

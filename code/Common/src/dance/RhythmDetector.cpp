@@ -32,7 +32,7 @@ void RhythmDetector::setup() {
 	movePercentage = 0;
 	firstBeat = false;
 	loopsSinceBeat = 0;
-	loopProcessSpeed.init(2);
+	loopProcessSpeed.init(10);
 }
 
 
@@ -59,14 +59,12 @@ void RhythmDetector::loop(double latency, double processTime, bool beat, double 
 			rhythmInQuarters = 1;
 			if (abs(timePerBeat - timeSinceBeat) > abs(2.0*timePerBeat - timeSinceBeat))
 				rhythmInQuarters = 2;
-			cout << std::fixed << std::setprecision(2) << "Rhythm is 1/" << rhythmInQuarters << " BPM=" << BPM << "(" << BPM/rhythmInQuarters << ") s/beat=" <<  timePerBeat << "s(" << timeSinceBeat<< ")" << endl;
 
 			// start with shy head nicker
 			Dancer::getInstance().setCurrentMove(Move::PHYSICISTS_HEAD_NICKER);
 		}
 
-
-		double percentageInBeat = timeSinceBeat / (timePerBeat);
+		double percentageInBeat = timeSinceBeat / timePerBeat;
 		double percentagePerLoop = percentageInBeat/ (float)loopsSinceBeat;
 
 		// compute deviation to decide if we compensate by moving forward quicker or slowing down.
@@ -88,6 +86,9 @@ void RhythmDetector::loop(double latency, double processTime, bool beat, double 
 		sourceLatency = latency;
 		latencyCompensationDelay = fmod(numOfDelayedBeats*secondsPerBeat-latency,secondsPerBeat); // [s]
 		latencyPercentage = (latency/timePerBeat);
+
+		cout << "hitratio=" << hitRatio << " processTime=" << processTime << " percentagePerLoop=" << percentagePerLoop << " loopProcessSpeed=" << loopProcessSpeed
+			 << " latencyPercentage=" << latencyPercentage << endl;
 
 		// cout << " timeSinceBeat=" << timeSinceBeat << " loopsSinceBeat=" << loopsSinceBeat << " %/l=" << percentagePerLoop
 		//	 << " fmod(filteredMove)=" << fmod(filterMovePercentage,rhythmInQuarters) << " hitRatio = " << hitRatio << endl;
@@ -132,6 +133,9 @@ double RhythmDetector::getRythmPercentage() {
 };
 
 double RhythmDetector::getLatencyCompensatedRythmPercentage() {
+	static TimeSampler l;
+	if (l.isDue(50))
+		cout << "move=" << movePercentage+latencyPercentage << endl;
 	return fmod(movePercentage+latencyPercentage,4.0);
 };
 
