@@ -49,8 +49,8 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 	inputAudioDetected = false;
 
 	// low pass filter of cumulative score to get the average score
-	cumulativeScoreLowPass.init(2 /* Hz */);
-	squaredScoreLowPass.init(2);
+	cumulativeScoreLowPass.init(1 /* Hz */);
+	squaredScoreLowPass.init(1);
 
 	// start time used for delays and output
 	startTime_ms = millis();
@@ -339,14 +339,12 @@ void AudioProcessor::processInput() {
 			if (inputBufferSamples < numInputSamples) {
 				cout << "end of song. Switching to microphone." << endl;
 				beatDetector.initialise(hopSize, frameSize);
-				cout << "beat detection re-initialized" << endl;
 
 				// use microphone instead of wav input
 				setMicrophoneInput();
-				cout << "microphone input set" << endl;
 
+				// initialize
 				setAudioSource();
-				cout << "Audio source set" << endl;
 			}
 		}
 
@@ -373,20 +371,6 @@ void AudioProcessor::processInput() {
 		processedTime += (double)inputBufferSamples / (double)sampleRate;	// [s]
 		beatCallback(processedTime, beat, bpm);
 
-
-		/*
-		if (currentInputType == WAV_INPUT) {
-			double elapsedTime = getElapsedTime();  	// [s]
-			// insert a delay to synchronize played audio and beat detection before entering the next cycle
-			// wait such that elapsed time and processed time is synchronized
-
-			double timeAhead_ms = (processedTime - elapsedTime)*1000.0;
-			// cout << "timeaead" << timeAhead_ms << endl;
-			if (timeAhead_ms > 1.0) {
-				delay_ms(timeAhead_ms);
-			}
-		}
-		*/
 	}
 	// check if the source needs to be changed
 	setAudioSource();

@@ -133,9 +133,9 @@ double RhythmDetector::getRythmPercentage() {
 };
 
 double RhythmDetector::getLatencyCompensatedRythmPercentage() {
-	static TimeSampler l;
-	if (l.isDue(50))
-		cout << "move=" << movePercentage+latencyPercentage << endl;
+	// static TimeSampler l;
+	// if (l.isDue(50))
+	// 	cout << "move=" << movePercentage+latencyPercentage << endl;
 	return fmod(movePercentage+latencyPercentage,4.0);
 };
 
