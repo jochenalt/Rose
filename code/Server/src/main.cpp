@@ -164,29 +164,25 @@ void pushToClockGenerator(double processTime, bool beat, double bpm) {
 
 
 void danceThreadFunction() {
-	RhythmDetector & rhythmDetector = RhythmDetector::getInstance();
+	RhythmDetector& rhythmDetector = RhythmDetector::getInstance();
+	AudioProcessor& audioProcessor = AudioProcessor::getInstance();
+
 	Dancer& dancer = Dancer::getInstance();
 	newPoseAvailable = false;
 
 	// run the clock generated thread to identify the rhytm
 	while (executeServoThread) {
 		BeatInvocation o;
+		bool insertDelay = true;		// indicates that the loop had no action and we need to sleep a bit
+
 		bool beatLoopIsDue = clockGenerator.isClockDue(AudioProcessor::getInstance().getElapsedTime(),o);
-		bool insertDelay = true;
 		if (beatLoopIsDue) {
-			double processTime = o.processTime;
-			bool beat = o.beat;
-			double bpm = o.bpm;
-
-			// detect the beat
-			rhythmDetector.loop(processTime, beat, bpm);
-
 			// compensate the microphones latency and delay the beat accordingly to hit the beat next time
 			// after this call, beat-flag is modified such that it incorporated the latency
-			compensateLatency(beat, bpm);
+			compensateLatency(o.beat, o.bpm);
 
-			// the dance move is computed
-			dancer.danceLoop(beat, bpm);
+			// detect the beat
+			rhythmDetector.loop(o.processTime, o.beat, o.bpm);
 
 			// if no music is detected, do not dance
 			dancer.setMusicDetected(AudioProcessor::getInstance().isAudioDetected());
@@ -197,6 +193,13 @@ void danceThreadFunction() {
 
 		// hand over pose to servo thread
 		if (newPoseAvailable == false) {
+
+			// the dance move is computed.
+			// underlying matrix library is not thread safe!
+			// take care this this computation never happens simultaneously with the kinematics computation
+			// TODO fix that
+			dancer.danceLoop(o.beat, o.bpm);
+
 			servoHeadPoseBuffer = dancer.getHeadPose();
 			servoBodyPoseBuffer = dancer.getBodyPose();
 
@@ -227,7 +230,7 @@ void servoThreadFunction() {
 	Point bodyServoArmCentre_world[6], headServoArmCentre_world[6];
 
 	// limit the frequency a new pose is sent to the servos
-	const int servoFrequency = 70; // [Hz]
+	const int servoFrequency = 100; // [Hz]
 	const uint32_t servoSampleRate = 1000/servoFrequency;
 	while (executeServoThread) {
 		if (newPoseAvailable) {
@@ -237,8 +240,6 @@ void servoThreadFunction() {
 				 	computeServoAngles(	servoBodyPoseBuffer, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
 				 						servoHeadPoseBuffer, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
 
-				// current pose is used up, indicate that we need a new one, such that the audio thread will set it
-				newPoseAvailable = false;
 
 				// sending all angles to the PCA9685. This
 				// takes 2x4ms via I2C, so maximum loop frequency is 125Hz
@@ -248,14 +249,24 @@ void servoThreadFunction() {
 				for (int i = 0;i<6;i++) {
 					servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
 				}
+
+				// current pose is used up, indicate that we need a new one, such that the audio thread will set it
+				// we could set that earlier (i.e. before the i2c communciation to the servos via setAngle), but
+				// if we do it now the dance move computation happens right before the next loop and matches
+				// better the process time (okay, only 5ms, no one would really see it...)
+				newPoseAvailable = false;
+
+				// sleep until the next loop happens
 				milliseconds nextTime = timer.isDueIn(servoSampleRate);
 				delay_ms(nextTime);
 			} else {
-				delay_us(100);
+				delay_us(100); // sleep shortly and wait for the next loop
+				               // should happen rarely, only due to rounding of previous sleep computation
 			}
 		}
 		else {
 			delay_us(100); // this should happen very rarely, since the rthym thread is much faster than the servo thread
+			               // Typically, once newPoseAvailable is set to false, the rhythm thread computes a new one
 		}
 	}
 }

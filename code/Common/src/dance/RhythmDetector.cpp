@@ -115,5 +115,8 @@ bool RhythmDetector::isFirstBeat() {
 }
 
 double RhythmDetector::getRythmPercentage() {
+	static TimeSampler log;
+	if (log.isDue(50))
+		cout << "moveratio=" << movePercentage << endl;
 	return fmod(movePercentage,4.0);;
 };

@@ -15,7 +15,7 @@
 
 
 std::vector<Move> Move::moveLibrary;
-const double latencyShift = 0.0;
+const double latencyShift = 1.0;
 
 
 Move& Move::getMove(MoveType m) {
@@ -399,11 +399,10 @@ TotalBodyPose Move::shoulderDipMove(double movePercentage) {
 	double startPhase =  latencyShift;
 
 	double mShoulderMove  = baseCurveFatCos(scaleMove(movePercentage, 2.0,2.8+startPhase));
-	double mDip  = (baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.75)));
-	double mDipAbs  = fabs(mDip);
+	double mDip  = (baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.5)));
 
 	return absHead (
-			Pose(Point(0,mDip*15.0,bodyHeight+10.0-mDipAbs*15.0),Rotation (radians(10)*mShoulderMove,0,0)),
+			Pose(Point(0,mDip*15.0,bodyHeight+10.0),Rotation (radians(10)*mShoulderMove,0,0)),
 			Pose(Point(0,-mShoulderMove*20.0,headHeight),Rotation (0,0,0)));
 }
 

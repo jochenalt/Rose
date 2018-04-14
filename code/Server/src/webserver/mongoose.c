@@ -7587,7 +7587,10 @@ void *mg_start_thread(void *(*f)(void *), void *p) {
 #endif
 
   pthread_create(&thread_id, &attr, f, p);
+
   pthread_attr_destroy(&attr);
+  pthread_setname_np(thread_id, "webserverworkerthread");
+
 
   return (void *) thread_id;
 #endif
