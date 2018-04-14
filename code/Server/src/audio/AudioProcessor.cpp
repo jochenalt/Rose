@@ -42,6 +42,9 @@ AudioProcessor::~AudioProcessor() {
 }
 
 void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
+	// initialize the microphone. Sooner or later we will need it
+	microphone.setup(Configuration::getInstance().microphoneSampleRate);
+
     beatCallback = newBeatCallback;
 	inputAudioDetected = false;
 
@@ -268,7 +271,7 @@ void AudioProcessor::setMicrophoneInput() {
 	nextInputType = MICROPHONE_INPUT;
 
 	// switch off playback
-	// playback.setPlayback(false);
+	playback.setPlayback(false);
 }
 
 int AudioProcessor::readWavInput(double buffer[], unsigned BufferSize) {
@@ -336,10 +339,14 @@ void AudioProcessor::processInput() {
 			if (inputBufferSamples < numInputSamples) {
 				cout << "end of song. Switching to microphone." << endl;
 				beatDetector.initialise(hopSize, frameSize);
+				cout << "beat detection re-initialized" << endl;
 
 				// use microphone instead of wav input
 				setMicrophoneInput();
+				cout << "microphone input set" << endl;
+
 				setAudioSource();
+				cout << "Audio source set" << endl;
 			}
 		}
 

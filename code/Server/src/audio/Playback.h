@@ -32,6 +32,7 @@ private:
 	pa_simple* pulseAudioConnection = NULL;
 	pa_sample_spec ss;
     string deviceName;
+    int sampleRate = 0;
 };
 
 #endif /* SRC_PLAYBACK_H_ */

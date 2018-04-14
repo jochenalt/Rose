@@ -26,7 +26,7 @@ static snd_pcm_sframes_t (*readi_func)(snd_pcm_t *handle, void *buffer, snd_pcm_
 static snd_pcm_t *handle = NULL;
 static snd_pcm_format_t format;
 static unsigned int channels;
-static unsigned int rate;
+static unsigned int rate = 0;
 size_t bits_per_sample = 0;
 size_t bits_per_frame = 0;
 
@@ -131,6 +131,9 @@ MicrophoneInput::~MicrophoneInput() {
 }
 
 void MicrophoneInput::setup(int samplerate) {
+	if (rate == (unsigned)samplerate)
+		return;
+
     format = SND_PCM_FORMAT_S16_LE;
     rate = samplerate;
     channels = 1;

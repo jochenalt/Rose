@@ -25,8 +25,11 @@ Playback::~Playback() {
 }
 
 
-void Playback::setup(int sampleRate) {
+void Playback::setup(int newSampleRate) {
+    if (sampleRate == newSampleRate)
+    	return;
 
+    sampleRate = newSampleRate;
     /* The Sample format to use */
     ss = {
         .format = PA_SAMPLE_S16LE,
@@ -36,7 +39,12 @@ void Playback::setup(int sampleRate) {
 
     int error = 0;
 
-    deviceName = SoundCardUtils::getInstance().getDefaultOutputDevice().name;
+    if (deviceName.empty())
+    	deviceName = SoundCardUtils::getInstance().getDefaultOutputDevice().name;
+    if (pulseAudioConnection != NULL) {
+		 pa_simple_free(pulseAudioConnection);
+		 pulseAudioConnection = NULL;
+    }
     pulseAudioConnection = pa_simple_new(NULL, "Donna", PA_STREAM_PLAYBACK, deviceName.c_str(), "playback", &ss, NULL, NULL, &error);
     if (pulseAudioConnection == NULL) {
         cerr << "ERR: pa_simple_new on " << deviceName << " failed: " <<  pa_strerror(error);
