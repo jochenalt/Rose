@@ -5,6 +5,7 @@
  *      Author: jochenalt
  */
 
+#include <queue>
 #include "basics/util.h"
 
 #include <dance/RhythmDetector.h>
@@ -35,13 +36,15 @@ void RhythmDetector::setup() {
 }
 
 
-void RhythmDetector::loop(double processTime, bool beat, double BPM) {
+void RhythmDetector::loop(double latency, double processTime, bool beat, double BPM) {
 
 	double now = processTime;
 	double timePerBeat = (60.0/BPM); 				// [s]
 	double timeSinceBeat = now - timeOfLastBeat; 	// [s]
 
 	if (beat) {
+		beatsPerMinute = BPM;
+
 		// detect 1/1 or 1/2 rhythm
 		rhythmInQuarters = 1;
 		if (abs(timePerBeat - timeSinceBeat) > abs(2.0*timePerBeat - timeSinceBeat))
@@ -77,6 +80,15 @@ void RhythmDetector::loop(double processTime, bool beat, double BPM) {
 		// low pass the process speed with the predicted progress plus a correction hitRatio
 		loopProcessSpeed.set(processTime, percentagePerLoop / hitRatio);
 
+		// compute latency compensation, i.e. the time we need to delay
+		// the dance even more such that the beat meets the next one
+		double secondsPerBeat = timePerBeat*rhythmInQuarters;
+		// number of beats we need to overtake
+		int numOfDelayedBeats = (int)(latency / secondsPerBeat + 1.0);
+		sourceLatency = latency;
+		latencyCompensationDelay = fmod(numOfDelayedBeats*secondsPerBeat-latency,secondsPerBeat); // [s]
+		latencyPercentage = (latency/timePerBeat);
+
 		// cout << " timeSinceBeat=" << timeSinceBeat << " loopsSinceBeat=" << loopsSinceBeat << " %/l=" << percentagePerLoop
 		//	 << " fmod(filteredMove)=" << fmod(filterMovePercentage,rhythmInQuarters) << " hitRatio = " << hitRatio << endl;
 		loopsSinceBeat = 0;
@@ -107,6 +119,7 @@ void RhythmDetector::loop(double processTime, bool beat, double BPM) {
 	}
 }
 
+
 bool RhythmDetector::isFirstBeat() {
 
 	bool bufferFirstBeat = firstBeat;
@@ -115,8 +128,18 @@ bool RhythmDetector::isFirstBeat() {
 }
 
 double RhythmDetector::getRythmPercentage() {
-	static TimeSampler log;
-	if (log.isDue(50))
-		cout << "moveratio=" << movePercentage << endl;
-	return fmod(movePercentage,4.0);;
+	return fmod(movePercentage,4.0);
 };
+
+double RhythmDetector::getLatencyCompensatedRythmPercentage() {
+	return fmod(movePercentage+latencyPercentage,4.0);
+};
+
+
+void RhythmDetector::queueUpBeatInvocation(double processTime, bool beat, double bpm) {
+	BeatInvocation b;
+	b.processTime = processTime;
+	b.beat = beat;
+	b.bpm = bpm;
+	beatQueue.push(b);
+}

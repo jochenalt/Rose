@@ -40,11 +40,6 @@ static bool executeServoThread = true;
 static std::thread* danceThread = NULL;
 static std::thread* servoThread = NULL;
 
-struct BeatInvocation {
-	double processTime;
-	bool beat;
-	double bpm;
-};
 ClockGenerator<BeatInvocation> clockGenerator;
 
 // there are two main threads, the audio thread that works with a frequency optimised for
@@ -123,15 +118,8 @@ void compensateLatency(bool& beat, double& bpm) {
 
 	// add beats to the queue
 	if (beat && (rhythmDetector.getRhythmInQuarters() != 0)) {
-		// compute the necessary delay to compensate microphone latency
-		// assume 2/4 beat
-		float secondsPerBeat = 1.0*60.0/(bpm/rhythmDetector.getRhythmInQuarters());
-		int numOfDelayedBeats = audioProcessor.getCurrentLatency() / secondsPerBeat + 1;
-		float currentBeatDelay = fmod(numOfDelayedBeats*secondsPerBeat-audioProcessor.getCurrentLatency(),secondsPerBeat); // [s]
-
 		// queue up the time when this beat is to be fired
-		pendingBeatTime.push(now + currentBeatDelay*1000.0);
-		// cout << "now=" << millis() << " takt=" << RhythmDetector::getInstance().getRhythmInQuarters() << " spb=" << secondsPerBeat << "delay =" << currentBeatDelay * 1000 << "ms " << endl;
+		pendingBeatTime.push(now +  rhythmDetector.getLatencyCompensationDelay()*1000.0);
 
 		// for now,  suppress the incoming beat, but re-fire it with incorporated latency computation
 		beat = false;
@@ -144,7 +132,11 @@ void compensateLatency(bool& beat, double& bpm) {
 		// now it s
 		beat = true;
 		// if (AudioProcessor::getInstance().isMicrophoneInputUsed())
-		cout << "   latency BEAT!" << endl;
+		cout << std::fixed << std::setprecision(2)
+		     << "Real Beat (bpm=" <<  rhythmDetector.bpm()<< " 1/" <<  rhythmDetector.getRhythmInQuarters() << ") "
+			 << "latency=" << audioProcessor.getCurrentLatency()
+			 << "s comp=" << rhythmDetector.getLatencyCompensationDelay() << "s"  << "/" << rhythmDetector.getLatencyCompensationPercentage() << "% "
+		 	 << "move=" << rhythmDetector.getRythmPercentage() << "/" << rhythmDetector.getLatencyCompensatedRythmPercentage() << endl;
 	}
 }
 
@@ -172,17 +164,27 @@ void danceThreadFunction() {
 
 	// run the clock generated thread to identify the rhytm
 	while (executeServoThread) {
-		BeatInvocation o;
+		BeatInvocation o;				// detected beat coming from audio (including its latency)
 		bool insertDelay = true;		// indicates that the loop had no action and we need to sleep a bit
 
-		bool beatLoopIsDue = clockGenerator.isClockDue(AudioProcessor::getInstance().getElapsedTime(),o);
+		bool beatLoopIsDue = clockGenerator.isClockDue(audioProcessor.getElapsedTime(),o);
 		if (beatLoopIsDue) {
+			if (o.beat){
+				/*
+				cout << std::fixed << std::setprecision(2)
+				     << "   Beat (bpm=" <<  rhythmDetector.bpm()<< " 1/" <<  rhythmDetector.getRhythmInQuarters() << ") "
+					 << "latency=" << audioProcessor.getCurrentLatency()
+					 << "s comp=" << rhythmDetector.getLatencyCompensationDelay() << "s"  << "/" << rhythmDetector.getLatencyCompensationPercentage() << "% "
+				 	 << "move=" << rhythmDetector.getRythmPercentage() << "/" << rhythmDetector.getLatencyCompensatedRythmPercentage() << endl;
+				 	 */
+			};
+
+			// detect the beat
+			rhythmDetector.loop(audioProcessor.getCurrentLatency(), o.processTime, o.beat, o.bpm);
+
 			// compensate the microphones latency and delay the beat accordingly to hit the beat next time
 			// after this call, beat-flag is modified such that it incorporated the latency
 			compensateLatency(o.beat, o.bpm);
-
-			// detect the beat
-			rhythmDetector.loop(o.processTime, o.beat, o.bpm);
 
 			// if no music is detected, do not dance
 			dancer.setMusicDetected(AudioProcessor::getInstance().isAudioDetected());
@@ -196,7 +198,7 @@ void danceThreadFunction() {
 
 			// the dance move is computed.
 			// underlying matrix library is not thread safe!
-			// take care this this computation never happens simultaneously with the kinematics computation
+			// So, take care that this computation never happens simultaneously with the kinematics computation
 			// TODO fix that
 			dancer.danceLoop(o.beat, o.bpm);
 
@@ -284,7 +286,7 @@ void audioThreadFunction() {
 			audioProcessor.processInput();
 		}
 
-		// be cpu friendly when no audio input is available
+		// be cpu friendly when waiting for audio input
 		delay_ms(1);
 	}
 }
@@ -429,7 +431,7 @@ int main(int argc, char *argv[]) {
 			audioProcessor.setMicrophoneInput();
 		}
 
-		// read in the audio source
+		// initiate audio source from file or microphone
 		audioProcessor.setAudioSource();
 
 		// start own thread for rythm detection and dance moves

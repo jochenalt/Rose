@@ -141,7 +141,7 @@ TotalBodyPose Move::absHead (const Pose& bodyPose, const Pose& relHeadPose) {
 
 TotalBodyPose Move::listeningMove(double movePercentage) {
 	double startPhase = latencyShift;
-	double mBase = baseCurveFatCos(scaleMove(movePercentage, 1.0, startPhase+0.6));
+	double mBase = baseCurveFatCos(scaleMove(movePercentage, 1.0, startPhase));
 
 	return absHead(Pose(Point(0,0,bodyHeight), Rotation (0,0,0)),
 			       Pose(Point(0,0.0,headHeight), Rotation(0,-fabs(mBase)*radians(10.0), mBase*radians(10.0))));
@@ -161,7 +161,7 @@ TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
 
 	double mBase = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, startPhase));
 	double mUpDown = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase));
-	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.75)));
+	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.25)));
 
 	return absHead (
 			Pose(Point(mDip*10,0,bodyHeight  +10.0*mUpDown),Rotation (0,-radians(10)*mDip,-radians(15)*mBase)),

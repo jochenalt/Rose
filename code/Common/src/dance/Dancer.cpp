@@ -118,7 +118,7 @@ void Dancer::danceLoop(bool beat, double BPM) {
 
 	// wait 4 beats to detect the rhythm
 	if ((rhythmDetector.getAbsoluteBeatCount() > startAfterNBeats) && (rhythmDetector.hasBeatStarted())) {
-		createMove(rhythmDetector.getRythmPercentage());
+		createMove(rhythmDetector.getLatencyCompensatedRythmPercentage());
 	}
 }
 

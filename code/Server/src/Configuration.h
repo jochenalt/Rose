@@ -21,10 +21,10 @@ public:
 	bool load();
 	void save();
 
-	double microphoneLatency = 0.0;   // [s]
-	int microphoneSampleRate = 44100; // [Hz]
-	int webserverPort = 8080;
-	double microphoneBufferLength = 0.07; // [s];
+	double microphoneLatency = 0.0;   		// [s]
+	int microphoneSampleRate = 44100; 		// [Hz]
+	int webserverPort = 8080;				// port of webserver
+	double microphoneBufferLength = 0.08; 	// [s] added latency that is equalizes the alsa microphone buffer that pushs data blockwise
 private:
 	void readDouble(map<string,string>& configItems, string name, double &value);
 	void writeDouble(map<string,string>& configItems, string name, double value, int decimalPlaces);

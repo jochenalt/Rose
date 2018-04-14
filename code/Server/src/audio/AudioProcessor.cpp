@@ -351,10 +351,6 @@ void AudioProcessor::processInput() {
 		bool beat = beatDetector.beatDueInCurrentFrame();
 		double bpm = beatDetector.getCurrentTempoEstimate();
 
-		if (beat){
-			cout << std::fixed << std::setprecision(2) << "Beat (" << beatDetector.getCurrentTempoEstimate() << ")"  << endl;
-	    };
-
 		// we need to check if there is music or only noise. This is done by a me
 		// cumulative score is the sum of the onset function and the likelihood of a beat. When this value reaches a maximum,
 		// we receive a beat. We identify the existence of music by a least variance of this score
@@ -398,6 +394,6 @@ float AudioProcessor::getCurrentLatency() {
 	if (currentInputType == MICROPHONE_INPUT)
 		return Configuration::getInstance().microphoneLatency;
 	else
-		return 0.3;
+		return 0.35-Configuration::getInstance().microphoneBufferLength;
 }
 
