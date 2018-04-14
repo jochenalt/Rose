@@ -57,6 +57,8 @@ private:
 	Pose headPose;
 	float ambition = 0;
 	bool musicDetected = false;
+	int sequenceMode = false;
+
 	Move::MoveType move = Move::MoveType::NO_MOVE;
 	bool isWebClientActive = false;
 

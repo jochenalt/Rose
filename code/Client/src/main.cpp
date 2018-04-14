@@ -64,17 +64,6 @@ void signalHandler(int s){
 	exit(1);
 }
 
-
-
-void sendBeatToRythmDetector(bool beat, double bpm) {
-	RhythmDetector & rd = RhythmDetector::getInstance();
-	Dancer & mm = Dancer::getInstance();
-
-	rd.loop(beat, bpm);
-	mm.danceLoop(beat, bpm);
-	UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
-}
-
 void sendDanceToClient(bool beat, double bpm) {
 	Dancer & mm = Dancer::getInstance();
 	BotClient& client = BotClient::getInstance();
@@ -85,8 +74,6 @@ void sendDanceToClient(bool beat, double bpm) {
 	// send data to ui
 	UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
 }
-
-typedef void (*MoveCallbackFct)(bool beat, double Bpm);
 
 
 int main(int argc, char *argv[]) {
