@@ -99,16 +99,22 @@ void BotClient::getStatus() {
 		parseCharacter(in, ',', ok);
 		parseString(in, ok); // "ambition"
 		parseCharacter(in, ':', ok);
-		ambition = parseFloat(in, ok); // "ambition"
+		ambition = parseFloat(in, ok);
 		parseCharacter(in, ',', ok);
 		parseString(in, ok); // "move"
 		parseCharacter(in, ':', ok);
-		int moveTmp = parseInt(in, ok); // "move"
+		int moveTmp = parseInt(in, ok);
 		move = (Move::MoveType)moveTmp;
 		parseCharacter(in, ',', ok);
 		parseString(in, ok); // "music"
 		parseCharacter(in, ':', ok);
 		musicDetected = parseBool(in, ok);
+		parseCharacter(in, '}', ok);
+		parseCharacter(in, ',', ok);
+		parseString(in, ok); // "auto"
+		parseCharacter(in, ':', ok);
+		sequenceMode= parseInt(in, ok);
+
 		parseCharacter(in, '}', ok);
 		parseCharacter(in, ',', ok);
 		parseString(in, ok); // "status"
