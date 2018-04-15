@@ -42,18 +42,15 @@ AudioProcessor::~AudioProcessor() {
 }
 
 void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
-	// initialize the microphone. Sooner or later we will need it
-	microphone.setup(Configuration::getInstance().microphoneSampleRate);
-
     beatCallback = newBeatCallback;
 	inputAudioDetected = false;
 
 	// low pass filter of cumulative score to get the average score
-	cumulativeScoreLowPass.init(1 /* Hz */);
-	squaredScoreLowPass.init(1);
+	cumulativeScoreLowPass.init(2 /* Hz */);
+	squaredScoreLowPass.init(2);
 
-	// start time used for delays and output
-	startTime_ms = millis();
+	  // start time used for delays and output
+	  startTime_ms = millis();
 }
 
 void generateSinusoidTone(double buffer[], int bufferSize, float sampleRate, int numOfFrequencies, float tonefrequency[]) {
@@ -271,7 +268,7 @@ void AudioProcessor::setMicrophoneInput() {
 	nextInputType = MICROPHONE_INPUT;
 
 	// switch off playback
-	playback.setPlayback(false);
+	// playback.setPlayback(false);
 }
 
 int AudioProcessor::readWavInput(double buffer[], unsigned BufferSize) {
@@ -328,9 +325,10 @@ void AudioProcessor::processInput() {
 	int sampleRate = 0;
 	while (!stopCurrProcessing) {
 		if (currentInputType == MICROPHONE_INPUT) {
-			inputBufferSamples = microphone.readMicrophoneInput(inputBuffer, numInputSamples);
+			microphone.readMicrophoneInput(inputBuffer, numInputSamples);
 			sampleRate = Configuration::getInstance().microphoneSampleRate;
 			inputSamplePosition += numInputSamples;
+			inputBufferSamples = numInputSamples;
 		}
 		if (currentInputType == WAV_INPUT) {
 			inputBufferSamples = readWavInput(inputBuffer, numInputSamples);
@@ -342,8 +340,6 @@ void AudioProcessor::processInput() {
 
 				// use microphone instead of wav input
 				setMicrophoneInput();
-
-				// initialize
 				setAudioSource();
 			}
 		}
@@ -368,9 +364,8 @@ void AudioProcessor::processInput() {
 			squaredScoreLowPass = (score - cumulativeScoreLowPass)*(score - cumulativeScoreLowPass);
 		}
 
-		processedTime += (double)inputBufferSamples / (double)sampleRate;	// [s]
+		processedTime = (double)inputSamplePosition / (double)sampleRate;	// [s]
 		beatCallback(processedTime, beat, bpm);
-
 	}
 	// check if the source needs to be changed
 	setAudioSource();
