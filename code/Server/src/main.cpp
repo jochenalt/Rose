@@ -219,7 +219,6 @@ void danceThreadFunction() {
 }
 
 void servoThreadFunction() {
-	TimeSampler timer;
 	BodyKinematics& bodyKinematics = BodyKinematics::getInstance();
 	ServoController& servoController = ServoController::getInstance();
 
@@ -232,39 +231,32 @@ void servoThreadFunction() {
 	Point bodyServoArmCentre_world[6], headServoArmCentre_world[6];
 
 	// limit the frequency a new pose is sent to the servos
-	const int servoFrequency = 100; // [Hz]
-	const uint32_t servoSampleRate = 1000/servoFrequency;
+	int counter = 0;
+	TimeSampler log;
 	while (executeServoThread) {
 		if (newPoseAvailable) {
-			if (timer.isDue(servoSampleRate /* [ms] */)) {
-				// compute the servo angles out of the pose
-				bodyKinematics.
-				 	computeServoAngles(	servoBodyPoseBuffer, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
-				 						servoHeadPoseBuffer, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
-
-
-				// sending all angles to the PCA9685. This
-				// takes 2x4ms via I2C, so maximum loop frequency is 125Hz
-				for (int i = 0;i<6;i++) {
-					servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
-				}
-				for (int i = 0;i<6;i++) {
-					servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
-				}
-
-				// current pose is used up, indicate that we need a new one, such that the audio thread will set it
-				// we could set that earlier (i.e. before the i2c communciation to the servos via setAngle), but
-				// if we do it now the dance move computation happens right before the next loop and matches
-				// better the process time (okay, only 5ms, no one would really see it...)
-				newPoseAvailable = false;
-
-				// sleep until the next loop happens
-				milliseconds nextTime = timer.isDueIn(servoSampleRate);
-				delay_ms(nextTime);
-			} else {
-				delay_us(100); // sleep shortly and wait for the next loop
-				               // should happen rarely, only due to rounding of previous sleep computation
+			counter++;
+			if (log.isDue(1000)) {
+				cout << "servo update frequency=" << counter << "Hz" << endl;
+				counter = 0;
 			}
+			bodyKinematics.
+			 	computeServoAngles(	servoBodyPoseBuffer, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
+			 						servoHeadPoseBuffer, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
+
+
+			// sending all angles to the PCA9685. This
+			// takes 2x4ms via I2C, so maximum loop frequency is 125Hz
+			for (int i = 0;i<6;i++) {
+				servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
+				servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
+			}
+
+			// current pose is used up, indicate that we need a new one, such that the audio thread will set it
+			// we could set that earlier (i.e. before the i2c communciation to the servos via setAngle), but
+			// if we do it now the dance move computation happens right before the next loop and matches
+			// better the process time (okay, only 5ms, no one would really see it...)
+			newPoseAvailable = false;
 		}
 		else {
 			delay_us(100); // this should happen very rarely, since the rthym thread is much faster than the servo thread
