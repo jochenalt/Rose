@@ -97,7 +97,7 @@ milliseconds millis() {
 }
 
 
-long micros() {
+microseconds micros() {
     static auto epoch = std::chrono::high_resolution_clock::from_time_t(0);
     auto now   = std::chrono::high_resolution_clock::now();
     auto mseconds = std::chrono::duration_cast<std::chrono::microseconds>(now - epoch).count();
