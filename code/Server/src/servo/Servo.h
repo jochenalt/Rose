@@ -32,6 +32,7 @@ private:
 	double nullAngle = 0;
 
 	double angle = 0;
+	int counter = 0;
 
 };
 #endif

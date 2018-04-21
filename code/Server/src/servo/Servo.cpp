@@ -56,6 +56,11 @@ void Servo::setAngle(double newAngle) {
 
     // send pwm value to PCA9685 (channels start with 1! )
     pca9685->setPWM(channel+1, pwmValue);
+/*
+    int pwmCheck = pca9685->getPWM(channel+1);
+    if (pwmCheck != pwmValue)
+    	cerr << "servo " << channel << ": pwm =" << pwmCheck << " instead of " << pwmValue << endl;
+    	*/
 }
 
 #endif

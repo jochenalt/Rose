@@ -148,6 +148,7 @@ void pushToClockGenerator(double processTime, bool beat, double bpm) {
 	call.beat = beat;
 	call.bpm = bpm;
 
+
 	// push that invokation to the clock generator an let them fire a small amount of time later on
 	// that's the timewise buffer of the microphone  at 44100 Hz
 	clockGenerator.push(processTime + Configuration::getInstance().microphoneBufferLength, call);
@@ -208,13 +209,14 @@ void danceThreadFunction() {
 			// a new pose is ready to be taken over by the servo thread
 			newPoseAvailable = true;
 
+
 			// we did something, continue looping
 			insertDelay = false;
 		}
 
 		// be cpu friend. if nothing happened, sleep a bit
 		if (insertDelay);
-			delay_us(100);
+			delay_ms(1);
 	}
 }
 
@@ -233,33 +235,43 @@ void servoThreadFunction() {
 	// limit the frequency a new pose is sent to the servos
 	int counter = 0;
 	TimeSampler log;
+	TimeSampler sync;
+
+	int servoSample = 1000/(servoController.getServoFrequency()/(int)(servoController.getServoFrequency() / 125 + 1));
+	cout << servoSample << endl;
 	while (executeServoThread) {
 		if (newPoseAvailable) {
-			counter++;
-			if (log.isDue(1000)) {
-				cout << "servo update frequency=" << counter << "Hz" << endl;
-				counter = 0;
-			}
-			bodyKinematics.
-			 	computeServoAngles(	servoBodyPoseBuffer, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
-			 						servoHeadPoseBuffer, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
+			//if (sync.isDue(servoSample)) {
+				counter++;
+				if (log.isDue(10000)) {
+					cout << "INFO:servo update frequency=" << counter / 10<< "Hz" << endl;
+					counter = 0;
+				}
+				bodyKinematics.
+					computeServoAngles(	servoBodyPoseBuffer, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
+										servoHeadPoseBuffer, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
 
+				// current pose is used up, indicate that we need a new one, such that the audio thread will set it
+				newPoseAvailable = false;
 
-			// sending all angles to the PCA9685. This
-			// takes 2x4ms via I2C, so maximum loop frequency is 125Hz
-			for (int i = 0;i<6;i++) {
-				servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
-				servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
-			}
+				// sending all angles to the PCA9685. This
+				// takes 2x4ms via I2C, so maximum loop frequency is 125Hz
+				uint32_t start = millis();
+				for (int i = 0;i<6;i++) {
+					servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
+					delay_us(150); // necessary, otherwise the I2C line misses some calls and gets hickups approx every 20s.
+					servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
+					delay_us(150);
+				}
+				uint32_t duration = millis()-start;
+				const uint32_t maxDuration = 12;
+				if (duration > maxDuration)
+					cerr << "ERR: servos command via I2C took " << duration << "ms instead of " << maxDuration << "ms max." << endl;
 
-			// current pose is used up, indicate that we need a new one, such that the audio thread will set it
-			// we could set that earlier (i.e. before the i2c communciation to the servos via setAngle), but
-			// if we do it now the dance move computation happens right before the next loop and matches
-			// better the process time (okay, only 5ms, no one would really see it...)
-			newPoseAvailable = false;
+			//}
 		}
 		else {
-			delay_us(100); // this should happen very rarely, since the rthym thread is much faster than the servo thread
+			delay_us(10); // this should happen very rarely, since the rthym thread is much faster than the servo thread
 			               // Typically, once newPoseAvailable is set to false, the rhythm thread computes a new one
 		}
 	}

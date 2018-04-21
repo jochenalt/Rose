@@ -25,6 +25,7 @@ public:
 		return instance;
 	}
 
+	float getServoFrequency() { return 333; };
 	void calibrateViaKeyBoard();
 
 	double  getAngle(int servoNo);

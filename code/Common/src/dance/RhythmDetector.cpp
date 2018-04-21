@@ -87,8 +87,8 @@ void RhythmDetector::loop(double latency, double processTime, bool beat, double 
 		latencyCompensationDelay = fmod(numOfDelayedBeats*secondsPerBeat-latency,secondsPerBeat); // [s]
 		latencyPercentage = (latency/timePerBeat);
 
-		cout << "hitratio=" << hitRatio << " processTime=" << processTime << " percentagePerLoop=" << percentagePerLoop << " loopProcessSpeed=" << loopProcessSpeed
-			 << " latencyPercentage=" << latencyPercentage << endl;
+		// cout << "hitratio=" << hitRatio << " processTime=" << processTime << " percentagePerLoop=" << percentagePerLoop << " loopProcessSpeed=" << loopProcessSpeed
+		//	 << " latencyPercentage=" << latencyPercentage << endl;
 
 		// cout << " timeSinceBeat=" << timeSinceBeat << " loopsSinceBeat=" << loopsSinceBeat << " %/l=" << percentagePerLoop
 		//	 << " fmod(filteredMove)=" << fmod(filterMovePercentage,rhythmInQuarters) << " hitRatio = " << hitRatio << endl;
