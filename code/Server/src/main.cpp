@@ -237,7 +237,7 @@ void servoThreadFunction() {
 	TimeSampler log;
 	TimeSampler sync;
 
-	int servoSampleFrequency = 60;					// [Hz]
+	int servoSampleFrequency = 50;					// [Hz]
 	int servoSample_ms = 1000/servoSampleFrequency; // [ms]
 
 	while (executeServoThread) {
@@ -279,9 +279,9 @@ void servoThreadFunction() {
 
 				}
 				int duration_us = (int)(micros()-start);
-				const int maxDuration_us = (12+2)*durationPerServo_us ;
-				if (duration_us > maxDuration_us) {
-					cerr << "ERR: servos command via I2C took " << duration_us/1000 << "ms instead of " << maxDuration_us/1000 << "ms max." << endl;
+				const int maxDuration_us = 12*durationPerServo_us ;
+				if (duration_us > (maxDuration_us*15)/10) {
+					cerr << "WARN: servos command via I2C took " << duration_us/1000 << "ms instead of " << maxDuration_us/1000 << "ms max." << endl;
 				}
 
 			}
