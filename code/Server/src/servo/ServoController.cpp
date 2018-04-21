@@ -26,10 +26,8 @@ void ServoController::setup() {
 	const int i2cBus = 1; 			// this is /dev/ic2-1
 	const int i2cAddress = 0x40; 	// i2c address of PCA 9685 from datasheet
 	const int servoFrequency = getServoFrequency(); // [Hz] working frequency of KST 215 MG V3 (from datasheet)
-
 	// initialize PCA 9685 board via Adafruit library
-	pca9685.setup(i2cBus,i2cAddress);
-	pca9685.setPWMFreq(servoFrequency);
+	pca9685.setup(i2cBus,i2cAddress,servoFrequency);
 
 	BodyKinematics& bodyKin = BodyKinematics::getInstance();
 	double bottomServoLimit = degrees(bodyKin.getBodyConfig().bottomServoLimit_rad);

@@ -46,10 +46,10 @@ PCA9685::PCA9685() {
 	i2c = NULL;
 }
 
-void PCA9685::setup(int bus, int address) {
+void PCA9685::setup(int bus, int address,int frequency) {
 	i2c = new I2C(bus,address);
 	reset();
-	setPWMFreq(1000);
+	setPWMFreq(frequency);
 }
 
 
@@ -69,7 +69,7 @@ void PCA9685::reset() {
  */
 void PCA9685::setPWMFreq(int freq) {
 
-		uint8_t prescale_val = (PCA9685_CLOCK_FREQ / 4096 / freq)  - 1;
+		uint8_t prescale_val = (PCA9685_CLOCK_FREQ / (4096.0 * (float)freq))  - 0.5;
 		i2c->write_byte(PCA9685_MODE1, 0x10); //sleep
 		i2c->write_byte(PCA9685_PRESCALE, prescale_val); // multiplyer for PWM frequency
 		i2c->write_byte(PCA9685_MODE1, 0x80); //restart

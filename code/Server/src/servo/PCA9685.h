@@ -87,7 +87,7 @@ class PCA9685 {
 public:
 	PCA9685();
 	virtual ~PCA9685();
-	void setup(int bus,int address);
+	void setup(int bus,int address, int frequency);
 
 	void setPWMFreq(int);
 	void setPWM(uint8_t, int, int);

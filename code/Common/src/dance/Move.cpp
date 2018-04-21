@@ -172,7 +172,7 @@ TotalBodyPose Move::weaselsMove(double movePercentage) {
 	double startPhase = latencyShift;
 
 	double mLeftRight = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, startPhase));
-	double mNick = baseCurveCos(scaleMove(movePercentage, 4.0, startPhase));
+	double mNick = baseCurveCos(scaleMove(movePercentage, 4.0, startPhase-0.5));
 	double mDip  = baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.5));
 
 	return absHead (

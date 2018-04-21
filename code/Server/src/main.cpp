@@ -237,11 +237,12 @@ void servoThreadFunction() {
 	TimeSampler log;
 	TimeSampler sync;
 
-	int servoSample = 1000/(servoController.getServoFrequency()/(int)(servoController.getServoFrequency() / 125 + 1));
-	cout << servoSample << endl;
+	int servoSampleFrequency = 60;					// [Hz]
+	int servoSample_ms = 1000/servoSampleFrequency; // [ms]
+
 	while (executeServoThread) {
 		if (newPoseAvailable) {
-			//if (sync.isDue(servoSample)) {
+			if (sync.isDue(servoSample_ms)) {
 				counter++;
 				if (log.isDue(10000)) {
 					cout << "INFO:servo update frequency=" << counter / 10<< "Hz" << endl;
@@ -256,19 +257,34 @@ void servoThreadFunction() {
 
 				// sending all angles to the PCA9685. This
 				// takes 2x4ms via I2C, so maximum loop frequency is 125Hz
-				uint32_t start = millis();
+				microseconds start = micros();
+				int durationPerServo_us = (servoSample_ms*1000)/12; // [us]
 				for (int i = 0;i<6;i++) {
 					servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
-					delay_us(150); // necessary, otherwise the I2C line misses some calls and gets hickups approx every 20s.
-					servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
-					delay_us(150);
-				}
-				uint32_t duration = millis()-start;
-				const uint32_t maxDuration = 12;
-				if (duration > maxDuration)
-					cerr << "ERR: servos command via I2C took " << duration << "ms instead of " << maxDuration << "ms max." << endl;
+					microseconds end = micros();
+					int toBe_us = durationPerServo_us*(i*2 + 1);
+					int servoDelay_us = toBe_us  -  (int)(end - start);
+					if (servoDelay_us < 200)
+						servoDelay_us = 200;
+					delay_us(servoDelay_us); // necessary, otherwise the I2C line misses some calls and gets hickups approx every 20s.
 
-			//}
+					servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
+					end = micros();
+					toBe_us = durationPerServo_us*(i*2 + 2);
+					int duration_us = (int)(end - start);
+					servoDelay_us = toBe_us  - duration_us;
+					if (servoDelay_us < 200)
+						servoDelay_us = 200;
+					delay_us(servoDelay_us); // necessary, otherwise the I2C line misses some calls and gets hickups approx every 20s.
+
+				}
+				int duration_us = (int)(micros()-start);
+				const int maxDuration_us = (12+2)*durationPerServo_us ;
+				if (duration_us > maxDuration_us) {
+					cerr << "ERR: servos command via I2C took " << duration_us/1000 << "ms instead of " << maxDuration_us/1000 << "ms max." << endl;
+				}
+
+			}
 		}
 		else {
 			delay_us(10); // this should happen very rarely, since the rthym thread is much faster than the servo thread
