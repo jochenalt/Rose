@@ -135,7 +135,8 @@ void delay_ms(long ms) {
 }
 
 void delay_us(long us) {
-	usleep(us);
+	if (us>0)
+		usleep(us);
 }
 
 
