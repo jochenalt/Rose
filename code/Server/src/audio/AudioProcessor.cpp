@@ -49,8 +49,8 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 	cumulativeScoreLowPass.init(2 /* Hz */);
 	squaredScoreLowPass.init(2);
 
-	  // start time used for delays and output
-	  startTime_ms = millis();
+	// start time used for delays and output
+	startTime_ms = millis();
 }
 
 void generateSinusoidTone(double buffer[], int bufferSize, float sampleRate, int numOfFrequencies, float tonefrequency[]) {
