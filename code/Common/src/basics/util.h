@@ -91,6 +91,8 @@ int randomPosNeg();
 
 // time helpers
 milliseconds millis();
+microseconds micros();
+
 seconds secondsSinceEpoch();
 
 void delay_ms(long);

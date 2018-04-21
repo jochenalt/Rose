@@ -14,6 +14,7 @@ const double ninf = -std::numeric_limits<double>::infinity();
 
 typedef double seconds;					    // time
 typedef uint32_t milliseconds;					// time
+typedef uint32_t microseconds;					// time
 typedef double mmPerMillisecond;				// speed
 typedef double mmPerSecond;					// speed
 typedef double radPerSecond;					// angualar speed
