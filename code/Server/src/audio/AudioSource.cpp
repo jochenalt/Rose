@@ -34,6 +34,7 @@ void AudioSource::setup() {
 
 	globalPlayback = true;
 	noOfInputSample = 0;
+	startTime_ms = 0;
 }
 
 
@@ -68,6 +69,8 @@ int AudioSource::readWavInput(double buffer[], unsigned BufferSize) {
 
 
 void AudioSource::fetchInput(int numOfSamples, double samples[]) {
+	if (startTime_ms == 0)
+		startTime_ms = millis();
 	switch (nextInputType) {
 		case MICROPHONE_INPUT: {
 			currentInputType = MICROPHONE_INPUT;
@@ -144,5 +147,18 @@ void AudioSource::setGlobalPlayback(bool ok) {
 
 bool AudioSource::getGlobalPlayback() {
 	return globalPlayback;
+}
+
+float AudioSource::getCurrentLatency() {
+	if (currentInputType == MICROPHONE_INPUT)
+		return Configuration::getInstance().microphoneLatency;
+	else
+		return 0.35-Configuration::getInstance().microphoneBufferLength;
+}
+
+double AudioSource::getElapsedTime() {
+	if (startTime_ms == 0)
+		return 0;
+	return (millis() - startTime_ms)/1000.0;
 }
 

@@ -41,8 +41,13 @@ public:
 	void setGlobalPlayback(bool ok);
 	bool getGlobalPlayback();
 
-	// return processing time of audio source
-	double getElapsedTime() { return processedTime; };
+	// return processing time of audio source. Is monotonous and represents the time of the played wav or the recorded microphone
+	double getProcessedTime() { return processedTime; };
+	double getElapsedTime();
+
+	// get static current latency of input source
+	// used in latency compensation that adapts the prediction time frame accordingly
+	float getCurrentLatency();
 
 private:
 	AudioFile<double>& getCurrentWavContent() { return wavContent[wavContentSampleIndex]; };
@@ -59,6 +64,7 @@ private:
 	bool globalPlayback = true;
 	int noOfInputSample = 0;
 	double processedTime = 0;
+	uint32_t startTime_ms = 0;
 };
 
 
