@@ -237,7 +237,7 @@ void servoThreadFunction() {
 	TimeSampler log;
 	TimeSampler sync;
 
-	int servoSampleFrequency = 50;					// [Hz]
+	int servoSampleFrequency = 60;					// [Hz]
 	int servoSample_ms = 1000/servoSampleFrequency; // [ms]
 
 	while (executeServoThread) {
@@ -266,7 +266,7 @@ void servoThreadFunction() {
 					int servoDelay_us = toBe_us  -  (int)(end - start_us);
 					if (servoDelay_us < 200)
 						servoDelay_us = 200;
-					delay_us(servoDelay_us); // necessary, otherwise the I2C line misses some calls and gets hickups approx every 20s.
+					//delay_us(servoDelay_us); // necessary, otherwise the I2C line misses some calls and gets hickups approx every 20s.
 
 					servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
 					end = micros();

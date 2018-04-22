@@ -22,6 +22,13 @@ ServoController::~ServoController() {
 }
 
 
+float ServoController::getServoFrequency() {
+	// PCA9685 has descrete frequency values (s.a. datasheet)
+	// take the one which is closest to servo frequency of 333Hz
+	// (above 333Hz would be 338 Hz)
+	return 333;
+};
+
 void ServoController::setup() {
 	const int i2cBus = 1; 			// this is /dev/ic2-1
 	const int i2cAddress = 0x40; 	// i2c address of PCA 9685 from datasheet
