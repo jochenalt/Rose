@@ -8,11 +8,9 @@
 #ifndef SRC_AUDIOPROCESSOR_H_
 #define SRC_AUDIOPROCESSOR_H_
 
-#include <audio/AudioFile.h>
-#include <audio/Playback.h>
-#include <pulse/simple.h>
-#include <pulse/error.h>
-#include "audio/MicrophoneInput.h"
+#include <basics/util.h>
+#include "audio/AudioSource.h"
+#include <beat/BTrack.h>
 
 class AudioProcessor {
 public:
@@ -34,8 +32,8 @@ public:
 	void setWavContent(std::vector<uint8_t>& wavData);
 	void setMicrophoneInput();
 
-	bool isWavContentUsed() { return currentInputType == WAV_INPUT; };
-	bool isMicrophoneInputUsed() { return currentInputType == MICROPHONE_INPUT; };
+	bool isWavContentUsed() { return audioSource.getSourceType() == AudioSource::WAV_INPUT; };
+	bool isMicrophoneInputUsed() { return audioSource.getSourceType() == AudioSource::MICROPHONE_INPUT; };
 
 	// process content of passed wav content or content coming from microphone.
 	// returns whenever the current content is empty (valid of wav content only)
@@ -52,11 +50,11 @@ public:
 
 	// get static current latency of input source
 	// used in latency compensation that adapts the prediction time frame accordingly
-	float getCurrentLatency();
+	double getCurrentLatency();
 
 	// get processed time relative to input source (wav or microphone)
 	// this is set whenever the audio input is analyzed and has a precision of around 3ms
-	double getProcessedTime() { return processedTime; };
+	double getProcessedTime();
 
 	double getElapsedTime();
 
@@ -69,30 +67,22 @@ public:
 	// measure the latency of the microphone accoustically
 	double calibrateLatency();
 private:
-	enum InputType { WAV_INPUT, MICROPHONE_INPUT, NO_CHANGE };
-	int readMicrophoneInput(double buffer[], unsigned BufferSize);
-	int readWavInput(double buffer[], unsigned BufferSize);
 
+	const int numInputSamples = 256;
 	volatile bool stopCurrProcessing = false;
-
+	Playback playback;
+	bool globalPlayback;
 	BeatCallbackFct beatCallback;
-	Playback playback;						// used to send the input source to the loudspeaker
-	MicrophoneInput microphone;				// used to get input from microphone
-	AudioFile<double> currentWavContent;	// used to get input from wav (actually no file, but an array of samples)
-	std::vector<uint8_t> nextWavContent;	// used for next track wav input
-	int inputSamplePosition = -1;			// current position within wav source
-	double processedTime = 0; 				// [s] processing time of input source. Is determined by position within wav file or realtime in case of micropone input
-	TimeSampler callbackTimer; 		// timer for callback as passed via setup()
-	InputType currentInputType = MICROPHONE_INPUT;
-	InputType nextInputType = MICROPHONE_INPUT;
+	TimeSampler callbackTimer; 				// timer for callback as passed via setup()
 
 	bool inputAudioDetected = false;		// true if music has been detected
-	bool globalPlayback = true;				// true if playback is turned on in general (still turned off for microphone input)
 	double volume = 1.0;					// volume used in playback
 
 	LowPassFilter cumulativeScoreLowPass;
 	LowPassFilter squaredScoreLowPass = 0;
-	uint32_t startTime_ms;
+
+	AudioSource audioSource;
+	BTrack* beatDetector = NULL;
 };
 
 #endif /* SRC_AUDIOPROCESSOR_H_ */

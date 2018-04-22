@@ -39,6 +39,8 @@ AudioProcessor::AudioProcessor() {
 }
 
 AudioProcessor::~AudioProcessor() {
+	if (beatDetector != NULL)
+		delete beatDetector;
 }
 
 void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
@@ -50,7 +52,13 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 	squaredScoreLowPass.init(2);
 
 	// start time used for delays and output
-	startTime_ms = millis();
+	audioSource.setup();
+
+	playback.setup(Configuration::getInstance().microphoneSampleRate);
+	globalPlayback = true;
+
+	// initialize beat detector
+	beatDetector = new BTrack(numInputSamples, numInputSamples*8);
 }
 
 void generateSinusoidTone(double buffer[], int bufferSize, float sampleRate, int numOfFrequencies, float tonefrequency[]) {
@@ -67,6 +75,7 @@ double AudioProcessor::calibrateLatency() {
 	float measuredLatency = 0;
 
 	float microphoneSampleRate = Configuration::getInstance().microphoneSampleRate;
+	MicrophoneInput microphone;
 	playback.setup(microphoneSampleRate);
 	microphone.setup(microphoneSampleRate);
 
@@ -191,7 +200,6 @@ double AudioProcessor::getVolume() {
 
 void AudioProcessor::setGlobalPlayback(bool ok) {
 	globalPlayback = ok;
-	playback.setPlayback(ok);
 }
 
 bool AudioProcessor::getGlobalPlayback() {
@@ -199,163 +207,40 @@ bool AudioProcessor::getGlobalPlayback() {
 }
 
 void AudioProcessor::setWavContent(std::vector<uint8_t>& newWavData) {
-	// set new data and indicate to change the source
-	nextWavContent = newWavData;
-
-	// indicate that current processing is to be stopped
-	stopCurrProcessing = true;
-
-	nextInputType = WAV_INPUT;
-
-	// if global playback is on, play it
+	audioSource.setWavContent(newWavData);
 	playback.setPlayback(globalPlayback);
 }
 
-void AudioProcessor::setAudioSource() {
-
-	if (nextInputType == WAV_INPUT) {
-		// likely a new rythm
-		RhythmDetector::getInstance().setup();
-
-		// current input is wav data
-		currentInputType = WAV_INPUT;
-
-		// reset position in wav content to start
-		inputSamplePosition = 0;
-
-		// once we change the source, we set the low passed cumulative score to give
-		// music detection a higher chance to identify music
-		cumulativeScoreLowPass = 0;
-		squaredScoreLowPass = 0;
-		inputAudioDetected = true;
-
-		// re-initialize dancing when new input source is detected
-		Dancer::getInstance().setup();
-
-		// read in the wav data and set index pointer to first position
-		currentWavContent.decodeWaveFile(nextWavContent);
-
-		// playback is done with same sample rate like the input wav data
-		playback.setup(currentWavContent.getSampleRate());
-
-		// clear input, has been saved
-		nextWavContent.clear();
-
-		cout << "using wav input as audio source " << endl;
-	}
-	if (nextInputType == MICROPHONE_INPUT) {
-		currentInputType = MICROPHONE_INPUT;
-		inputSamplePosition = 0;
-
-		// playback is set to standard sample rate
-		playback.setup(Configuration::getInstance().microphoneSampleRate);
-
-		// initialize the
-		microphone.setup(Configuration::getInstance().microphoneSampleRate);
-
-		cout << "using microphone as audio source" << endl;
-	}
-
-	// do not switch source again until explicitely set
-	nextInputType = NO_CHANGE;
-
-}
 void AudioProcessor::setMicrophoneInput() {
-	// flag that processing loop should stop
-	stopCurrProcessing = true;
-
-	// current input is microphone
-	nextInputType = MICROPHONE_INPUT;
+	audioSource.setMicrophoneInput();
 
 	// switch off playback
-	// playback.setPlayback(false);
-}
-
-int AudioProcessor::readWavInput(double buffer[], unsigned BufferSize) {
-	int numSamples = currentWavContent.getNumSamplesPerChannel();
-	int numInputSamples = min((int)BufferSize, (int)numSamples-inputSamplePosition);
-	int numInputChannels = currentWavContent.getNumChannels();
-
-	int bufferCount = 0;
-	for (int i = 0; i < numInputSamples; i++)
-	{
-		double inputSampleValue = 0;
-		inputSampleValue= currentWavContent.samples[0][inputSamplePosition + i];
-		assert(inputSamplePosition+1 < numSamples);
-		switch (numInputChannels) {
-		case 1:
-			inputSampleValue= currentWavContent.samples[0][inputSamplePosition + i];
-			break;
-		case 2:
-			inputSampleValue = (currentWavContent.samples[0][inputSamplePosition + i]+currentWavContent.samples[1][inputSamplePosition + i])/2;
-			break;
-		default:
-			inputSampleValue = 0;
-			for (int j = 0;j<numInputChannels;j++)
-				inputSampleValue += currentWavContent.samples[j][inputSamplePosition + i];
-			inputSampleValue = inputSampleValue / numInputChannels;
-		}
-		buffer[bufferCount++] = inputSampleValue;
-	}
-	inputSamplePosition += bufferCount;
-	return bufferCount;
+	playback.setPlayback(false);
 }
 
 void AudioProcessor::processInput() {
-	// reset flag that would stop the loop (is set from the outside)
+
 	stopCurrProcessing = false;
-
-	// hop size is the number of samples that will be fed into beat detection
-	const int hopSize = 256; // approx. 3ms at 44100Hz
-
-	// number of samples to be read
-	const int numInputSamples = hopSize;
-
-	// framesize is the number of samples that will be considered in this loop
-	// cpu load goes up linear with the framesize
-	int frameSize = hopSize*8;
-
-	// initialize beat detector
-	BTrack beatDetector(hopSize, frameSize);
 
 	// buffer for audio coming from wav or microphone
 	double inputBuffer[numInputSamples];
-	int inputBufferSamples  = 0;
 
-	int sampleRate = 0;
 	while (!stopCurrProcessing) {
-		if (currentInputType == MICROPHONE_INPUT) {
-			microphone.readMicrophoneInput(inputBuffer, numInputSamples);
-			sampleRate = Configuration::getInstance().microphoneSampleRate;
-			inputSamplePosition += numInputSamples;
-			inputBufferSamples = numInputSamples;
-		}
-		if (currentInputType == WAV_INPUT) {
-			inputBufferSamples = readWavInput(inputBuffer, numInputSamples);
+		// fetch samples from source
+		audioSource.fetchInput(numInputSamples, inputBuffer);
 
-			sampleRate = currentWavContent.getSampleRate();
-			if (inputBufferSamples < numInputSamples) {
-				cout << "end of song. Switching to microphone." << endl;
-				beatDetector.initialise(hopSize, frameSize);
-
-				// use microphone instead of wav input
-				setMicrophoneInput();
-				setAudioSource();
-			}
-		}
-
-		// play the buffer of hopSize asynchronously
+		// play the buffer asynchronously
 		playback.play(volume, inputBuffer,numInputSamples);
 
 		// detect beat and bpm of that hop size
-		beatDetector.processAudioFrame(inputBuffer);
-		bool beat = beatDetector.beatDueInCurrentFrame();
-		double bpm = beatDetector.getCurrentTempoEstimate();
+		beatDetector->processAudioFrame(inputBuffer);
+		bool beat = beatDetector->beatDueInCurrentFrame();
+		double bpm = beatDetector->getCurrentTempoEstimate();
 
 		// we need to check if there is music or only noise. This is done by a me
 		// cumulative score is the sum of the onset function and the likelihood of a beat. When this value reaches a maximum,
 		// we receive a beat. We identify the existence of music by a least variance of this score
-		double score = beatDetector.getLatestCumulativeScoreValue();
+		double score = beatDetector->getLatestCumulativeScoreValue();
 		if (beat) {
 			inputAudioDetected = squaredScoreLowPass / cumulativeScoreLowPass > 6.;
 			// cout << "score = " << score << " avr score=" << cumulativeScoreLowPass << "variance=" << squaredScoreLowPass << " var/score=" << squaredScoreLowPass / cumulativeScoreLowPass << endl;
@@ -364,22 +249,22 @@ void AudioProcessor::processInput() {
 			squaredScoreLowPass = (score - cumulativeScoreLowPass)*(score - cumulativeScoreLowPass);
 		}
 
-		processedTime = (double)inputSamplePosition / (double)sampleRate;	// [s]
-		beatCallback(processedTime, beat, bpm);
+		beatCallback(audioSource.getProcessedTime(), beat, bpm);
 	}
-	// check if the source needs to be changed
-	setAudioSource();
 }
 
 
 double AudioProcessor::getElapsedTime() {
-	return (millis() - startTime_ms)/1000.0;
+	return audioSource.getElapsedTime();
 }
 
-float AudioProcessor::getCurrentLatency() {
-	if (currentInputType == MICROPHONE_INPUT)
-		return Configuration::getInstance().microphoneLatency;
-	else
-		return 0.35-Configuration::getInstance().microphoneBufferLength;
+double AudioProcessor::getProcessedTime() {
+	return audioSource.getProcessedTime();
 }
+
+double AudioProcessor::getCurrentLatency() {
+	return audioSource.getCurrentLatency();
+}
+
+
 

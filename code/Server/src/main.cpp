@@ -261,17 +261,17 @@ void servoThreadFunction() {
 				int durationPerServo_us = (servoSample_ms*1000)/12; // [us]
 				for (int i = 0;i<6;i++) {
 					servoController.setAngle_rad(i,bodyServoAngles_rad[i]);
-					microseconds end_us = micros();
+					microseconds end = micros();
 					int toBe_us = durationPerServo_us*(i*2 + 1);
-					int servoDelay_us = toBe_us  -  (int)(end_us - start_us);
+					int servoDelay_us = toBe_us  -  (int)(end - start_us);
 					if (servoDelay_us < 200)
 						servoDelay_us = 200;
 					delay_us(servoDelay_us); // necessary, otherwise the I2C line misses some calls and gets hickups approx every 20s.
 
 					servoController.setAngle_rad(i+6,headServoAngles_rad[i]);
-					end_us = micros();
+					end = micros();
 					toBe_us = durationPerServo_us*(i*2 + 2);
-					int duration_us = (int)(end_us - start_us);
+					int duration_us = (int)(end - start_us);
 					servoDelay_us = toBe_us  - duration_us;
 					if (servoDelay_us < 200)
 						servoDelay_us = 200;
@@ -298,13 +298,8 @@ void audioThreadFunction() {
 
 	// run main loop that processes the audio input and does beat detection
 	while (true) {
-		// if content is available from whatever source, process it (i.e. perform beat detection via sendBeatToRythmDetector)
-		if (audioProcessor.isWavContentUsed() ||
-			audioProcessor.isMicrophoneInputUsed()) {
-
-			// do it. Returns when current content type is empty
-			audioProcessor.processInput();
-		}
+		// do it. Returns when current content type is empty
+		audioProcessor.processInput();
 
 		// be cpu friendly when waiting for audio input
 		delay_ms(1);
@@ -450,9 +445,6 @@ int main(int argc, char *argv[]) {
 		} else {
 			audioProcessor.setMicrophoneInput();
 		}
-
-		// initiate audio source from file or microphone
-		audioProcessor.setAudioSource();
 
 		// start own thread for rythm detection and dance moves
 		// result pose is passed to servo thread

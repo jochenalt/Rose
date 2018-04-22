@@ -29,12 +29,11 @@ void AudioSource::setup() {
 	wavContentSampleIndex = 0;
 
 	float microphoneSampleRate = Configuration::getInstance().microphoneSampleRate;
-	playback.setup(microphoneSampleRate);
 	microphone.setup(microphoneSampleRate);
 
-	globalPlayback = true;
 	noOfInputSample = 0;
 	startTime_ms = 0;
+	currentInputType = NO_CHANGE;
 }
 
 
@@ -69,8 +68,6 @@ int AudioSource::readWavInput(double buffer[], unsigned BufferSize) {
 
 
 void AudioSource::fetchInput(int numOfSamples, double samples[]) {
-	if (startTime_ms == 0)
-		startTime_ms = millis();
 	switch (nextInputType) {
 		case MICROPHONE_INPUT: {
 			currentInputType = MICROPHONE_INPUT;
@@ -84,8 +81,6 @@ void AudioSource::fetchInput(int numOfSamples, double samples[]) {
 			currentInputType = WAV_INPUT;
 			nextInputType = NO_CHANGE;
 
-			// if global playback is on, play it
-			playback.setPlayback(globalPlayback);
 			break;
 		}
 		default:
@@ -95,12 +90,18 @@ void AudioSource::fetchInput(int numOfSamples, double samples[]) {
 
 	switch (currentInputType) {
 		case MICROPHONE_INPUT: {
+			if (startTime_ms == 0)
+				startTime_ms = millis();
+
 			microphone.readMicrophoneInput(samples, numOfSamples);
 			noOfInputSample += numOfSamples;
 			processedTime = (double)noOfInputSample / (double)Configuration::getInstance().microphoneSampleRate;	// [s]
 			break;
 		}
 		case WAV_INPUT: {
+			if (startTime_ms == 0)
+				startTime_ms = millis();
+
 			// clear input samples, in case the wav file does not contain enough data
 			for (int i = 0;i< numOfSamples;i++)
 				samples[i] = 0;
@@ -117,14 +118,12 @@ void AudioSource::fetchInput(int numOfSamples, double samples[]) {
 			}
 		}
 		default:
-			cerr << "FATAL:unknown input type" << endl;
-			exit(1);
+			// no input type defined
+			break;
 	}
 }
 
 void AudioSource::setMicrophoneInput() {
-	playback.setup(Configuration::getInstance().microphoneSampleRate);
-
 	nextInputType = MICROPHONE_INPUT;
 }
 
@@ -134,31 +133,19 @@ void AudioSource::setWavContent(std::vector<uint8_t>& newWavData) {
 
 	// read in the wav data and set index pointer to first position
 	wavContent[1-wavContentSampleIndex].decodeWaveFile(newWavData);
-
-	// playback is done with same sample rate like the input wav data
-	playback.setup(wavContent[1-wavContentSampleIndex].getSampleRate());
 }
 
-
-void AudioSource::setGlobalPlayback(bool ok) {
-	globalPlayback = ok;
-	playback.setPlayback(ok);
-}
-
-bool AudioSource::getGlobalPlayback() {
-	return globalPlayback;
-}
-
-float AudioSource::getCurrentLatency() {
-	if (currentInputType == MICROPHONE_INPUT)
-		return Configuration::getInstance().microphoneLatency;
-	else
-		return 0.35-Configuration::getInstance().microphoneBufferLength;
-}
 
 double AudioSource::getElapsedTime() {
 	if (startTime_ms == 0)
 		return 0;
 	return (millis() - startTime_ms)/1000.0;
+}
+
+float AudioSource::getCurrentLatency() {
+	if (currentInputType == AudioSource::MICROPHONE_INPUT)
+		return Configuration::getInstance().microphoneLatency;
+	else
+		return 0.35-Configuration::getInstance().microphoneBufferLength;
 }
 

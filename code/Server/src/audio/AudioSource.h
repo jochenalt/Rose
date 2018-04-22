@@ -37,9 +37,6 @@ public:
 	void setWavContent(std::vector<uint8_t>& newWavData);
 	void setMicrophoneInput();
 
-	// switch on playback when wav input is sampled
-	void setGlobalPlayback(bool ok);
-	bool getGlobalPlayback();
 
 	// return processing time of audio source. Is monotonous and represents the time of the played wav or the recorded microphone
 	double getProcessedTime() { return processedTime; };
@@ -48,6 +45,8 @@ public:
 	// get static current latency of input source
 	// used in latency compensation that adapts the prediction time frame accordingly
 	float getCurrentLatency();
+
+	InputType getSourceType() { return currentInputType; };
 
 private:
 	AudioFile<double>& getCurrentWavContent() { return wavContent[wavContentSampleIndex]; };
@@ -60,8 +59,6 @@ private:
 	AudioFile<double> wavContent[2];		// used to get input from wav (actually no file, but an array of samples)
 	int currentSampleIndex;					// current index of wav content
 
-	Playback playback;						// used to send the input source to the loudspeaker
-	bool globalPlayback = true;
 	int noOfInputSample = 0;
 	double processedTime = 0;
 	uint32_t startTime_ms = 0;
