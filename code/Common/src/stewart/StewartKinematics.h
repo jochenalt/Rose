@@ -9,6 +9,7 @@
 #define SRC_STEWART_STEWARTKINEMATICS_H_
 
 #include "basics/point.h"
+#include <assert.h>
 
 struct StewartConfiguration {
 	string name;

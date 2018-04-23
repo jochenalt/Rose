@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <basics/stringhelper.h>
 #include <dance/Dancer.h>
-
 #include <basics/util.h>
 #include <ui/UI.h>
 #include "dance/RhythmDetector.h"
@@ -154,7 +153,7 @@ int main(int argc, char *argv[]) {
 	Dancer & mm = Dancer::getInstance();
 	BotClient& client = BotClient::getInstance();
 	UI& ui = UI::getInstance();
-	TimeSamplerStatic clientLoopTimer;
+	TimeSampler clientLoopTimer;
    	while (true) {
    		if (clientLoopTimer.isDue(20)) {
    			client.getStatus();
