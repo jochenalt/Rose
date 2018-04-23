@@ -26,38 +26,38 @@
 
 void AudioSource::setup() {
 	currentSampleIndex = 0;
-	wavContentSampleIndex = 0;
+	wavContentIndex = 1;
 
 	float microphoneSampleRate = Configuration::getInstance().microphoneSampleRate;
 	microphone.setup(microphoneSampleRate);
 
-	noOfInputSample = 0;
 	startTime_ms = 0;
 	currentInputType = NO_CHANGE;
 }
 
 
 int AudioSource::readWavInput(double buffer[], unsigned BufferSize) {
-	int numSamples = getCurrentWavContent().getNumSamplesPerChannel();
+	AudioFile<double>& currentSource = getCurrentWavContent();
+	int numSamples = currentSource.getNumSamplesPerChannel();
 	int numInputSamples = min((int)BufferSize, (int)numSamples-currentSampleIndex);
 	int numInputChannels = getCurrentWavContent().getNumChannels();
 
 	int bufferCount = 0;
 	for (int i = 0; i < numInputSamples; i++)
 	{
-		double inputSampleValue= getCurrentWavContent().samples[0][currentSampleIndex + i];
+		double inputSampleValue = 0;
 		assert(currentSampleIndex+1 < numSamples);
 		switch (numInputChannels) {
 		case 1:
-			inputSampleValue= getCurrentWavContent().samples[0][currentSampleIndex + i];
+			inputSampleValue= currentSource.samples[0][currentSampleIndex + i];
 			break;
 		case 2:
-			inputSampleValue = (getCurrentWavContent().samples[0][currentSampleIndex + i]+getCurrentWavContent().samples[1][currentSampleIndex + i])/2;
+			inputSampleValue = (currentSource.samples[0][currentSampleIndex + i]+currentSource.samples[1][currentSampleIndex + i])/2;
 			break;
 		default:
 			inputSampleValue = 0;
 			for (int j = 0;j<numInputChannels;j++)
-				inputSampleValue += getCurrentWavContent().samples[j][currentSampleIndex + i];
+				inputSampleValue += currentSource.samples[j][currentSampleIndex + i];
 			inputSampleValue = inputSampleValue / numInputChannels;
 		}
 		buffer[bufferCount++] = inputSampleValue;
@@ -75,12 +75,12 @@ void AudioSource::fetchInput(int numOfSamples, double samples[]) {
 			break;
 		}
 		case WAV_INPUT: {
+
 			// switch to prepared shadow Audiofile at the other index position
-			wavContentSampleIndex = 1-wavContentSampleIndex;
+			wavContentIndex = 1-wavContentIndex;
 			currentSampleIndex = 0;
 			currentInputType = WAV_INPUT;
 			nextInputType = NO_CHANGE;
-
 			break;
 		}
 		default:
@@ -94,8 +94,7 @@ void AudioSource::fetchInput(int numOfSamples, double samples[]) {
 				startTime_ms = millis();
 
 			microphone.readMicrophoneInput(samples, numOfSamples);
-			noOfInputSample += numOfSamples;
-			processedTime = (double)noOfInputSample / (double)Configuration::getInstance().microphoneSampleRate;	// [s]
+			processedTime += (double)numOfSamples / (double)Configuration::getInstance().microphoneSampleRate;	// [s]
 			break;
 		}
 		case WAV_INPUT: {
@@ -107,8 +106,7 @@ void AudioSource::fetchInput(int numOfSamples, double samples[]) {
 				samples[i] = 0;
 
 			int samplesRead = readWavInput(samples, numOfSamples);
-			noOfInputSample += samplesRead;
-			processedTime = (double)noOfInputSample / (double)getCurrentWavContent().getSampleRate();;	// [s]
+			processedTime += (double)samplesRead/ (double)getCurrentWavContent().getSampleRate();;	// [s]
 
 			if (samplesRead < numOfSamples) {
 				cout << "end of song. Switching to microphone." << endl;
@@ -124,15 +122,20 @@ void AudioSource::fetchInput(int numOfSamples, double samples[]) {
 }
 
 void AudioSource::setMicrophoneInput() {
+
+	// next invokation from fetchInput (in a different thread)
+	// will discard the wav content and grab from microphone
 	nextInputType = MICROPHONE_INPUT;
 }
 
 void AudioSource::setWavContent(std::vector<uint8_t>& newWavData) {
-	// indicate to change the source with next sampling
-	nextInputType = WAV_INPUT;
-
 	// read in the wav data and set index pointer to first position
-	wavContent[1-wavContentSampleIndex].decodeWaveFile(newWavData);
+	getWavContent(1-wavContentIndex).decodeWaveFile(newWavData);
+
+	// indicate to change the source with next sampling
+	// this is the flag used by the audio thread, right after this statement it grabs
+	// the new wav file and discards the current one
+	nextInputType = WAV_INPUT;
 }
 
 

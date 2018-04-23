@@ -14,6 +14,9 @@
 #include <pulse/error.h>
 #include "audio/MicrophoneInput.h"
 
+/*
+ * Class to manage input from various inputs (currently wav file or microphone)
+ */
 class AudioSource {
 public:
 
@@ -21,11 +24,6 @@ public:
 
 	AudioSource() {};
 	virtual ~AudioSource() {};
-
-	AudioSource& getInstance() {
-		static AudioSource instance;
-		return instance;
-	}
 
 	// call before use of AudioSource
 	void setup();
@@ -36,7 +34,6 @@ public:
 	// set a wav file to be delivered with the next sample
 	void setWavContent(std::vector<uint8_t>& newWavData);
 	void setMicrophoneInput();
-
 
 	// return processing time of audio source. Is monotonous and represents the time of the played wav or the recorded microphone
 	double getProcessedTime() { return processedTime; };
@@ -49,17 +46,19 @@ public:
 	InputType getSourceType() { return currentInputType; };
 
 private:
-	AudioFile<double>& getCurrentWavContent() { return wavContent[wavContentSampleIndex]; };
+	AudioFile<double>& getCurrentWavContent() { return getWavContent(wavContentIndex); };
+	AudioFile<double>& getWavContent(int i) { return wavContent[i]; };
+
 	int readWavInput(double buffer[], unsigned BufferSize);
 	InputType currentInputType = MICROPHONE_INPUT;
 	InputType nextInputType = NO_CHANGE;
 
 	MicrophoneInput microphone;				// used to get input from microphone
-	int wavContentSampleIndex = 0;
-	AudioFile<double> wavContent[2];		// used to get input from wav (actually no file, but an array of samples)
-	int currentSampleIndex;					// current index of wav content
+	int wavContentIndex = 0;				// [0,1] index of wav content
+	AudioFile<double> wavContent[2];		// double buffering of audio sources
 
-	int noOfInputSample = 0;
+	int currentSampleIndex;					// current index within wav content
+
 	double processedTime = 0;
 	uint32_t startTime_ms = 0;
 };
