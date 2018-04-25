@@ -233,7 +233,10 @@ void AudioProcessor::processInput() {
 		playback.play(volume, inputBuffer,numInputSamples);
 
 		// detect beat and bpm of that hop size
-		beatDetector->processAudioFrame(inputBuffer);
+		// pass samples to both beat detectors
+		// in order to manage the transitions from one song to another smoothely
+		beatDetector -> processAudioFrame(inputBuffer);
+
 		bool beat = beatDetector->beatDueInCurrentFrame();
 		double bpm = beatDetector->getCurrentTempoEstimate();
 

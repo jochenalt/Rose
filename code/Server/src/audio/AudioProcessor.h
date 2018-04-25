@@ -66,6 +66,7 @@ public:
 
 	// measure the latency of the microphone accoustically
 	double calibrateLatency();
+
 private:
 
 	const int numInputSamples = 256;

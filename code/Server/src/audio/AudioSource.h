@@ -34,7 +34,6 @@ public:
 	// set a wav file to be delivered with the next sample
 	void setWavContent(std::vector<uint8_t>& newWavData);
 	void setMicrophoneInput();
-
 	// return processing time of audio source. Is monotonous and represents the time of the played wav or the recorded microphone
 	double getProcessedTime() { return processedTime; };
 	double getElapsedTime();

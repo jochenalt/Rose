@@ -26,7 +26,6 @@
 
 void AudioSource::setup() {
 	currentSampleIndex = 0;
-	wavContentIndex = 1;
 
 	float microphoneSampleRate = Configuration::getInstance().microphoneSampleRate;
 	microphone.setup(microphoneSampleRate);
@@ -129,6 +128,7 @@ void AudioSource::setMicrophoneInput() {
 }
 
 void AudioSource::setWavContent(std::vector<uint8_t>& newWavData) {
+
 	// read in the wav data and set index pointer to first position
 	getWavContent(1-wavContentIndex).decodeWaveFile(newWavData);
 
