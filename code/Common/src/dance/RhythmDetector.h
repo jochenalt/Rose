@@ -60,8 +60,7 @@ private:
 	double beatsPerMinute;
 
 	int loopsSinceBeat = 0;
-	LowPassFilterImpl loopProcessSpeed;
-	double filterMovePercentage = 0;
+	double loopProcessSpeed;
 	double latencyCompensationDelay = 0;
 	double latencyPercentage = 0;
 	double sourceLatency = 0;

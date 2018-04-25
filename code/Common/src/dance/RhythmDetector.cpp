@@ -32,7 +32,7 @@ void RhythmDetector::setup() {
 	movePercentage = 0;
 	firstBeat = false;
 	loopsSinceBeat = 0;
-	loopProcessSpeed.init(10);
+	loopProcessSpeed = 0;
 }
 
 
@@ -64,19 +64,24 @@ void RhythmDetector::loop(double latency, double processTime, bool beat, double 
 			Dancer::getInstance().setCurrentMove(Move::PHYSICISTS_HEAD_NICKER);
 		}
 
-		double percentageInBeat = timeSinceBeat / timePerBeat;
-		double percentagePerLoop = percentageInBeat/ (float)loopsSinceBeat;
+		double currentBeatProgress = timeSinceBeat / timePerBeat;
 
 		// compute deviation to decide if we compensate by moving forward quicker or slowing down.
-		double currentPercentageInRhythm = fmod(filterMovePercentage,rhythmInQuarters);
-		double hitRatio = 0;
-		if (currentPercentageInRhythm < rhythmInQuarters/2.0)
-			hitRatio = (currentPercentageInRhythm+rhythmInQuarters)/rhythmInQuarters; 	// too slow, hitRatio < 1.0, so accelerate
+		double currentMoveProgress = fmod(movePercentage,rhythmInQuarters);
+		if (currentMoveProgress < rhythmInQuarters/2.0)
+			currentMoveProgress = ((currentMoveProgress+rhythmInQuarters)/rhythmInQuarters); 	// too slow, hitRatio < 1.0, so accelerate
 		else
-			hitRatio = currentPercentageInRhythm/rhythmInQuarters;						// too fast, hit Ratio > 1.0, so slow down
+			currentMoveProgress = (currentMoveProgress/rhythmInQuarters);						// too fast, hit Ratio > 1.0, so slow down
+
+		// compute the deviation from actual beat timing to move timing
+		// returns a number > 1 if beat is beat is ahead move and <1 if beat is behind move
+		// double deviationMoveBeat = currentPercentageInRhythm/currentMovePercentage;
+		cout << std::fixed << std::setprecision(4) << "%beat=" << currentBeatProgress << " move%=" << currentMoveProgress << endl;
+
+		double loopSpeed = currentBeatProgress  / currentMoveProgress;
 
 		// low pass the process speed with the predicted progress plus a correction hitRatio
-		loopProcessSpeed.set(processTime, percentagePerLoop / hitRatio);
+		loopProcessSpeed = loopSpeed / (float)loopsSinceBeat;
 
 		// compute latency compensation, i.e. the time we need to delay
 		// the dance even more such that the beat meets the next one
@@ -109,10 +114,9 @@ void RhythmDetector::loop(double latency, double processTime, bool beat, double 
 	// wait 4 beats to detect the rhythm
 	if (beatCount > 3) {
 		// make progress in the move process
-	    filterMovePercentage += loopProcessSpeed;
+		movePercentage += loopProcessSpeed;
 
 		// movePercentage = (beatCount % (4/rhythmInQuarters) )*rhythmInQuarters + timeSinceBeat/timePerBeat;
-		movePercentage = filterMovePercentage;
 		// cout << "movePercentage=" << movePercentage << endl;
 		// cout << std::fixed << std::setprecision(3) << "( tsb=" << timeSinceBeat
 		//	 << "s bt=" << (beatCount % (4/rhythmInQuarters) )
