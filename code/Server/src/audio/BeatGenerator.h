@@ -20,7 +20,7 @@ public:
 	double getBPM(double processTime);
 
 	// latched function returning true if a beat is pending
-	bool getBeat(double processTime);
+	bool getLatchedBeat(double processTime);
 private:
 	double startProcessTime = 0;
 	double BPM = 0;

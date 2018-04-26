@@ -41,6 +41,10 @@ int AudioSource::readWavInput(double buffer[], unsigned BufferSize) {
 	int numInputSamples = min((int)BufferSize, (int)numSamples-currentSampleIndex);
 	int numInputChannels = getCurrentWavContent().getNumChannels();
 
+	bool doubleSamples = (int)currentSource.getSampleRate() == Configuration::getInstance().microphoneSampleRate / 2;
+ 	if (doubleSamples)
+		numInputSamples /= 2;
+
 	int bufferCount = 0;
 	for (int i = 0; i < numInputSamples; i++)
 	{
@@ -59,9 +63,15 @@ int AudioSource::readWavInput(double buffer[], unsigned BufferSize) {
 				inputSampleValue += currentSource.samples[j][currentSampleIndex + i];
 			inputSampleValue = inputSampleValue / numInputChannels;
 		}
-		buffer[bufferCount++] = inputSampleValue;
+		if (doubleSamples) {
+			buffer[bufferCount++] = (lastSample + inputSampleValue)/2.0;
+			buffer[bufferCount++] = inputSampleValue;
+			lastSample = inputSampleValue;
+		} else
+			buffer[bufferCount++] = inputSampleValue;
+
 	}
-	currentSampleIndex += bufferCount;
+	currentSampleIndex += numInputSamples;
 	return bufferCount;
 }
 
@@ -71,6 +81,7 @@ void AudioSource::fetchInput(int numOfSamples, double samples[]) {
 		case MICROPHONE_INPUT: {
 			currentInputType = MICROPHONE_INPUT;
 			nextInputType = NO_CHANGE;
+			sourceChanged = true;
 			break;
 		}
 		case WAV_INPUT: {
@@ -80,6 +91,7 @@ void AudioSource::fetchInput(int numOfSamples, double samples[]) {
 			currentSampleIndex = 0;
 			currentInputType = WAV_INPUT;
 			nextInputType = NO_CHANGE;
+			sourceChanged = true;
 			break;
 		}
 		default:
@@ -145,10 +157,18 @@ double AudioSource::getElapsedTime() {
 	return (millis() - startTime_ms)/1000.0;
 }
 
+bool AudioSource::hasSourceChanged() {
+	bool result = sourceChanged;
+	sourceChanged = false;
+	return result;
+}
+
+
 float AudioSource::getCurrentLatency() {
 	if (currentInputType == AudioSource::MICROPHONE_INPUT)
 		return Configuration::getInstance().microphoneLatency;
 	else
 		return 0.35-Configuration::getInstance().microphoneBufferLength;
 }
+
 

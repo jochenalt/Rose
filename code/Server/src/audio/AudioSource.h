@@ -44,6 +44,8 @@ public:
 
 	InputType getSourceType() { return currentInputType; };
 
+	bool hasSourceChanged();
+
 private:
 	AudioFile<double>& getCurrentWavContent() { return getWavContent(wavContentIndex); };
 	AudioFile<double>& getWavContent(int i) { return wavContent[i]; };
@@ -60,6 +62,9 @@ private:
 
 	double processedTime = 0;
 	uint32_t startTime_ms = 0;
+
+	double lastSample = 0;
+	bool sourceChanged = false;
 };
 
 

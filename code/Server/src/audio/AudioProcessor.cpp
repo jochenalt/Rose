@@ -233,8 +233,17 @@ void AudioProcessor::processInput() {
 	double inputBuffer[numInputSamples];
 
 	while (!stopCurrProcessing) {
+		// save preveous input type (wav or microphone)
+		AudioSource::InputType beforeInputType = audioSource.getSourceType();
+
 		// fetch samples from source
 		audioSource.fetchInput(numInputSamples, inputBuffer);
+
+		// check if source type has changed. If yes, switch to beat generation
+		if ((beforeInputType == AudioSource::WAV_INPUT) &&
+			(audioSource.getSourceType() == AudioSource::MICROPHONE_INPUT)) {
+			pendingBeatType = BEAT_GENERATION;
+		}
 
 		// play the buffer asynchronously
 		playback.play(volume, inputBuffer,numInputSamples);
@@ -248,16 +257,18 @@ void AudioProcessor::processInput() {
 		double bpm = 0;
 
 		if (pendingBeatType != NO_BEAT) {
-			assert(((pendingBeatType == BEAT_DETECTION) && (currentBeatType == NO_BEAT)));
 			if ((currentBeatType == NO_BEAT) && (pendingBeatType == BEAT_DETECTION)) {
 				currentBeatType = BEAT_DETECTION;
 				pendingBeatType = NO_BEAT;
+				cout << "turn on beat detection" << endl;
 			}
-			else if ((currentBeatType == BEAT_DETECTION) && (pendingBeatType == BEAT_GENERATION)) {
-				beatGen.setup(audioSource.getProcessedTime(),lastBeatTime,beatDetector->beatDueInCurrentFrame(), rhythmInQuarters);
-				currentBeatType = BEAT_GENERATION;
-				pendingBeatType = NO_BEAT;
-			}
+			else
+				if ((currentBeatType == BEAT_DETECTION) && (pendingBeatType == BEAT_GENERATION)) {
+					beatGen.setup(audioSource.getProcessedTime(),lastBeatTime,beatDetector->getCurrentTempoEstimate(), rhythmInQuarters);
+					currentBeatType = BEAT_GENERATION;
+					pendingBeatType = NO_BEAT;
+					cout << "switch to beat generation" << endl;
+				}
 		}
 
 		switch (currentBeatType) {
@@ -266,7 +277,7 @@ void AudioProcessor::processInput() {
 				bpm = beatDetector->getCurrentTempoEstimate();
 				break;
 			case BEAT_GENERATION:
-				beat = beatGen.getBeat(audioSource.getProcessedTime());
+				beat = beatGen.getLatchedBeat(audioSource.getProcessedTime());
 				bpm = beatGen.getBPM(audioSource.getProcessedTime());
 				break;
 			case NO_BEAT:
@@ -274,16 +285,16 @@ void AudioProcessor::processInput() {
 		}
 
 		if (beat) {
-			double beatTime =  audioSource.getProcessedTime();
+			double processTime =  audioSource.getProcessedTime();
 			double timePerBeat = (60.0/bpm); 					// [s]
-			double timeSinceBeat = beatTime - lastBeatTime; 	// [s]
+			double timeSinceBeat = processTime - lastBeatTime; 	// [s]
 
 			// detect 1/1 or 1/2 rhythm
 			rhythmInQuarters = 1;
 			if (abs(timePerBeat - timeSinceBeat) > abs(2.0*timePerBeat - timeSinceBeat))
 				rhythmInQuarters = 2;
 
-			lastBeatTime = beatTime;
+			lastBeatTime = processTime;
 		}
 
 		// we need to check if there is music or only noise. This is done by a me
