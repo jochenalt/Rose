@@ -9,13 +9,15 @@
 #define SRC_AUDIOPROCESSOR_H_
 
 #include <basics/util.h>
-#include "audio/AudioSource.h"
+#include <audio/AudioSource.h>
+#include <audio/BeatGenerator.h>
+
 #include <beat/BTrack.h>
 
 class AudioProcessor {
 public:
 	// call back type for invoking the dance processor after each sample
-	typedef void (*BeatCallbackFct)(double processTime, bool beat, double Bpm);
+	typedef void (*BeatCallbackFct)(double processTime, bool beat, double Bpm, int rhythmInQuarters);
 
 	AudioProcessor();
 	virtual ~AudioProcessor();
@@ -84,6 +86,12 @@ private:
 
 	AudioSource audioSource;
 	BTrack* beatDetector = NULL;
+	BeatGenerator beatGen;
+	enum BeatType { NO_BEAT, BEAT_GENERATION, BEAT_DETECTION };
+	BeatType currentBeatType = NO_BEAT;
+	BeatType pendingBeatType = NO_BEAT;
+	double lastBeatTime = 0;
+	int rhythmInQuarters = 1;
 };
 
 #endif /* SRC_AUDIOPROCESSOR_H_ */

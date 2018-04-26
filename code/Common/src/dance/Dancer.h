@@ -34,7 +34,7 @@ public:
 	void setStartAfterNBeats(int n) { startAfterNBeats = n; };
 
 	// call this with audio data to update the move. Should be invoked with 25Hz
-	void danceLoop(bool beat, double BPM);
+	void danceLoop(bool beat, double BPM, int rhythmInQarterts);
 
 	// call this with data coming from the webserver to define the current dancing parameters withou generating them
 	void imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition,

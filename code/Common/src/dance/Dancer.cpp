@@ -94,7 +94,7 @@ void Dancer::imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition
 	pose.head = newHeadPose;
 }
 
-void Dancer::danceLoop(bool beat, double BPM) {
+void Dancer::danceLoop(bool beat, double BPM, int rhythmInQarterts) {
 	RhythmDetector& rhythmDetector = RhythmDetector::getInstance();
 
 	if (beat) {
@@ -109,8 +109,8 @@ void Dancer::danceLoop(bool beat, double BPM) {
 		if ((sequenceMode == AUTOMATIC_SEQUENCE) &&
 			(rhythmDetector.getAbsoluteBeatCount() > startAfterNBeats) &&
 			(rhythmDetector.hasBeatStarted()) &&
-			(passedBeatsInCurrentMove*rhythmDetector.getRhythmInQuarters() >= Move::getMove(currentMove).getLength()) &&
-			(rhythmDetector.getBeatCount() == 0)) {
+			(passedBeatsInCurrentMove*rhythmInQarterts >= Move::getMove(currentMove).getLength()) &&
+			(rhythmDetector.getBeatCount(rhythmInQarterts) == 0)) {
 			doNewMove();
 			passedBeatsInCurrentMove = 0;
 		}

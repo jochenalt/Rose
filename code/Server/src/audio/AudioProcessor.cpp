@@ -36,6 +36,9 @@ using namespace std;
 
 AudioProcessor::AudioProcessor() {
 	beatCallback = NULL;
+
+	currentBeatType = NO_BEAT;
+	pendingBeatType = NO_BEAT;
 }
 
 AudioProcessor::~AudioProcessor() {
@@ -59,6 +62,8 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 
 	// initialize beat detector
 	beatDetector = new BTrack(numInputSamples, numInputSamples*8);
+
+
 }
 
 void generateSinusoidTone(double buffer[], int bufferSize, float sampleRate, int numOfFrequencies, float tonefrequency[]) {
@@ -209,6 +214,7 @@ bool AudioProcessor::getGlobalPlayback() {
 void AudioProcessor::setWavContent(std::vector<uint8_t>& newWavData) {
 	audioSource.setWavContent(newWavData);
 	playback.setPlayback(globalPlayback);
+	pendingBeatType  = BEAT_DETECTION;
 }
 
 void AudioProcessor::setMicrophoneInput() {
@@ -216,6 +222,7 @@ void AudioProcessor::setMicrophoneInput() {
 
 	// switch off playback
 	playback.setPlayback(false);
+	pendingBeatType  = BEAT_DETECTION;
 }
 
 void AudioProcessor::processInput() {
@@ -234,11 +241,50 @@ void AudioProcessor::processInput() {
 
 		// detect beat and bpm of that hop size
 		// pass samples to both beat detectors
-		// in order to manage the transitions from one song to another smoothely
+		// in order to manage the transitions from one song to another smoothly
 		beatDetector -> processAudioFrame(inputBuffer);
 
-		bool beat = beatDetector->beatDueInCurrentFrame();
-		double bpm = beatDetector->getCurrentTempoEstimate();
+		bool beat = false;
+		double bpm = 0;
+
+		if (pendingBeatType != NO_BEAT) {
+			assert(((pendingBeatType == BEAT_DETECTION) && (currentBeatType == NO_BEAT)));
+			if ((currentBeatType == NO_BEAT) && (pendingBeatType == BEAT_DETECTION)) {
+				currentBeatType = BEAT_DETECTION;
+				pendingBeatType = NO_BEAT;
+			}
+			else if ((currentBeatType == BEAT_DETECTION) && (pendingBeatType == BEAT_GENERATION)) {
+				beatGen.setup(audioSource.getProcessedTime(),lastBeatTime,beatDetector->beatDueInCurrentFrame(), rhythmInQuarters);
+				currentBeatType = BEAT_GENERATION;
+				pendingBeatType = NO_BEAT;
+			}
+		}
+
+		switch (currentBeatType) {
+			case BEAT_DETECTION:
+				beat = beatDetector->beatDueInCurrentFrame();
+				bpm = beatDetector->getCurrentTempoEstimate();
+				break;
+			case BEAT_GENERATION:
+				beat = beatGen.getBeat(audioSource.getProcessedTime());
+				bpm = beatGen.getBPM(audioSource.getProcessedTime());
+				break;
+			case NO_BEAT:
+				break;
+		}
+
+		if (beat) {
+			double beatTime =  audioSource.getProcessedTime();
+			double timePerBeat = (60.0/bpm); 					// [s]
+			double timeSinceBeat = beatTime - lastBeatTime; 	// [s]
+
+			// detect 1/1 or 1/2 rhythm
+			rhythmInQuarters = 1;
+			if (abs(timePerBeat - timeSinceBeat) > abs(2.0*timePerBeat - timeSinceBeat))
+				rhythmInQuarters = 2;
+
+			lastBeatTime = beatTime;
+		}
 
 		// we need to check if there is music or only noise. This is done by a me
 		// cumulative score is the sum of the onset function and the likelihood of a beat. When this value reaches a maximum,
@@ -252,7 +298,7 @@ void AudioProcessor::processInput() {
 			squaredScoreLowPass = (score - cumulativeScoreLowPass)*(score - cumulativeScoreLowPass);
 		}
 
-		beatCallback(audioSource.getProcessedTime(), beat, bpm);
+		beatCallback(audioSource.getProcessedTime(), beat, bpm, rhythmInQuarters);
 	}
 }
 

@@ -108,7 +108,7 @@ void signalHandler(int s){
 	exit(1);
 }
 
-void compensateLatency(bool& beat, double& bpm) {
+void compensateLatency(bool& beat, double& bpm, int rhythmInQuarters) {
 
 	AudioProcessor& audioProcessor = AudioProcessor::getInstance();
 	RhythmDetector& rhythmDetector = RhythmDetector::getInstance();
@@ -117,7 +117,7 @@ void compensateLatency(bool& beat, double& bpm) {
 	uint32_t now = millis();
 
 	// add beats to the queue
-	if (beat && (rhythmDetector.getRhythmInQuarters() != 0)) {
+	if (beat && (rhythmInQuarters != 0)) {
 		// queue up the time when this beat is to be fired
 		pendingBeatTime.push(now +  rhythmDetector.getLatencyCompensationDelay()*1000.0);
 
@@ -133,7 +133,7 @@ void compensateLatency(bool& beat, double& bpm) {
 		beat = true;
 		// if (AudioProcessor::getInstance().isMicrophoneInputUsed())
 		cout << std::fixed << std::setprecision(2)
-		     << "Real Beat (bpm=" <<  rhythmDetector.bpm()<< " 1/" <<  rhythmDetector.getRhythmInQuarters() << ") "
+		     << "Real Beat (bpm=" <<  rhythmDetector.bpm()<< " 1/" <<  rhythmInQuarters << ") "
 			 << "latency=" << audioProcessor.getCurrentLatency()
 			 << "s comp=" << rhythmDetector.getLatencyCompensationDelay() << "s"  << "/" << rhythmDetector.getLatencyCompensationPercentage() << "% "
 		 	 << "move=" << rhythmDetector.getRythmPercentage() << "/" << rhythmDetector.getLatencyCompensatedRythmPercentage() << endl;
@@ -142,11 +142,12 @@ void compensateLatency(bool& beat, double& bpm) {
 
 
 // function to make uneven callbacks coming from audio stream clock generated
-void pushToClockGenerator(double processTime, bool beat, double bpm) {
+void pushToClockGenerator(double processTime, bool beat, double bpm, int rhythmInQuarters) {
 	BeatInvocation call;
 	call.processTime = processTime;
 	call.beat = beat;
 	call.bpm = bpm;
+	call.rhythmInQuarters = rhythmInQuarters;
 
 
 	// push that invokation to the clock generator an let them fire a small amount of time later on
@@ -181,11 +182,11 @@ void danceThreadFunction() {
 			};
 
 			// detect the beat
-			rhythmDetector.loop(audioProcessor.getCurrentLatency(), o.processTime, o.beat, o.bpm);
+			rhythmDetector.loop(audioProcessor.getCurrentLatency(), o.processTime, o.beat, o.bpm, o.rhythmInQuarters);
 
 			// compensate the microphones latency and delay the beat accordingly to hit the beat next time
 			// after this call, beat-flag is modified such that it incorporated the latency
-			compensateLatency(o.beat, o.bpm);
+			compensateLatency(o.beat, o.bpm, o.rhythmInQuarters);
 
 			// if no music is detected, do not dance
 			dancer.setMusicDetected(AudioProcessor::getInstance().isAudioDetected());
@@ -201,7 +202,7 @@ void danceThreadFunction() {
 			// underlying matrix library is not thread safe!
 			// So, take care that this computation never happens simultaneously with the kinematics computation
 			// TODO fix that
-			dancer.danceLoop(o.beat, o.bpm);
+			dancer.danceLoop(o.beat, o.bpm, o.rhythmInQuarters);
 
 			servoHeadPoseBuffer = dancer.getHeadPose();
 			servoBodyPoseBuffer = dancer.getBodyPose();

@@ -27,7 +27,6 @@ RhythmDetector& RhythmDetector::getInstance() {
 void RhythmDetector::setup() {
 	beatStarted = false;
 	beatCount = 0;
-	rhythmInQuarters = 0;
 	timeOfLastBeat = 0;
 	movePercentage = 0;
 	firstBeat = false;
@@ -36,7 +35,7 @@ void RhythmDetector::setup() {
 }
 
 
-void RhythmDetector::loop(double latency, double processTime, bool beat, double BPM) {
+void RhythmDetector::loop(double latency, double processTime, bool beat, double BPM, int rhythmInQuarters) {
 
 	double now = processTime;
 	double timePerBeat = (60.0/BPM); 				// [s]
@@ -45,20 +44,8 @@ void RhythmDetector::loop(double latency, double processTime, bool beat, double 
 	if (beat) {
 		beatsPerMinute = BPM;
 
-		// detect 1/1 or 1/2 rhythm
-		rhythmInQuarters = 1;
-		if (abs(timePerBeat - timeSinceBeat) > abs(2.0*timePerBeat - timeSinceBeat))
-			rhythmInQuarters = 2;
-		else
-			rhythmInQuarters = 1;
-
 		// start first move after some beats
 		if (beatCount  == 3) {
-
-			// detect 1/1 or 1/2 rhythm
-			rhythmInQuarters = 1;
-			if (abs(timePerBeat - timeSinceBeat) > abs(2.0*timePerBeat - timeSinceBeat))
-				rhythmInQuarters = 2;
 
 			// start with shy head nicker
 			Dancer::getInstance().setCurrentMove(Move::PHYSICISTS_HEAD_NICKER);
@@ -67,7 +54,7 @@ void RhythmDetector::loop(double latency, double processTime, bool beat, double 
 		double currentBeatProgress = timeSinceBeat / timePerBeat;
 
 		// compute deviation to decide if we compensate by moving forward quicker or slowing down.
-		double currentMoveProgress = fmod(movePercentage,rhythmInQuarters);
+		double currentMoveProgress = fmod(movePercentage+loopProcessSpeed,rhythmInQuarters);
 		if (currentMoveProgress < rhythmInQuarters/2.0)
 			currentMoveProgress = ((currentMoveProgress+rhythmInQuarters)/rhythmInQuarters); 	// too slow, hitRatio < 1.0, so accelerate
 		else
@@ -76,9 +63,9 @@ void RhythmDetector::loop(double latency, double processTime, bool beat, double 
 		// compute the deviation from actual beat timing to move timing
 		// returns a number > 1 if beat is beat is ahead move and <1 if beat is behind move
 		// double deviationMoveBeat = currentPercentageInRhythm/currentMovePercentage;
-		cout << std::fixed << std::setprecision(4) << "%beat=" << currentBeatProgress << " move%=" << currentMoveProgress << endl;
+		// cout << std::fixed << std::setprecision(4) << "%beat=" << currentBeatProgress << " move%=" << currentMoveProgress << endl;
 
-		double loopSpeed = currentBeatProgress  / currentMoveProgress;
+		double loopSpeed = 1.0 + (currentBeatProgress - (currentMoveProgress ))  / (currentMoveProgress);
 
 		// low pass the process speed with the predicted progress plus a correction hitRatio
 		loopProcessSpeed = loopSpeed / (float)loopsSinceBeat;

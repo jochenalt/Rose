@@ -16,6 +16,7 @@ struct BeatInvocation {
 	double processTime;
 	bool beat;
 	double bpm;
+	int rhythmInQuarters;
 };
 
 class RhythmDetector {
@@ -25,11 +26,9 @@ public:
 	static RhythmDetector& getInstance();
 
 	void setup();
-	void loop(double latency, double processTime, bool beat, double BPM);
+	void loop(double latency, double processTime, bool beat, double BPM, int rhythmInQuarters);
 
-
-	int getRhythmInQuarters() { return rhythmInQuarters; };
-	int getBeatCount() { return (beatCount % (4/rhythmInQuarters)); };
+	int getBeatCount(int rhythmInQuarters) { return (beatCount % (4/rhythmInQuarters)); };
 	int getAbsoluteBeatCount() { return (beatCount); };
 	double bpm() { return beatsPerMinute; };
 
@@ -53,7 +52,6 @@ private:
 
 	bool beatStarted = false;
 	int beatCount = 0;
-	int rhythmInQuarters = 1;
 	double timeOfLastBeat = 0;
 	double movePercentage = 0;
 	bool firstBeat = false;
