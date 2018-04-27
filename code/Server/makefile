@@ -7,7 +7,7 @@ CSRC=../Common/src
 LIB=./lib
 LDLIBS=-lpthread -lm -lsamplerate -lpulse-simple -lpulse -lasound
 OBJS=\
-$(LIB)/AudioFile.o $(LIB)/AudioSource.o $(LIB)/AudioProcessor.o $(LIB)/MicrophoneInput.o $(LIB)/Playback.o $(LIB)/SoundCardUtils.o \
+$(LIB)/AudioFile.o $(LIB)/AudioSource.o $(LIB)/BeatGenerator.o $(LIB)/AudioProcessor.o $(LIB)/MicrophoneInput.o $(LIB)/Playback.o $(LIB)/SoundCardUtils.o \
 $(LIB)/BTrack.o $(LIB)/OnsetDetectionFunction.o $(LIB)/kiss_fft.o\
 $(LIB)/I2C.o $(LIB)/PCA9685.o $(LIB)/Servo.o $(LIB)/ServoController.o \
 $(LIB)/mongoose.o $(LIB)/Webserver.o \

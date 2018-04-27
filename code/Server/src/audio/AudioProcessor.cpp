@@ -257,10 +257,13 @@ void AudioProcessor::processInput() {
 		double bpm = 0;
 
 		if (pendingBeatType != NO_BEAT) {
-			if ((currentBeatType == NO_BEAT) && (pendingBeatType == BEAT_DETECTION)) {
-				currentBeatType = BEAT_DETECTION;
-				pendingBeatType = NO_BEAT;
-				cout << "turn on beat detection" << endl;
+			if (((currentBeatType == NO_BEAT) || (currentBeatType == BEAT_GENERATION)) && (pendingBeatType == BEAT_DETECTION)) {
+				// wait until beat has been detected before switching
+				if (beatDetector->beatDueInCurrentFrame()) {
+					currentBeatType = BEAT_DETECTION;
+					pendingBeatType = NO_BEAT;
+					cout << "turn on beat detection" << endl;
+				}
 			}
 			else
 				if ((currentBeatType == BEAT_DETECTION) && (pendingBeatType == BEAT_GENERATION)) {
