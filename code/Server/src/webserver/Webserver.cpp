@@ -274,6 +274,31 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 
 	compileURLParameter(query,urlParamNames,urlParamValues);
 
+	if (hasPrefix(uri, "/status")) {
+		string engineCommand = uri.substr(string("/status").length());
+
+		Dancer& dancer = Dancer::getInstance();
+		AudioProcessor& audio = AudioProcessor::getInstance();
+
+		std::ostringstream out;
+		Pose body, head;
+		dancer.getThreadSafePose(body, head);
+		out << "{ \"response\": "
+		    <<     "{ \"body\":"<<  body.toString()
+		    <<     ", \"head\":" << head.toString()
+		    <<     ", \"ambition\":" << dancer.getAmbition()
+		    <<     ", \"move\":" << (int)dancer.getCurrentMove()
+		    <<     ", \"music\":" << boolToJSonString(audio.isAudioDetected())
+		    <<     ", \"auto\":" << boolToJSonString(dancer.getSequenceMode())
+			<<     "} , " << getResponse(true)
+		    << "}";
+		response = out.str();
+		okOrNOk = true;
+
+		return okOrNOk;
+	}
+
+	cout << "command " << uri << " " << query << endl;
 	if (hasPrefix(uri, "/console")) {
 		string engineCommand = uri.substr(string("/console").length());
 		if (hasPrefix(engineCommand, "/on")) {
@@ -381,29 +406,7 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 		}
 	}
 
-	if (hasPrefix(uri, "/status")) {
-		string engineCommand = uri.substr(string("/status").length());
 
-		Dancer& dancer = Dancer::getInstance();
-		AudioProcessor& audio = AudioProcessor::getInstance();
-
-		std::ostringstream out;
-		Pose body, head;
-		dancer.getThreadSafePose(body, head);
-		out << "{ \"response\": "
-		    <<     "{ \"body\":"<<  body.toString()
-		    <<     ", \"head\":" << head.toString()
-		    <<     ", \"ambition\":" << dancer.getAmbition()
-		    <<     ", \"move\":" << (int)dancer.getCurrentMove()
-		    <<     ", \"music\":" << boolToJSonString(audio.isAudioDetected())
-		    <<     ", \"auto\":" << boolToJSonString(dancer.getSequenceMode())
-			<<     "} , " << getResponse(true)
-		    << "}";
-		response = out.str();
-		okOrNOk = true;
-
-		return okOrNOk;
-	}
 
 	okOrNOk = false;
 	return false;

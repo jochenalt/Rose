@@ -71,7 +71,7 @@ public:
 
 private:
 
-	const int numInputSamples = 256;
+	const int numInputSamples = 512;
 	volatile bool stopCurrProcessing = false;
 	Playback playback;
 	bool globalPlayback;

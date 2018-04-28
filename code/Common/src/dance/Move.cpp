@@ -15,7 +15,7 @@
 
 
 std::vector<Move> Move::moveLibrary;
-const double latencyShift = 0.35;
+const double latencyShift = 0.45;
 
 
 Move& Move::getMove(MoveType m) {
