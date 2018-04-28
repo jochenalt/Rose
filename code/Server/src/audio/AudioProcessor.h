@@ -16,6 +16,8 @@
 
 class AudioProcessor {
 public:
+	enum BeatType { NO_BEAT, BEAT_GENERATION, BEAT_DETECTION };
+
 	// call back type for invoking the dance processor after each sample
 	typedef void (*BeatCallbackFct)(double processTime, bool beat, double Bpm, int rhythmInQuarters);
 
@@ -69,6 +71,8 @@ public:
 	// measure the latency of the microphone accoustically
 	double calibrateLatency();
 
+	BeatType getCurrentBeatType() { return currentBeatType; };
+
 private:
 
 	const int numInputSamples = 512;
@@ -87,7 +91,6 @@ private:
 	AudioSource audioSource;
 	BTrack* beatDetector = NULL;
 	BeatGenerator beatGen;
-	enum BeatType { NO_BEAT, BEAT_GENERATION, BEAT_DETECTION };
 	BeatType currentBeatType = NO_BEAT;
 	BeatType pendingBeatType = NO_BEAT;
 	double lastBeatTime = 0;

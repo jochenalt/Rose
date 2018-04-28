@@ -265,13 +265,20 @@ void AudioProcessor::processInput() {
 					cout << "turn on beat detection" << endl;
 				}
 			}
-			else
-				if ((currentBeatType == BEAT_DETECTION) && (pendingBeatType == BEAT_GENERATION)) {
+			else if ((currentBeatType == BEAT_DETECTION) && (pendingBeatType == BEAT_GENERATION)) {
 					beatGen.setup(audioSource.getProcessedTime(),lastBeatTime,beatDetector->getCurrentTempoEstimate(), rhythmInQuarters);
 					currentBeatType = BEAT_GENERATION;
 					pendingBeatType = NO_BEAT;
 					cout << "switch to beat generation" << endl;
 				}
+			else if ((currentBeatType == BEAT_DETECTION) && (pendingBeatType == BEAT_DETECTION)) {
+				if (beatDetector->beatDueInCurrentFrame()) {
+					// this happens when a new wav file came in
+					currentBeatType = BEAT_DETECTION;
+					pendingBeatType = NO_BEAT;
+					cout << "continue beat detection" << endl;
+				}
+			}
 		}
 
 		switch (currentBeatType) {
