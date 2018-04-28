@@ -135,8 +135,8 @@ void compensateLatency(bool& beat, double& bpm, int rhythmInQuarters) {
 		cout << std::fixed << std::setprecision(2)
 		     << "Real Beat (bpm=" <<  rhythmDetector.bpm()<< " 1/" <<  rhythmInQuarters << ") "
 			 << "latency=" << audioProcessor.getCurrentLatency()
-			 << "s comp=" << rhythmDetector.getLatencyCompensationDelay() << "s"  << "/" << rhythmDetector.getLatencyCompensationPercentage() << "% "
-		 	 << "move=" << rhythmDetector.getRythmPercentage() << "/" << rhythmDetector.getLatencyCompensatedRythmPercentage() << endl;
+			 << "s compensation=" << rhythmDetector.getLatencyCompensationDelay() << "s"
+		 	 << " move=" <<  rhythmDetector.getLatencyCompensatedRythmPercentage() << endl;
 	}
 }
 
@@ -234,8 +234,6 @@ void servoThreadFunction() {
 	Point bodyServoArmCentre_world[6], headServoArmCentre_world[6];
 
 	// limit the frequency a new pose is sent to the servos
-	int counter = 0;
-	TimeSampler log;
 	TimeSampler sync;
 
 	int servoSampleFrequency = 60;					// [Hz]
@@ -244,11 +242,6 @@ void servoThreadFunction() {
 	while (executeServoThread) {
 		if (newPoseAvailable) {
 			if (sync.isDue(servoSample_ms)) {
-				counter++;
-				if (log.isDue(10000)) {
-					cout << "INFO:servo update frequency=" << counter / 10<< "Hz" << endl;
-					counter = 0;
-				}
 				bodyKinematics.
 					computeServoAngles(	servoBodyPoseBuffer, bodyServoArmCentre_world, bodyServoAngles_rad, bodyBallJoint_world, bodyServoBallJoints_world,
 										servoHeadPoseBuffer, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);

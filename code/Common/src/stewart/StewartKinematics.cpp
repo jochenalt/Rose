@@ -99,10 +99,6 @@ double StewartKinematics::computeServoAngle(int cornerNo, const Point& ballJoint
 }
 
 void StewartKinematics::resetSpeedMeasurement() {
-	if (abs(currentMaxSpeed) < floatPrecision)
-		cout << config.name << "'s servo max speed = <no movement>" << endl;
-	else
-		cout << config.name << "'s servo max speed =" << std::fixed << std::setprecision(3)<<  1.0/currentMaxSpeed << " s/60°" << endl;
 	currentMaxSpeed = 0;
 }
 
