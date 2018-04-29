@@ -108,13 +108,11 @@ void signalHandler(int s){
 	exit(1);
 }
 
-void compensateLatency(bool& beat, double& bpm, int rhythmInQuarters) {
-
-	AudioProcessor& audioProcessor = AudioProcessor::getInstance();
+void compensateLatency(double elapsedTime, bool& beat, double& bpm, int rhythmInQuarters) {
 	RhythmDetector& rhythmDetector = RhythmDetector::getInstance();
 
 	static queue<uint32_t> pendingBeatTime;
-	uint32_t now = millis();
+	uint32_t now = elapsedTime*1000.0;
 
 	// add beats to the queue
 	if (beat && (rhythmInQuarters != 0)) {
@@ -131,18 +129,13 @@ void compensateLatency(bool& beat, double& bpm, int rhythmInQuarters) {
 
 		// now it s
 		beat = true;
-		// if (AudioProcessor::getInstance().isMicrophoneInputUsed())
-		cout << std::fixed << std::setprecision(2)
-		     << "Real Beat (bpm=" <<  rhythmDetector.bpm()<< " 1/" <<  rhythmInQuarters << ") "
-			 << "latency=" << audioProcessor.getCurrentLatency()
-			 << "s compensation=" << rhythmDetector.getLatencyCompensationDelay() << "s"
-		 	 << " move=" <<  rhythmDetector.getLatencyCompensatedRythmPercentage() << endl;
 	}
 }
 
-
 // function to make uneven callbacks coming from audio stream clock generated
 void pushToClockGenerator(double processTime, bool beat, double bpm, int rhythmInQuarters) {
+	//if (beat)
+	//	cout << std::fixed << std::setprecision(2) << "pushToClock (" << processTime << "," << beat << "," << bpm << "," << rhythmInQuarters << ")" << endl;
 	BeatInvocation call;
 	call.processTime = processTime;
 	call.beat = beat;
@@ -152,9 +145,8 @@ void pushToClockGenerator(double processTime, bool beat, double bpm, int rhythmI
 
 	// push that invokation to the clock generator an let them fire a small amount of time later on
 	// that's the timewise buffer of the microphone  at 44100 Hz
-	clockGenerator.push(processTime + Configuration::getInstance().microphoneBufferLength, call);
+	clockGenerator.push(processTime, call);
 }
-
 
 
 void danceThreadFunction() {
@@ -164,30 +156,30 @@ void danceThreadFunction() {
 	Dancer& dancer = Dancer::getInstance();
 	newPoseAvailable = false;
 
-	// run the clock generated thread to identify the rhytm
+	// run the clock generated thread to identify the rhytm and to synchronize input signal with the elapsed time instead of processed time
 	while (executeServoThread) {
 		BeatInvocation o;				// detected beat coming from audio (including its latency)
 		bool insertDelay = true;		// indicates that the loop had no action and we need to sleep a bit
 
-		bool beatLoopIsDue = clockGenerator.isClockDue(audioProcessor.getElapsedTime(),o);
+		double time = audioProcessor.getElapsedTime();
+		bool beatLoopIsDue = clockGenerator.isClockDue(time,o);
 		if (beatLoopIsDue) {
-			if (o.beat){
-				/*
-				cout << std::fixed << std::setprecision(2)
-				     << "   Beat (bpm=" <<  rhythmDetector.bpm()<< " 1/" <<  rhythmDetector.getRhythmInQuarters() << ") "
-					 << "latency=" << audioProcessor.getCurrentLatency()
-					 << "s comp=" << rhythmDetector.getLatencyCompensationDelay() << "s"  << "/" << rhythmDetector.getLatencyCompensationPercentage() << "% "
-				 	 << "move=" << rhythmDetector.getRythmPercentage() << "/" << rhythmDetector.getLatencyCompensatedRythmPercentage() << endl;
-				 	 */
-			};
 
 			// detect the beat
 			rhythmDetector.loop(audioProcessor.getCurrentLatency(), o.processTime, o.beat, o.bpm, o.rhythmInQuarters);
 
 			// compensate the microphones latency and delay the beat accordingly to hit the beat next time
-			// after this call, beat-flag is modified such that it incorporated the latency
-			compensateLatency(o.beat, o.bpm, o.rhythmInQuarters);
+			// after this call, the beat-flag is modified such that it incorporates the latency
+			compensateLatency(time, o.beat, o.bpm, o.rhythmInQuarters);
 
+			if (o.beat) {
+				cout << std::fixed << std::setprecision(2)
+			     << "Beat t=" << time - rhythmDetector.getLatencyCompensationDelay() << " bpm=" <<  rhythmDetector.bpm()<< " 1/" <<  o.rhythmInQuarters << ") "
+				 << " (" << string((audioProcessor.getCurrentBeatType() == AudioProcessor::BEAT_GENERATION)?"gen":"detect") << ")"
+				 << " latency=" << audioProcessor.getCurrentLatency()
+				 << "s compensation=" << rhythmDetector.getLatencyCompensationDelay() << "s"
+			 	 << " move=" <<  rhythmDetector.getLatencyCompensatedRythmPercentage() << endl;
+			}
 			// if no music is detected, do not dance
 			dancer.setMusicDetected(AudioProcessor::getInstance().isAudioDetected());
 

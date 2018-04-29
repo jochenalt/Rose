@@ -117,7 +117,7 @@ void AudioSource::fetchInput(int numOfSamples, double samples[]) {
 				samples[i] = 0;
 
 			int samplesRead = readWavInput(samples, numOfSamples);
-			processedTime += (double)samplesRead/ (double)getCurrentWavContent().getSampleRate();;	// [s]
+			processedTime += (double)samplesRead/ (double)Configuration::getInstance().microphoneSampleRate;	// [s]
 
 			if (samplesRead < numOfSamples) {
 				cout << "end of song. Switching to microphone." << endl;

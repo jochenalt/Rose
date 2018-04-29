@@ -54,7 +54,7 @@ void RhythmDetector::loop(double latency, double processTime, bool beat, double 
 		double currentBeatProgress = timeSinceBeat / timePerBeat;
 
 		// compute deviation to decide if we compensate by moving forward quicker or slowing down.
-		double currentMoveProgress = fmod(movePercentage+loopProcessSpeed,rhythmInQuarters);
+		double currentMoveProgress = fmod(movePercentage,rhythmInQuarters);
 		if (currentMoveProgress < rhythmInQuarters/2.0)
 			currentMoveProgress = ((currentMoveProgress+rhythmInQuarters)/rhythmInQuarters); 	// too slow, hitRatio < 1.0, so accelerate
 		else
@@ -79,11 +79,6 @@ void RhythmDetector::loop(double latency, double processTime, bool beat, double 
 		latencyCompensationDelay = fmod(numOfDelayedBeats*secondsPerBeat-latency,secondsPerBeat); // [s]
 		latencyPercentage = (latency/timePerBeat);
 
-		// cout << "hitratio=" << hitRatio << " processTime=" << processTime << " percentagePerLoop=" << percentagePerLoop << " loopProcessSpeed=" << loopProcessSpeed
-		//	 << " latencyPercentage=" << latencyPercentage << endl;
-
-		// cout << " timeSinceBeat=" << timeSinceBeat << " loopsSinceBeat=" << loopsSinceBeat << " %/l=" << percentagePerLoop
-		//	 << " fmod(filteredMove)=" << fmod(filterMovePercentage,rhythmInQuarters) << " hitRatio = " << hitRatio << endl;
 		loopsSinceBeat = 0;
 		timeOfLastBeat = now;
 		timeSinceBeat = 0;

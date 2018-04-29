@@ -73,6 +73,9 @@ public:
 
 	BeatType getCurrentBeatType() { return currentBeatType; };
 
+	// when a new song starts, forget the history and call this
+	void initializeBeatDetector();
+
 private:
 
 	const int numInputSamples = 512;

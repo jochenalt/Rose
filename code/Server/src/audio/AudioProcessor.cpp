@@ -61,8 +61,12 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 	globalPlayback = true;
 
 	// initialize beat detector
-	beatDetector = new BTrack(numInputSamples, numInputSamples*8);
+	initializeBeatDetector();
+}
 
+void AudioProcessor::initializeBeatDetector() {
+	// initialize beat detector
+	beatDetector = new BTrack(numInputSamples, numInputSamples*2);
 
 }
 
@@ -260,6 +264,12 @@ void AudioProcessor::processInput() {
 			if (((currentBeatType == NO_BEAT) || (currentBeatType == BEAT_GENERATION)) && (pendingBeatType == BEAT_DETECTION)) {
 				// wait until beat has been detected before switching
 				if (beatDetector->beatDueInCurrentFrame()) {
+					if (currentBeatType == BEAT_GENERATION) {
+						// reinitialize beat detector and re-scan current buffer
+						initializeBeatDetector();
+						beatDetector -> processAudioFrame(inputBuffer);
+						cout << "re-initializing beat detection" << endl;
+					}
 					currentBeatType = BEAT_DETECTION;
 					pendingBeatType = NO_BEAT;
 					cout << "turn on beat detection" << endl;
@@ -273,10 +283,11 @@ void AudioProcessor::processInput() {
 				}
 			else if ((currentBeatType == BEAT_DETECTION) && (pendingBeatType == BEAT_DETECTION)) {
 				if (beatDetector->beatDueInCurrentFrame()) {
-					// this happens when a new wav file came in
-					currentBeatType = BEAT_DETECTION;
-					pendingBeatType = NO_BEAT;
-					cout << "continue beat detection" << endl;
+					// this happens when a new wav file came in. Start with beat generation, but wait for new beat
+					beatGen.setup(audioSource.getProcessedTime(),lastBeatTime,beatDetector->getCurrentTempoEstimate(), rhythmInQuarters);
+					currentBeatType = BEAT_GENERATION;
+					pendingBeatType = BEAT_DETECTION; // initiate change to beat detection once the next beat has been identified
+					cout << "temporarily switch to beat generation" << endl;
 				}
 			}
 		}
@@ -299,11 +310,12 @@ void AudioProcessor::processInput() {
 			double timePerBeat = (60.0/bpm); 					// [s]
 			double timeSinceBeat = processTime - lastBeatTime; 	// [s]
 
-			// detect 1/1 or 1/2 rhythm
-			rhythmInQuarters = 1;
-			if (abs(timePerBeat - timeSinceBeat) > abs(2.0*timePerBeat - timeSinceBeat))
-				rhythmInQuarters = 2;
-
+			// detect 1/1 or 1/2 rhythm if we had at least two beats
+			if (lastBeatTime != 0) {
+				rhythmInQuarters = 1;
+				if (abs(timePerBeat - timeSinceBeat) > abs(2.0*timePerBeat - timeSinceBeat))
+					rhythmInQuarters = 2;
+			}
 			lastBeatTime = processTime;
 		}
 
@@ -320,6 +332,10 @@ void AudioProcessor::processInput() {
 		}
 
 		beatCallback(audioSource.getProcessedTime(), beat, bpm, rhythmInQuarters);
+
+		// prevent that processing time is running ahead of elapsed time
+		double delayTime = audioSource.getProcessedTime() - audioSource.getElapsedTime();
+		delay_ms(delayTime*1000.0);
 	}
 }
 
