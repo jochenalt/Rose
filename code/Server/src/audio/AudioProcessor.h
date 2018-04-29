@@ -88,9 +88,6 @@ private:
 	bool inputAudioDetected = false;		// true if music has been detected
 	double volume = 1.0;					// volume used in playback
 
-	LowPassFilter cumulativeScoreLowPass;
-	LowPassFilter squaredScoreLowPass = 0;
-
 	AudioSource audioSource;
 	BTrack* beatDetector = NULL;
 	BeatGenerator beatGen;

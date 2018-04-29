@@ -26,6 +26,8 @@
 #include <beat/BTrack.h>
 #include "samplerate.h"
 #include <iostream>
+#include <iostream>
+
 
 //=======================================================================
 BTrack::BTrack()
@@ -561,6 +563,27 @@ void BTrack::calculateOutputOfCombFilterBank()
 	}
 }
 
+double BTrack::getMaxToMeanRatioCombFiltered() {
+	double mean = 0;
+	double max = 0;
+	for (int i = 0;i< 128;i++) {
+		double value = abs(combFilterBankOutput[i]);
+		mean += value;
+		if (max < value)
+			max = value;
+	}
+	mean = (mean / 128);
+	double maxToMeanRatio = max/mean;
+	if (mean < 0.0001)
+		maxToMeanRatio = 0;
+	return maxToMeanRatio;
+}
+
+
+bool BTrack::musicDetected() {
+	double score = getMaxToMeanRatioCombFiltered();
+	return ((score > 1.0) && (score < 25.0));
+}
 //=======================================================================
 void BTrack::calculateBalancedACF (double* onsetDetectionFunction)
 {

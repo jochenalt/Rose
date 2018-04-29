@@ -50,10 +50,6 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
     beatCallback = newBeatCallback;
 	inputAudioDetected = false;
 
-	// low pass filter of cumulative score to get the average score
-	cumulativeScoreLowPass.init(2 /* Hz */);
-	squaredScoreLowPass.init(2);
-
 	// start time used for delays and output
 	audioSource.setup();
 
@@ -319,17 +315,8 @@ void AudioProcessor::processInput() {
 			lastBeatTime = processTime;
 		}
 
-		// we need to check if there is music or only noise. This is done by a me
-		// cumulative score is the sum of the onset function and the likelihood of a beat. When this value reaches a maximum,
-		// we receive a beat. We identify the existence of music by a least variance of this score
-		double score = beatDetector->getLatestCumulativeScoreValue();
-		if (beat) {
-			inputAudioDetected = squaredScoreLowPass / cumulativeScoreLowPass > 6.;
-			// cout << "score = " << score << " avr score=" << cumulativeScoreLowPass << "variance=" << squaredScoreLowPass << " var/score=" << squaredScoreLowPass / cumulativeScoreLowPass << endl;
-		} else {
-			cumulativeScoreLowPass = score;
-			squaredScoreLowPass = (score - cumulativeScoreLowPass)*(score - cumulativeScoreLowPass);
-		}
+		// we need to check if there is music or only noise.
+		inputAudioDetected = beatDetector->musicDetected();
 
 		beatCallback(audioSource.getProcessedTime(), beat, bpm, rhythmInQuarters);
 

@@ -129,8 +129,12 @@ public:
      */
     void initialise (int hopSize_, int frameSize_);
 
+    // returns true if music has been detected
+    bool musicDetected();
 private:
-    
+
+    double getMaxToMeanRatioCombFiltered();
+
     /** Initialise with hop size and set all array sizes accordingly
      * @param hopSize_ the hop size in audio samples
      */
