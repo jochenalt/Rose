@@ -103,11 +103,12 @@ void BTrack::initialise (int hopSize_, int frameSize_)
 	estimatedTempo = 120.0;
 	tempoToLagFactor = 60.*44100./512.;
 	
+	musicHasBeenDetected = false;
 	m0 = 10;
 	beatCounter = -1;
 	
 	beatDueInFrame = false;
-	
+	beatInLastFrame = false;
 
 	// create rayleigh weighting vector
 	for (int n = 0; n < 128; n++)
@@ -210,6 +211,12 @@ bool BTrack::beatDueInCurrentFrame()
 }
 
 //=======================================================================
+bool BTrack::beatOccuredInLastFrame()
+{
+    return beatInLastFrame;
+}
+
+//=======================================================================
 double BTrack::getCurrentTempoEstimate()
 {
     return estimatedTempo;
@@ -250,6 +257,7 @@ void BTrack::processOnsetDetectionFunctionSample (double newSample)
     
 	m0--;
 	beatCounter--;
+	beatInLastFrame = beatDueInFrame;
 	beatDueInFrame = false;
 		
 	// add new sample at the end
@@ -427,6 +435,9 @@ void BTrack::calculateTempo()
 	// calculate output of comb filterbank
 	calculateOutputOfCombFilterBank();
 	
+	// check if its music or noise
+	detectMusic();
+
 	// adaptive threshold on rcf
 	adaptiveThreshold (combFilterBankOutput,128);
 
@@ -564,7 +575,7 @@ void BTrack::calculateOutputOfCombFilterBank()
 }
 
 
-bool BTrack::musicDetected() {
+void BTrack::detectMusic() {
 
 	// try to find out if there's noise or music by checking
 	// how spikey the samples are. Take combfilter, compute kurtosis
@@ -606,8 +617,8 @@ bool BTrack::musicDetected() {
 		kurtosis /= combFilterLen;
 	}
 
-	// arbitrary threshold. I tested this with a couple of songs
-	return kurtosis > 15.0;
+	// arbitrary threshold. Theory says 3.0, 4.0 means, the beat needs to be clearer
+	musicHasBeenDetected =  kurtosis > 4.0;
 }
 //=======================================================================
 void BTrack::calculateBalancedACF (double* onsetDetectionFunction)

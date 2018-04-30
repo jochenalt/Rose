@@ -134,7 +134,7 @@ void compensateLatency(double elapsedTime, bool& beat, double& bpm, int rhythmIn
 
 // function to make uneven callbacks coming from audio stream clock generated
 void pushToClockGenerator(double processTime, bool beat, double bpm, int rhythmInQuarters) {
-	//if (beat)
+	// if (beat)
 	//	cout << std::fixed << std::setprecision(2) << "pushToClock (" << processTime << "," << beat << "," << bpm << "," << rhythmInQuarters << ")" << endl;
 	BeatInvocation call;
 	call.processTime = processTime;
@@ -174,7 +174,7 @@ void danceThreadFunction() {
 
 			if (o.beat) {
 				cout << std::fixed << std::setprecision(2)
-			     << "Beat t=" << time - rhythmDetector.getLatencyCompensationDelay() << " bpm=" <<  rhythmDetector.bpm()<< " 1/" <<  o.rhythmInQuarters << ") "
+			     << "Beat t=" << time - rhythmDetector.getLatencyCompensationDelay() << "/" << o.processTime - rhythmDetector.getSourceLatency() << " bpm=" <<  rhythmDetector.bpm()<< " 1/" <<  o.rhythmInQuarters << ") "
 				 << " (" << string((audioProcessor.getCurrentBeatType() == AudioProcessor::BEAT_GENERATION)?"gen":"detect") << ")"
 				 << " latency=" << audioProcessor.getCurrentLatency()
 				 << "s compensation=" << rhythmDetector.getLatencyCompensationDelay() << "s"
@@ -201,7 +201,6 @@ void danceThreadFunction() {
 
 			// a new pose is ready to be taken over by the servo thread
 			newPoseAvailable = true;
-
 
 			// we did something, continue looping
 			insertDelay = false;
@@ -437,8 +436,8 @@ int main(int argc, char *argv[]) {
 				AudioProcessor::getInstance().setWavContent(wavContent);
 
 				// bad style doing this inside the thread, naughty Jochen
-				delete wavThread;
-				wavThread = NULL;
+				if (wavThread != NULL)
+					delete wavThread;
 			});
 		};
 

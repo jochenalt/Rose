@@ -65,10 +65,17 @@ void RhythmDetector::loop(double latency, double processTime, bool beat, double 
 		// double deviationMoveBeat = currentPercentageInRhythm/currentMovePercentage;
 		// cout << std::fixed << std::setprecision(4) << "%beat=" << currentBeatProgress << " move%=" << currentMoveProgress << endl;
 
-		double loopSpeed = 1.0 + (currentBeatProgress - (currentMoveProgress ))  / (currentMoveProgress);
+		double loopSpeed = (1.0 + (currentBeatProgress - (currentMoveProgress ))  / (currentMoveProgress)) / (float)loopsSinceBeat;
+
+		// limit the move acceleration to 20%
+		// (when tracks are changed there might be jumps in the beat, so prevent that move is jumping as well)
+		if ((loopSpeed > loopProcessSpeed*1.2) && (loopProcessSpeed>floatPrecision))
+			loopSpeed = loopProcessSpeed*1.2;
+		if ((loopSpeed < loopProcessSpeed/1.2) && (loopProcessSpeed>floatPrecision))
+			loopSpeed = loopProcessSpeed/1.2;
 
 		// low pass the process speed with the predicted progress plus a correction hitRatio
-		loopProcessSpeed = loopSpeed / (float)loopsSinceBeat;
+		loopProcessSpeed = loopSpeed;
 
 		// compute latency compensation, i.e. the time we need to delay
 		// the dance even more such that the beat meets the next one

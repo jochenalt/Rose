@@ -304,11 +304,12 @@ void AudioProcessor::processInput() {
 		}
 
 		if (beat) {
-			double processTime =  audioSource.getProcessedTime();
-			double timePerBeat = (60.0/bpm); 					// [s]
+			double processTime  =  audioSource.getProcessedTime();
+			double timePerBeat  = (60.0/bpm); 					// [s]
 			double timeSinceBeat = processTime - lastBeatTime; 	// [s]
 
 			// detect 1/1 or 1/2 rhythm if we had at least two beats
+			// Otherwise leave rhythmInQuarters as it is
 			if (lastBeatTime != 0) {
 				rhythmInQuarters = 1;
 				if (abs(timePerBeat - timeSinceBeat) > abs(2.0*timePerBeat - timeSinceBeat))
@@ -322,7 +323,9 @@ void AudioProcessor::processInput() {
 
 		beatCallback(audioSource.getProcessedTime(), beat, bpm, rhythmInQuarters);
 
-		// prevent that processing time is running ahead of elapsed time
+		// prevent that processing time is running ahead of elapsed time. Otherwise the queue that synrchonises the
+		// process time with the real time gets flooded. Existing latency takes care that process
+		// does not stutter due to potenta
 		double delayTime = audioSource.getProcessedTime() - audioSource.getElapsedTime();
 		delay_ms(delayTime*1000.0);
 	}

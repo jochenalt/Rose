@@ -83,6 +83,10 @@ public:
     /** @returns true if a beat should occur in the current audio frame */
     bool beatDueInCurrentFrame();
 
+    /** @returns true if a beat should occured in the last audio frame */
+    bool beatOccuredInLastFrame();
+
+
     /** @returns the current tempo estimate being used by the beat tracker */
     double getCurrentTempoEstimate();
     
@@ -132,9 +136,11 @@ public:
     /**
      * returns true if music has been detected. Implemented with check of kurtosis of samples against a threshold
      */
-    bool musicDetected();
+    bool musicDetected() { return musicHasBeenDetected; };
 
 private:
+
+    void detectMusic();
 
     /** Initialise with hop size and set all array sizes accordingly
      * @param hopSize_ the hop size in audio samples
@@ -221,7 +227,11 @@ private:
     int onsetDFBufferSize;                  /**< the onset detection function buffer size */
     bool tempoFixed;                        /**< indicates whether the tempo should be fixed or not */
     bool beatDueInFrame;                    /**< indicates whether a beat is due in the current frame */
+    bool beatInLastFrame;                   /**< indicates whether a beat happened in the last frame */
+
+
     int FFTLengthForACFCalculation;         /**< the FFT length for the auto-correlation function calculation */
+    bool musicHasBeenDetected; 				/**< indicates whether music has been detected */
     
 #ifdef USE_FFTW
     fftw_plan acfForwardFFT;                /**< forward fftw plan for calculating auto-correlation function */
