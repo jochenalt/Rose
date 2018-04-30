@@ -422,15 +422,25 @@ int main(int argc, char *argv[]) {
 		audioProcessor.setGlobalPlayback(globalPlayback);
 
 		// if a track is passed, start with that one
+		audioProcessor.setMicrophoneInput();
+
 		if (trackFilename != "") {
-			std::ifstream file (trackFilename, std::ios::binary);
-			file.unsetf (std::ios::skipws);
-			std::istream_iterator<uint8_t> begin (file), end;
-			std::vector<uint8_t> wavContent (begin, end);
-			audioProcessor.setWavContent(wavContent);
-		} else {
-			audioProcessor.setMicrophoneInput();
-		}
+			// start a thread to read in the file, since this might take 5s.
+			// So do the other initialization stuff in parallel
+			std::thread* wavThread = NULL;
+			wavThread = new std::thread([=](){
+				std::ifstream file (trackFilename, std::ios::binary);
+				file.unsetf (std::ios::skipws);
+				std::istream_iterator<uint8_t> begin (file), end;
+
+				std::vector<uint8_t> wavContent (begin, end);
+				AudioProcessor::getInstance().setWavContent(wavContent);
+
+				// bad style doing this inside the thread, naughty Jochen
+				delete wavThread;
+				wavThread = NULL;
+			});
+		};
 
 		// start own thread for rythm detection and dance moves
 		// result pose is passed to servo thread

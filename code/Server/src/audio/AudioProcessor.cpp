@@ -48,7 +48,7 @@ AudioProcessor::~AudioProcessor() {
 
 void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
     beatCallback = newBeatCallback;
-	inputAudioDetected = false;
+	musicDetected = false;
 
 	// start time used for delays and output
 	audioSource.setup();
@@ -253,13 +253,15 @@ void AudioProcessor::processInput() {
 		// in order to manage the transitions from one song to another smoothly
 		beatDetector -> processAudioFrame(inputBuffer);
 
+
 		bool beat = false;
 		double bpm = 0;
 
 		if (pendingBeatType != NO_BEAT) {
+			musicDetected = beatDetector->musicDetected();
 			if (((currentBeatType == NO_BEAT) || (currentBeatType == BEAT_GENERATION)) && (pendingBeatType == BEAT_DETECTION)) {
 				// wait until beat has been detected before switching
-				if (beatDetector->beatDueInCurrentFrame()) {
+				if (beatDetector->beatDueInCurrentFrame() && musicDetected) {
 					if (currentBeatType == BEAT_GENERATION) {
 						// reinitialize beat detector and re-scan current buffer
 						initializeBeatDetector();
@@ -278,7 +280,7 @@ void AudioProcessor::processInput() {
 					cout << "switch to beat generation" << endl;
 				}
 			else if ((currentBeatType == BEAT_DETECTION) && (pendingBeatType == BEAT_DETECTION)) {
-				if (beatDetector->beatDueInCurrentFrame()) {
+				if (beatDetector->beatDueInCurrentFrame() && musicDetected) {
 					// this happens when a new wav file came in. Start with beat generation, but wait for new beat
 					beatGen.setup(audioSource.getProcessedTime(),lastBeatTime,beatDetector->getCurrentTempoEstimate(), rhythmInQuarters);
 					currentBeatType = BEAT_GENERATION;
@@ -316,7 +318,7 @@ void AudioProcessor::processInput() {
 		}
 
 		// we need to check if there is music or only noise.
-		inputAudioDetected = beatDetector->musicDetected();
+		musicDetected = beatDetector->musicDetected();
 
 		beatCallback(audioSource.getProcessedTime(), beat, bpm, rhythmInQuarters);
 

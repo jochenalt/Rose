@@ -563,26 +563,51 @@ void BTrack::calculateOutputOfCombFilterBank()
 	}
 }
 
-double BTrack::getMaxToMeanRatioCombFiltered() {
-	double mean = 0;
-	double max = 0;
-	for (int i = 0;i< 128;i++) {
-		double value = abs(combFilterBankOutput[i]);
-		mean += value;
-		if (max < value)
-			max = value;
-	}
-	mean = (mean / 128);
-	double maxToMeanRatio = max/mean;
-	if (mean < 0.0001)
-		maxToMeanRatio = 0;
-	return maxToMeanRatio;
-}
-
 
 bool BTrack::musicDetected() {
-	double score = getMaxToMeanRatioCombFiltered();
-	return ((score > 1.0) && (score < 25.0));
+
+	// try to find out if there's noise or music by checking
+	// how spikey the samples are. Take combfilter, compute kurtosis
+	// and check against thresholds
+
+	// mean value of combfilter bank
+	const int combFilterLen=sizeof(combFilterBankOutput)/sizeof(combFilterBankOutput[0]);
+	double mean = 0;
+	for (int i = 0;i< combFilterLen;i++) {
+		double value = abs(combFilterBankOutput[i]);
+		mean += value;
+	}
+	mean /= combFilterLen;
+
+	// variance
+	double variance = 0;
+	for (int i = 0;i< combFilterLen;i++) {
+		double value = abs(combFilterBankOutput[i]);
+		variance += (value-mean)*(value-mean);
+	}
+	variance /= combFilterLen;
+
+	// standard deviation
+	double standardDeviation = sqrt(variance);
+
+	// kurtosis  = 1/n*SUM( ((value-mean)/stddev)^4 )
+	double kurtosis = 0;
+	if (standardDeviation > 0.01) {
+		for (int i = 0;i< combFilterLen;i++) {
+			double value = abs(combFilterBankOutput[i]);
+			double kurtosisTerm = (value-mean)/standardDeviation;
+
+			// pow(4)
+			kurtosisTerm *= kurtosisTerm;
+			kurtosisTerm *= kurtosisTerm;
+
+			kurtosis += kurtosisTerm;
+		}
+		kurtosis /= combFilterLen;
+	}
+
+	// arbitrary threshold. I tested this with a couple of songs
+	return kurtosis > 15.0;
 }
 //=======================================================================
 void BTrack::calculateBalancedACF (double* onsetDetectionFunction)

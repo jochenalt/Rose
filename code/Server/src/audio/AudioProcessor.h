@@ -63,7 +63,7 @@ public:
 	double getElapsedTime();
 
 	// checks if the input signal is above a certain threshold
-	bool isAudioDetected() { return inputAudioDetected; };
+	bool isAudioDetected() { return musicDetected; };
 
 	// set the audio source right after microphone or wav has been set. Used only when main loop is not yet running
 	void setAudioSource();
@@ -85,7 +85,7 @@ private:
 	BeatCallbackFct beatCallback;
 	TimeSampler callbackTimer; 				// timer for callback as passed via setup()
 
-	bool inputAudioDetected = false;		// true if music has been detected
+	bool musicDetected = false;		// true if music has been detected
 	double volume = 1.0;					// volume used in playback
 
 	AudioSource audioSource;
