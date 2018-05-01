@@ -103,7 +103,7 @@ void BTrack::initialise (int hopSize_, int frameSize_)
 	estimatedTempo = 120.0;
 	tempoToLagFactor = 60.*44100./512.;
 	
-	musicHasBeenDetected = false;
+	kurtosis = 0;
 	m0 = 10;
 	beatCounter = -1;
 	
@@ -602,7 +602,7 @@ void BTrack::detectMusic() {
 	double standardDeviation = sqrt(variance);
 
 	// kurtosis  = 1/n*SUM( ((value-mean)/stddev)^4 )
-	double kurtosis = 0;
+	kurtosis = 0;
 	if (standardDeviation > 0.01) {
 		for (int i = 0;i< combFilterLen;i++) {
 			double value = abs(combFilterBankOutput[i]);
@@ -616,9 +616,6 @@ void BTrack::detectMusic() {
 		}
 		kurtosis /= combFilterLen;
 	}
-
-	// arbitrary threshold. Theory says 3.0, 4.0 means, the beat needs to be clearer
-	musicHasBeenDetected =  kurtosis > 4.0;
 }
 //=======================================================================
 void BTrack::calculateBalancedACF (double* onsetDetectionFunction)

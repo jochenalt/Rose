@@ -136,7 +136,8 @@ public:
     /**
      * returns true if music has been detected. Implemented with check of kurtosis of samples against a threshold
      */
-    bool musicDetected() { return musicHasBeenDetected; };
+    bool musicDetected() { return kurtosis > 3.0; };
+    double getKurtosis() { return kurtosis; };
 
 private:
 
@@ -231,7 +232,7 @@ private:
 
 
     int FFTLengthForACFCalculation;         /**< the FFT length for the auto-correlation function calculation */
-    bool musicHasBeenDetected; 				/**< indicates whether music has been detected */
+    double kurtosis;
     
 #ifdef USE_FFTW
     fftw_plan acfForwardFFT;                /**< forward fftw plan for calculating auto-correlation function */

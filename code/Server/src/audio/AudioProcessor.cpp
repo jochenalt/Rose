@@ -344,5 +344,8 @@ double AudioProcessor::getCurrentLatency() {
 	return audioSource.getCurrentLatency();
 }
 
+double AudioProcessor::getMusicKurtosis() {
+	return beatDetector->getKurtosis();
+}
 
 

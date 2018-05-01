@@ -174,7 +174,8 @@ void danceThreadFunction() {
 
 			if (o.beat) {
 				cout << std::fixed << std::setprecision(2)
-			     << "Beat t=" << time - rhythmDetector.getLatencyCompensationDelay() << "/" << o.processTime - rhythmDetector.getSourceLatency() << " bpm=" <<  rhythmDetector.bpm()<< " 1/" <<  o.rhythmInQuarters << ") "
+			     << "Beat t=" << time - rhythmDetector.getLatencyCompensationDelay() << "/" << o.processTime - rhythmDetector.getSourceLatency()
+				 << " bpm=" <<  rhythmDetector.bpm()<< " 1/" <<  o.rhythmInQuarters << ") kurt=" << audioProcessor.getMusicKurtosis()
 				 << " (" << string((audioProcessor.getCurrentBeatType() == AudioProcessor::BEAT_GENERATION)?"gen":"detect") << ")"
 				 << " latency=" << audioProcessor.getCurrentLatency()
 				 << "s compensation=" << rhythmDetector.getLatencyCompensationDelay() << "s"

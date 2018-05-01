@@ -76,6 +76,7 @@ public:
 	// when a new song starts, forget the history and call this
 	void initializeBeatDetector();
 
+	double getMusicKurtosis();
 private:
 
 	const int numInputSamples = 512;
