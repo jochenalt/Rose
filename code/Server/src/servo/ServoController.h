@@ -25,13 +25,17 @@ public:
 		return instance;
 	}
 
+	// pwm frequency the servos are controlled with
 	float getServoFrequency();
+
+	// show an old-fashioned console used to calibrate min/max/null of servos online
 	void calibrateViaKeyBoard();
 
+	// get angle last set
 	double  getAngle(int servoNo);
-	void setAngle(int servoNo, double angle);
-	void setAngle_rad(int servoNo, double newAngle_rad);
 
+	void setAngle_deg(int servoNo, double angle_deg);
+	void setAngle_rad(int servoNo, double newAngle_rad);
 
 	double getMinAngle(int servoNo);
 	double getMaxAngle(int servoNo);

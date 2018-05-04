@@ -425,10 +425,11 @@ int main(int argc, char *argv[]) {
 		audioProcessor.setMicrophoneInput();
 
 		if (trackFilename != "") {
-			// start a thread to read in the file, since this might take 5s.
-			// So do the other initialization stuff in parallel
+			// start a thread to read in the file. Since this might take 5s,
+			// do it with other initialization stuff in parallel (like initialization of audio)
 			std::thread* wavThread = NULL;
 			wavThread = new std::thread([=](){
+				pthread_setname_np(pthread_self(), "wavreader");
 				std::ifstream file (trackFilename, std::ios::binary);
 				file.unsetf (std::ios::skipws);
 				std::istream_iterator<uint8_t> begin (file), end;
@@ -442,12 +443,11 @@ int main(int argc, char *argv[]) {
 			});
 		};
 
-		// start own thread for rythm detection and dance moves
+		// start  thread for rythm detection and dance moves
 		// result pose is passed to servo thread
 		danceThread = new std::thread([=](){
 			pthread_setname_np(pthread_self(), "dance");
 			danceThreadFunction();
-			std::terminate();
 		});
 
 
@@ -456,7 +456,6 @@ int main(int argc, char *argv[]) {
 		servoThread = new std::thread([=](){
 			pthread_setname_np(pthread_self(), "servo");
 			servoThreadFunction();
-			std::terminate();
 		});
 
 		// final loop catching audio and passing via clock generator to danceThread

@@ -24,7 +24,7 @@ public:
 	double microphoneLatency = 0.0;   		// [s]
 	int microphoneSampleRate = 44100; 		// [Hz]
 	int webserverPort = 8080;				// port of webserver
-	double microphoneBufferLength = 0.08; 	// [s] added latency that compensates the alsa microphone buffer pushing data blockwise
+	// double microphoneBufferLength = 0.08; 	// [s] added latency that compensates the alsa microphone buffer pushing data blockwise
 private:
 	void readDouble(map<string,string>& configItems, string name, double &value);
 	void writeDouble(map<string,string>& configItems, string name, double value, int decimalPlaces);

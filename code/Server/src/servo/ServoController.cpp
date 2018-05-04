@@ -101,7 +101,7 @@ void ServoController::setAngle_rad(int servoNo, double newAngle_rad) {
 	servo[servoNo].setAngle(degrees(newAngle_rad));
 }
 
-void ServoController::setAngle(int servoNo, double angle) {
+void ServoController::setAngle_deg(int servoNo, double angle) {
 	servo[servoNo].setAngle(angle);
 }
 
@@ -143,7 +143,7 @@ void ServoController::calibrateViaKeyBoard() {
 				break;
 			case 'n': {
 				setNullAngle(currentServo + currentStewart*6, currentAngle + getNullAngle(currentServo + currentStewart*6));
-				setAngle(currentServo + currentStewart*6, 0);
+				setAngle_deg(currentServo + currentStewart*6, 0);
 				break;
 			}
 			case '-':

@@ -2,7 +2,7 @@
  * Servo.h
  *
  *  Created on: Mar 4, 2018
- *      Author: jochenalt
+ *      Author: Jochen Alt
  */
 
 #ifndef SRC_SERVO_SERVO_H_
@@ -23,17 +23,16 @@ public:
 	double getAngle() { return angle; };
 
 private:
-	int channel = 0;
-	PCA9685* pca9685 = 0;
-	double frequency = 0;
-	bool reverse = false;
+	int channel = 0;				// one servo per channel 0..15
+	PCA9685* pca9685 = 0;			// interface to PCA9685 PWM driver
+	double frequency = 0;			// pwm frequency sent to the servos (300Hz)
+	bool reverse = false;			// true, if servo is supposed to move anti-clockwise
 	double minAngle = 0;
 	double maxAngle = 0;
 	double nullAngle = 0;
 
 	double angle = 0;
 	int counter = 0;
-
 };
 #endif
 #endif /* SRC_SERVO_SERVO_H_ */
