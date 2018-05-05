@@ -20,7 +20,7 @@ class Move {
 public:
 	enum MoveType { NO_MOVE, LISTENING, PHYSICISTS_HEAD_NICKER, TENNIS_HEAD_NICKER, WEASELS_MOVE,
 		            TRAVOLTA_HEAD_NICKER, ENHANCED_TRAVOLTA_HEAD_NICKER,
-					DIAGONAL_HEAD_SWING, DIPPED_DIAGONAL_HEAD_SWING, ROLLED_DIPPED_DIAGONAL_HEAD_SWING, EYED_DIPPED_DIAGONAL_HEAD_SWING,
+					EYED_DIPPED_DIAGONAL_HEAD_SWING,
 					BELLY_MOVE, BOLLYWOOD_HEAD_MOVE, SWING_DOUBLE_BOLLYWOOD_MOVE,
 					BODY_WAVE, DIPPED_BODY_WAVE, SIDE_DIPPED_BODY_WAVE,
 					SHIMMYS, TRIPPLE_SHIMMYS, LEANING_TRIPPLE_SHIMMYS,
@@ -72,6 +72,9 @@ public:
 	double baseCurveTrapezoid(double movePercentage);
 	double baseCurveDip(double movePercentage);
 	double baseCurveFatDip(double movePercentage);
+	double baseCurveRectangle(double movePercentage);
+	double baseCurveSharpRectangle(double movePercentage);
+
 
 	double scaleAmbition(double value);
 
@@ -86,9 +89,6 @@ public:
 	TotalBodyPose enhancedTravoltaHeadNicker(double movePercentage);
 	TotalBodyPose weaselsMove(double movePercentage);
 
-	TotalBodyPose diagonalSwing(double movePercentage);
-	TotalBodyPose dippedDiagonalSwing(double movePercentage);
-	TotalBodyPose rolledDippedDiagonalSwing(double movePercentage);
 	TotalBodyPose eyedDippedDiagonalSwing(double movePercentage);
 
 	TotalBodyPose bollywoodHeadMove(double movePercentage);

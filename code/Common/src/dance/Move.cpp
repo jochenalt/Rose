@@ -15,7 +15,7 @@
 
 
 std::vector<Move> Move::moveLibrary;
-const double latencyShift = 0.45;
+const double latencyShift = 0.75;
 
 
 Move& Move::getMove(MoveType m) {
@@ -31,33 +31,30 @@ void Move::setup() {
 
 		moveLibrary[(int)LISTENING] = Move(LISTENING, "listening", 8);
 
-		moveLibrary[(int)PHYSICISTS_HEAD_NICKER] = Move(PHYSICISTS_HEAD_NICKER, "physicist's move", 8);
-		moveLibrary[(int)TENNIS_HEAD_NICKER] = Move(TENNIS_HEAD_NICKER, "tennis spectators's move",8);
-		moveLibrary[(int)WEASELS_MOVE] = Move(WEASELS_MOVE, "weasel's move",8);
+		moveLibrary[(int)PHYSICISTS_HEAD_NICKER] = Move(PHYSICISTS_HEAD_NICKER, "physicist's move", 4);
+		moveLibrary[(int)TENNIS_HEAD_NICKER] = Move(TENNIS_HEAD_NICKER, "tennis spectators's move",4);
+		moveLibrary[(int)WEASELS_MOVE] = Move(WEASELS_MOVE, "weasel's move",4);
 
-		moveLibrary[(int)TRAVOLTA_HEAD_NICKER] = Move(TRAVOLTA_HEAD_NICKER, "travolta move",8);
-		moveLibrary[(int)ENHANCED_TRAVOLTA_HEAD_NICKER] = Move(ENHANCED_TRAVOLTA_HEAD_NICKER, "enhanced travolta move",8);
+		moveLibrary[(int)TRAVOLTA_HEAD_NICKER] = Move(TRAVOLTA_HEAD_NICKER, "travolta move",4);
+		moveLibrary[(int)ENHANCED_TRAVOLTA_HEAD_NICKER] = Move(ENHANCED_TRAVOLTA_HEAD_NICKER, "enhanced travolta move",4);
 
-		moveLibrary[(int)DIAGONAL_HEAD_SWING] = Move(DIAGONAL_HEAD_SWING, "diagonal head move",8);
-		moveLibrary[(int)DIPPED_DIAGONAL_HEAD_SWING] = Move(DIPPED_DIAGONAL_HEAD_SWING, "dipped diagonal head move",8);
-		moveLibrary[(int)ROLLED_DIPPED_DIAGONAL_HEAD_SWING] = Move(ROLLED_DIPPED_DIAGONAL_HEAD_SWING, "rolle dipped diagonal move",8);
-		moveLibrary[(int)EYED_DIPPED_DIAGONAL_HEAD_SWING] = Move(EYED_DIPPED_DIAGONAL_HEAD_SWING, "eye-rolling diagonal move",8);
+		moveLibrary[(int)EYED_DIPPED_DIAGONAL_HEAD_SWING] = Move(EYED_DIPPED_DIAGONAL_HEAD_SWING, "eye-rolling diagonal move",4);
 
-		moveLibrary[(int)BELLY_MOVE] = Move(BELLY_MOVE, "belly swinging move",8);
-		moveLibrary[(int)BOLLYWOOD_HEAD_MOVE] = Move(BOLLYWOOD_HEAD_MOVE, "bollywood move",8);
-		moveLibrary[(int)SWING_DOUBLE_BOLLYWOOD_MOVE] = Move(SWING_DOUBLE_BOLLYWOOD_MOVE, "swinging bollywood move",8);
+		moveLibrary[(int)BELLY_MOVE] = Move(BELLY_MOVE, "belly swinging move",4);
+		moveLibrary[(int)BOLLYWOOD_HEAD_MOVE] = Move(BOLLYWOOD_HEAD_MOVE, "bollywood move",4);
+		moveLibrary[(int)SWING_DOUBLE_BOLLYWOOD_MOVE] = Move(SWING_DOUBLE_BOLLYWOOD_MOVE, "swinging bollywood move",4);
 
-		moveLibrary[(int)BODY_WAVE] = Move(BODY_WAVE, "body wave",8);
-		moveLibrary[(int)DIPPED_BODY_WAVE] = Move(DIPPED_BODY_WAVE, "dipped body wave",8);
-		moveLibrary[(int)SIDE_DIPPED_BODY_WAVE] = Move(SIDE_DIPPED_BODY_WAVE, "rolling body wave",8);
+		moveLibrary[(int)BODY_WAVE] = Move(BODY_WAVE, "body wave",4);
+		moveLibrary[(int)DIPPED_BODY_WAVE] = Move(DIPPED_BODY_WAVE, "dipped body wave",4);
+		moveLibrary[(int)SIDE_DIPPED_BODY_WAVE] = Move(SIDE_DIPPED_BODY_WAVE, "rolling body wave",4);
 
-		moveLibrary[(int)SHIMMYS] = Move(SHIMMYS, "shimmys",8);
-		moveLibrary[(int)TRIPPLE_SHIMMYS] = Move(TRIPPLE_SHIMMYS, "tripple shimmis",8);
-		moveLibrary[(int)LEANING_TRIPPLE_SHIMMYS] = Move(LEANING_TRIPPLE_SHIMMYS, "leaning tripple shimmis",8);
+		moveLibrary[(int)SHIMMYS] = Move(SHIMMYS, "shimmys",4);
+		moveLibrary[(int)TRIPPLE_SHIMMYS] = Move(TRIPPLE_SHIMMYS, "tripple shimmis",4);
+		moveLibrary[(int)LEANING_TRIPPLE_SHIMMYS] = Move(LEANING_TRIPPLE_SHIMMYS, "leaning tripple shimmis",4);
 
-		moveLibrary[(int)SHOULDER_MOVE] = Move(SHOULDER_MOVE, "shoulder move",8);
-		moveLibrary[(int)SHOULDER_CIRCLE] = Move(SHOULDER_CIRCLE, "shoulder circle",8);
-		moveLibrary[(int)SHOULDER_DIP] = Move(SHOULDER_DIP, "shoulder dip move",8);
+		moveLibrary[(int)SHOULDER_MOVE] = Move(SHOULDER_MOVE, "shoulder move",4);
+		moveLibrary[(int)SHOULDER_CIRCLE] = Move(SHOULDER_CIRCLE, "shoulder circle",4);
+		moveLibrary[(int)SHOULDER_DIP] = Move(SHOULDER_DIP, "shoulder dip move",4);
 
 		moveLibrary[(int)TURN_AND_SHOW_BACK] = Move(TURN_AND_SHOW_BACK, "show your back",2);
 		moveLibrary[(int)TWERK] = Move(TWERK, "twerk",8);
@@ -86,8 +83,22 @@ double Move::baseCurveFatCos(double movePercentage) {
 }
 
 
+double Move::baseCurveRectangle(double movePercentage) {
+	double x = movePercentage/4.0*2.0*M_PI;
+	double y = cos(x)*2.0;
+	y = constrain(y, -1.0, +1.0);
+	return scaleAmbition(y);
+}
+
+
+double Move::baseCurveSharpRectangle(double movePercentage) {
+	double x = movePercentage/4.0*2.0*M_PI;
+	double y = cos(x)*4.0;
+	y = constrain(y, -1.0, +1.0);
+	return scaleAmbition(y);
+}
 //
-//      |\    /#include "Stewart/BodyKinematics.h"
+//      |\    /
 //      |-\--/---
 //      |  \/
 //
@@ -150,17 +161,18 @@ TotalBodyPose Move::listeningMove(double movePercentage) {
 
 TotalBodyPose Move::physicistsHeadNicker(double movePercentage) {
 	double startPhase = latencyShift;
-	double mUpDown = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase));
+	double mUpDown = baseCurveRectangle(scaleMove(movePercentage, 2.0,startPhase));
+	double mTurn = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase));
 
 	return absHead(Pose(Point(0,0,bodyHeight + 10.0*mUpDown), Rotation (0,0,0)),
-			       Pose(Point(-15.0*mUpDown,0,headHeight), Rotation(0,0,0)));
+			       Pose(Point(-15.0*mUpDown,0,headHeight), Rotation(0,0,mTurn*radians(15))));
 }
 
 TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
 	double startPhase = latencyShift;
 
 	double mBase = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, startPhase));
-	double mUpDown = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase));
+	double mUpDown = baseCurveRectangle(scaleMove(movePercentage, 2.0,startPhase));
 	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.5)));
 
 	return absHead (
@@ -208,51 +220,15 @@ TotalBodyPose Move::enhancedTravoltaHeadNicker(double movePercentage) {
 }
 
 
-TotalBodyPose Move::diagonalSwing(double movePercentage) {
-	double startPhase =  latencyShift;
-
-	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 0.5 + startPhase));
-	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0,  0.5 + startPhase)));
-
-	return absHead (
-				Pose(Point(-15.0*mBase,15.0*mBase,bodyHeight +20.0*mDip),Rotation (radians(10)*mBase,-radians(10)*mBase,0)),
-				Pose(Point(0,0,headHeight),Rotation (0,0,0)));
-
-}
-
-TotalBodyPose Move::dippedDiagonalSwing(double movePercentage) {
-	double startPhase =  latencyShift;
-
-	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, startPhase+0.5));
-	double mDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.00, startPhase+0.5)));
-	double mEndDip  = baseCurveDip(scaleMove(movePercentage, 1.00, 0.5 + startPhase));
-
-	return absHead (
-			Pose(Point(-15.0*mBase,15.0*mBase,bodyHeight + 20.0*mDip),Rotation (radians(10)*mBase,-radians(10)*mBase,0)),
-			Pose(Point(0,0,headHeight),Rotation (0,0,radians(30)*mEndDip)));
-}
-
-TotalBodyPose Move::rolledDippedDiagonalSwing(double movePercentage) {
-	double startPhase =  latencyShift;
-
-	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, startPhase+0.5));
-	double mRoll  = baseCurveCos(scaleMove(movePercentage, 4.0,startPhase+0.5));
-
-	return absHead (
-			Pose(Point(-15.0*mBase,15.0*mBase,bodyHeight),Rotation (radians(15)*mBase,-radians(15)*mBase,0)),
-			Pose(Point(0,0,headHeight),Rotation (-radians(10)*mRoll,0, 0)));
-}
-
-
 TotalBodyPose Move::eyedDippedDiagonalSwing(double movePercentage) {
 	double startPhase =  latencyShift;
 
 	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, startPhase+0.5));
-	double mHipDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, 0.5 + startPhase)));
 	double mRoll  = baseCurveCos(scaleMove(movePercentage, 4.0, startPhase+0.5));
+	double mUpDown = baseCurveRectangle(scaleMove(movePercentage, 2.0,startPhase));
 
 	return absHead (
-			Pose(Point(-15.0*mBase,15.0*mBase,bodyHeight + 0.0*mHipDip),Rotation (radians(12)*mRoll,-radians(12)*mBase,0)),
+			Pose(Point(-15.0*mBase,15.0*mBase,bodyHeight + 10.0*mUpDown),Rotation (radians(5)*mRoll,-radians(5)*mBase,0)),
 			Pose(Point(0,0,headHeight),Rotation (-radians(10)*mRoll,0,0)));
 }
 
@@ -448,9 +424,6 @@ TotalBodyPose Move::move(double movePercentage) {
 		case TRAVOLTA_HEAD_NICKER:return  travoltaHeadNicker(movePercentage);break;
 		case ENHANCED_TRAVOLTA_HEAD_NICKER:return enhancedTravoltaHeadNicker(movePercentage);break;
 		case WEASELS_MOVE:return weaselsMove(movePercentage);break;
-		case DIAGONAL_HEAD_SWING: return diagonalSwing(movePercentage); break;
-		case DIPPED_DIAGONAL_HEAD_SWING: return dippedDiagonalSwing(movePercentage); break;
-		case ROLLED_DIPPED_DIAGONAL_HEAD_SWING: return rolledDippedDiagonalSwing(movePercentage); break;
 		case EYED_DIPPED_DIAGONAL_HEAD_SWING: return eyedDippedDiagonalSwing(movePercentage); break;
 		case BELLY_MOVE: return  bellySwingingMove(movePercentage); break;
 		case BOLLYWOOD_HEAD_MOVE: return bollywoodHeadMove(movePercentage); break;
