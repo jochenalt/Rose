@@ -168,7 +168,7 @@ float AudioSource::getCurrentLatency() {
 	if (currentInputType == AudioSource::MICROPHONE_INPUT)
 		return Configuration::getInstance().microphoneLatency;
 	else
-		return 0.34;
+		return 0.25;
 }
 
 
