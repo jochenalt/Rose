@@ -77,6 +77,8 @@ public:
 	void initializeBeatDetector();
 
 	double getMusicKurtosis();
+	bool isMusicDetected();
+
 private:
 
 	const int numInputSamples = 512;

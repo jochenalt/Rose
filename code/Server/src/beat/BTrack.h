@@ -232,7 +232,7 @@ private:
 
 
     int FFTLengthForACFCalculation;         /**< the FFT length for the auto-correlation function calculation */
-    double kurtosis;
+    double kurtosis = 0;
     
 #ifdef USE_FFTW
     fftw_plan acfForwardFFT;                /**< forward fftw plan for calculating auto-correlation function */
