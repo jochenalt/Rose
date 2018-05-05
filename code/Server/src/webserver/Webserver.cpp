@@ -288,7 +288,7 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 		    <<     ", \"head\":" << head.toString()
 		    <<     ", \"ambition\":" << dancer.getAmbition()
 		    <<     ", \"move\":" << (int)dancer.getCurrentMove()
-		    <<     ", \"music\":" << boolToJSonString(audio.isAudioDetected())
+		    <<     ", \"music\":" << boolToJSonString(audio.isMusicDetected())
 		    <<     ", \"auto\":" << boolToJSonString(dancer.getSequenceMode())
 			<<     "} , " << getResponse(true)
 		    << "}";

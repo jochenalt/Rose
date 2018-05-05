@@ -76,7 +76,7 @@ public:
 
 	double getMusicKurtosis();
 	// checks if the input signal is above a certain threshold
-	bool isMusicDetected();
+	bool isMusicDetected() { return musicDetected; };
 
 private:
 
@@ -87,6 +87,7 @@ private:
 	BeatCallbackFct beatCallback;
 	TimeSampler callbackTimer; 				// timer for callback as passed via setup()
 
+	bool musicDetected = false;		// true if music has been detected
 	double volume = 1.0;					// volume used in playback
 
 	AudioSource audioSource;

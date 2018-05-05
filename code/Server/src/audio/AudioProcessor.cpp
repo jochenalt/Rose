@@ -348,9 +348,5 @@ double AudioProcessor::getMusicKurtosis() {
 	return beatDetector->getKurtosis();
 }
 
-bool  AudioProcessor::isMusicDetected() {
-	return beatDetector->musicDetected();
-}
-
 
 
