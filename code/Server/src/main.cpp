@@ -182,7 +182,7 @@ void danceThreadFunction() {
 			 	 << " move=" <<  rhythmDetector.getLatencyCompensatedRythmPercentage() << endl;
 			}
 			// if no music is detected, do not dance
-			dancer.setMusicDetected(AudioProcessor::getInstance().isAudioDetected());
+			dancer.setMusicDetected(AudioProcessor::getInstance().isMusicDetected());
 
 			// we did something, continue looping
 			insertDelay = false;
