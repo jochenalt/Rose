@@ -40,14 +40,11 @@ public:
 	void imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition,
 			               const Pose& newBodyPose, const Pose& newHeadPose);
 
-	// current body pose within the move
-	Pose& getBodyPose() { return pose.body; } ;
-
 	// current head pose within the move
 	Pose& getHeadPose() { return pose.head; };
 
 	// get current pose from a different thread than the one running danceLoop()
-	void getThreadSafePose(Pose& bodyPose, Pose& headPose);
+	void getThreadSafePose(Pose& headPose);
 
 	// set the number of moves after that the next move happens
 	void switchMovePeriodically(int afterHowManyMoves);

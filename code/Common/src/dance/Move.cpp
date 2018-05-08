@@ -146,7 +146,7 @@ double Move::baseCurveTrapezoid(double movePercentage) {
 
 
 TotalBodyPose Move::absHead (const Pose& bodyPose, const Pose& relHeadPose) {
-	TotalBodyPose result = TotalBodyPose(bodyPose,BodyKinematics::getInstance().computeHeadStewartPose(bodyPose, relHeadPose));
+	TotalBodyPose result = TotalBodyPose(BodyKinematics::getInstance().computeHeadStewartPose(bodyPose, relHeadPose));
 	return result;
 }
 
@@ -445,7 +445,7 @@ TotalBodyPose Move::move(double movePercentage) {
 		case TWERK:			return twerk(movePercentage); break;
 		case TURN_BACK:		return turnBack(movePercentage); break;
 		default:
-			return TotalBodyPose(Pose(Point(0,0,bodyHeight), Rotation(0,0,0)), getDefaultHeadPose());
+			return TotalBodyPose(getDefaultHeadPose());
 	}
 }
 

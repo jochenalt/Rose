@@ -169,33 +169,28 @@ class TotalBodyPose : public Serializable  {
 
 		virtual ~TotalBodyPose() {};
 		TotalBodyPose(const TotalBodyPose& p) {
-			body = p.body;
 			head = p.head;
 		};
 
-		TotalBodyPose(const Pose& pBody, const Pose& pHead) {
-			body = pBody;
+		TotalBodyPose(const Pose& pHead) {
 			head = pHead;
 		};
 
 
 		void operator= (const TotalBodyPose& p) {
-			body = p.body;
 			head = p.head;
 		}
 
 		void null() {
-			body.null();
 			head.null();
 		}
 
 		bool isNull() {
-			return body.isNull();
+			return head.isNull();
 		}
 
 		bool operator==(const TotalBodyPose& p) {
-			return 	((body == p.body) &&
-					(head == p.head));
+			return (head == p.head);
 		};
 
 		bool operator!=(const TotalBodyPose& p) {
@@ -205,7 +200,6 @@ class TotalBodyPose : public Serializable  {
 		virtual std::ostream& serialize(std::ostream &out) const;
 		virtual std::istream& deserialize(std::istream &in, bool &ok);
 
-		Pose body;
 		Pose head;
 };
 

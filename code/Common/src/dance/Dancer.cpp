@@ -34,7 +34,6 @@ Pose Dancer ::getDefaultHeadPose() {
 
 void Dancer ::setup() {
 	TotalBodyPose defaultPose = Move::absHead(getDefaultBodyPose(), getDefaultHeadPose());
-	pose.body = defaultPose.body;
 	pose.head = defaultPose.head;
 
 	prevMove = Move::NO_MOVE;
@@ -57,7 +56,6 @@ void Dancer ::createMove(double movePercentage) {
 
 	// if we are in a transition between two moves, interpolate between previous and current move
 	if ( moveTransitionStartTime > 0 ) {
-		newPose.body =  prevPose.body*(1.0-interpolationRatio) + newPose.body*interpolationRatio;
 		newPose.head =  prevPose.head*(1.0-interpolationRatio) + newPose.head*interpolationRatio;
 	}
 
@@ -72,14 +70,13 @@ void Dancer ::createMove(double movePercentage) {
 	pose = newPose;
 }
 
-void Dancer::getThreadSafePose(Pose& bodyPose, Pose& headPose) {
+void Dancer::getThreadSafePose(Pose& headPose) {
 	uint32_t start = millis();
 	CriticalBlock block(poseMutex);
 	uint32_t duration = millis()-start;
 	if (duration> 10)
 		cerr << "createMove waiting on mutex for " << duration << "ms" << endl;
 
-	bodyPose = pose.body;
 	headPose = pose.head;
 };
 
@@ -90,7 +87,6 @@ void Dancer::imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition
 
 	setCurrentMove(newCurrentMove);
 	ambition = newAmbition;
-	pose.body = newBodyPose;
 	pose.head = newHeadPose;
 }
 

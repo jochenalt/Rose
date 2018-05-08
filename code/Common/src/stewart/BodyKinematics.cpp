@@ -75,22 +75,17 @@ void BodyKinematics::getPlatformMetrics(double& basePlatformRadius, double &inte
 }
 
 void BodyKinematics::setup() {
-	bodyKin.setup(bodyStewartConfig);
 	headKin.setup(headStewartConfig);
 
 }
 
-void BodyKinematics::computeServoAngles(const Pose& bodyPose, Point bodyServoArmCentre_world[6], double bodyServoAngle_rad[6], Point bodyBallJoint_world[6],  Point bodyServoBallJoint_world[6],
-						                const Pose& headPose, Point headServoArmCentre_world[6], double headServoAngle_rad[6], Point headBallJoint_world[6],  Point headServoBallJoint_world[6]) {
-	bodyKin.getServoArmCentre(bodyServoArmCentre_world);
-	bodyKin.computeServoAngles(bodyPose, bodyServoAngle_rad, bodyBallJoint_world,  bodyServoBallJoint_world);
-
+void BodyKinematics::computeServoAngles(const Pose& headPose, Point headServoArmCentre_world[6], double headServoAngle_rad[6], Point headBallJoint_world[6],  Point headServoBallJoint_world[6]) {
 	headKin.getServoArmCentre(headServoArmCentre_world);
 	headKin.computeServoAngles(headPose, headServoAngle_rad, headBallJoint_world,  headServoBallJoint_world);
 }
 
 void BodyKinematics::getServoArmCentre(Point servoArmCentre_world[6]) {
-	bodyKin.getServoArmCentre(servoArmCentre_world);
+	headKin.getServoArmCentre(servoArmCentre_world);
 }
 
 Pose BodyKinematics::computeHeadStewartPose(const Pose& bodyPose, const Pose &relPoseAboveBellyButton) {

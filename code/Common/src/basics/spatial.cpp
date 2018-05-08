@@ -69,15 +69,13 @@ std::istream& Pose::deserialize(std::istream &in, bool &ok) {
 
 ostream& operator<<(ostream& os, const TotalBodyPose& p)
 {
-	os << std::setprecision(3) << "( body=" << p.body << ",head=" << p.head<< ")";
+	os << std::setprecision(3) << "(head=" << p.head<< ")";
 	return os;
 }
 
 
 std::ostream& TotalBodyPose::serialize(std::ostream &out) const {
-	out << "{\"body\":";
-	body.serialize(out);
-	out << ",\"head\":";
+	out << "{\"head\":";
 	head.serialize(out);
 	out << "}";
 	return out;
@@ -86,11 +84,6 @@ std::ostream& TotalBodyPose::serialize(std::ostream &out) const {
 std::istream& TotalBodyPose::deserialize(std::istream &in, bool &ok) {
     if (in) {
     	parseCharacter(in, '{', ok);
-    	parseString(in, ok); // "body"
-    	parseCharacter(in, ':', ok);
-    	body.deserialize(in, ok);
-    	parseCharacter(in, ',', ok);
-
     	parseString(in, ok); // "head"
     	parseCharacter(in, ':', ok);
     	head.deserialize(in, ok);

@@ -20,12 +20,11 @@ public:
 	void setup();
 	static BodyKinematics& getInstance();
 
-	void computeServoAngles(const Pose& bodyPose, Point bodyServoArmCentre_world[6], double bodyServoAngle_rad[6], Point bodyBallJoint_world[6],  Point bodyServoBallJoint_world[6],
-			                const Pose& headPose, Point headServoArmCentre_world[6], double headServoAngle_rad[6], Point headBallJoint_world[6],  Point headServoBallJoint_world[6]);
+	void computeServoAngles(const Pose& headPose, Point headServoArmCentre_world[6], double headServoAngle_rad[6], Point headBallJoint_world[6],  Point headServoBallJoint_world[6]);
 	void getServoArmCentre(Point servoArmCentre_world[6]);
 
 	// sets the current speed measurement to 0, is called whenever a new move starts
-	void resetSpeedMeasurement() { bodyKin.resetSpeedMeasurement(); headKin.resetSpeedMeasurement(); };
+	void resetSpeedMeasurement() { headKin.resetSpeedMeasurement(); };
 
 	// compute relative head pose out of the absolute pose that is projected above the body's belly button
 	Pose computeHeadStewartPose(const Pose& bodyPose, const Pose &PoseAboveBellyButton);
@@ -43,7 +42,6 @@ private:
 	void operator=(const BodyKinematics& x) {assert (false); };
 	void operator=(const BodyKinematics& x) const {assert (false); };
 
-	StewartKinematics bodyKin;
 	StewartKinematics headKin;
 
 };
