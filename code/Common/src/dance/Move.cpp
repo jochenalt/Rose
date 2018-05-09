@@ -83,6 +83,13 @@ double Move::baseCurveFatCos(double movePercentage) {
 }
 
 
+double Move::baseCurveSoftRectangle(double movePercentage) {
+	double x = movePercentage/4.0*2.0*M_PI;
+	double y = cos(x)*1.5;
+	y = constrain(y, -1.0, +1.0);
+	return scaleAmbition(y);
+}
+
 double Move::baseCurveRectangle(double movePercentage) {
 	double x = movePercentage/4.0*2.0*M_PI;
 	double y = cos(x)*2.0;
@@ -146,7 +153,7 @@ double Move::baseCurveTrapezoid(double movePercentage) {
 
 
 TotalBodyPose Move::absHead (const Pose& bodyPose, const Pose& relHeadPose) {
-	TotalBodyPose result = TotalBodyPose(BodyKinematics::getInstance().computeHeadStewartPose(bodyPose, relHeadPose));
+	TotalBodyPose result = bodyPose + relHeadPose;
 	return result;
 }
 
@@ -154,18 +161,20 @@ TotalBodyPose Move::listeningMove(double movePercentage) {
 	double startPhase = latencyShift;
 	double mBase = baseCurveFatCos(scaleMove(movePercentage, 1.0, startPhase));
 
-	return absHead(Pose(Point(0,0,bodyHeight), Rotation (0,0,0)),
-			       Pose(Point(0,0.0,headHeight), Rotation(0,-fabs(mBase)*radians(10.0), mBase*radians(10.0))));
+	return TotalBodyPose(
+			Pose(Point(0,0.0,headHeight),
+				 Rotation(0,-fabs(mBase)*radians(10.0), mBase*radians(10.0))));
 }
 
 
 TotalBodyPose Move::physicistsHeadNicker(double movePercentage) {
 	double startPhase = latencyShift;
-	double mUpDown = baseCurveRectangle(scaleMove(movePercentage, 2.0,startPhase));
-	double mTurn = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase));
+	double mUpDown = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase+1.0));
+	double mTurn = baseCurveSharpRectangle(scaleMove(movePercentage, 1.0,startPhase+1.25));
 
-	return absHead(Pose(Point(0,0,bodyHeight + 10.0*mUpDown), Rotation (0,0,0)),
-			       Pose(Point(-15.0*mUpDown,0,headHeight), Rotation(0,0,mTurn*radians(15))));
+	return TotalBodyPose(
+			Pose(Point(-15.0*mUpDown,mTurn*15.0,headHeight+10.0*mUpDown),
+				 Rotation(-mTurn*radians(0),0,mTurn*radians(15))));
 }
 
 TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
