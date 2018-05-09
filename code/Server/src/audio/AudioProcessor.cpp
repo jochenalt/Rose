@@ -63,7 +63,6 @@ void AudioProcessor::setup(BeatCallbackFct newBeatCallback) {
 void AudioProcessor::initializeBeatDetector() {
 	// initialize beat detector
 	beatDetector = new BTrack(numInputSamples, numInputSamples*2);
-
 }
 
 void generateSinusoidTone(double buffer[], int bufferSize, float sampleRate, int numOfFrequencies, float tonefrequency[]) {

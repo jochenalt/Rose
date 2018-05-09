@@ -72,6 +72,7 @@ public:
 	double baseCurveTrapezoid(double movePercentage);
 	double baseCurveDip(double movePercentage);
 	double baseCurveFatDip(double movePercentage);
+	double baseCurveSoftRectangle(double movePercentage);
 	double baseCurveRectangle(double movePercentage);
 	double baseCurveSharpRectangle(double movePercentage);
 

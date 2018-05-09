@@ -42,7 +42,7 @@ void Dancer ::setup() {
 	startAfterNBeats = 4;
 }
 
-void Dancer ::createMove(double movePercentage) {
+void Dancer::createMove(double movePercentage) {
 
 	// compute the current move and the previous move and
 	// interpolate in between for a smooth transition.
@@ -65,9 +65,10 @@ void Dancer ::createMove(double movePercentage) {
 	CriticalBlock block(poseMutex);
 	uint32_t duration = millis()-start;
 	if (duration > 10)
-		cerr << "createMove: Probably a bug:waiting on mutex for " << duration << "ms. " << endl;
+		cerr << "createMove: Probably a bug:waiting at mutex for " << duration << "ms. " << endl;
 
 	pose = newPose;
+
 }
 
 void Dancer::getThreadSafePose(Pose& headPose) {

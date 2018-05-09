@@ -131,7 +131,7 @@ void compensateLatency(double elapsedTime, bool& beat, double& bpm, int rhythmIn
 	}
 }
 
-// function to make uneven callbacks coming from audio stream clock generated
+// function to make uneven callbacks coming from audiostream clock generated
 void pushToClockGenerator(double processTime, bool beat, double bpm, int rhythmInQuarters) {
 	// if (beat)
 	//	cout << std::fixed << std::setprecision(2) << "pushToClock (" << processTime << "," << beat << "," << bpm << "," << rhythmInQuarters << ")" << endl;
@@ -173,7 +173,7 @@ void danceThreadFunction() {
 
 			if (o.beat) {
 				cout << std::fixed << std::setprecision(2)
-			     << "Beat t=" << time - rhythmDetector.getLatencyCompensationDelay() << "/" << o.processTime - rhythmDetector.getSourceLatency()
+			     << "Beat " << (AudioProcessor::getInstance().isMusicDetected()?"on":"off") << " t=" << time - rhythmDetector.getLatencyCompensationDelay() << "/" << o.processTime - rhythmDetector.getSourceLatency()
 				 << " bpm=" <<  rhythmDetector.bpm()<< " 1/" <<  o.rhythmInQuarters << ") kurt=" << audioProcessor.getMusicKurtosis()
 				 << " (" << string((audioProcessor.getCurrentBeatType() == AudioProcessor::BEAT_GENERATION)?"gen":"detect") << ")"
 				 << " latency=" << audioProcessor.getCurrentLatency()
@@ -245,9 +245,9 @@ void servoThreadFunction() {
 				for (int i = 0;i<6;i++) {
 					servoController.setAngle_rad(i,headServoAngles_rad[i]);
 					microseconds end = micros();
-					microseconds toBe_us = durationPerServo_us*(i + 2);
+					int toBe_us = durationPerServo_us*(i + 2);
 					int duration_us = (int)(end - start_us);
-					microseconds servoDelay_us = toBe_us  - duration_us;
+					int servoDelay_us = toBe_us  - duration_us;
 					if (servoDelay_us < 200)
 						servoDelay_us = 200;
 					delay_us(servoDelay_us); // necessary, otherwise the I2C line misses some calls and gets hickups approx every 20s.
@@ -258,7 +258,6 @@ void servoThreadFunction() {
 				if (duration_us > (maxDuration_us*15)/10) {
 					cerr << "WARN: servos command via I2C took " << duration_us/1000 << "ms instead of " << maxDuration_us/1000 << "ms max." << endl;
 				}
-
 			}
 		}
 		else {
