@@ -24,7 +24,6 @@ public:
 	Dancer ();
 	virtual ~Dancer ();
 	static Dancer & getInstance();
-	Pose getDefaultBodyPose();
 	Pose getDefaultHeadPose();
 
 	// setup move maker before calling getBodyPose or getHeadPose

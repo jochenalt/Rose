@@ -28,6 +28,7 @@ public:
 
 	// compute relative head pose out of the absolute pose that is projected above the body's belly button
 	Pose computeHeadStewartPose(const Pose& bodyPose, const Pose &PoseAboveBellyButton);
+	Pose translateOrientation(const Pose& bodyPose, const Point transVector);
 
 	// get static metrics of the platform
 	void getPlatformMetrics(double& basePlatformRadius, double &intermediatePlatformRadius, double& topPlatformRadius,

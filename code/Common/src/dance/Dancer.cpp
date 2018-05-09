@@ -24,16 +24,12 @@ Dancer & Dancer ::getInstance() {
 }
 
 
-Pose Dancer ::getDefaultBodyPose() {
-	return Pose(Point(0,0,bodyHeight), Rotation (0,0,0));
-}
-
 Pose Dancer ::getDefaultHeadPose() {
 	return Pose(Point(0,0,headHeight), Rotation (0,0,0));
 }
 
 void Dancer ::setup() {
-	TotalBodyPose defaultPose = Move::absHead(getDefaultBodyPose(), getDefaultHeadPose());
+	TotalBodyPose defaultPose = TotalBodyPose(getDefaultHeadPose());
 	pose.head = defaultPose.head;
 
 	prevMove = Move::NO_MOVE;

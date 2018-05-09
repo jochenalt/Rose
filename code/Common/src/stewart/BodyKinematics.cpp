@@ -113,3 +113,20 @@ Pose BodyKinematics::computeHeadStewartPose(const Pose& bodyPose, const Pose &re
 	return headPose;
 }
 
+Pose BodyKinematics::translateOrientation(const Pose& bodyPose, const Point centre) {
+
+	HomogeneousMatrix centreTrans(4,4);
+	centreTrans = createTransformationMatrix(Pose(centre,Rotation()));
+
+	HomogeneousMatrix rotationTrans(4,4);
+	rotationTrans = createTransformationMatrix(Pose(Point(),bodyPose.orientation));
+
+	HomogeneousMatrix translationTrans(4,4);
+	translationTrans = createTransformationMatrix(Pose(centre - bodyPose.position, Rotation()));
+	HomogeneousMatrix invTranslationTrans(4,4);
+	invTranslationTrans = computeInverseTransformationMatrix(translationTrans);
+	HomogeneousMatrix result(4,4);
+	result = centreTrans*rotationTrans*invTranslationTrans;
+	return getPoseByTransformationMatrix(result);
+}
+

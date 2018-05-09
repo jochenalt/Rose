@@ -79,7 +79,10 @@ public:
 
 	double scaleAmbition(double value);
 
-	static TotalBodyPose absHead (const Pose& bodyPose, const Pose& relHeadPose);
+	static TotalBodyPose translate (const Pose& relHeadPose, double zTranslation = 0);
+	static TotalBodyPose 	absHead (const Pose& bodypose, const Pose& headPose);
+
+
 	// methods implementing dance moves
 	TotalBodyPose listeningMove(double movePercentage);
 
