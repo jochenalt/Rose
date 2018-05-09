@@ -82,7 +82,7 @@ void Dancer::getThreadSafePose(Pose& headPose) {
 
 
 void Dancer::imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition,
-		                       const Pose& newBodyPose, const Pose& newHeadPose) {
+		                       const Pose& newHeadPose) {
 	CriticalBlock block(poseMutex);
 
 	setCurrentMove(newCurrentMove);

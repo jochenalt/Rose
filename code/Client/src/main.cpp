@@ -68,10 +68,10 @@ void sendDanceToClient(bool beat, double bpm) {
 	BotClient& client = BotClient::getInstance();
 
 	// fetch cached data from webserver  and set into Dance machine
-	mm.imposeDanceParams(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
+	mm.imposeDanceParams(client.getMove(), client.getAmbition(),  client.getHeadPose());
 
 	// send data to ui
-	UI::getInstance().setBodyPose(mm.getBodyPose(), mm.getHeadPose());
+	UI::getInstance().setBodyPose(mm.getHeadPose());
 }
 
 
@@ -160,10 +160,10 @@ int main(int argc, char *argv[]) {
 
    			// cout << client.getBodyPose() << " " << client.getHeadPose() << endl;
 			// fetch cached data from webserver  and set into Dance machine
-			mm.imposeDanceParams(client.getMove(), client.getAmbition(), client.getBodyPose(), client.getHeadPose());
+			mm.imposeDanceParams(client.getMove(), client.getAmbition(),  client.getHeadPose());
 
 			// send data to ui
-			ui.setBodyPose(mm.getBodyPose(), mm.getHeadPose());
+			ui.setBodyPose( mm.getHeadPose());
 			ui.setMusicDetected(client.isMusicDetected());
    		}
    		else

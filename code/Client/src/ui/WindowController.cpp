@@ -106,13 +106,13 @@ void GluiReshapeCallback( int x, int y )
 }
 
 
-void WindowController::setBodyPose(const Pose& bodyPose, const Pose& headPose) {
+void WindowController::setBodyPose(const Pose& headPose) {
 
 	Point eyeLookAt = mainBotView.getEyePosition();
 	HomogeneousMatrix bodyTransformation;
 	HomogeneousMatrix inverseBodyTransformation;
 
-	createTransformationMatrix(bodyPose, bodyTransformation);
+	createTransformationMatrix(headPose, bodyTransformation);
 	computeInverseTransformationMatrix(bodyTransformation, inverseBodyTransformation);
 
 	HomogeneousVector lookAtPosition = {
@@ -122,7 +122,7 @@ void WindowController::setBodyPose(const Pose& bodyPose, const Pose& headPose) {
 						1.0 };
 
 	Point lookAtCoordFromBodysPerspective= inverseBodyTransformation * lookAtPosition;
-	mainBotView.setBodyPose(bodyPose, headPose, lookAtCoordFromBodysPerspective);
+	mainBotView.setBodyPose(headPose, lookAtCoordFromBodysPerspective);
 }
 
 void WindowController::setMusicDetected (bool musicDetected) {

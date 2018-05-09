@@ -28,7 +28,7 @@ public:
 	void MotionCallback(int x, int y);
 	void MouseCallback(int button, int button_state, int x, int y);
 
-	void setBodyPose(const Pose& bodyPose, const Pose& headPose, const Point& eyeDeviation);
+	void setBodyPose( const Pose& headPose, const Point& eyeDeviation);
 
 	BotRenderer& getBotRenderer() { return botDrawer; }
 
@@ -39,7 +39,6 @@ public:
 private:
 	void drawCoordSystem(bool withRaster );
 
-	Pose bodyPose;
 	Pose headPose;
 	Point eyeDeviation;
 

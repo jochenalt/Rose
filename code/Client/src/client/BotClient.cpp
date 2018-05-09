@@ -35,7 +35,6 @@ void BotClient::setup(string host, int port) {
 	// msuic is detected on the server side
 	musicDetected = false;
 
-	bodyPose.null();
 	headPose.null();
 
 	// ambition is defined on the server side
@@ -87,11 +86,6 @@ void BotClient::getStatus() {
 		parseString(in, ok); // "response"
 		parseCharacter(in, ':', ok);
 		parseCharacter(in, '{', ok);
-		parseString(in, ok); // "body"
-		parseCharacter(in, ':', ok);
-
-		bodyPose.deserialize(in, ok);
-		parseCharacter(in, ',', ok);
 		parseString(in, ok); // "head"
 		parseCharacter(in, ':', ok);
 

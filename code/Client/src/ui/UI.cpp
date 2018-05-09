@@ -37,8 +37,8 @@ void UI::tearDown() {
 	WindowController::getInstance().tearDown();
 }
 
-void UI::setBodyPose(const Pose& bodyPose, const Pose& headPose) {
-	WindowController::getInstance().setBodyPose(bodyPose, headPose);
+void UI::setBodyPose(const Pose& headPose) {
+	WindowController::getInstance().setBodyPose( headPose);
 }
 
 void UI::setMusicDetected(bool musicDetected) {

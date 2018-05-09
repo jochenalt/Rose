@@ -38,7 +38,7 @@ public:
 
 	// call this with data coming from the webserver to define the current dancing parameters withou generating them
 	void imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition,
-			               const Pose& newBodyPose, const Pose& newHeadPose);
+			               const Pose& newHeadPose);
 
 	// current head pose within the move
 	Pose& getHeadPose() { return pose.head; };
