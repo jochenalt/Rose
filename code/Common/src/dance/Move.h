@@ -22,7 +22,7 @@ public:
 		            TRAVOLTA_HEAD_NICKER, ENHANCED_TRAVOLTA_HEAD_NICKER,
 					EYED_DIPPED_DIAGONAL_HEAD_SWING,
 					BELLY_MOVE, BOLLYWOOD_HEAD_MOVE, SWING_DOUBLE_BOLLYWOOD_MOVE,
-					BODY_WAVE, DIPPED_BODY_WAVE, SIDE_DIPPED_BODY_WAVE,
+					BODY_WAVE, DIPPED_BODY_WAVE,
 					SHIMMYS, TRIPPLE_SHIMMYS, LEANING_TRIPPLE_SHIMMYS,
 					SHOULDER_MOVE,SHOULDER_CIRCLE, SHOULDER_DIP,
 					TURN_AND_SHOW_BACK, TWERK, TURN_BACK,
@@ -101,7 +101,6 @@ public:
 
 	TotalBodyPose bodyWaveMove(double movePercentage);
 	TotalBodyPose dipBodyWaveMove(double movePercentage);
-	TotalBodyPose sidedDipBodyWaveMove(double movePercentage);
 
 	TotalBodyPose shimmys(double movePercentage);
 	TotalBodyPose trippleShimmys(double movePercentage);
@@ -110,11 +109,6 @@ public:
 	TotalBodyPose shoulderMove(double movePercentage);
 	TotalBodyPose shoulderCircle(double movePercentage);
 	TotalBodyPose shoulderDipMove(double movePercentage);
-
-	TotalBodyPose turnAndShowBack(double movePercentage);
-	TotalBodyPose twerk(double movePercentage);
-	TotalBodyPose turnBack(double movePercentage);
-
 	TotalBodyPose move(double movePercentage);
 	MoveType id = NO_MOVE;
 	string name;
