@@ -55,9 +55,6 @@ void Move::setup() {
 		moveLibrary[(int)SHOULDER_CIRCLE] = Move(SHOULDER_CIRCLE, "shoulder circle",4);
 		moveLibrary[(int)SHOULDER_DIP] = Move(SHOULDER_DIP, "shoulder dip move",4);
 
-		moveLibrary[(int)TURN_AND_SHOW_BACK] = Move(TURN_AND_SHOW_BACK, "show your back",2);
-		moveLibrary[(int)TWERK] = Move(TWERK, "twerk",8);
-		moveLibrary[(int)TURN_BACK] = Move(TURN_BACK, "show your front",2);
 		moveLibrary[(int)NO_MOVE] = Move(NO_MOVE, "no move",0);
 	}
 }
