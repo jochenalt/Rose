@@ -112,8 +112,6 @@ void BotRenderer::readSTLFiles(string path) {
 	baseStewartRod.loadFile(path + "/BaseStewartRod.stl");
 	baseStewartServoArm.loadFile(path + "/BaseStewartServoArm.stl");
 
-	stewartPlate.loadFile(path + "/IntermediatePlatform.stl");
-
 	stewartHead.loadFile(path + "/TopPlatform.stl");
 	stewartRod.loadFile(path + "/HeadStewartRod.stl");
 	stewartSmallServoArm.loadFile(path + "/BaseStewartServoArm.stl");

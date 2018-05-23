@@ -41,7 +41,6 @@ private:
 	STLObject baseStewartServoArm;
 	STLObject baseStewartRod;
 
-	STLObject stewartPlate;
 	STLObject stewartRod;
 
 	STLObject stewartHead;
