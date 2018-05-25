@@ -89,14 +89,14 @@ void BotRenderer::displayBot(const Pose& headPose) {
 
 	glPopMatrix();
 
-	double r1,r2,r3, h1,h2;
-	BodyKinematics::getInstance().getPlatformMetrics(r1,r2,r3, h1,h2);
-	body.set(r1, r2, r3, h1, h2); //
+	double r1, r2, h;
+	BodyKinematics::getInstance().getPlatformMetrics(r1,r2, h);
+	body.set(r1, r2, h); //
 
 	// draw body as flexible volume of revolution along a bezier curve
 	switch (clothingMode) {
-		case NORMAL_MODE: body.display(Pose(), (headPose+Pose())/2, headPose, glBodyColor, glBodyColor, glGridColor); break;
-		case TRANSPARENT_MODE: body.display(Pose(), (headPose+Pose())/2, headPose, glTranspBodyColor1, glTranspBodyColor2, glTranspGridColor); break;
+		case NORMAL_MODE: body.display(Pose(),headPose, glBodyColor, glBodyColor, glGridColor); break;
+		case TRANSPARENT_MODE: body.display(Pose(), headPose, glTranspBodyColor1, glTranspBodyColor2, glTranspGridColor); break;
 		default:
 			break;
 	}

@@ -15,13 +15,11 @@ public:
 	virtual ~VolumeOfRevolution();
 
 
-   void display(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, const GLfloat* bodyColor1, const GLfloat* bodyColor2,const GLfloat* gridColor);
-   void set(double newBaseRadius, double newBodyRadius, double newHeadRadius, double newBodyLen, double newHeadLen) {
+   void display(const Pose& basePose, const Pose& headPose, const GLfloat* bodyColor1, const GLfloat* bodyColor2,const GLfloat* gridColor);
+   void set(double newBaseRadius, double newHeadRadius, double newLen) {
 	   baseRadius = newBaseRadius;
-	   bodyRadius = newBodyRadius;
 	   headRadius = newHeadRadius;
-	   bodyLen = newBodyLen;
-	   headLen = newHeadLen;
+	   len = newLen;
 
    }
  protected:
@@ -31,10 +29,9 @@ public:
    double baseRadius;
    double bodyRadius;
    double headRadius;
-   double bodyLen;
-   double headLen;
-   float getRadius(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, float z);
-   Pose getCentrePose(const Pose& basePose, const Pose& bodyPose, const Pose& headPose, float z);
+   double len;
+   float getRadius(const Pose& basePose,const Pose& headPose, float z);
+   Pose getCentrePose(const Pose& basePose, const Pose& headPose, float z);
 
 };
 

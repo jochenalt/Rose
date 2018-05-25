@@ -31,12 +31,10 @@ public:
 	Pose translateOrientation(const Pose& bodyPose, const Point transVector);
 
 	// get static metrics of the platform
-	void getPlatformMetrics(double& basePlatformRadius, double &intermediatePlatformRadius, double& topPlatformRadius,
-							double& bottomRodLength, double & topRodLength);
+	void getPlatformMetrics(double& basePlatformRadius, double& topPlatformRadius, double & rodLength);
 
 	// get configuration data of both stewart platforms
-	StewartConfiguration& getBodyConfig();
-	StewartConfiguration& getHeadConfig();
+	StewartConfiguration& getStewartConfig();
 
 private:
 	BodyKinematics(const BodyKinematics& x) { assert(false); };

@@ -26,35 +26,14 @@ static StewartConfiguration bodyStewartConfig = {"body",
 };
 
 
-static StewartConfiguration headStewartConfig = {"head",
-										  27.354, 				// servoCentreRadius_mm
-										  radians(12.83),		// servoCentreAngle_rad
-										  35.211, 				// servoArmCentreRadius_mm (for rendering only)
-										  radians(9.93),		// servoArmCentreAngle_mm (for rendering only)
-										  28.036,				// plateJointRadius_mm
-										  radians(8.2),		    // plateJointAngle_rad
-										  84.0,				    // rodLength_mm
-										  29.478,				// servoArmLength_mm
-										  24.450,  	 		    // servoCentreHeight_mm
-										  4.0,					// plateBallJointHeight_mm
-										  65.0, 				// bottomPlatformRadius_mm
-										  45.0, 				// topPlatformRadius_mm
-										  -radians(56.0),		// topServoLimit_rad
-										  radians(86.0)			// bottomServoLimit_rad
-
-};
-
 
 BodyKinematics& BodyKinematics::getInstance() {
 	static BodyKinematics instance;
 	return instance;
 }
 
-StewartConfiguration& BodyKinematics::getBodyConfig() {
+StewartConfiguration& BodyKinematics::getStewartConfig() {
 	return bodyStewartConfig;
-}
-StewartConfiguration& BodyKinematics::getHeadConfig() {
-	return headStewartConfig;
 }
 
 
@@ -65,17 +44,15 @@ BodyKinematics::~BodyKinematics() {
 }
 
 
-void BodyKinematics::getPlatformMetrics(double& basePlatformRadius, double &intermediatePlatformRadius, double& topPlatformRadius, double& bottomRodLength, double & topRodLength) {
+void BodyKinematics::getPlatformMetrics(double& basePlatformRadius, double& topPlatformRadius, double& rodLength) {
 	basePlatformRadius = bodyStewartConfig.bottomPlatformRadius_mm;
-	intermediatePlatformRadius = bodyStewartConfig.topPlatformRadius_mm;
-	topPlatformRadius = headStewartConfig.topPlatformRadius_mm;
-	bottomRodLength = bodyStewartConfig.rodLength_mm;
-	topRodLength = headStewartConfig.rodLength_mm;
+	topPlatformRadius = bodyStewartConfig.topPlatformRadius_mm;
+	rodLength = bodyStewartConfig.rodLength_mm;
 
 }
 
 void BodyKinematics::setup() {
-	headKin.setup(headStewartConfig);
+	headKin.setup(bodyStewartConfig);
 
 }
 
