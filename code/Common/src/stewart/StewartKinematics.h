@@ -29,7 +29,8 @@ struct StewartConfiguration {
 	double plateBallJointHeight_mm;		// height of the plate's origin relative to the ball joints
 
 	double bottomPlatformRadius_mm;		// radius of base platform where the clothes are mounted on
-	double topPlatformRadius_mm;		// radius of top platform where the clothes are mounted on
+	double topPlatformRadiusX_mm;		// radius of top platform where the clothes are mounted on
+	double topPlatformRadiusY_mm;		// radius of top platform where the clothes are mounted on
 
 	double bottomServoLimit_rad;		// limit of servo against horizontal axis when turning up
 	double topServoLimit_rad;			// limit of servo against horizontal axis when turning down

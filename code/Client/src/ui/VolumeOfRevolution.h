@@ -16,9 +16,11 @@ public:
 
 
    void display(const Pose& basePose, const Pose& headPose, const GLfloat* bodyColor1, const GLfloat* bodyColor2,const GLfloat* gridColor);
-   void set(double newBaseRadius, double newHeadRadius, double newLen) {
+   void set(double newBaseRadius, double newHeadRadiusX, double newHeadRadiusY, double newLen) {
 	   baseRadius = newBaseRadius;
-	   headRadius = newHeadRadius;
+	   headRadiusX = newHeadRadiusX;
+	   headRadiusY = newHeadRadiusY;
+
 	   len = newLen;
 
    }
@@ -28,9 +30,13 @@ public:
 
    double baseRadius;
    double bodyRadius;
-   double headRadius;
+   double headRadiusX;
+   double headRadiusY;
+
    double len;
-   float getRadius(const Pose& basePose,const Pose& headPose, float z);
+   float getRadiusX(const Pose& basePose,const Pose& headPose, float z);
+   float getRadiusY(const Pose& basePose,const Pose& headPose, float z);
+
    Pose getCentrePose(const Pose& basePose, const Pose& headPose, float z);
 
 };

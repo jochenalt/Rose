@@ -18,7 +18,9 @@ VolumeOfRevolution::VolumeOfRevolution()
 {
     numSegments     = 12;
     numAngles       = 32;
-    headRadius = 0;
+    headRadiusX = 0;
+    headRadiusY = 0;
+
     bodyRadius = 0;
     len = 0;
     baseRadius = 0;
@@ -40,7 +42,9 @@ void VolumeOfRevolution::display(const Pose& basePose, const Pose& headPose, con
    Pose centre, centre1;
    HomogeneousMatrix centreTrans1;
    HomogeneousMatrix centreTrans;
-   double r = getRadius( basePose,  headPose, 0);
+   double rX = getRadiusX( basePose,  headPose, 0);
+   double rY = getRadiusY( basePose,  headPose, 0);
+
    centre = getCentrePose( basePose, headPose, 0);
    centreTrans = createTransformationMatrix(centre1);
    glPushMatrix();
@@ -48,7 +52,6 @@ void VolumeOfRevolution::display(const Pose& basePose, const Pose& headPose, con
    bool oddLine = false;
    for ( float t = 0; t <= 1.0 + 0.01; t += 1.0/numSegments ) {
 	   oddLine = !oddLine;
-	   double r1 = getRadius( basePose, headPose, t);
 	   centre1 = getCentrePose( basePose, headPose, t);
 	   centreTrans1 = createTransformationMatrix(centre1);
 
@@ -58,16 +61,20 @@ void VolumeOfRevolution::display(const Pose& basePose, const Pose& headPose, con
 	   glBegin( GL_QUAD_STRIP);
 
 	   bool oddRow = false;
+	   double r1X = getRadiusX( basePose, headPose, t);
+	   double r1Y = getRadiusY( basePose, headPose, t);
+
 	   for ( float angle = 0; angle <= M_PI*2.0 + 0.01; angle += 2.0*M_PI / numAngles) {
+
 		   oddRow = !oddRow;
 		   double sina = sin(angle);
 		   double cosa = cos(angle);
 
-		   Point relCirclePoint (r * cosa, r * sina, 0);
+		   Point relCirclePoint (rX * cosa, rY * sina, 0);
 		   HomogeneousMatrix targetTrans = centreTrans*createTransformationMatrix(relCirclePoint);
 		   Point target = getPointByTransformationMatrix(targetTrans);
 
-		   Point relCirclePoint1 (r1 * cosa, r1 * sina, 0);
+		   Point relCirclePoint1 (r1X * cosa, r1Y * sina, 0);
 		   HomogeneousMatrix targetTrans1 = centreTrans1*createTransformationMatrix(relCirclePoint1);
 		   Point target1 = getPointByTransformationMatrix(targetTrans1);
 
@@ -90,14 +97,18 @@ void VolumeOfRevolution::display(const Pose& basePose, const Pose& headPose, con
 	   glBegin( GL_LINE_STRIP  );
 	   oddRow = false;
 	   bool useDiamonds = false;
+	   r1X = getRadiusX( basePose, headPose, t);
+	   r1Y = getRadiusY( basePose, headPose, t);
+
 	   float startAngle = (oddLine && useDiamonds)?M_PI / numAngles:0;
 	   for ( float angle = startAngle; angle <= M_PI*2.0+startAngle + 0.01; angle += 2.0*M_PI / numAngles) {
 		   oddRow = !oddRow;
 
+
 		   double sina = sin(angle);
   		   double cosa = cos(angle);
 
-		   Point relCirclePoint ((r+1.0) * cosa, (r+1.0) * sina, 0);
+		   Point relCirclePoint ((rX+1.0) * cosa, (rY+1.0) * sina, 0);
 		   HomogeneousMatrix targetTrans = centreTrans*createTransformationMatrix(relCirclePoint);
 		   Point target = getPointByTransformationMatrix(targetTrans);
 
@@ -108,7 +119,7 @@ void VolumeOfRevolution::display(const Pose& basePose, const Pose& headPose, con
 	  		   double sin1a = sin(angle + M_PI / numAngles);
 	  		   double cos1a = cos(angle + M_PI / numAngles);
 
-			   Point relCirclePoint1 ((r1+1.0) * cos1a, (r1+1.0) * sin1a, 0);
+			   Point relCirclePoint1 ((r1X+1.0) * cos1a, (r1Y+1.0) * sin1a, 0);
 			   HomogeneousMatrix targetTrans1 = centreTrans1*createTransformationMatrix(relCirclePoint1);
 			   Point target1 = getPointByTransformationMatrix(targetTrans1);
 
@@ -116,7 +127,7 @@ void VolumeOfRevolution::display(const Pose& basePose, const Pose& headPose, con
 			   glVertex3f (target1.y, target1.z, target1.x);
 		   } else {
 
-			   Point relCirclePoint1 ((r1+1.0) * cosa, (r1+1.0) * sina, 0);
+			   Point relCirclePoint1 ((r1X+1.0) * cosa, (r1Y+1.0) * sina, 0);
 			   HomogeneousMatrix targetTrans1 = centreTrans1*createTransformationMatrix(relCirclePoint1);
 			   Point target1 = getPointByTransformationMatrix(targetTrans1);
 
@@ -135,8 +146,10 @@ void VolumeOfRevolution::display(const Pose& basePose, const Pose& headPose, con
 	   }
 	   glEnd();
 
-	    r = r1;
-		centre = centre1;
+	    rX = r1X;
+	    rY = r1Y;
+
+	    centre = centre1;
 		centreTrans = centreTrans1;
 
 
@@ -170,9 +183,14 @@ Pose bezierCurve (double t, const Pose& a, const Pose& aSupport, const Pose& b, 
 
 
 
-float VolumeOfRevolution::getRadius(const Pose& basePose, const Pose& headPose, float t)
+float VolumeOfRevolution::getRadiusX(const Pose& basePose, const Pose& headPose, float t)
 {
-	return bezierCurve(t,baseRadius, baseRadius, headRadius, baseRadius);
+	return bezierCurve(t,baseRadius, baseRadius, headRadiusX, baseRadius);
+}
+
+float VolumeOfRevolution::getRadiusY(const Pose& basePose, const Pose& headPose, float t)
+{
+	return bezierCurve(t,baseRadius, baseRadius, headRadiusY, baseRadius);
 }
 
 

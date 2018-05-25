@@ -89,9 +89,9 @@ void BotRenderer::displayBot(const Pose& headPose) {
 
 	glPopMatrix();
 
-	double r1, r2, h;
-	BodyKinematics::getInstance().getPlatformMetrics(r1,r2, h);
-	body.set(r1, r2, h); //
+	double r1, r2X,r2Y, h;
+	BodyKinematics::getInstance().getPlatformMetrics(r1,r2X, r2Y, h);
+	body.set(r1, r2X, r2Y,h); //
 
 	// draw body as flexible volume of revolution along a bezier curve
 	switch (clothingMode) {

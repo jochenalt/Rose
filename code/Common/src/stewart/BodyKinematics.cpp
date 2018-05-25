@@ -20,7 +20,8 @@ static StewartConfiguration bodyStewartConfig = {"body",
 										  31.2,					// servoCentreHeight_mm
 										  4.0,					// plateBallJointHeight_mm
 										  65.0, 				// bottomPlatformRadius_mm
-										  65.0, 				// topPlatformRadius_mm
+										  50.0, 				// topPlatformRadiusX_mm
+										  75.0, 				// topPlatformRadiusY_mm
 										  -radians(56.0),		// topServoLimit_rad
 									      radians(86.0)			// bottomServoLimit_rad
 };
@@ -44,9 +45,11 @@ BodyKinematics::~BodyKinematics() {
 }
 
 
-void BodyKinematics::getPlatformMetrics(double& basePlatformRadius, double& topPlatformRadius, double& rodLength) {
+void BodyKinematics::getPlatformMetrics(double& basePlatformRadius, double& topPlatformRadiusX, double& topPlatformRadiusY, double& rodLength) {
 	basePlatformRadius = bodyStewartConfig.bottomPlatformRadius_mm;
-	topPlatformRadius = bodyStewartConfig.topPlatformRadius_mm;
+	topPlatformRadiusX = bodyStewartConfig.topPlatformRadiusX_mm;
+	topPlatformRadiusY = bodyStewartConfig.topPlatformRadiusY_mm;
+
 	rodLength = bodyStewartConfig.rodLength_mm;
 
 }

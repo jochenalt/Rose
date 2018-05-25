@@ -251,7 +251,6 @@ TotalBodyPose Move::eyedDippedDiagonalSwing(double movePercentage) {
 TotalBodyPose Move::bellySwingingMove(double movePercentage) {
 	double startPhase = latencyShift;
 	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, 2.30 + startPhase));
-	double mHeadTurn = baseCurveFatCos(scaleMove(movePercentage, 1.0, 1.30 + startPhase));
 	double mDip  = fabs(baseCurveCos(scaleMove(movePercentage, 1.0, 0.5 + startPhase)));
 	double mHeadUp = baseCurveCos(scaleMove(movePercentage, 2.0,0.9 + startPhase));
 	double mHeadMove = baseCurveFatCos(scaleMove(movePercentage, 4.0, 0.9 + startPhase ));
@@ -294,7 +293,6 @@ TotalBodyPose Move::bodyWaveMove(double movePercentage) {
 	double mBase = baseCurveFatCos(scaleMove(movePercentage, 2.0,phaseShift + 0.5));
 	double mWave = baseCurveCos(scaleMove(movePercentage, 4.0, phaseShift + 0.50 ));
 	double mLeftRight= baseCurveTriangle(scaleMove(movePercentage, 1.0, phaseShift + 0.5 ));
-	double mHeadYaw = baseCurveCos(scaleMove(movePercentage, 1.0, phaseShift + 0.5));
 
 
 	return translate (
@@ -358,9 +356,7 @@ TotalBodyPose Move::leaningTrippleShimmys(double movePercentage) {
 TotalBodyPose Move::shoulderMove(double movePercentage) {
 	double phaseShift =  latencyShift;
 	double mShoulderMove  = baseCurveFatCos(scaleMove(movePercentage, 1.0,phaseShift));
-	double mBase = baseCurveCos(scaleMove(movePercentage, 2.0, 0.5 + phaseShift));
 	double mShoulderY = baseCurveCos(scaleMove(movePercentage, 4.0,0.5+phaseShift));
-	double mShoulderX = baseCurveCos(scaleMove(movePercentage, 2.0,1.5 +phaseShift));
 
 	return translate (
 			Pose(Point(0,-mShoulderMove*15.0,headHeight),
