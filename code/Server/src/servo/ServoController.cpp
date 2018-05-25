@@ -38,8 +38,8 @@ void ServoController::setup() {
 	pca9685.setup(i2cBus,i2cAddress,servoFrequency);
 
 	BodyKinematics& bodyKin = BodyKinematics::getInstance();
-	double bottomServoLimit = degrees(bodyKin.getBodyConfig().bottomServoLimit_rad);
-	double topServoLimit = degrees(bodyKin.getBodyConfig().topServoLimit_rad);
+	double bottomServoLimit = degrees(bodyKin.getStewartConfig().bottomServoLimit_rad);
+	double topServoLimit = degrees(bodyKin.getStewartConfig().topServoLimit_rad);
 
 	// set of each servo with defaiut null values
 	servo[ 0].setup(&pca9685,  0, servoFrequency, false, bottomServoLimit, topServoLimit, 0-4);
@@ -49,15 +49,6 @@ void ServoController::setup() {
 	servo[ 4].setup(&pca9685,  4, servoFrequency, false, bottomServoLimit, topServoLimit, -1);
 	servo[ 5].setup(&pca9685,  5, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-3);
 
-	bottomServoLimit = degrees(bodyKin.getHeadConfig().bottomServoLimit_rad);
-	topServoLimit = degrees(bodyKin.getHeadConfig().topServoLimit_rad);
-
-	servo[ 6].setup(&pca9685,  6, servoFrequency, false, bottomServoLimit, topServoLimit, 0 + -3);
-	servo[ 7].setup(&pca9685,  7, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-0);
-	servo[ 8].setup(&pca9685,  8, servoFrequency, false, bottomServoLimit, topServoLimit, 0-13);
-	servo[ 9].setup(&pca9685,  9, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-1);
-	servo[10].setup(&pca9685, 10, servoFrequency, false, bottomServoLimit, topServoLimit, 0-0);
-	servo[11].setup(&pca9685, 11, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-6);
 }
 
 double ServoController::getMinAngle(int servoNo) {
