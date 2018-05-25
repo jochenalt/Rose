@@ -32,7 +32,6 @@ void BotRenderer::displayBot(const Pose& headPose) {
 
 	BodyKinematics::getInstance().computeServoAngles(headPose, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
 
-
 	glLoadIdentity();             // Reset the model-view matrix to world coordinate system
 	glRotatef(-90, 1.0,0.0,0.0);
 	glRotatef(-90, 0.0,0.0,1.0);
@@ -44,12 +43,16 @@ void BotRenderer::displayBot(const Pose& headPose) {
 	glRotatef(degrees(headPose.orientation.z), 0.0,0.0,1.0);
 	glRotatef(degrees(headPose.orientation.y), 0.0,1.0,0.0);
 	glRotatef(degrees(headPose.orientation.x), 1.0,0.0,0.0);
-	stewartHead.display(glStewartPlateColor,glStewartPlateColor);
+	topPlatform.display(glStewartPlateColor,glStewartPlateColor);
 
 	// draw head
-	head.display(glHeadColor,glHeadColor);
-	eyeBall.display(glEyeBallsColor,glEyeBallsColor);
-	iris.display(glIrisColor,glIrisColor);
+	servoBlock.display(glHeadColor,glHeadColor);
+	mouthServoArmUpper.display(glEyeBallsColor,glEyeBallsColor);
+	mouthServoArmUpper.display(glEyeBallsColor,glEyeBallsColor);
+
+	lowerLip.display(glIrisColor,glIrisColor);
+	upperLip.display(glIrisColor,glIrisColor);
+	mouthLever.display(glIrisColor,glIrisColor);
 
 	glPopMatrix();
 
@@ -66,7 +69,7 @@ void BotRenderer::displayBot(const Pose& headPose) {
 		else
 			glRotatef(-angle, 1.0,0.0,0.0);
 
-		stewartSmallServoArm.display(glServoArmColor,glServoArmColor);
+		baseStewartServoArm.display(glServoArmColor,glServoArmColor);
 		glPopMatrix();
 		// render the rod between servo and top plate
 		glPushMatrix();
@@ -80,7 +83,7 @@ void BotRenderer::displayBot(const Pose& headPose) {
 
 		glRotatef(degrees(zRotation), 0.0,0.0,1.0);
 		glRotatef(degrees(xRotation), 0.0,1.0,0.0);
-		stewartRod.display(glStewartRodColor,glStewartRodColor);
+		baseStewartRod.display(glStewartRodColor,glStewartRodColor);
 		glPopMatrix();
 	}
 
@@ -104,17 +107,22 @@ void BotRenderer::displayBot(const Pose& headPose) {
 
 
 void BotRenderer::readSTLFiles(string path) {
-	head.loadFile(path + "/Head.stl");
-	eyeBall.loadFile(path + "/Eyes.stl");
-	iris.loadFile(path + "/Iris.stl");
-
+	// read in Stewart Platform STLs
 	baseStewart.loadFile(path + "/BottomPlatform.stl");
 	baseStewartRod.loadFile(path + "/BaseStewartRod.stl");
 	baseStewartServoArm.loadFile(path + "/BaseStewartServoArm.stl");
+	topPlatform.loadFile(path + "/TopPlatform.stl");
 
-	stewartHead.loadFile(path + "/TopPlatform.stl");
-	stewartRod.loadFile(path + "/HeadStewartRod.stl");
-	stewartSmallServoArm.loadFile(path + "/BaseStewartServoArm.stl");
+
+	// read in mouth STLs
+	servoBlock.loadFile(path + "/MouthServoBlock.stl");
+	mouthServoArmUpper.loadFile(path + "/MouthServoArmUpperLip.stl");
+	mouthServoArmLower.loadFile(path + "/MouthServoArmBottomLip.stl");
+
+	lowerLip.loadFile(path + "/BottomLip.stl");
+	upperLip.loadFile(path + "/UpperLip.stl");
+	mouthLever.loadFile(path + "/MouthLever.stl");
+
 
 }
 
@@ -122,15 +130,15 @@ void BotRenderer::setup() {
 	static bool setupDone = false;
 	if (!setupDone) {
 		// search for stl files
-		if (fileExists("./stl/Head.stl")) {
+		if (fileExists("./stl/BottomPlatform.stl")) {
 			readSTLFiles("./stl");
 		} else {
-			if (fileExists("./Head.stl"))
+			if (fileExists("./BottomPlatform.stl"))
 				readSTLFiles("./");
-			if (fileExists("../../stl/Head.stl"))
+			if (fileExists("../../stl/BottomPlatform.stl"))
 				readSTLFiles("../../stl");
 			else
-				if (fileExists("../../../stl/Head.stl"))
+				if (fileExists("../../../stl/BottomPlatform.stl"))
 					readSTLFiles("../../../stl");
 		}
 		setupDone = true;

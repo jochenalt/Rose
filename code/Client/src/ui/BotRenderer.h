@@ -33,18 +33,18 @@ private:
 	// read the stl files per actuator in that path
 	void readSTLFiles(string path);
 
-	STLObject head;
-	STLObject eyeBall;
-	STLObject iris;
+	STLObject servoBlock;
+	STLObject mouthServoArmUpper;
+	STLObject mouthServoArmLower;
+	STLObject lowerLip;
+	STLObject upperLip;
+	STLObject mouthLever;
 
 	STLObject baseStewart;
 	STLObject baseStewartServoArm;
 	STLObject baseStewartRod;
+	STLObject topPlatform;
 
-	STLObject stewartRod;
-
-	STLObject stewartHead;
-	STLObject stewartSmallServoArm;
 
 	VolumeOfRevolution body;
 
