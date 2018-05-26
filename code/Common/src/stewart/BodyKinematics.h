@@ -33,6 +33,9 @@ public:
 	// get static metrics of the platform
 	void getPlatformMetrics(double& basePlatformRadius, double& topPlatformRadiusX, double& topPlatformRadiusY,double & rodLength);
 
+	// get static metrics of the mouth
+	void getMouthMetrics(double& mouthBockHeight_mm, double& lowerLeverLength_mm);
+
 	// get configuration data of stewart platform
 	StewartConfiguration& getStewartConfig();
 

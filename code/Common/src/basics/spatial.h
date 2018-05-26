@@ -265,6 +265,7 @@ class TotalBodyPose : public Serializable  {
 
 		void operator= (const TotalBodyPose& p) {
 			head = p.head;
+			mouth = p.mouth;
 		}
 
 		void null() {

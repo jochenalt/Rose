@@ -21,7 +21,10 @@
 #include "basics/spatial.h"
 
 
-void BotRenderer::displayBot(const Pose& headPose) {
+void BotRenderer::displayBot(const TotalBodyPose& pose) {
+
+	cout << "F:" << pose << endl;
+	BodyKinematics& bodyKinematics = BodyKinematics::getInstance();
 	glPushAttrib(GL_CURRENT_BIT);
 	glPushMatrix();
 
@@ -30,7 +33,12 @@ void BotRenderer::displayBot(const Pose& headPose) {
 	Point headServoBallJoints_world[6];
 	Point headServoArmCentre_world[6];
 
-	BodyKinematics::getInstance().computeServoAngles(headPose, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
+	// kinematics of stewart platform
+	bodyKinematics.computeServoAngles(pose.head, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
+
+	// kinematics of mouth
+	double mouthYawAngle_rad, mouthLowerServoAngle_rad, mouthOpenServoAngle_rad;
+	bodyKinematics.computeMouthAngles(pose.mouth, mouthYawAngle_rad, mouthLowerServoAngle_rad, mouthOpenServoAngle_rad);
 
 	glLoadIdentity();             // Reset the model-view matrix to world coordinate system
 	glRotatef(-90, 1.0,0.0,0.0);
@@ -39,14 +47,19 @@ void BotRenderer::displayBot(const Pose& headPose) {
 
 	glPushMatrix();
 	// draw head plate (headPose is relative to the bodyPose)
-	glTranslatef(headPose.position.x, headPose.position.y,headPose.position.z);
-	glRotatef(degrees(headPose.orientation.z), 0.0,0.0,1.0);
-	glRotatef(degrees(headPose.orientation.y), 0.0,1.0,0.0);
-	glRotatef(degrees(headPose.orientation.x), 1.0,0.0,0.0);
+	glTranslatef(pose.head.position.x, pose.head.position.y,pose.head.position.z);
+	glRotatef(degrees(pose.head.orientation.z), 0.0,0.0,1.0);
+	glRotatef(degrees(pose.head.orientation.y), 0.0,1.0,0.0);
+	glRotatef(degrees(pose.head.orientation.x), 1.0,0.0,0.0);
 	topPlatform.display(glStewartPlateColor,glStewartPlateColor);
 
 	// draw head
+	cout << "yaw=" << pose.mouth.yaw_rad << endl;
+	glRotatef(degrees(pose.mouth.yaw_rad), 0.0,0.0,1.0);
+
 	servoBlock.display(glHeadColor,glHeadColor);
+	glTranslatef(bodyKinematics.getMouthConfig().mouthBaseHeight_mm, 0,0);
+
 	mouthServoArmUpper.display(glEyeBallsColor,glEyeBallsColor);
 	mouthServoArmUpper.display(glEyeBallsColor,glEyeBallsColor);
 
@@ -55,7 +68,6 @@ void BotRenderer::displayBot(const Pose& headPose) {
 	mouthLever.display(glIrisColor,glIrisColor);
 
 	glPopMatrix();
-
 
 	// current frame is body plate, now draw servo arms towards of head plate
 	for (int i = 0;i<6;i++) {
@@ -95,8 +107,8 @@ void BotRenderer::displayBot(const Pose& headPose) {
 
 	// draw body as flexible volume of revolution along a bezier curve
 	switch (clothingMode) {
-		case NORMAL_MODE: body.display(Pose(),headPose, glBodyColor, glBodyColor, glGridColor); break;
-		case TRANSPARENT_MODE: body.display(Pose(), headPose, glTranspBodyColor1, glTranspBodyColor2, glTranspGridColor); break;
+		case NORMAL_MODE: body.display(Pose(),pose.head, glBodyColor, glBodyColor, glGridColor); break;
+		case TRANSPARENT_MODE: body.display(Pose(), pose.head, glTranspBodyColor1, glTranspBodyColor2, glTranspGridColor); break;
 		default:
 			break;
 	}

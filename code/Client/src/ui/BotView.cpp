@@ -200,7 +200,7 @@ int BotView::create(int mainWindow, string pTitle) {
 
 	botDrawer.setup();
 
-	setBodyPose(Dancer ::getInstance().getDefaultHeadPose(), eyeDeviation);
+	setBodyPose(TotalBodyPose(Dancer ::getInstance().getDefaultHeadPose(), Dancer ::getInstance().getDefaultMouthPose()), eyeDeviation);
 	return windowHandle;
 }
 
@@ -216,16 +216,22 @@ void BotView::display() {
 	setEyePosition();
 	glMatrixMode(GL_MODELVIEW);
 
-	botDrawer.displayBot(headPose);
+	cout << "3:" << pose << endl;
+
+	botDrawer.displayBot(pose);
 	drawCoordSystem(true);
 
 	glutSetWindow(savedWindowHandle);
 }
 
 
-void BotView::setBodyPose(const Pose& newHeadPose, const Point& newEyeDeviation) {
-	if ((headPose != newHeadPose) || (newEyeDeviation.distance(eyeDeviation) > 1.0)) {
-		headPose = newHeadPose;
+void BotView::setBodyPose( const TotalBodyPose& newPose, const Point& newEyeDeviation) {
+	if ((pose!= newPose) || (newEyeDeviation.distance(eyeDeviation) > 1.0)) {
+		cout << "1:" << newPose << endl;
+
+		pose = newPose;
+		cout << "1:" << pose << endl;
+
 		eyeDeviation = newEyeDeviation;
 		modify();
 	}

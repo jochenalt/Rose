@@ -43,7 +43,8 @@ public:
 	// play this .wav file
 	void setWavFile(string name, string wavContent);
 
-	Pose getHeadPose() { return headPose; };
+	TotalBodyPose getPose() { return pose; };
+
 	double getAmbition() { return ambition; };
 	Move::MoveType getMove() { return move; };
 	bool isMusicDetected() { return musicDetected; };
@@ -52,7 +53,7 @@ private:
 	string get(HttpConnection& conn, string requestUrl, bool& ok);
 	string post(HttpConnection& conn, string requestUrl, const string& httpBody, bool& ok);
 
-	Pose headPose;
+	TotalBodyPose pose;
 	float ambition = 0;
 	bool musicDetected = false;
 	int sequenceMode = false;

@@ -35,7 +35,7 @@ void BotClient::setup(string host, int port) {
 	// msuic is detected on the server side
 	musicDetected = false;
 
-	headPose.null();
+	pose.null();
 
 	// ambition is defined on the server side
 	ambition = 0;
@@ -88,12 +88,13 @@ void BotClient::getStatus() {
 		parseCharacter(in, '{', ok);
 		parseString(in, ok); // "head"
 		parseCharacter(in, ':', ok);
-		headPose.deserialize(in, ok);
+		pose.head.deserialize(in, ok);
 		parseCharacter(in, ',', ok);
 		parseString(in, ok); // "mouth"
 		parseCharacter(in, ':', ok);
-		headPose.deserialize(in, ok);
+		pose.mouth.deserialize(in, ok);
 		parseCharacter(in, ',', ok);
+		cout << "0:" << pose << endl;
 
 		parseString(in, ok); // "ambition"
 		parseCharacter(in, ':', ok);

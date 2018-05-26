@@ -59,8 +59,14 @@ void BodyKinematics::getPlatformMetrics(double& basePlatformRadius, double& topP
 	topPlatformRadiusY = bodyStewartConfig.topPlatformRadiusY_mm;
 
 	rodLength = bodyStewartConfig.rodLength_mm;
+}
+
+void BodyKinematics::getMouthMetrics(double& mouthBockHeight_mm, double& lowerLeverLength_mm) {
+	mouthBockHeight_mm = mouthConfig.mouthBaseHeight_mm;
+	lowerLeverLength_mm = mouthConfig.lowerLipLeverLength_mm;
 
 }
+
 
 void BodyKinematics::setup() {
 	headKin.setup(bodyStewartConfig);

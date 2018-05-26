@@ -33,7 +33,7 @@ public:
 	bool setup(int argc, char** argv);
 	void tearDown();
 
-	void setBodyPose(const Pose& headPose);
+	void setBodyPose(const TotalBodyPose& pose);
 	void setMusicDetected (bool musicDetected);
 	void postRedisplay();
 	void setStatus(string status);

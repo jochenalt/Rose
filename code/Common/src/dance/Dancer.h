@@ -25,6 +25,7 @@ public:
 	virtual ~Dancer ();
 	static Dancer & getInstance();
 	Pose getDefaultHeadPose();
+	MouthPose getDefaultMouthPose();
 
 	// setup move maker before calling getBodyPose or getHeadPose
 	void setup();
@@ -36,14 +37,12 @@ public:
 	void danceLoop(bool beat, double BPM, int rhythmInQarterts);
 
 	// call this with data coming from the webserver to define the current dancing parameters withou generating them
-	void imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition,
-			               const Pose& newHeadPose);
+	void imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition, const TotalBodyPose& newPose);
 
-	// current head pose within the move
-	Pose& getHeadPose() { return pose.head; };
+	TotalBodyPose& getPose() { return pose; };
 
 	// get current pose from a different thread than the one running danceLoop()
-	void getThreadSafePose(Pose& headPose, MouthPose& mouth);
+	void getThreadSafePose(TotalBodyPose& pose);
 
 	// set the number of moves after that the next move happens
 	void switchMovePeriodically(int afterHowManyMoves);

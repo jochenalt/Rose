@@ -22,7 +22,7 @@ public:
 	~BotRenderer() {};
 
 	// display Stewart platform
-	void displayBot(const Pose& headPose);
+	void displayBot(const TotalBodyPose& pose);
 
 	// setup by looking for the STL files
 	void setup();

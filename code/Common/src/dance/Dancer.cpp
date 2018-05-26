@@ -28,6 +28,10 @@ Pose Dancer ::getDefaultHeadPose() {
 	return Pose(Point(0,0,headHeight), Rotation (0,0,0));
 }
 
+MouthPose Dancer ::getDefaultMouthPose() {
+	return MouthPose(0,30,0);
+}
+
 void Dancer ::setup() {
 	TotalBodyPose defaultPose = TotalBodyPose(getDefaultHeadPose());
 	pose.head = defaultPose.head;
@@ -68,25 +72,24 @@ void Dancer::createMove(double movePercentage) {
 
 }
 
-void Dancer::getThreadSafePose(Pose& headPose, MouthPose& mouthPose) {
+void Dancer::getThreadSafePose(TotalBodyPose& newPose) {
 	uint32_t start = millis();
 	CriticalBlock block(poseMutex);
 	uint32_t duration = millis()-start;
 	if (duration> 10)
 		cerr << "createMove waiting on mutex for " << duration << "ms" << endl;
 
-	headPose = pose.head;
-	mouthPose = pose.mouth;
+	newPose = pose;
 };
 
 
 void Dancer::imposeDanceParams(Move::MoveType newCurrentMove, double newAmbition,
-		                       const Pose& newHeadPose) {
+		                       const TotalBodyPose& newPose) {
 	CriticalBlock block(poseMutex);
 
 	setCurrentMove(newCurrentMove);
 	ambition = newAmbition;
-	pose.head = newHeadPose;
+	pose = newPose;
 }
 
 void Dancer::danceLoop(bool beat, double BPM, int rhythmInQarterts) {

@@ -69,7 +69,7 @@ std::istream& Pose::deserialize(std::istream &in, bool &ok) {
 
 ostream& operator<<(ostream& os, const TotalBodyPose& p)
 {
-	os << std::setprecision(3) << "(head=" << p.head<< ")";
+	os << std::setprecision(3) << "(head=" << p.head<< "," << p.mouth << ")";
 	return os;
 }
 

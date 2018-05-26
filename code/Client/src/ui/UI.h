@@ -18,7 +18,7 @@ public:
 	void setup(int argc, char *argv[]);
 	void tearDown();
 
-	void setBodyPose(const Pose& headPose);
+	void setBodyPose(const TotalBodyPose& pose);
 	void setMusicDetected(bool musicDetectd);
 };
 
