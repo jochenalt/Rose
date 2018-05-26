@@ -33,8 +33,13 @@ public:
 	// get static metrics of the platform
 	void getPlatformMetrics(double& basePlatformRadius, double& topPlatformRadiusX, double& topPlatformRadiusY,double & rodLength);
 
-	// get configuration data of both stewart platforms
+	// get configuration data of stewart platform
 	StewartConfiguration& getStewartConfig();
+
+	// get configuration data of mouth mechanics
+	MouthConfiguration& getMouthConfig();
+
+	void computeMouthAngles(const MouthPose& mouth, double &yawServoPose_rad, double &lowerLipServo_rad, double& angleServo_rad);
 
 private:
 	BodyKinematics(const BodyKinematics& x) { assert(false); };

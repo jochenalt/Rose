@@ -18,7 +18,7 @@ static StewartConfiguration bodyStewartConfig = {"body",
 										  74.0,   				// rodLength_mm
 										  29.478,				// servoArmLength_mm
 										  31.2,					// servoCentreHeight_mm
-										  -4.0,					// plateBallJointHeight_mm
+										  -4.5,					// plateBallJointHeight_mm
 										  65.0, 				// bottomPlatformRadius_mm
 										  50.0, 				// topPlatformRadiusX_mm
 										  75.0, 				// topPlatformRadiusY_mm
@@ -26,6 +26,12 @@ static StewartConfiguration bodyStewartConfig = {"body",
 									      radians(86.0)			// bottomServoLimit_rad
 };
 
+
+
+static MouthConfiguration mouthConfig = {
+		55.0, 	// mouthBaseHeight_mm
+		30.0   	// lowerLipLeverLength_mm
+};
 
 BodyKinematics& BodyKinematics::getInstance() {
 	static BodyKinematics instance;
@@ -36,6 +42,9 @@ StewartConfiguration& BodyKinematics::getStewartConfig() {
 	return bodyStewartConfig;
 }
 
+MouthConfiguration& BodyKinematics::getMouthConfig() {
+	return mouthConfig;
+}
 
 BodyKinematics::BodyKinematics() {
 }
@@ -107,5 +116,12 @@ Pose BodyKinematics::translateOrientation(const Pose& bodyPose, const Point cent
 	HomogeneousMatrix result(4,4);
 	result = centreTrans*rotationTrans*invTranslationTrans;
 	return getPoseByTransformationMatrix(result);
+}
+
+// compute mouth servos out of mouth pose
+void BodyKinematics::computeMouthAngles(const MouthPose& mouth, double &yawServoPose_rad, double &lowerLipServo_rad, double& angleServo_rad) {
+	yawServoPose_rad = mouth.yaw_rad;
+	lowerLipServo_rad = atan(mouth.mouthOpen_mm/mouthConfig.lowerLipLeverLength_mm);
+	angleServo_rad = mouth.mouth_rad;
 }
 
