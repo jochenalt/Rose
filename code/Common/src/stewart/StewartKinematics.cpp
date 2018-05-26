@@ -40,8 +40,8 @@ void StewartKinematics::setup(StewartConfiguration newConfig) {
 		servoArmCentre[i*2+1]= Point(config.servoArmCentreRadius_mm,0,config.servoCentreHeight_mm)
 				                  .getRotatedAroundZ(zRotation - config.servoArmCentreAngle_mm);
 
-		plateBallJoint[i*2]   = Point(config.plateJointRadius_mm,0,-config.plateBallJointHeight_mm).getRotatedAroundZ(radians(120)*i + config.plateJointAngle_rad);
-		plateBallJoint[i*2+1] = Point(config.plateJointRadius_mm,0,-config.plateBallJointHeight_mm).getRotatedAroundZ(radians(120)*i - config.plateJointAngle_rad);
+		plateBallJoint[i*2]   = Point(config.plateJointRadius_mm,0,config.plateBallJointHeight_mm).getRotatedAroundZ(radians(120)*i + config.plateJointAngle_rad);
+		plateBallJoint[i*2+1] = Point(config.plateJointRadius_mm,0,config.plateBallJointHeight_mm).getRotatedAroundZ(radians(120)*i - config.plateJointAngle_rad);
 
 		lastAngle[i*2] = 0;
 		lastAngle[i*2+1] = 0;

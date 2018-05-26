@@ -18,14 +18,13 @@ static StewartConfiguration bodyStewartConfig = {"body",
 										  74.0,   				// rodLength_mm
 										  29.478,				// servoArmLength_mm
 										  31.2,					// servoCentreHeight_mm
-										  4.0,					// plateBallJointHeight_mm
+										  -4.0,					// plateBallJointHeight_mm
 										  65.0, 				// bottomPlatformRadius_mm
 										  50.0, 				// topPlatformRadiusX_mm
 										  75.0, 				// topPlatformRadiusY_mm
 										  -radians(56.0),		// topServoLimit_rad
 									      radians(86.0)			// bottomServoLimit_rad
 };
-
 
 
 BodyKinematics& BodyKinematics::getInstance() {

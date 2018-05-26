@@ -37,6 +37,11 @@ struct StewartConfiguration {
 
 };
 
+struct MouthConfiguration {
+
+
+};
+
 class StewartKinematics {
 public:
 	StewartKinematics();

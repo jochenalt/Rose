@@ -157,6 +157,60 @@ class Pose : public Serializable  {
 };
 
 
+class MouthPose : public Serializable  {
+	public:
+		friend ostream& operator<<(ostream&, const MouthPose&);
+
+		MouthPose() {
+			null();
+		};
+
+		virtual ~MouthPose() {};
+		MouthPose(const MouthPose& p) {
+			yaw_rad = p.yaw_rad;
+			mouthOpen_mm = p.mouthOpen_mm;
+			mouth_rad = p.mouth_rad;
+		};
+
+		MouthPose(const double & pYaw, const double& pMouthOpen, const double& pMouthAngle) {
+			yaw_rad = pYaw;
+			mouthOpen_mm = pMouthOpen;
+			mouth_rad = pMouthAngle;
+		};
+
+
+		void operator= (const MouthPose& p) {
+			yaw_rad = p.yaw_rad;
+			mouthOpen_mm = p.mouthOpen_mm;
+			mouth_rad = p.mouth_rad;
+		}
+
+		void null() {
+			yaw_rad = 0;
+			mouthOpen_mm = 0;
+			mouth_rad = 0;
+		}
+
+		bool isNull() {
+			return (yaw_rad == 0) && (mouthOpen_mm == 0) && (mouth_rad == 0);
+		}
+
+		bool operator==(const MouthPose& p) {
+			return (yaw_rad == p.yaw_rad) && (mouthOpen_mm == p.mouthOpen_mm) && (mouth_rad == p.mouth_rad);
+		};
+
+		bool operator!=(const MouthPose& p) {
+			return !((*this) == p);
+		};
+
+		virtual std::ostream& serialize(std::ostream &out) const;
+		virtual std::istream& deserialize(std::istream &in, bool &ok);
+
+		double yaw_rad;			// turning the jaw
+		double mouthOpen_mm;	// distance between upper and lower lip
+		double mouth_rad;		// angle of lower lip against horizon
+};
+
 
 // a pose with a timestamp
 class TotalBodyPose : public Serializable  {
@@ -170,10 +224,17 @@ class TotalBodyPose : public Serializable  {
 		virtual ~TotalBodyPose() {};
 		TotalBodyPose(const TotalBodyPose& p) {
 			head = p.head;
+			mouth = p.mouth;
 		};
 
 		TotalBodyPose(const Pose& pHead) {
 			head = pHead;
+			mouth.null();
+		};
+
+		TotalBodyPose(const Pose& pHead, const MouthPose& pMouth) {
+			head = pHead;
+			mouth = pMouth;
 		};
 
 
@@ -183,6 +244,7 @@ class TotalBodyPose : public Serializable  {
 
 		void null() {
 			head.null();
+			mouth.null();
 		}
 
 		bool isNull() {
@@ -201,6 +263,7 @@ class TotalBodyPose : public Serializable  {
 		virtual std::istream& deserialize(std::istream &in, bool &ok);
 
 		Pose head;
+		MouthPose mouth;
 };
 
 

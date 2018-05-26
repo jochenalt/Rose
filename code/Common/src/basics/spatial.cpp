@@ -77,6 +77,8 @@ ostream& operator<<(ostream& os, const TotalBodyPose& p)
 std::ostream& TotalBodyPose::serialize(std::ostream &out) const {
 	out << "{\"head\":";
 	head.serialize(out);
+	out << ",\"mouth\":";
+	mouth.serialize(out);
 	out << "}";
 	return out;
 }
@@ -87,10 +89,50 @@ std::istream& TotalBodyPose::deserialize(std::istream &in, bool &ok) {
     	parseString(in, ok); // "head"
     	parseCharacter(in, ':', ok);
     	head.deserialize(in, ok);
+    	parseCharacter(in, ',', ok);
+     	parseString(in, ok); // "mouth"
+       	parseCharacter(in, ':', ok);
+       	mouth.deserialize(in, ok);
     	parseCharacter(in, '}', ok);
     }
     return in;
 }
+
+ostream& operator<<(ostream& os, const MouthPose& p)
+{
+	os << std::setprecision(3) << "(yaw=" << p.yaw_rad<< " open=" << p.mouthOpen_mm << " angle=" << p.mouth_rad << ")";
+	return os;
+}
+
+
+std::ostream& MouthPose::serialize(std::ostream &out) const {
+
+	out << std::setprecision(4) << "{"
+		<< "\"yaw\":" << floatToString(yaw_rad,2) << ","
+		<< "\"open\":" << floatToString(mouthOpen_mm,2) << ","
+		<< "\"angle\":" << floatToString(mouth_rad,2) << "}";
+	return out;
+}
+
+std::istream& MouthPose::deserialize(std::istream &in, bool &ok) {
+	  if (in) {
+	    	parseCharacter(in, '{', ok);
+	    	parseString(in, ok);
+	    	parseCharacter(in, ':', ok);
+	    	deserializePrim(in, yaw_rad, ok);
+	    	parseCharacter(in, ',', ok);
+	    	parseString(in, ok);
+	    	parseCharacter(in, ':', ok);
+	    	deserializePrim(in, mouthOpen_mm, ok);
+	    	parseCharacter(in, ',', ok);
+	    	parseString(in, ok);
+	    	parseCharacter(in, ':', ok);
+	    	deserializePrim(in, mouth_rad, ok);
+	    	parseCharacter(in, '}', ok);
+	    }
+	    return in;
+}
+
 
 // return length of hyopthenusis of orthogonal triangle
 double triangleHypothenusisLength(double a, double b) {
