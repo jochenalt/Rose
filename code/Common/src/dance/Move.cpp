@@ -169,7 +169,7 @@ TotalBodyPose Move::listeningMove(double movePercentage) {
 	return TotalBodyPose(
 			Pose(Point(0,0.0,headHeight),
 				 Rotation(0,-fabs(mBase)*radians(10.0), mBase*radians(10.0))),
-		    MouthPose(0,0, radians(60)));
+				 MouthPose(-mBase*radians(10.0),0,0));
 }
 
 

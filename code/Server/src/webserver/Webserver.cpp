@@ -286,7 +286,7 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 		dancer.getThreadSafePose(head, mouth);
 		out << "{ \"response\": "
 		    <<     "{ \"head\":" << head.toString()
-		    <<     ", \"mouth\":" << head.toString()
+		    <<     ", \"mouth\":" << mouth.toString()
 			<<     ", \"ambition\":" << dancer.getAmbition()
 		    <<     ", \"move\":" << (int)dancer.getCurrentMove()
 		    <<     ", \"music\":" << boolToJSonString(audio.isMusicDetected())
