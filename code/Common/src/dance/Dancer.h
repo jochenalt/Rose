@@ -58,7 +58,7 @@ public:
 	string getMoveName(Move::MoveType m) { return Move::getMove(m).getName(); };
 
 	// switch immediatelly to the passed dance move
-	void setCurrentMove(Move::MoveType m);
+	void setCurrentMove(Move::MoveType m, bool force = false);
 
 	// return currently danced move
 	Move::MoveType getCurrentMove()  { return currentMove; };

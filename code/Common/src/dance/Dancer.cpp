@@ -114,7 +114,7 @@ void Dancer::danceLoop(bool beat, double BPM, int rhythmInQarterts) {
 	if ((rhythmDetector.getAbsoluteBeatCount() > startAfterNBeats) && (rhythmDetector.hasBeatStarted())) {
 		// first move is the classical head nicker
 		if (rhythmDetector.isFirstBeat()) {
-			setCurrentMove(Move::MoveType::PHYSICISTS_HEAD_NICKER);
+			setCurrentMove(Move::MoveType::PHYSICISTS_HEAD_NICKER, true);
 		}
 
 		createMove(rhythmDetector.getLatencyCompensatedRythmPercentage());
@@ -142,14 +142,13 @@ void Dancer::doNewMove() {
 	cout << "new move: " << Move::getMove(currentMove).getName() << "(" << (int)currentMove << ")" << endl;
 }
 
-void Dancer::setCurrentMove(Move::MoveType m) {
+void Dancer::setCurrentMove(Move::MoveType m, bool force /* = false */) {
 	if (m != currentMove) {
 		// save previous move and store current time for move transition (done in createMove)
 		prevMove = currentMove;
 		currentMove = m;
-
+		moveTransitionStartTime = millis();
 		passedBeatsInCurrentMove = 0;
 	}
-	moveTransitionStartTime = millis();
 }
 
