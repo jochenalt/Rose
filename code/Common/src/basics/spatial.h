@@ -185,6 +185,31 @@ class MouthPose : public Serializable  {
 			mouth_rad = p.mouth_rad;
 		}
 
+		void operator*= (const double f) {
+			yaw_rad *= f;
+			mouthOpen_mm *= f;
+			mouth_rad *= f;
+		}
+
+		void operator-= (const MouthPose& p) {
+			yaw_rad -= p.yaw_rad;
+			mouthOpen_mm -= p.mouthOpen_mm;
+			mouth_rad -= p.mouth_rad;
+		}
+
+		MouthPose operator* (const double f) const {
+			return MouthPose(f*yaw_rad, f*mouthOpen_mm, f* mouth_rad);
+		}
+
+		MouthPose operator+ (const MouthPose & f) const {
+			return MouthPose(yaw_rad + f.yaw_rad, mouthOpen_mm + f.mouthOpen_mm, mouth_rad + f.mouth_rad);
+		}
+
+		MouthPose operator- (const MouthPose & f) const {
+			return MouthPose(yaw_rad - f.yaw_rad, mouthOpen_mm - f.mouthOpen_mm, mouth_rad - f.mouth_rad);
+		}
+
+
 		void null() {
 			yaw_rad = 0;
 			mouthOpen_mm = 0;

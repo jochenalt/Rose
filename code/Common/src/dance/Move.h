@@ -16,6 +16,8 @@
 const double bodyHeight = 100.0;
 const double headHeight = 105.0;
 
+static MouthPose nullMouthPose;
+
 class Move {
 public:
 	enum MoveType { NO_MOVE, LISTENING, PHYSICISTS_HEAD_NICKER, TENNIS_HEAD_NICKER, WEASELS_MOVE,
@@ -78,7 +80,7 @@ public:
 
 	double scaleAmbition(double value);
 
-	static TotalBodyPose translate (const Pose& relHeadPose, double zTranslation = 0);
+	static TotalBodyPose translate (const Pose& relHeadPose, double zTranslation = 0, const MouthPose& mouthPose = nullMouthPose);
 	static TotalBodyPose 	absHead (const Pose& bodypose, const Pose& headPose);
 
 

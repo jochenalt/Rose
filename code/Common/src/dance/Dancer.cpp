@@ -53,6 +53,7 @@ void Dancer::createMove(double movePercentage) {
 	// if we are in a transition between two moves, interpolate between previous and current move
 	if ( moveTransitionStartTime > 0 ) {
 		newPose.head =  prevPose.head*(1.0-interpolationRatio) + newPose.head*interpolationRatio;
+		newPose.mouth =  prevPose.mouth*(1.0-interpolationRatio) + newPose.mouth*interpolationRatio;
 	}
 
 	// moves are created in a different thread than the one fetching the result

@@ -148,9 +148,9 @@ double Move::baseCurveTrapezoid(double movePercentage) {
 	return scaleAmbition(result);
 }
 
-TotalBodyPose Move::translate (const Pose& headPose, double zTranslation /* = 0 */) {
+TotalBodyPose Move::translate (const Pose& headPose, double zTranslation /* = 0 */, const MouthPose& mouthPose /* = null */) {
 	Pose resultPose = BodyKinematics::getInstance().translateOrientation(headPose, Point(0,0,headHeight + zTranslation));
-	TotalBodyPose result = resultPose;
+	TotalBodyPose result(resultPose, mouthPose);
 	return result;
 }
 
@@ -168,7 +168,8 @@ TotalBodyPose Move::listeningMove(double movePercentage) {
 
 	return TotalBodyPose(
 			Pose(Point(0,0.0,headHeight),
-				 Rotation(0,-fabs(mBase)*radians(10.0), mBase*radians(10.0))));
+				 Rotation(0,-fabs(mBase)*radians(10.0), mBase*radians(10.0))),
+		    MouthPose(0,0, radians(60)));
 }
 
 
@@ -182,7 +183,8 @@ TotalBodyPose Move::physicistsHeadNicker(double movePercentage) {
 
 	return TotalBodyPose(
 			Pose(Point(-mDip*10,mLeftRight*20.0,headHeight+10.0*mUpDown),
-				 Rotation (0,-radians(20)*mDip,-radians(20)*mBase)));
+				 Rotation (0,-radians(20)*mDip,-radians(20)*mBase)),
+		    MouthPose(0,50, 0));
 }
 
 TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
