@@ -281,12 +281,11 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 		AudioProcessor& audio = AudioProcessor::getInstance();
 
 		std::ostringstream out;
-		Pose head;
-		MouthPose mouth;
-		dancer.getThreadSafePose(head, mouth);
+		TotalBodyPose pose;
+		dancer.getThreadSafePose(pose);
 		out << "{ \"response\": "
-		    <<     "{ \"head\":" << head.toString()
-		    <<     ", \"mouth\":" << mouth.toString()
+		    <<     "{ \"head\":" << pose.head.toString()
+		    <<     ", \"mouth\":" << pose.mouth.toString()
 			<<     ", \"ambition\":" << dancer.getAmbition()
 		    <<     ", \"move\":" << (int)dancer.getCurrentMove()
 		    <<     ", \"music\":" << boolToJSonString(audio.isMusicDetected())

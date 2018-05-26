@@ -196,7 +196,7 @@ void danceThreadFunction() {
 			// TODO fix that
 			dancer.danceLoop(o.beat, o.bpm, o.rhythmInQuarters);
 
-			servoHeadPoseBuffer = dancer.getHeadPose();
+			servoHeadPoseBuffer = dancer.getPose().head;
 
 			// a new pose is ready to be taken over by the servo thread
 			newPoseAvailable = true;
