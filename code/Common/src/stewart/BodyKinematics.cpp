@@ -31,7 +31,9 @@ static StewartConfiguration bodyStewartConfig = {"body",
 static MouthConfiguration mouthConfig = {
 		55.0, 	// mouthBaseHeight_mm
 		30.0,   // lowerLipLeverLength_mm
-		27.0	//lowerLipAngleServoArmLength_mm
+		27.0,	// lowerLipAngleServoArmLength_mm
+		69.0,	// upperLipHeight_mm
+		41.810	// upperLipX_mm
 
 };
 

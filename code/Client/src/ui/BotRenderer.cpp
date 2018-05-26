@@ -52,25 +52,25 @@ void BotRenderer::displayBot(const TotalBodyPose& pose) {
 	glRotatef(degrees(pose.head.orientation.x), 1.0,0.0,0.0);
 	topPlatform.display(glStewartPlateColor,glStewartPlateColor);
 
-	// draw head
+	// draw block containing all mouth servos
+	glPushMatrix();
 	glRotatef(degrees(pose.mouth.yaw_rad), 0.0,0.0,1.0);
-
-	// draw both servo arms
 	servoBlock.display(glHeadColor,glHeadColor);
-	glTranslatef(0,0,bodyKinematics.getMouthConfig().mouthBaseHeight_mm);
+	glPopMatrix();
 
 	// draw lower lip
 	glPushMatrix();
+	glTranslatef(0,0,bodyKinematics.getMouthConfig().mouthBaseHeight_mm);
 	glRotatef(degrees(mouthLowerServoAngle_rad), 0.0,1.0,0.0);
 	mouthServoArmLower.display(glEyeBallsColor,glEyeBallsColor);
 	glTranslatef(bodyKinematics.getMouthConfig().lowerLipLeverLength_mm,0,0);
 	glRotatef(degrees(-mouthLowerServoAngle_rad + mouthOpenServoAngle_rad), 0.0,1.0,0.0);
-
 	lowerLip.display(glIrisColor,glIrisColor);
 	glPopMatrix();
 
 	// draw upper servo lever
 	glPushMatrix();
+	glTranslatef(0,0,bodyKinematics.getMouthConfig().mouthBaseHeight_mm);
 	glRotatef(degrees(mouthOpenServoAngle_rad), 0.0,1.0,0.0);
 	mouthServoArmUpper.display(glEyeBallsColor,glEyeBallsColor);
 	glTranslatef(0,0,bodyKinematics.getMouthConfig().lowerLipAngleServoArmLength_mm);
@@ -78,6 +78,10 @@ void BotRenderer::displayBot(const TotalBodyPose& pose) {
 	mouthLever.display(glIrisColor,glIrisColor);
 	glPopMatrix();
 
+	// draw upper lip with the same angle as the lower lip
+	glTranslatef(bodyKinematics.getMouthConfig().upperLipX_mm, 0,bodyKinematics.getMouthConfig().upperLipHeight_mm);
+	glRotatef(degrees(mouthOpenServoAngle_rad), 0.0,1.0,0.0);
+	upperLip.display(glIrisColor,glIrisColor);
 
 	glPopMatrix();
 

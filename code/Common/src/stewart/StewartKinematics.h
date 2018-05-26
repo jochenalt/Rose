@@ -42,6 +42,8 @@ struct MouthConfiguration {
 	double mouthBaseHeight_mm;  			// distance of mouth servos to top plate
 	double lowerLipLeverLength_mm;			// length of lower lever that moves the lower lip
 	double lowerLipAngleServoArmLength_mm;	// length of servo arm that moves the angle of the lower lip
+	double upperLipHeight_mm;				// distance of plate to bearing of the upper lip
+	double upperLipX_mm;					// perpendicular distance of upper lip bearing to z-axis
 };
 
 class StewartKinematics {
