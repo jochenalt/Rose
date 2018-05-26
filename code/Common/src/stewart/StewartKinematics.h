@@ -39,8 +39,9 @@ struct StewartConfiguration {
 
 struct MouthConfiguration {
 
-	double mouthBaseHeight_mm;  		// distance of mouth servos to top plate
-	double lowerLipLeverLength_mm;		// length of lower lever that moves the lower lip
+	double mouthBaseHeight_mm;  			// distance of mouth servos to top plate
+	double lowerLipLeverLength_mm;			// length of lower lever that moves the lower lip
+	double lowerLipAngleServoArmLength_mm;	// length of servo arm that moves the angle of the lower lip
 };
 
 class StewartKinematics {

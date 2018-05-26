@@ -216,7 +216,6 @@ void BotView::display() {
 	setEyePosition();
 	glMatrixMode(GL_MODELVIEW);
 
-	cout << "3:" << pose << endl;
 
 	botDrawer.displayBot(pose);
 	drawCoordSystem(true);
@@ -227,11 +226,7 @@ void BotView::display() {
 
 void BotView::setBodyPose( const TotalBodyPose& newPose, const Point& newEyeDeviation) {
 	if ((pose!= newPose) || (newEyeDeviation.distance(eyeDeviation) > 1.0)) {
-		cout << "1:" << newPose << endl;
-
 		pose = newPose;
-		cout << "1:" << pose << endl;
-
 		eyeDeviation = newEyeDeviation;
 		modify();
 	}

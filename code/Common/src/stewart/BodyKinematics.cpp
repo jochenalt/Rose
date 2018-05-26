@@ -30,7 +30,9 @@ static StewartConfiguration bodyStewartConfig = {"body",
 
 static MouthConfiguration mouthConfig = {
 		55.0, 	// mouthBaseHeight_mm
-		30.0   	// lowerLipLeverLength_mm
+		30.0,   // lowerLipLeverLength_mm
+		27.0	//lowerLipAngleServoArmLength_mm
+
 };
 
 BodyKinematics& BodyKinematics::getInstance() {
@@ -61,10 +63,10 @@ void BodyKinematics::getPlatformMetrics(double& basePlatformRadius, double& topP
 	rodLength = bodyStewartConfig.rodLength_mm;
 }
 
-void BodyKinematics::getMouthMetrics(double& mouthBockHeight_mm, double& lowerLeverLength_mm) {
+void BodyKinematics::getMouthMetrics(double& mouthBockHeight_mm, double& lowerLeverLength_mm, double& lowerLipServoArmLength_mm) {
 	mouthBockHeight_mm = mouthConfig.mouthBaseHeight_mm;
 	lowerLeverLength_mm = mouthConfig.lowerLipLeverLength_mm;
-
+	lowerLipServoArmLength_mm = mouthConfig.lowerLipAngleServoArmLength_mm;
 }
 
 

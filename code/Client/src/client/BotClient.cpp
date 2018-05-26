@@ -94,7 +94,6 @@ void BotClient::getStatus() {
 		parseCharacter(in, ':', ok);
 		pose.mouth.deserialize(in, ok);
 		parseCharacter(in, ',', ok);
-		cout << "0:" << pose << endl;
 
 		parseString(in, ok); // "ambition"
 		parseCharacter(in, ':', ok);

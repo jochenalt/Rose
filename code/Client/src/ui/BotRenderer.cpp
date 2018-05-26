@@ -23,7 +23,6 @@
 
 void BotRenderer::displayBot(const TotalBodyPose& pose) {
 
-	cout << "F:" << pose << endl;
 	BodyKinematics& bodyKinematics = BodyKinematics::getInstance();
 	glPushAttrib(GL_CURRENT_BIT);
 	glPushMatrix();
@@ -54,18 +53,31 @@ void BotRenderer::displayBot(const TotalBodyPose& pose) {
 	topPlatform.display(glStewartPlateColor,glStewartPlateColor);
 
 	// draw head
-	cout << "yaw=" << pose.mouth.yaw_rad << endl;
 	glRotatef(degrees(pose.mouth.yaw_rad), 0.0,0.0,1.0);
 
+	// draw both servo arms
 	servoBlock.display(glHeadColor,glHeadColor);
-	glTranslatef(bodyKinematics.getMouthConfig().mouthBaseHeight_mm, 0,0);
+	glTranslatef(0,0,bodyKinematics.getMouthConfig().mouthBaseHeight_mm);
 
-	mouthServoArmUpper.display(glEyeBallsColor,glEyeBallsColor);
-	mouthServoArmUpper.display(glEyeBallsColor,glEyeBallsColor);
+	// draw lower lip
+	glPushMatrix();
+	glRotatef(degrees(mouthLowerServoAngle_rad), 0.0,1.0,0.0);
+	mouthServoArmLower.display(glEyeBallsColor,glEyeBallsColor);
+	glTranslatef(bodyKinematics.getMouthConfig().lowerLipLeverLength_mm,0,0);
+	glRotatef(degrees(-mouthLowerServoAngle_rad + mouthOpenServoAngle_rad), 0.0,1.0,0.0);
 
 	lowerLip.display(glIrisColor,glIrisColor);
-	upperLip.display(glIrisColor,glIrisColor);
+	glPopMatrix();
+
+	// draw upper servo lever
+	glPushMatrix();
+	glRotatef(degrees(mouthOpenServoAngle_rad), 0.0,1.0,0.0);
+	mouthServoArmUpper.display(glEyeBallsColor,glEyeBallsColor);
+	glTranslatef(0,0,bodyKinematics.getMouthConfig().lowerLipAngleServoArmLength_mm);
+	glRotatef(degrees(-mouthOpenServoAngle_rad + mouthLowerServoAngle_rad), 0.0,1.0,0.0);
 	mouthLever.display(glIrisColor,glIrisColor);
+	glPopMatrix();
+
 
 	glPopMatrix();
 
@@ -86,12 +98,13 @@ void BotRenderer::displayBot(const TotalBodyPose& pose) {
 		// render the rod between servo and top plate
 		glPushMatrix();
 		glTranslatef(headServoBallJoints_world[i].x, headServoBallJoints_world[i].y,headServoBallJoints_world[i].z);
-		Point translation = headBallJoint_world[i]- headServoBallJoints_world[i];
+		Point rodTranslation = headBallJoint_world[i]- headServoBallJoints_world[i];
 
-		// compute rotation out of two points
-		double lenXY = sqrt(sqr(translation.x) + sqr(translation.y));
-		double zRotation = atan2(translation.y, translation.x);
-		double xRotation = atan2(lenXY, translation.z);
+		// to render the rod along rodTranslation, we need to compute the rotation from rod start to rod end
+		// we dont care of the z orientation of the rod
+		double lenXY = sqrt(sqr(rodTranslation.x) + sqr(rodTranslation.y));
+		double zRotation = atan2(rodTranslation.y, rodTranslation.x);
+		double xRotation = atan2(lenXY, rodTranslation.z);
 
 		glRotatef(degrees(zRotation), 0.0,0.0,1.0);
 		glRotatef(degrees(xRotation), 0.0,1.0,0.0);
@@ -131,7 +144,7 @@ void BotRenderer::readSTLFiles(string path) {
 	mouthServoArmUpper.loadFile(path + "/MouthServoArmUpperLip.stl");
 	mouthServoArmLower.loadFile(path + "/MouthServoArmBottomLip.stl");
 
-	lowerLip.loadFile(path + "/BottomLip.stl");
+	lowerLip.loadFile(path + "/LowerLip.stl");
 	upperLip.loadFile(path + "/UpperLip.stl");
 	mouthLever.loadFile(path + "/MouthLever.stl");
 
