@@ -88,9 +88,13 @@ void BotClient::getStatus() {
 		parseCharacter(in, '{', ok);
 		parseString(in, ok); // "head"
 		parseCharacter(in, ':', ok);
-
 		headPose.deserialize(in, ok);
 		parseCharacter(in, ',', ok);
+		parseString(in, ok); // "mouth"
+		parseCharacter(in, ':', ok);
+		headPose.deserialize(in, ok);
+		parseCharacter(in, ',', ok);
+
 		parseString(in, ok); // "ambition"
 		parseCharacter(in, ':', ok);
 		ambition = parseFloat(in, ok);
