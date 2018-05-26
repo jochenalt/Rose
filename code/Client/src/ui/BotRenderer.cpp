@@ -68,6 +68,7 @@ void BotRenderer::displayBot(const TotalBodyPose& pose) {
 	lowerLip.display(glIrisColor,glIrisColor);
 	glPopMatrix();
 
+
 	// draw upper servo lever
 	glPushMatrix();
 	glTranslatef(0,0,bodyKinematics.getMouthConfig().mouthBaseHeight_mm);
@@ -80,7 +81,10 @@ void BotRenderer::displayBot(const TotalBodyPose& pose) {
 
 	// draw upper lip with the same angle as the lower lip
 	glTranslatef(bodyKinematics.getMouthConfig().upperLipX_mm, 0,bodyKinematics.getMouthConfig().upperLipHeight_mm);
-	glRotatef(degrees(mouthOpenServoAngle_rad), 0.0,1.0,0.0);
+	double upperLipAngle_rad = mouthOpenServoAngle_rad;
+	if (upperLipAngle_rad > 0)
+		upperLipAngle_rad = 0;
+	glRotatef(degrees(upperLipAngle_rad), 0.0,1.0,0.0);
 	upperLip.display(glIrisColor,glIrisColor);
 
 	glPopMatrix();
@@ -146,7 +150,7 @@ void BotRenderer::readSTLFiles(string path) {
 	// read in mouth STLs
 	servoBlock.loadFile(path + "/MouthServoBlock.stl");
 	mouthServoArmUpper.loadFile(path + "/MouthServoArmUpperLip.stl");
-	mouthServoArmLower.loadFile(path + "/MouthServoArmBottomLip.stl");
+	mouthServoArmLower.loadFile(path + "/MouthServoArmLowerLip.stl");
 
 	lowerLip.loadFile(path + "/LowerLip.stl");
 	upperLip.loadFile(path + "/UpperLip.stl");
