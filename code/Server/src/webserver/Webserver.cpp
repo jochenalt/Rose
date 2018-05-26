@@ -282,10 +282,12 @@ bool Webserver::dispatch(string uri, string query, string body, string &response
 
 		std::ostringstream out;
 		Pose head;
-		dancer.getThreadSafePose(head);
+		MouthPose mouth;
+		dancer.getThreadSafePose(head, mouth);
 		out << "{ \"response\": "
 		    <<     "{ \"head\":" << head.toString()
-		    <<     ", \"ambition\":" << dancer.getAmbition()
+		    <<     ", \"mouth\":" << head.toString()
+			<<     ", \"ambition\":" << dancer.getAmbition()
 		    <<     ", \"move\":" << (int)dancer.getCurrentMove()
 		    <<     ", \"music\":" << boolToJSonString(audio.isMusicDetected())
 		    <<     ", \"auto\":" << boolToJSonString(dancer.getSequenceMode())

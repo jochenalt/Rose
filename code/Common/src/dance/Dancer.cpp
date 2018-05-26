@@ -67,7 +67,7 @@ void Dancer::createMove(double movePercentage) {
 
 }
 
-void Dancer::getThreadSafePose(Pose& headPose) {
+void Dancer::getThreadSafePose(Pose& headPose, MouthPose& mouthPose) {
 	uint32_t start = millis();
 	CriticalBlock block(poseMutex);
 	uint32_t duration = millis()-start;
@@ -75,6 +75,7 @@ void Dancer::getThreadSafePose(Pose& headPose) {
 		cerr << "createMove waiting on mutex for " << duration << "ms" << endl;
 
 	headPose = pose.head;
+	mouthPose = pose.mouth;
 };
 
 

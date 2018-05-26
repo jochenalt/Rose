@@ -43,7 +43,7 @@ public:
 	Pose& getHeadPose() { return pose.head; };
 
 	// get current pose from a different thread than the one running danceLoop()
-	void getThreadSafePose(Pose& headPose);
+	void getThreadSafePose(Pose& headPose, MouthPose& mouth);
 
 	// set the number of moves after that the next move happens
 	void switchMovePeriodically(int afterHowManyMoves);
