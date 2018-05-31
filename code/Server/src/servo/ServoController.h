@@ -15,6 +15,9 @@
 
 class ServoController {
 public:
+	const static int NumOfServos = 9;
+	enum SERVO_ID { STEWART_SERVO0 = 0, STEWART_SERVO1 = 1, STEWART_SERVO2 = 2, STEWART_SERVO3 = 3, STEWART_SERVO4 = 4, STEWART_SERVO5 = 5,
+		            MOUTH_TURN_SERVO = 6, MOUTH_OPEN_SERVO= 7, MOUTH_TILT_SERVO = 8};
 	ServoController();
 	virtual ~ServoController();
 
@@ -47,9 +50,7 @@ public:
 
 private:
 	PCA9685 pca9685;
-
-	const static int numServos = 12;
-	Servo servo[numServos];
+	Servo servo[NumOfServos];
 };
 
 #endif
