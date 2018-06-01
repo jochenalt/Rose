@@ -122,9 +122,11 @@ void ServoController::calibrateViaKeyBoard() {
 			switch (inp) {
 			case 'a':
 				currentServoBlock = 0;
+				currentServo = 0;
 				break;
 			case 'b':
 				currentServoBlock = 1;
+				currentServo = 0;
 				break;
 			case '0':
 			case '1':
