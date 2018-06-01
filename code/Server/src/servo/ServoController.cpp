@@ -42,17 +42,17 @@ void ServoController::setup() {
 	double topServoLimit = degrees(bodyKin.getStewartConfig().topServoLimit_rad);
 
 	// set each servo of stewart platform with default null values and limits
-	servo[ 0].setup(&pca9685,  0, servoFrequency, false, bottomServoLimit, topServoLimit, 0-4);
-	servo[ 1].setup(&pca9685,  1, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-3);
-	servo[ 2].setup(&pca9685,  2, servoFrequency, false, bottomServoLimit, topServoLimit, 0-7);
-	servo[ 3].setup(&pca9685,  3, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-7);
-	servo[ 4].setup(&pca9685,  4, servoFrequency, false, bottomServoLimit, topServoLimit, -1);
-	servo[ 5].setup(&pca9685,  5, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-3);
+	servo[ STEWART_SERVO0].setup(&pca9685,  STEWART_SERVO0, servoFrequency, false, bottomServoLimit, topServoLimit, 0-4);
+	servo[ STEWART_SERVO1].setup(&pca9685,  STEWART_SERVO1, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-3);
+	servo[ STEWART_SERVO2].setup(&pca9685,  STEWART_SERVO2, servoFrequency, false, bottomServoLimit, topServoLimit, 0-7);
+	servo[ STEWART_SERVO3].setup(&pca9685,  STEWART_SERVO3, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-7);
+	servo[ STEWART_SERVO4].setup(&pca9685,  STEWART_SERVO4, servoFrequency, false, bottomServoLimit, topServoLimit, -1);
+	servo[ STEWART_SERVO5].setup(&pca9685,  STEWART_SERVO5, servoFrequency, true,  bottomServoLimit, topServoLimit, -30-3);
 
 	// set each servo of of mouth platform with default null values and limits
-	servo[ MOUTH_TURN_SERVO].setup(&pca9685,  3, servoFrequency, true,  -15, +15, 0);
-	servo[ MOUTH_OPEN_SERVO].setup(&pca9685,  4, servoFrequency, false, 0, 30, 0);
-	servo[ MOUTH_TILT_SERVO].setup(&pca9685,  5, servoFrequency, true,  0,35, 0);
+	servo[ MOUTH_TURN_SERVO].setup(&pca9685,  MOUTH_TURN_SERVO, servoFrequency, true,  -15, +15, 0);
+	servo[ MOUTH_OPEN_SERVO].setup(&pca9685,  MOUTH_OPEN_SERVO, servoFrequency, false, 0, 30, 0);
+	servo[ MOUTH_TILT_SERVO].setup(&pca9685,  MOUTH_TILT_SERVO, servoFrequency, true,  0,35, 0);
 
 }
 
