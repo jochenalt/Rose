@@ -258,8 +258,8 @@ TotalBodyPose Move::bellySwingingMove(double movePercentage) {
 	double mHeadMove = baseCurveFatCos(scaleMove(movePercentage, 4.0, 0.9 + startPhase ));
 
 	return translate(
-			Pose(Point(0,10.0*mBase + mHeadMove*15.0,headHeight+mHeadUp*5.0 + 20.0*mDip-10.0),
-				 Rotation (radians(15)*mBase,0,0)), 0.0);
+			Pose(Point(0,10.0*mBase + mHeadMove*7.0,headHeight+mHeadUp*5.0 + 20.0*mDip-10.0),
+				 Rotation (radians(15)*mBase,0,0)), 50.0);
 }
 
 TotalBodyPose Move::bollywoodHeadMove(double movePercentage) {
@@ -272,7 +272,8 @@ TotalBodyPose Move::bollywoodHeadMove(double movePercentage) {
 	double mHeadUp = baseCurveCos(scaleMove(movePercentage, 2.0,0.9 + startPhase));
 
 	return  translate (
-				Pose(Point(0,30.0*mBase+mHeadMove*30.0,headHeight+mHeadUp*5.0 + 10.0*mDip),Rotation (radians(20)*mHeadTurn,0,0)));
+				Pose(Point(0,15.0*mBase+mHeadMove*15.0,headHeight+mHeadUp*5.0 + 10.0*mDip),
+					 Rotation (radians(25)*mHeadTurn,0,0)));
 }
 
 
@@ -322,11 +323,11 @@ TotalBodyPose Move::shimmys(double movePercentage) {
 	double phaseShift = latencyShift;
 
 	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0,  phaseShift));
-	double mHipDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, 0.5 + phaseShift)));
+	double mHipDip  = 1.0-fabs(baseCurveDip(scaleMove(movePercentage, 1.0, 0.0 + phaseShift)));
 	double mShoulder  = baseCurveFatCos(scaleMove(movePercentage, 2.0, phaseShift));
 
 	return translate
-			(Pose(Point(0,20.0*mBase,headHeight-15.0*mHipDip+5.0),
+			(Pose(Point(0,20.0*mBase,headHeight-15.0*mHipDip),
 				  Rotation (0,0,radians(20)*mShoulder)),0.0);
 }
 
@@ -334,23 +335,23 @@ TotalBodyPose Move::trippleShimmys(double movePercentage) {
 	double phaseShift = latencyShift;
 
 	double mBase = baseCurveTriangle(scaleMove(movePercentage, 1.0, phaseShift));
-	double mHipDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, phaseShift)));
+	double mHipDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0, +0.25+ phaseShift)));
 	double mShoulder  = baseCurveCos(scaleMove(movePercentage, 6.0,  0.25 + phaseShift));
 
 	return translate (
-			 Pose(Point(0,30.0*mBase,headHeight-20.0*mHipDip+ 20.0*mHipDip),
+			 Pose(Point(0,30.0*mBase,headHeight+15.0*mHipDip),
 			      Rotation (0,0,radians(10)*mShoulder)),0.0);
 }
 
 TotalBodyPose Move::leaningTrippleShimmys(double movePercentage) {
 	double phaseShift = latencyShift;
 
-	double mHipDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0,  phaseShift)));
+	double mHipDip  = 1.0-fabs(baseCurveCos(scaleMove(movePercentage, 1.0,  0.5 + phaseShift)));
 	double mShoulder  = baseCurveCos(scaleMove(movePercentage, 6.0,  0.25 + phaseShift));
 	double mLean    = baseCurveCos(scaleMove(movePercentage, 1.0,  0.25+phaseShift));
 
 	return translate (
-			 Pose(Point(20*mLean,0,headHeight-10.0*mHipDip),
+			 Pose(Point(20*mLean,0,headHeight-15.0*mHipDip),
 			      Rotation (0,radians(20)*mLean,radians(10)*mShoulder + radians(20)*mLean)),0.0);
 }
 
@@ -362,7 +363,7 @@ TotalBodyPose Move::shoulderMove(double movePercentage) {
 
 	return translate (
 			Pose(Point(0,-mShoulderMove*15.0,headHeight),
-				 Rotation (radians(10)*mShoulderY,radians(10)*mShoulderMove,0)),0.0);
+				 Rotation (radians(10)*mShoulderY,radians(10)*mShoulderMove,0)),50.0);
 }
 
 TotalBodyPose Move::shoulderCircle(double movePercentage) {
@@ -374,7 +375,7 @@ TotalBodyPose Move::shoulderCircle(double movePercentage) {
 
 	return translate (
 			Pose(Point(-mShoulderX*10.0,mShoulderY*10.0,headHeight-mDip*15.0+6.0),
-				 Rotation (radians(10)*mShoulderY,radians(10)*mShoulderX,0)),0.0);
+				 Rotation (radians(10)*mShoulderY,radians(10)*mShoulderX,0)),50.0);
 }
 
 TotalBodyPose Move::shoulderDipMove(double movePercentage) {
