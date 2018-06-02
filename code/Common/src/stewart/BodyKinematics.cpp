@@ -34,7 +34,7 @@ static MouthConfiguration mouthConfig = {
 		27.0,	// lowerLipAngleServoArmLength_mm
 		69.0,	// upperLipHeight_mm
 		41.810,	// upperLipX_mm
-		25.0	// mouthOpenOffset_mm
+		15.0	// mouthOpenOffset_mm
 };
 
 BodyKinematics& BodyKinematics::getInstance() {

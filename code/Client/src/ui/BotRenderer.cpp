@@ -72,6 +72,7 @@ void BotRenderer::displayBot(const TotalBodyPose& pose) {
 
 	// draw upper servo lever
 	glPushMatrix();
+	glRotatef(degrees(pose.mouth.yaw_rad), 0.0,0.0,1.0);
 	glTranslatef(0,0,bodyKinematics.getMouthConfig().mouthBaseHeight_mm);
 	glRotatef(degrees(mouthOpenServoAngle_rad), 0.0,1.0,0.0);
 	mouthServoArmUpper.display(glEyeBallsColor,glEyeBallsColor);
@@ -81,7 +82,6 @@ void BotRenderer::displayBot(const TotalBodyPose& pose) {
 	glPopMatrix();
 
 	// draw upper lip with the same angle as the lower lip
-	glRotatef(degrees(pose.mouth.yaw_rad), 0.0,0.0,1.0);
 	glTranslatef(bodyKinematics.getMouthConfig().upperLipX_mm, 0,bodyKinematics.getMouthConfig().upperLipHeight_mm);
 	double upperLipAngle_rad = mouthOpenServoAngle_rad;
 	if (upperLipAngle_rad > 0)
