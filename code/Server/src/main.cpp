@@ -226,7 +226,7 @@ void servoThreadFunction() {
 	// limit the frequency a new pose is sent to the servos
 	TimeSampler sync;
 
-	int servoSampleFrequency = 60;					// [Hz]
+	int servoSampleFrequency = 50;					// [Hz]
 	int servoSample_ms = 1000/servoSampleFrequency; // [ms]
 
 	while (executeServoThread) {
@@ -242,6 +242,7 @@ void servoThreadFunction() {
 				// takes 2x4ms via I2C, so maximum loop frequency is 125Hz
 				microseconds start_us = micros();
 				int durationPerServo_us = (servoSample_ms*1000)/6; // [us]
+				cout << "servo delay=" << durationPerServo_us << "us";
 				for (int i = 0;i<6;i++) {
 					servoController.setAngle_rad(i,headServoAngles_rad[i]);
 					microseconds end = micros();
@@ -250,9 +251,10 @@ void servoThreadFunction() {
 					int servoDelay_us = toBe_us  - duration_us;
 					if (servoDelay_us < 200)
 						servoDelay_us = 200;
-					delay_us(servoDelay_us); // necessary, otherwise the I2C line misses some calls and gets hickups approx every 20s.
-
+					delay_ms(servoDelay_us/1000); // necessary, otherwise the I2C line misses some calls and gets hickups approx every 20s.
+					cout << " " << servoDelay_us;
 				}
+				cout << endl;
 				int duration_us = (int)(micros()-start_us);
 				const int maxDuration_us = 12*durationPerServo_us ;
 				if (duration_us > (maxDuration_us*15)/10) {
