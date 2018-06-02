@@ -52,7 +52,7 @@ void ServoController::setup() {
 	// set each servo of of mouth platform with default null values and limits
 	servo[ MOUTH_TURN_SERVO].setup(&pca9685,  MOUTH_TURN_SERVO, servoFrequency, false,  -35, +35, -8);
 	servo[ MOUTH_OPEN_SERVO].setup(&pca9685,  MOUTH_OPEN_SERVO, servoFrequency, false, -35, 40, 6);
-	servo[ MOUTH_TILT_SERVO].setup(&pca9685,  MOUTH_TILT_SERVO, servoFrequency, true,  -10, 70, 6);
+	servo[ MOUTH_TILT_SERVO].setup(&pca9685,  MOUTH_TILT_SERVO, servoFrequency, true,  -70, 10, 6);
 
 }
 
