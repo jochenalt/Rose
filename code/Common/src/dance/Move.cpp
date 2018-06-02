@@ -189,7 +189,7 @@ TotalBodyPose Move::physicistsHeadNicker(double movePercentage) {
 
 	return translate(
 			Pose(Point(-mDip*10,mLeftRight*15.0,headHeight+10.0*mUpDown),
-				 Rotation (0,radians(12)*mDip,-radians(10)*mBase)), 40.0,
+				 Rotation (0,radians(10)*mDip,-radians(10)*mBase)), 20.0,
 		    leftOpenMouth);
 }
 
@@ -202,8 +202,8 @@ TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
 
 	return translate(
 			Pose(Point(-10.0*mUpDown,mTurn*10.0,headHeight+10.0*mUpDown),
-				 Rotation(mHeadYaw*radians(10),0,mTurn*radians(10))),0.0,
-			rightOpenMouth);
+				 Rotation(mHeadYaw*radians(5),0,mTurn*radians(15))),0.0,
+				 MouthPose(radians(mTurn)*20,25+mUpDown*15,0));
 }
 
 TotalBodyPose Move::weaselsMove(double movePercentage) {
@@ -245,7 +245,7 @@ TotalBodyPose Move::enhancedTravoltaHeadNicker(double movePercentage) {
 
 	return translate (
 				Pose(Point(0,12*mBase,headHeight + 8.0*mBase),
-				Rotation (radians(12)*mSwing,-radians(8)*mSwing-radians(8)*mUpDown,radians(12)*mUpDown)),0.0,
+				Rotation (radians(10)*mSwing,-radians(8)*mSwing-radians(8)*mUpDown,radians(12)*mUpDown)),0.0,
 				openMouth);
 }
 
