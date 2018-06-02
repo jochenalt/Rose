@@ -176,9 +176,9 @@ TotalBodyPose Move::listeningMove(double movePercentage) {
 TotalBodyPose Move::physicistsHeadNicker(double movePercentage) {
 	double startPhase = latencyShift;
 
-	double mBase = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, startPhase));
+	double mBase = baseCurveTrapezoid(scaleMove(movePercentage, 1.0, 0.125+startPhase));
 	double mUpDown = baseCurveRectangle(scaleMove(movePercentage, 2.0,startPhase));
-	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.5)));
+	double mDip  = fabs(baseCurveDip(scaleMove(movePercentage, 1.0, startPhase + 0.0)));
 	double mLeftRight= baseCurveCos(scaleMove(movePercentage, 1.0, startPhase));
 
 	return TotalBodyPose(
@@ -190,13 +190,13 @@ TotalBodyPose Move::physicistsHeadNicker(double movePercentage) {
 TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
 
 	double startPhase = latencyShift;
-	double mUpDown = baseCurveFatCos(scaleMove(movePercentage, 2.0,startPhase+1.0));
-	double mTurn = baseCurveSharpRectangle(scaleMove(movePercentage, 1.0,startPhase+1.25));
+	double mUpDown = baseCurveFatCos(scaleMove(movePercentage, 2.0,0.0+startPhase));
+	double mTurn = baseCurveSharpRectangle(scaleMove(movePercentage, 1.0,1.5+startPhase));
 	double mHeadYaw  = baseCurveCos(scaleMove(movePercentage, 4.0, startPhase + 0.5));
 
 	return TotalBodyPose(
-			Pose(Point(-15.0*mUpDown,mTurn*15.0,headHeight+10.0*mUpDown),
-				 Rotation(mHeadYaw*radians(10),0,mTurn*radians(15))));
+			Pose(Point(-10.0*mUpDown,mTurn*10.0,headHeight+10.0*mUpDown),
+				 Rotation(mHeadYaw*radians(10),0,mTurn*radians(10))));
 }
 
 TotalBodyPose Move::weaselsMove(double movePercentage) {
