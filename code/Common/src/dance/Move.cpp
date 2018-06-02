@@ -220,7 +220,7 @@ TotalBodyPose Move::travoltaHeadNicker(double movePercentage) {
 	double mUpDown = baseCurveTrapezoid(scaleMove(movePercentage, 2.0, 1.0 + startPhase));
 
 	return TotalBodyPose (
-				Pose(Point(+mUpDown*15.0,15*mBase,headHeight+ 10.0*mBase),
+				Pose(Point(+mUpDown*5.0,15*mBase,headHeight+ 10.0*mBase),
 					 Rotation (0,-radians(10)*mUpDown,radians(10)*mUpDown)));
 
 }
@@ -364,7 +364,7 @@ TotalBodyPose Move::shoulderMove(double movePercentage) {
 
 	return translate (
 			Pose(Point(0,-mShoulderMove*10.0,headHeight),
-				 Rotation (radians(8)*mShoulderY,radians(8)*mShoulderMove,0)),50.0);
+				 Rotation (radians(8)*mShoulderY,radians(10)*mShoulderMove,0)),50.0);
 }
 
 TotalBodyPose Move::shoulderCircle(double movePercentage) {
@@ -375,8 +375,8 @@ TotalBodyPose Move::shoulderCircle(double movePercentage) {
 
 
 	return translate (
-			Pose(Point(-mShoulderX*7.0,mShoulderY*7.0,headHeight-mDip*10.0+6.0),
-				 Rotation (radians(7)*mShoulderY,radians(7)*mShoulderX,0)),50.0);
+			Pose(Point(-mShoulderX*8.0,mShoulderY*8.0,headHeight-mDip*10.0+6.0),
+				 Rotation (radians(8)*mShoulderY,radians(8)*mShoulderX,0)),50.0);
 }
 
 TotalBodyPose Move::shoulderDipMove(double movePercentage) {

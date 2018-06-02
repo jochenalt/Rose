@@ -226,7 +226,7 @@ void servoThreadFunction() {
 	// limit the frequency a new pose is sent to the servos
 	TimeSampler sync;
 
-	int servoSampleFrequency = 66;					// [Hz]
+	int servoSampleFrequency = 43;					// [Hz]
 	int servoSample_ms = 1000/servoSampleFrequency; // [ms]
 
 	while (executeServoThread) {
@@ -249,8 +249,8 @@ void servoThreadFunction() {
 					int toBe_us = durationPerServo_us*(i + 1);
 					int duration_us = (int)(end - start_us);
 					int servoDelay_us = toBe_us  - duration_us;
-					if (servoDelay_us < 200)
-						servoDelay_us = 200;
+					if (servoDelay_us < 1000)
+						servoDelay_us = 1000;
 					delay_ms(servoDelay_us/1000); // necessary, otherwise the I2C line misses some calls and gets hickups approx every 20s.
 					cout << " " << servoDelay_us;
 				}
