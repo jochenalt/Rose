@@ -227,12 +227,13 @@ void servoThreadFunction() {
 	// limit the frequency a new pose is sent to the servos
 	TimeSampler sync;
 
-	int servoSampleFrequency = 37;					// [Hz]
+	int servoSampleFrequency = 71;					// [Hz]
 	int servoSample_ms = 1000/servoSampleFrequency; // [ms]
 
 	while (executeServoThread) {
 		if (newPoseAvailable) {
 			if (sync.isDue(servoSample_ms)) {
+
 				bodyKinematics.
 					computeServoAngles(	servoHeadPoseBuffer.head, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
 
@@ -245,7 +246,8 @@ void servoThreadFunction() {
 				// sending all angles to the PCA9685. This
 				// takes 2x4ms via I2C, so maximum loop frequency is 125Hz
 				microseconds start_us = micros();
-				int durationPerServo_us = (servoSample_ms*1000)/6; // [us]
+				int durationPerServo_us = (servoSample_ms*1000)/ServoController::NumOfServos; // [us]
+				//cout << "servo delay=" << durationPerServo_us << "us";
 				for (int i = 0;i<servoController.NumOfServos;i++) {
 					switch (i) {
 						case ServoController::STEWART_SERVO0:
@@ -267,17 +269,20 @@ void servoThreadFunction() {
 					int toBe_us = durationPerServo_us*(i + 1);
 					int duration_us = (int)(end - start_us);
 					int servoDelay_us = toBe_us  - duration_us;
-					if (servoDelay_us < 1000)
-						servoDelay_us = 1000;
-					delay_ms(servoDelay_us/1000); // necessary, otherwise the I2C line misses some calls and gets hickups  every here and then
+					if (servoDelay_us < 200)
+						servoDelay_us = 200;
+					delay_us(servoDelay_us); // necessary, otherwise the I2C line misses some calls and gets hickups  every here and then
+					// cout << " " << servoDelay_us;
 				}
+				// cout << endl;
 				int duration_us = (int)(micros()-start_us);
-				const int maxDuration_us = 12*durationPerServo_us ;
+				const int maxDuration_us = ServoController::NumOfServos*durationPerServo_us ;
 				if (duration_us > (maxDuration_us*15)/10) {
 					cerr << "WARN: servos command via I2C took " << duration_us/1000 << "ms instead of " << maxDuration_us/1000 << "ms max." << endl;
 				}
-
-
+			}
+			else {
+				delay_ms(1);
 			}
 		}
 		else {
