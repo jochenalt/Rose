@@ -89,7 +89,7 @@ private:
 	SequenceModeType sequenceMode = AUTOMATIC_SEQUENCE;
 	vector<Move> moveLibrary;
 	int startAfterNBeats = 0;
-	double ambition = 1.0;
+	double ambition = 0.7;
 
 	ExclusiveMutex poseMutex;
 	bool musicDetected = false;

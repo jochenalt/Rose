@@ -33,8 +33,8 @@ static MouthConfiguration mouthConfig = {
 		30.0,   // lowerLipLeverLength_mm
 		27.0,	// lowerLipAngleServoArmLength_mm
 		69.0,	// upperLipHeight_mm
-		41.810	// upperLipX_mm
-
+		41.810,	// upperLipX_mm
+		25.0	// mouthOpenOffset_mm
 };
 
 BodyKinematics& BodyKinematics::getInstance() {
@@ -131,7 +131,7 @@ Pose BodyKinematics::translateOrientation(const Pose& bodyPose, const Point cent
 // compute mouth servos out of mouth pose
 void BodyKinematics::computeMouthAngles(const MouthPose& mouth, double &yawServoPose_rad, double &lowerLipServo_rad, double& angleServo_rad) {
 	yawServoPose_rad = mouth.yaw_rad;
-	lowerLipServo_rad = atan(mouth.mouthOpen_mm/mouthConfig.lowerLipLeverLength_mm);
+	lowerLipServo_rad = atan((mouth.mouthOpen_mm-mouthConfig.mouthOpenOffset_mm)/mouthConfig.lowerLipLeverLength_mm);
 	angleServo_rad = mouth.mouth_rad;
 }
 
