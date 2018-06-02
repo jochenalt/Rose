@@ -51,7 +51,7 @@ ClockGenerator<BeatInvocation> clockGenerator;
 static volatile bool newPoseAvailable = false;
 
 // buffer to pass body and head from audio thread to the servo thread
-static Pose servoHeadPoseBuffer;
+static TotalBodyPose servoHeadPoseBuffer;
 
 
 string getCmdOption(char ** begin, int argc, int i ) {
@@ -196,7 +196,7 @@ void danceThreadFunction() {
 			// TODO fix that
 			dancer.danceLoop(o.beat, o.bpm, o.rhythmInQuarters);
 
-			servoHeadPoseBuffer = dancer.getPose().head;
+			servoHeadPoseBuffer = dancer.getPose();
 
 			// a new pose is ready to be taken over by the servo thread
 			newPoseAvailable = true;
@@ -222,6 +222,7 @@ void servoThreadFunction() {
 	double headServoAngles_rad[6];
 	Point headServoBallJoints_world[6];
 	Point headServoArmCentre_world[6];
+	double mouthYawAngle_rad, mouthLowerServoAngle_rad, mouthOpenServoAngle_rad;
 
 	// limit the frequency a new pose is sent to the servos
 	TimeSampler sync;
@@ -233,7 +234,10 @@ void servoThreadFunction() {
 		if (newPoseAvailable) {
 			if (sync.isDue(servoSample_ms)) {
 				bodyKinematics.
-					computeServoAngles(	servoHeadPoseBuffer, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
+					computeServoAngles(	servoHeadPoseBuffer.head, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
+
+				bodyKinematics.
+					computeMouthAngles(servoHeadPoseBuffer.mouth, mouthYawAngle_rad, mouthLowerServoAngle_rad, mouthOpenServoAngle_rad);
 
 				// current pose is used up, indicate that we need a new one, such that the audio thread will set it
 				newPoseAvailable = false;
@@ -242,8 +246,23 @@ void servoThreadFunction() {
 				// takes 2x4ms via I2C, so maximum loop frequency is 125Hz
 				microseconds start_us = micros();
 				int durationPerServo_us = (servoSample_ms*1000)/6; // [us]
-				for (int i = 0;i<6;i++) {
-					servoController.setAngle_rad(i,headServoAngles_rad[i]);
+				for (int i = 0;i<servoController.NumOfServos;i++) {
+					switch (i) {
+						case ServoController::STEWART_SERVO0:
+						case ServoController::STEWART_SERVO1:
+						case ServoController::STEWART_SERVO2:
+						case ServoController::STEWART_SERVO3:
+						case ServoController::STEWART_SERVO4:
+						case ServoController::STEWART_SERVO5:
+							servoController.setAngle_rad(i,headServoAngles_rad[i]);break;
+						case ServoController::MOUTH_OPEN_SERVO:
+							servoController.setAngle_rad(i,mouthOpenServoAngle_rad);break;
+						case ServoController::MOUTH_TILT_SERVO:
+							servoController.setAngle_rad(i,mouthYawAngle_rad);break;
+						case ServoController::MOUTH_TURN_SERVO:
+							servoController.setAngle_rad(i,mouthLowerServoAngle_rad);break;
+					}
+
 					microseconds end = micros();
 					int toBe_us = durationPerServo_us*(i + 1);
 					int duration_us = (int)(end - start_us);
@@ -257,6 +276,8 @@ void servoThreadFunction() {
 				if (duration_us > (maxDuration_us*15)/10) {
 					cerr << "WARN: servos command via I2C took " << duration_us/1000 << "ms instead of " << maxDuration_us/1000 << "ms max." << endl;
 				}
+
+
 			}
 		}
 		else {
