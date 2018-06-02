@@ -30,7 +30,7 @@ public:
 					LAST_MOVE
 					};
 
-	static int numMoves() { return (int) LAST_MOVE-1; };
+	static int numMoves() { return (int) LAST_MOVE; };
 
 	Move() {};
 	Move(const Move& p) {

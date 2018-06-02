@@ -34,6 +34,7 @@ Move& Move::getMove(MoveType m) {
 void Move::setup() {
 	if (moveLibrary.size() == 0) {
 		moveLibrary.resize((int)LAST_MOVE);
+		moveLibrary[(int)NO_MOVE] = Move(NO_MOVE, "no move",0);
 
 		moveLibrary[(int)LISTENING] = Move(LISTENING, "listening", 8);
 
@@ -61,7 +62,6 @@ void Move::setup() {
 		moveLibrary[(int)SHOULDER_CIRCLE] = Move(SHOULDER_CIRCLE, "shoulder circle",4);
 		moveLibrary[(int)SHOULDER_DIP] = Move(SHOULDER_DIP, "shoulder dip move",4);
 
-		moveLibrary[(int)NO_MOVE] = Move(NO_MOVE, "no move",0);
 	}
 }
 

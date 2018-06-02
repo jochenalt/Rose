@@ -231,29 +231,27 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 
 	GLUI_Panel* dancingModePanel[DanceMoveRows];
 	int moveCounter = 0;
+	int numOfMoves = Dancer ::getInstance().getNumMoves();
+	int movesPerRow = (numOfMoves + (DanceMoveRows-1))/DanceMoveRows;
+
 	for (int row = 0;row < DanceMoveRows; row++) {
 		dancingModePanel[row] = new GLUI_Panel(moveRowsPanel,"Dancing Mode Panel", GLUI_PANEL_NONE);
 
 		currentDancingModeWidget[row] =  new GLUI_RadioGroup(dancingModePanel[row], dancingModeLiveVar + row, row, currentDancingMoveCallback);
-
-		while (moveCounter < (Dancer ::getInstance().getNumMoves() +1) / DanceMoveRows * (row+1)) {
-			Move& move = Move::getMove((Move::MoveType)moveCounter);
-			new GLUI_RadioButton(currentDancingModeWidget[row], move.getName().c_str());
-
-			moveCounter++;
-		}
-
-		// fill up with empty lines to have the containers of the same height
-		if (row == DanceMoveRows-1) {
-			for (int lines = moveCounter;lines < Dancer ::getInstance().getNumMoves()-Dancer::getInstance().getNumMoves()%2;lines++)
+		for (int line = 0;line<movesPerRow;line++) {
+			if (moveCounter < numOfMoves) {
+				Move& move = Move::getMove((Move::MoveType)moveCounter);
+				new GLUI_RadioButton(currentDancingModeWidget[row], move.getName().c_str());
+				moveCounter++;
+			} else {
 				new GLUI_StaticText(dancingModePanel[row],"");
+			}
 		}
 
 		// add a column for next row
 		if (row < DanceMoveRows) {
 			windowHandle->add_column_to_panel(moveRowsPanel, false);
 		}
-
 	}
 	windowHandle->add_column_to_panel(interactivePanel, false);
 
@@ -286,7 +284,7 @@ GLUI* WindowController::createInteractiveWindow(int mainWindow) {
 	ambitionSpinner = new GLUI_Scrollbar(ambitionPanel, "ambition",1, &ambitionLiveVar, 1, ambitionCallback);
 	ambitionSpinner->set_alignment(GLUI_ALIGN_LEFT);
 	ambitionSpinner->set_int_limits(0,100);
-	ambitionSpinner->set_int_val(100);
+	ambitionSpinner->set_int_val(50);
 
 	musicDetectedBox = new GLUI_Checkbox(interactiveModePanel, "music detected", &musicDetectedLiveVar, 1, noCallback);
 	musicDetectedBox->enable();
