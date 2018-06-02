@@ -183,7 +183,7 @@ TotalBodyPose Move::physicistsHeadNicker(double movePercentage) {
 
 	return TotalBodyPose(
 			Pose(Point(-mDip*10,mLeftRight*20.0,headHeight+10.0*mUpDown),
-				 Rotation (0,-radians(20)*mDip,-radians(10)*mBase)),
+				 Rotation (0,radians(15)*mDip,-radians(10)*mBase)),
 		    MouthPose(0,50, 0));
 }
 
