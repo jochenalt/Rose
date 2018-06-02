@@ -183,7 +183,7 @@ TotalBodyPose Move::physicistsHeadNicker(double movePercentage) {
 
 	return TotalBodyPose(
 			Pose(Point(-mDip*10,mLeftRight*20.0,headHeight+10.0*mUpDown),
-				 Rotation (0,radians(15)*mDip,-radians(10)*mBase)),
+				 Rotation (0,-radians(15)*mDip,-radians(10)*mBase)),
 		    MouthPose(0,50, 0));
 }
 
@@ -208,8 +208,8 @@ TotalBodyPose Move::weaselsMove(double movePercentage) {
 	double mHeadYaw = baseCurveCos(scaleMove(movePercentage, 1.0, startPhase + 0.5));
 
 	return TotalBodyPose (
-			Pose(Point(0,20.0*mLeftRight,headHeight+ 10.0*mNick),
-				 Rotation (mHeadYaw*radians(10),-radians(0)*mDip,radians(25)*mDip-radians(12)*mLeftRight)));
+			Pose(Point(0,17.0*mLeftRight,headHeight+ 10.0*mNick),
+				 Rotation (mHeadYaw*radians(10),-radians(0)*mDip,radians(20)*mDip-radians(12)*mLeftRight)));
 }
 
 TotalBodyPose Move::travoltaHeadNicker(double movePercentage) {
@@ -221,7 +221,7 @@ TotalBodyPose Move::travoltaHeadNicker(double movePercentage) {
 
 	return TotalBodyPose (
 				Pose(Point(+mUpDown*15.0,15*mBase,headHeight+ 10.0*mBase),
-					 Rotation (0,-radians(15)*mUpDown,radians(10)*mUpDown)));
+					 Rotation (0,-radians(10)*mUpDown,radians(10)*mUpDown)));
 
 }
 
@@ -236,7 +236,7 @@ TotalBodyPose Move::enhancedTravoltaHeadNicker(double movePercentage) {
 
 	return TotalBodyPose (
 				Pose(Point(0,12*mBase,headHeight + 8.0*mBase),
-				Rotation (radians(12)*mSwing,-radians(8)*mSwing-radians(12)*mUpDown,radians(12)*mUpDown)));
+				Rotation (radians(12)*mSwing,-radians(8)*mSwing-radians(8)*mUpDown,radians(12)*mUpDown)));
 }
 
 TotalBodyPose Move::eyedDippedDiagonalSwing(double movePercentage) {
@@ -259,8 +259,8 @@ TotalBodyPose Move::bellySwingingMove(double movePercentage) {
 	double mUpDown = baseCurveFatCos(scaleMove(movePercentage, 4.0,startPhase));
 
 	return translate(
-			Pose(Point(-10.0*mBase,18.0*mBase,headHeight+ 8.0*mUpDown),
-				 Rotation (-radians(8)*mRoll,-radians(8)*mBase,0)),100.0);
+			Pose(Point(-8.0*mBase,15.0*mBase,headHeight+ 8.0*mUpDown),
+				 Rotation (-radians(7)*mRoll,-radians(7)*mBase,0)),100.0);
 }
 
 TotalBodyPose Move::bollywoodHeadMove(double movePercentage) {
@@ -349,7 +349,7 @@ TotalBodyPose Move::leaningTrippleShimmys(double movePercentage) {
 
 	double mHipDip  = -fabs(baseCurveCos(scaleMove(movePercentage, 1.0,  phaseShift)));
 	double mShoulder  = baseCurveCos(scaleMove(movePercentage, 6.0,  0.25 + phaseShift));
-	double mLean    = baseCurveCos(scaleMove(movePercentage, 1.0,  0.25+phaseShift));
+	double mLean    = baseCurveCos(scaleMove(movePercentage, 1.0,  0.5+phaseShift));
 
 	return translate (
 			 Pose(Point(15*mLean,0,headHeight+12.0*mHipDip+10.0),
@@ -386,8 +386,8 @@ TotalBodyPose Move::shoulderDipMove(double movePercentage) {
 	double mDip  = (baseCurveCos(scaleMove(movePercentage, 1.0, 0.0+startPhase )));
 
 	return translate (
-			Pose(Point(0,mDip*15.0-mShoulderMove*20.0,headHeight),
-				 Rotation (radians(15)*mShoulderMove,0,0)),100.0);
+			Pose(Point(0,mDip*20.0-mShoulderMove*15.0,headHeight),
+				 Rotation (radians(12)*mShoulderMove,0,0)),100.0);
 }
 
 TotalBodyPose Move::move(double movePercentage) {

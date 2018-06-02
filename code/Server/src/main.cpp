@@ -226,7 +226,7 @@ void servoThreadFunction() {
 	// limit the frequency a new pose is sent to the servos
 	TimeSampler sync;
 
-	int servoSampleFrequency = 50;					// [Hz]
+	int servoSampleFrequency = 66;					// [Hz]
 	int servoSample_ms = 1000/servoSampleFrequency; // [ms]
 
 	while (executeServoThread) {
@@ -246,7 +246,7 @@ void servoThreadFunction() {
 				for (int i = 0;i<6;i++) {
 					servoController.setAngle_rad(i,headServoAngles_rad[i]);
 					microseconds end = micros();
-					int toBe_us = durationPerServo_us*(i + 2);
+					int toBe_us = durationPerServo_us*(i + 1);
 					int duration_us = (int)(end - start_us);
 					int servoDelay_us = toBe_us  - duration_us;
 					if (servoDelay_us < 200)
