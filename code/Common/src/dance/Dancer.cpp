@@ -150,5 +150,8 @@ void Dancer::setCurrentMove(Move::MoveType m, bool force /* = false */) {
 		moveTransitionStartTime = millis();
 		passedBeatsInCurrentMove = 0;
 	}
+	if (force) {
+		moveTransitionStartTime = millis();
+	}
 }
 
