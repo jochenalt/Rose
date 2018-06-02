@@ -255,12 +255,12 @@ void servoThreadFunction() {
 						case ServoController::STEWART_SERVO4:
 						case ServoController::STEWART_SERVO5:
 							servoController.setAngle_rad(i,headServoAngles_rad[i]);break;
+						case ServoController::MOUTH_TURN_SERVO:
+							servoController.setAngle_rad(i,mouthYawAngle_rad);break;
+						case ServoController::MOUTH_TILT_SERVO:
+							servoController.setAngle_rad(i,mouthLowerServoAngle_rad);break;
 						case ServoController::MOUTH_OPEN_SERVO:
 							servoController.setAngle_rad(i,mouthOpenServoAngle_rad);break;
-						case ServoController::MOUTH_TILT_SERVO:
-							servoController.setAngle_rad(i,mouthYawAngle_rad);break;
-						case ServoController::MOUTH_TURN_SERVO:
-							servoController.setAngle_rad(i,mouthLowerServoAngle_rad);break;
 					}
 
 					microseconds end = micros();
