@@ -36,8 +36,8 @@ void BotRenderer::displayBot(const TotalBodyPose& pose) {
 	bodyKinematics.computeServoAngles(pose.head, headServoArmCentre_world, headServoAngles_rad, headBallJoint_world, headServoBallJoints_world);
 
 	// kinematics of mouth
-	double mouthYawAngle_rad, mouthLowerServoAngle_rad, mouthOpenServoAngle_rad;
-	bodyKinematics.computeMouthAngles(pose.mouth, mouthYawAngle_rad, mouthLowerServoAngle_rad, mouthOpenServoAngle_rad);
+	double mouthYawAngle_rad, mouthOpenServoAngle_rad, mouthLowerServoAngle_rad;
+	bodyKinematics.computeMouthAngles(pose.mouth, mouthYawAngle_rad,mouthOpenServoAngle_rad, mouthLowerServoAngle_rad );
 
 	glLoadIdentity();             // Reset the model-view matrix to world coordinate system
 	glRotatef(-90, 1.0,0.0,0.0);
@@ -62,10 +62,10 @@ void BotRenderer::displayBot(const TotalBodyPose& pose) {
 	glPushMatrix();
 	glRotatef(degrees(pose.mouth.yaw_rad), 0.0,0.0,1.0);
 	glTranslatef(0,0,bodyKinematics.getMouthConfig().mouthBaseHeight_mm);
-	glRotatef(degrees(mouthLowerServoAngle_rad), 0.0,1.0,0.0);
+	glRotatef(degrees(mouthOpenServoAngle_rad), 0.0,1.0,0.0);
 	mouthServoArmLower.display(glEyeBallsColor,glEyeBallsColor);
 	glTranslatef(bodyKinematics.getMouthConfig().lowerLipLeverLength_mm,0,0);
-	glRotatef(degrees(-mouthLowerServoAngle_rad + mouthOpenServoAngle_rad), 0.0,1.0,0.0);
+	glRotatef(degrees(-mouthOpenServoAngle_rad + mouthLowerServoAngle_rad), 0.0,1.0,0.0);
 	lowerLip.display(glIrisColor,glIrisColor);
 	glPopMatrix();
 
@@ -74,16 +74,16 @@ void BotRenderer::displayBot(const TotalBodyPose& pose) {
 	glPushMatrix();
 	glRotatef(degrees(pose.mouth.yaw_rad), 0.0,0.0,1.0);
 	glTranslatef(0,0,bodyKinematics.getMouthConfig().mouthBaseHeight_mm);
-	glRotatef(degrees(mouthOpenServoAngle_rad), 0.0,1.0,0.0);
+	glRotatef(degrees(mouthLowerServoAngle_rad), 0.0,1.0,0.0);
 	mouthServoArmUpper.display(glEyeBallsColor,glEyeBallsColor);
 	glTranslatef(0,0,bodyKinematics.getMouthConfig().lowerLipAngleServoArmLength_mm);
-	glRotatef(degrees(-mouthOpenServoAngle_rad + mouthLowerServoAngle_rad), 0.0,1.0,0.0);
+	glRotatef(degrees(-mouthLowerServoAngle_rad + mouthOpenServoAngle_rad), 0.0,1.0,0.0);
 	mouthLever.display(glIrisColor,glIrisColor);
 	glPopMatrix();
 
 	// draw upper lip with the same angle as the lower lip
 	glTranslatef(bodyKinematics.getMouthConfig().upperLipX_mm, 0,bodyKinematics.getMouthConfig().upperLipHeight_mm);
-	double upperLipAngle_rad = mouthOpenServoAngle_rad;
+	double upperLipAngle_rad = mouthLowerServoAngle_rad;
 	if (upperLipAngle_rad > 0)
 		upperLipAngle_rad = 0;
 	glRotatef(degrees(upperLipAngle_rad), 0.0,1.0,0.0);
