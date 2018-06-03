@@ -203,7 +203,7 @@ TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
 	return translate(
 			Pose(Point(-10.0*mUpDown,mTurn*10.0,headHeight+10.0*mUpDown),
 				 Rotation(mHeadYaw*radians(5),0,mTurn*radians(15))),0.0,
-				 MouthPose(radians(mTurn)*30,25+mUpDown*15,0));
+				 MouthPose(radians(mTurn)*20,25+mUpDown*15,-radians(20)));
 }
 
 TotalBodyPose Move::weaselsMove(double movePercentage) {
