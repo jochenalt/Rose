@@ -19,7 +19,6 @@ const double latencyShift = 0.75;
 
 static MouthPose grumbleMouth(0,0.0,-radians(50));
 static MouthPose closedMouth(0,0.0,0);
-
 static MouthPose openMouth(0,40.0,0);
 static MouthPose leftOpenMouth(radians(-20),40.0,0);
 static MouthPose rightOpenMouth(radians(20),40.0,0);
@@ -190,7 +189,7 @@ TotalBodyPose Move::physicistsHeadNicker(double movePercentage) {
 	return translate(
 			Pose(Point(-mDip*10,mLeftRight*15.0,headHeight+10.0*mUpDown),
 				 Rotation (0,radians(10)*mDip,-radians(10)*mBase)), 20.0,
-		    leftOpenMouth);
+		    openMouth);
 }
 
 TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
@@ -203,7 +202,7 @@ TotalBodyPose Move::tennisHeadNicker(double movePercentage) {
 	return translate(
 			Pose(Point(-10.0*mUpDown,mTurn*10.0,headHeight+10.0*mUpDown),
 				 Rotation(mHeadYaw*radians(5),0,mTurn*radians(15))),0.0,
-				 MouthPose(radians(mTurn)*20,25+mUpDown*15,-radians(20)));
+				 MouthPose(radians(mTurn)*20,15+mUpDown*25,-radians(20)));
 }
 
 TotalBodyPose Move::weaselsMove(double movePercentage) {
@@ -217,7 +216,7 @@ TotalBodyPose Move::weaselsMove(double movePercentage) {
 	return translate (
 			Pose(Point(0,17.0*mLeftRight,headHeight+ 10.0*mNick),
 				 Rotation (mHeadYaw*radians(10),-radians(0)*mDip,radians(20)*mDip-radians(12)*mLeftRight)),0.0,
-			closedMouth);
+				 grumbleMouth);
 }
 
 TotalBodyPose Move::travoltaHeadNicker(double movePercentage) {
@@ -246,7 +245,7 @@ TotalBodyPose Move::enhancedTravoltaHeadNicker(double movePercentage) {
 	return translate (
 				Pose(Point(0,12*mBase,headHeight + 8.0*mBase),
 				Rotation (radians(10)*mSwing,-radians(8)*mSwing-radians(8)*mUpDown,radians(12)*mUpDown)),0.0,
-				openMouth);
+				 MouthPose(radians(mUpDown)*35,20+mUpDown*25,-radians(20)));
 }
 
 TotalBodyPose Move::eyedDippedDiagonalSwing(double movePercentage) {
@@ -259,7 +258,7 @@ TotalBodyPose Move::eyedDippedDiagonalSwing(double movePercentage) {
 	return translate(
 			Pose(Point(-12.0*mBase,20.0*mBase,headHeight+ 8.0*mUpDown),
 				 Rotation (-radians(8)*mRoll,-radians(4)*mBase,0)),50.0,
-			closedMouth);
+				 grumbleMouth);
 }
 
 TotalBodyPose Move::bellySwingingMove(double movePercentage) {
@@ -286,7 +285,7 @@ TotalBodyPose Move::bollywoodHeadMove(double movePercentage) {
 	return  translate (
 				Pose(Point(0,25.0*mBase,headHeight+mHeadUp*5.0 + 8.0*mDip),
 					 Rotation (radians(15)*mHeadTurn,0,0)),0.0,
-					 closedMouth);
+					 MouthPose(mBase*radians(40),20,0));
 }
 
 
@@ -299,7 +298,8 @@ TotalBodyPose Move::swingDoubleBollywoodHeadMove(double movePercentage) {
 
 	return  translate (
 				Pose(Point(0,20.0*mBase, bodyHeight + 10.0+8.0*mDip+mHeadMove*8.0),
-					 Rotation (0,radians(20)*mSwing,0)),0.0);
+					 Rotation (0,radians(20)*mSwing,0)),0.0,
+				MouthPose(mBase*radians(30),15+mDip*35,-radians(0)));
 }
 
 TotalBodyPose Move::bodyWaveMove(double movePercentage) {
@@ -313,7 +313,8 @@ TotalBodyPose Move::bodyWaveMove(double movePercentage) {
 
 	return translate (
 			Pose(Point(0,0,headHeight + 12.0*mBase+5.0),
-				 Rotation (0,-radians(8)*mWave,radians(15)*mLeftRight)),0.0);
+				 Rotation (0,-radians(8)*mWave,radians(15)*mLeftRight)),0.0,
+			MouthPose(mLeftRight*radians(30),20,-radians(0)));
 }
 
 
@@ -328,7 +329,8 @@ TotalBodyPose Move::dipBodyWaveMove(double movePercentage) {
 
 	return translate(
 			Pose(Point(0,0,headHeight+12.0*mBase),
-				 Rotation (0,-radians(12)*mWave,-radians(25)*mDip+radians(8)*mLeftRight)),0.0);
+				 Rotation (0,-radians(12)*mWave,-radians(25)*mDip+radians(8)*mLeftRight)),0.0,
+			grumbleMouth);
 }
 
 
@@ -342,7 +344,8 @@ TotalBodyPose Move::shimmys(double movePercentage) {
 
 	return translate
 			(Pose(Point(0,20.0*mBase,headHeight+15.0*mHipDip),
-				  Rotation (0,0,radians(20)*mShoulder)),0.0);
+				  Rotation (0,0,radians(20)*mShoulder)),0.0,
+		     openMouth);
 }
 
 TotalBodyPose Move::trippleShimmys(double movePercentage) {
@@ -354,7 +357,8 @@ TotalBodyPose Move::trippleShimmys(double movePercentage) {
 
 	return translate (
 			 Pose(Point(0,20.0*mBase,headHeight+15.0*mHipDip+10.0),
-			      Rotation (0,0,radians(10)*mShoulder)),0.0);
+			      Rotation (0,0,radians(10)*mShoulder)),0.0,
+			openMouth);
 }
 
 TotalBodyPose Move::leaningTrippleShimmys(double movePercentage) {
@@ -366,7 +370,8 @@ TotalBodyPose Move::leaningTrippleShimmys(double movePercentage) {
 
 	return translate (
 			 Pose(Point(15*mLean,0,headHeight+12.0*mHipDip+10.0),
-			      Rotation (0,radians(15)*mLean,radians(8)*mShoulder + radians(15)*mLean)),0.0);
+			      Rotation (0,radians(15)*mLean,radians(8)*mShoulder + radians(15)*mLean)),0.0,
+			MouthPose(0,40*mLean,-radians(0)));
 }
 
 
@@ -377,7 +382,8 @@ TotalBodyPose Move::shoulderMove(double movePercentage) {
 
 	return translate (
 			Pose(Point(0,-mShoulderMove*10.0,headHeight),
-				 Rotation (radians(8)*mShoulderY,radians(10)*mShoulderMove,0)),50.0);
+				 Rotation (radians(8)*mShoulderY,radians(10)*mShoulderMove,0)),50.0,
+				 MouthPose(0,40*mShoulderMove,-radians(0)));
 }
 
 TotalBodyPose Move::shoulderCircle(double movePercentage) {
@@ -389,7 +395,8 @@ TotalBodyPose Move::shoulderCircle(double movePercentage) {
 
 	return translate (
 			Pose(Point(-mShoulderX*8.0,mShoulderY*8.0,headHeight-mDip*10.0+6.0),
-				 Rotation (radians(8)*mShoulderY,radians(8)*mShoulderX,0)),50.0);
+				 Rotation (radians(8)*mShoulderY,radians(8)*mShoulderX,0)),50.0,
+			closedMouth);
 }
 
 TotalBodyPose Move::shoulderDipMove(double movePercentage) {
@@ -400,7 +407,8 @@ TotalBodyPose Move::shoulderDipMove(double movePercentage) {
 
 	return translate (
 			Pose(Point(0,mDip*20.0-mShoulderMove*15.0,headHeight),
-				 Rotation (radians(12)*mShoulderMove,0,0)),100.0);
+				 Rotation (radians(12)*mShoulderMove,0,0)),100.0,
+			openMouth);
 }
 
 TotalBodyPose Move::move(double movePercentage) {

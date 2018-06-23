@@ -271,7 +271,10 @@ void servoThreadFunction() {
 					int servoDelay_us = toBe_us  - duration_us;
 					if (servoDelay_us < 200)
 						servoDelay_us = 200;
-					delay_us(servoDelay_us); // necessary, otherwise the I2C line misses some calls and gets hickups  every here and then
+					if (servoDelay_us > 1000)
+						delay_ms(servoDelay_us/1000);
+					else
+						delay_us(servoDelay_us); // necessary, otherwise the I2C line misses some calls and gets hickups  every here and then
 					// cout << " " << servoDelay_us;
 				}
 				// cout << endl;

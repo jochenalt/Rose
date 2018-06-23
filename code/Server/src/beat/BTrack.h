@@ -136,7 +136,7 @@ public:
     /**
      * returns true if music has been detected. Implemented with check of kurtosis of samples against a threshold
      */
-    bool musicDetected() { return kurtosis > 3.0; };
+    bool musicDetected() { return kurtosis > 2.0; };
     double getKurtosis() { return kurtosis; };
 
 private:
